@@ -1,0 +1,18 @@
+
+
+services:
+  web:
+    ports:
+      - "8000:8000"  # Expose Django for local dev
+    environment:
+      - DJANGO_DEBUG=True
+
+  nginx:
+    image: nginx:1.25
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - static_volume:/app/staticfiles
+    ports:
+      - "8080:80"
+    depends_on:
+      - web
