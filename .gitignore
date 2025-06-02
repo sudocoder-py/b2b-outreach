@@ -63,3 +63,5 @@ nginx/
 # Ignore all files in migrations folders except __init__.py
 migrations/
 
+# pushing script
+pushingscript.txt
