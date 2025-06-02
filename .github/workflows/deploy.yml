@@ -42,8 +42,8 @@ jobs:
           pwd
           echo "Listing workspace files:"
           ls -alh
-          echo "Listing nginx/conf.d:"
-          ls -alh nginx/conf.d
+          echo "Listing nginx/conf.d/default.conf:"
+          ls -alh nginx/conf.d/default.conf
       # Upload docker-compose files and .env.production to the VPS
       - name: Copy Compose files to VPS
         uses: appleboy/scp-action@v0.1.3
