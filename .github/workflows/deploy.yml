@@ -39,4 +39,9 @@ jobs:
 
       - name: Deploy on VPS
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            cd ~/projects/products/campaigns/b2b-cold-outreach &&
+              docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
+              docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull &&
+              docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+          "
