@@ -44,7 +44,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script: |
-              cd ~/projects/products/campaigns/b2b-cold-outreach &&
-                docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
-                docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull &&
-                docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+            cd ~/projects/products/campaigns/b2b-cold-outreach &&
+              docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
+              docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull &&
+              docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
