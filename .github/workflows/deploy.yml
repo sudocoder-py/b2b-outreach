@@ -44,7 +44,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script: |
-            echo "${{ secrets.GHCR_VPS_TOKEN }}" | docker login ghcr.io -u sudocoder-py --password-stdin
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             cd ~/projects/products/campaigns/b2b-cold-outreach &&
             docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
             docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull --quiet &&
