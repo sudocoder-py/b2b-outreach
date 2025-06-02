@@ -46,7 +46,7 @@ jobs:
           source: |
             docker-compose.yml
             docker-compose.prod.yml
-            nginx/conf.d/
+            nginx/conf.d/default.conf
           target: ~/projects/products/campaigns/b2b-cold-outreach/
           overwrite: true
 
