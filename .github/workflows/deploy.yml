@@ -49,6 +49,7 @@ jobs:
             .env.production
             nginx/conf.d/
           target: ~/projects/products/campaigns/b2b-cold-outreach/
+          overwrite: true
 
       # Deploy on the VPS
       - name: Deploy to VPS

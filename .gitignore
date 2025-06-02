@@ -57,9 +57,6 @@ coverage.xml
 # Docker
 *.pid
 
-# nginx
-nginx/
-
 # Ignore all files in migrations folders except __init__.py
 migrations/
 
