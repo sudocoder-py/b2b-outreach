@@ -1,13 +1,12 @@
-
+version: '3'
 
 services:
   web:
-    build: .
+    image: registry.gitlab.com/gatara.ai/b2b-cold-outreach:latest
     command: >
       sh -c "python manage.py collectstatic --noinput &&
-            gunicorn dcrm.wsgi:application --bind 0.0.0.0:8000 --workers 4"
+             gunicorn dcrm.wsgi:application --bind 0.0.0.0:8000 --workers 4"
     volumes:
-      - .:/app
       - static_volume:/app/staticfiles
     expose:
       - 8000
@@ -15,10 +14,10 @@ services:
       - .env.production
 
   celery:
-    build: .
+    image: registry.gitlab.com/gatara.ai/b2b-cold-outreach:latest
     command: celery -A dcrm worker -l info
     volumes:
-      - .:/app
+      - static_volume:/app/staticfiles
     env_file:
       - .env.production
     depends_on:
