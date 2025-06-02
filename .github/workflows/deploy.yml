@@ -36,16 +36,31 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-push
     steps:
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.9.0
+      # Upload docker-compose files and .env.production to the VPS
+      - name: Copy Compose files to VPS
+        uses: appleboy/scp-action@v0.1.3
         with:
-          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          source: |
+            docker-compose.yml
+            docker-compose.prod.yml
+            .env.production
+            nginx/conf.d/
+          target: ~/projects/products/campaigns/b2b-cold-outreach/
 
-      - name: Deploy on VPS
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
-            cd ~/projects/products/campaigns/b2b-cold-outreach &&
-              docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
-              docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull &&
-              docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-          "
+      # Deploy on the VPS
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script: |
+            ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+              cd ~/projects/products/campaigns/b2b-cold-outreach &&
+                docker-compose -f docker-compose.yml -f docker-compose.prod.yml down &&
+                docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull &&
+                docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+            "
