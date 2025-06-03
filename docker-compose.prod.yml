@@ -7,7 +7,7 @@ services:
       sh -c "python manage.py collectstatic --noinput &&
              gunicorn dcrm.wsgi:application --bind 0.0.0.0:8000 --workers 4"
     volumes:
-      - /root/projects/products/campaigns/b2b-cold-outreach/staticfiles:/app/staticfiles
+      - static_volume:/app/staticfiles
     ports:
       - "8000:8000"
     env_file:
