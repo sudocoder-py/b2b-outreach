@@ -39,3 +39,10 @@ docker-compose up --build -d
 # run Docker Compose on production
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 
+
+## creating custom admin user for first time 
+from campaign.models import SubscribedCompany
+company = SubscribedCompany.objects.create(name="GataraAI", website="gatara.org", email="info@gatara.org", industry="Software Development", employee_count="1-10", location="Aleppo/Syria")
+from campaign.models import CustomUser, SubscribedCompany
+company = SubscribedCompany.objects.get(id=1)
+CustomUser.objects.create_superuser(    username='omar',    email='omar@gatara.org',    password='26480',    subscribed_company=company)
