@@ -37,7 +37,7 @@ docker-compose down
 docker-compose up --build -d
 
 # run Docker Compose on production
-docker-compose -f docker-compose.prod.yml up --build -d
+docker-compose -f docker-compose.prod.yml up --build  -d
 
 
 ## creating custom admin user for first time 
