@@ -37,10 +37,12 @@ INSTALLED_APPS = [
     'django_celery_results', 
     'import_export',
     'campaign',
+    'posts',
+    'clients',
 ]
 
 
-AUTH_USER_MODEL = 'campaign.CustomUser'
+AUTH_USER_MODEL = 'clients.CustomUser'
 
 
 MIDDLEWARE = [

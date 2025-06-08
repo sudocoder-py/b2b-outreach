@@ -12,9 +12,9 @@ from urllib.parse import unquote
 from campaign.email_sender import send_campaign_email
 from .models import (
     Product, Campaign, Lead, NewsletterSubscriber,
-    CampaignLead, Message, Link, MessageAssignment, CampaignStats, 
-    SubscribedCompany, Plan, Subscription, BillingHistory, CustomUser
+    CampaignLead, Message, Link, MessageAssignment, CampaignStats
 )
+ 
 import logging
 from django.conf import settings
 from import_export.admin import ImportExportModelAdmin
@@ -22,36 +22,6 @@ from .resources import LeadResource
 
 # Configure logger
 logger = logging.getLogger(__name__)
-
-
-
-
-
-
-@admin.register(SubscribedCompany)
-class SubscribedCompanyAdmin(admin.ModelAdmin):
-    list_display = ('name', 'website', 'employee_count', 'location')
-    search_fields = ('name', 'website')
-    list_filter = ('employee_count', 'location',)
-
-
-
-@admin.register(Plan)
-class PlanAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'billing_cycle')
-
-
-
-@admin.register(CustomUser)
-class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'subscribed_company')
-    search_fields = ('email', 'username', 'first_name', 'last_name')
-    list_filter = ('subscribed_company',)
-    
-
-
-admin.site.register(Subscription)
-admin.site.register(BillingHistory)
 
 
 
@@ -89,23 +59,6 @@ class CampaignFilter(SimpleListFilter):
         if self.value():
             return queryset
         return queryset
-
-# Custom admin classes
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'campaign_count', 'landing_page_link')
-    search_fields = ('name', 'description')
-    
-    def campaign_count(self, obj):
-        return obj.campaign_set.count()
-    campaign_count.short_description = 'Campaigns'
-    
-    def landing_page_link(self, obj):
-        if obj.landing_page_url:
-            return format_html('<a href="{}" target="_blank">View Landing Page</a>', obj.landing_page_url)
-        return "-"
-    landing_page_link.short_description = 'Landing Page'
-
 
 
 
