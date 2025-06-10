@@ -7,7 +7,7 @@ from django.dispatch import receiver
 from django.conf import settings
 import re
 from clients.models import SubscribedCompany, Product
-
+import markdown
 
 
 
@@ -200,16 +200,12 @@ class Message(models.Model):
         return f"{self.subject}"
     
 
-    def _replace_markdown_links(self, text):
+    def _convert_markdown_to_html(self, text):
         """
         Converts markdown links [text](url) to <a href="url">text</a>.
         """
-        pattern = r'\[([^\]]+)\]\(([^)]+)\)'
-        def repl(m):
-            link_text = m.group(1)
-            link_url = m.group(2)
-            return f'<a href="{link_url}">{link_text}</a>'
-        return re.sub(pattern, repl, text)
+        result = markdown.markdown(text)
+        return result
 
 
     def save(self, *args, **kwargs):
@@ -231,7 +227,7 @@ class Message(models.Model):
         combined_content = "\n\n".join(parts)
 
         # Apply markdown link replacements
-        combined_content = self._replace_markdown_links(combined_content)
+        combined_content = self._convert_markdown_to_html(combined_content)
 
         self.full_content = combined_content
         
