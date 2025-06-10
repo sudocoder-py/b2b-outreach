@@ -11,23 +11,25 @@ sudo docker compose build --no-cache
 sudo docker compose up -d
 
 # View logs if needed
-docker-compose logs -f web
-docker-compose logs -f celery
-docker-compose logs -f nginx
-
+docker-compose -f docker-compose.prod.yml logs -f web
+docker-compose -f docker-compose.prod.yml logs -f celery
 # However, for just Python code changes, you can often just restart the web container:
-docker-compose restart web
+docker-compose -f docker-compose.prod.yml  restart web
 
 # managemnt commands
-docker-compose exec web python manage.py makemigrations
-docker-compose exec web python manage.py migrate
-docker-compose exec web python manage.py createsuperuser
-docker-compose exec web python manage.py collectstatic
+docker-compose -f docker-compose.prod.yml exec web python manage.py makemigrations
+docker-compose -f docker-compose.prod.yml exec web python manage.py migrate
+docker-compose -f docker-compose.prod.yml exec web python manage.py createsuperuser
+docker-compose -f docker-compose.prod.yml exec web python manage.py collectstatic
 
 # enter the container shell
 docker-compose -f docker-compose.prod.yml exec web bash
+<<<<<<< HEAD
 docker-compose exec celery bash
 docker-compose exec nginx ash  # (if Alpine) or bash (if Ubuntu-based)
+=======
+docker-compose -f docker-compose.prod.yml exec celery bash
+>>>>>>> dev
 
 
 # stop containers
