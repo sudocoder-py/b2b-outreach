@@ -24,12 +24,9 @@ docker-compose -f docker-compose.prod.yml exec web python manage.py collectstati
 
 # enter the container shell
 docker-compose -f docker-compose.prod.yml exec web bash
-<<<<<<< HEAD
 docker-compose exec celery bash
 docker-compose exec nginx ash  # (if Alpine) or bash (if Ubuntu-based)
-=======
 docker-compose -f docker-compose.prod.yml exec celery bash
->>>>>>> dev
 
 
 # stop containers
