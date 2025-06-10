@@ -85,7 +85,6 @@ def format_email_as_html(content):
         str: HTML formatted content
     """
     # Replace newlines with HTML line breaks
-    html_content = content.replace('\n', '<br>')
     
     # Wrap in HTML structure
     html_content = f"""
@@ -121,7 +120,7 @@ def format_email_as_html(content):
         </style>
     </head>
     <body>
-        <div>{html_content}</div>
+        <div>{content}</div>
     </body>
     </html>
     """
