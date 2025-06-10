@@ -198,6 +198,19 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.subject}"
+    
+
+    def _replace_markdown_links(self, text):
+        """
+        Converts markdown links [text](url) to <a href="url">text</a>.
+        """
+        pattern = r'\[([^\]]+)\]\(([^)]+)\)'
+        def repl(m):
+            link_text = m.group(1)
+            link_url = m.group(2)
+            return f'<a href="{link_url}">{link_text}</a>'
+        return re.sub(pattern, repl, text)
+
 
     def save(self, *args, **kwargs):
         # Combine all message components into full_content
@@ -215,7 +228,12 @@ class Message(models.Model):
         if self.end:
             parts.append(f"{self.end}")      
             
-        self.full_content = "\n\n".join(parts)
+        combined_content = "\n\n".join(parts)
+
+        # Apply markdown link replacements
+        combined_content = self._replace_markdown_links(combined_content)
+
+        self.full_content = combined_content
         
         super().save(*args, **kwargs)        
 
