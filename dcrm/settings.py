@@ -88,10 +88,20 @@ if DEBUG:
         }
     }
 else:
-    import dj_database_url
     DATABASES = {
-        'default': dj_database_url.parse(env('DATABASE_URL'))
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': env('DB_NAME'),
+            'USER': env('DB_USER'),
+            'PASSWORD': env('DB_PASSWORD'),
+            'HOST': env('DB_HOST'),
+            'PORT': env('DB_PORT'),
+            'OPTIONS': {
+                'connect_timeout': 10,
+            }
+        }
     }
+
 
 
 
