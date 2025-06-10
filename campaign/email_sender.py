@@ -103,6 +103,7 @@ def format_email_as_html(content):
             }}
             p {{
                 margin-bottom: 16px;
+                font-size: 16px;
             }}
             a {{
                 color: #0066cc;
