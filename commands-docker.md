@@ -25,7 +25,7 @@ docker-compose exec web python manage.py createsuperuser
 docker-compose exec web python manage.py collectstatic
 
 # enter the container shell
-docker-compose exec web bash
+docker-compose -f docker-compose.prod.yml exec web bash
 docker-compose exec celery bash
 docker-compose exec nginx ash  # (if Alpine) or bash (if Ubuntu-based)
 
