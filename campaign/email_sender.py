@@ -124,6 +124,7 @@ def format_email_as_html(content):
             }}
             li {{
                 margin-bottom: 8px;
+                font-size: 16px;
             }}
         </style>
     </head>
