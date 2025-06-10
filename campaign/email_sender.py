@@ -117,6 +117,13 @@ def format_email_as_html(content):
                 padding-top: 10px;
                 color: #666666;
             }}
+            ul {{
+                padding-left: 20px;
+                margin-bottom: 16px;
+            }}
+            li {{
+                margin-bottom: 8px;
+            }}
         </style>
     </head>
     <body>
