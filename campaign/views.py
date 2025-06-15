@@ -44,10 +44,14 @@ def redirect_and_track(request, ref_code):
 
 
 
-def dashboard(request):
+def dashboard_non_functional(request):
     """
     Render the overall dashboard page
     """
     return render(request, 'overall-dashboard.html')
 
 
+
+def beta_dashboard(request):
+
+    return render(request, "beta/dashboard.html")
