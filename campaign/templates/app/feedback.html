@@ -1,0 +1,83 @@
+{% extends "base-app.html" %}
+
+{% block title %}Feedback{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Feedback & Feature Requests</h1>
+        <p class="text-gray-600">Help us improve by sharing your feedback and feature requests</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex items-center justify-center">
+        <div class="text-center max-w-md">
+            <!-- Icon -->
+            <div class="mb-6">
+                <div class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-pink-100 text-pink-600">
+                    <i class="fa-solid fa-comment-dots text-3xl"></i>
+                </div>
+            </div>
+            
+            <!-- Title -->
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">Submit Feedback</h2>
+            
+            <!-- Description -->
+            <p class="text-gray-600 mb-8 leading-relaxed">
+                We value your input! Share your thoughts, report bugs, request new features, 
+                or suggest improvements to help us make the platform better for everyone.
+            </p>
+            
+            <!-- Features List -->
+            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 mb-8">
+                <h3 class="font-semibold text-gray-900 mb-4">What you can submit:</h3>
+                <ul class="text-left space-y-2 text-gray-600">
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb text-yellow-500 text-sm"></i>
+                        Feature requests & ideas
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-bug text-red-500 text-sm"></i>
+                        Bug reports & issues
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-heart text-pink-500 text-sm"></i>
+                        General feedback & suggestions
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-star text-blue-500 text-sm"></i>
+                        User experience improvements
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-rocket text-purple-500 text-sm"></i>
+                        Performance & optimization ideas
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+                <button class="btn btn-primary w-full" onclick="showComingSoon()">
+                    <i class="fa-solid fa-paper-plane mr-2"></i>
+                    Submit Feedback
+                </button>
+                <button class="btn btn-outline w-full" onclick="showComingSoon()">
+                    <i class="fa-solid fa-lightbulb mr-2"></i>
+                    Request Feature
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showComingSoon() {
+    if (window.ModalSystem) {
+        window.ModalSystem.toast('Feedback system coming soon!', 'info');
+    } else {
+        alert('Feedback system coming soon!');
+    }
+}
+</script>
+{% endblock %}

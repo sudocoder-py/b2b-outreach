@@ -303,4 +303,37 @@ def campaign_options(request, pk):
     return render(request, "app/campaign/options.html", context)
 
 
+# New navigation views
+def products_view(request):
+    """Products management page"""
+    return render(request, "app/products.html")
 
+
+def email_accounts_view(request):
+    """Email accounts management page"""
+    return render(request, "app/email-accounts.html")
+
+
+def messages_view(request):
+    """Messages management page"""
+    return render(request, "app/messages.html")
+
+
+def links_view(request):
+    """Links management page"""
+    return render(request, "app/links.html")
+
+
+def overall_dashboard_view(request):
+    """Overall dashboard page"""
+    return render(request, "app/overall-dashboard.html")
+
+
+def feedback_view(request):
+    """Feedback and feature requests page"""
+    return render(request, "app/feedback.html")
+
+
+def account_settings_view(request):
+    """Account settings page"""
+    return render(request, "app/account-settings.html")

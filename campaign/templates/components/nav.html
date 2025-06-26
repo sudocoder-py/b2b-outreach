@@ -1,76 +1,117 @@
 <!-- Sidebar -->
-    <aside class="flex h-full w-20 flex-col items-center justify-between border-r border-base-200 bg-base-100 py-5">
-      <!-- Top Section -->
-      <div class="flex flex-col items-center gap-y-5">
-        <!-- Logo -->
-        <div class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
-          <i class="fa-solid fa-bolt fa-lg"></i>
-        </div>
+<aside class="flex h-full w-20 flex-col items-center justify-between border-r border-base-200 bg-base-100 py-5">
+  <!-- Top Section -->
+  <div class="flex flex-col items-center gap-y-5">
+    <!-- Logo -->
+    <div class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
+      <i class="fa-solid fa-bolt fa-lg"></i>
+    </div>
 
-        <!-- Navigation Icons -->
-        <nav>
-          <ul class="flex flex-col items-center gap-y-2">
-            <li>
-              <a href="#" class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-                <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200">
-                <i class="fa-solid fa-magnifying-glass text-xl"></i>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200">
-                <i class="fa-solid fa-envelope text-xl"></i>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200">
-                <i class="fa-solid fa-paper-plane text-xl"></i>
-              </a>
-            </li>
-             <li>
-              <a href="#" class="flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200">
-                <i class="fa-solid fa-credit-card text-xl"></i>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200">
-                <i class="fa-solid fa-chart-line text-xl"></i>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200">
-                <i class="fa-solid fa-bolt text-xl"></i>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200">
-                <i class="fa-solid fa-shuttle-space -rotate-45 text-xl"></i>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200">
-                <i class="fa-regular fa-clone text-xl"></i>
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
-
-      <!-- Bottom Section -->
-      <div class="flex flex-col items-center gap-y-3">
-         <a href="#" class="flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200">
-            <i class="fa-solid fa-comment-dots text-xl"></i>
-        </a>
-         <a href="#" class="flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200">
-            <i class="fa-solid fa-user-astronaut text-xl"></i>
-        </a>
-        <div class="avatar placeholder">
-          <div class="w-10 rounded-full bg-neutral text-neutral-content">
-            <span class="text-lg">F</span>
+    <!-- Navigation Icons -->
+    <nav>
+      <ul class="flex flex-col items-center gap-y-2">
+        <!-- Products -->
+        <li>
+          <div class="tooltip tooltip-right" data-tip="Products">
+            <a href="{% url 'products' %}" class="nav-link flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200 hover:text-blue-600 transition-all duration-200">
+              <i class="fa-solid fa-box text-xl"></i>
+            </a>
           </div>
+        </li>
+
+        <!-- Email Accounts -->
+        <li>
+          <div class="tooltip tooltip-right" data-tip="Email Accounts">
+            <a href="{% url 'email_accounts' %}" class="nav-link flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200 hover:text-blue-600 transition-all duration-200">
+              <i class="fa-solid fa-at text-xl"></i>
+            </a>
+          </div>
+        </li>
+
+        <!-- Leads -->
+        <li>
+          <div class="tooltip tooltip-right" data-tip="Leads">
+            <a href="{% url 'leads_view' %}" class="nav-link flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200 hover:text-blue-600 transition-all duration-200">
+              <i class="fa-solid fa-users text-xl"></i>
+            </a>
+          </div>
+        </li>
+
+        <!-- Messages -->
+        <li>
+          <div class="tooltip tooltip-right" data-tip="Messages">
+            <a href="{% url 'messages' %}" class="nav-link flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200 hover:text-blue-600 transition-all duration-200">
+              <i class="fa-solid fa-envelope text-xl"></i>
+            </a>
+          </div>
+        </li>
+
+        <!-- Campaigns -->
+        <li>
+          <div class="tooltip tooltip-right" data-tip="Campaigns">
+            <a href="{% url 'campaign_view_list' %}" class="nav-link flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 text-blue-600 transition-all duration-200">
+              <i class="fa-solid fa-paper-plane text-xl"></i>
+            </a>
+          </div>
+        </li>
+
+        <!-- Links -->
+        <li>
+          <div class="tooltip tooltip-right" data-tip="Links">
+            <a href="{% url 'links' %}" class="nav-link flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200 hover:text-blue-600 transition-all duration-200">
+              <i class="fa-solid fa-link text-xl"></i>
+            </a>
+          </div>
+        </li>
+
+        <!-- Overall Dashboard -->
+        <li>
+          <div class="tooltip tooltip-right" data-tip="Overall Dashboard">
+            <a href="{% url 'overall_dashboard' %}" class="nav-link flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200 hover:text-blue-600 transition-all duration-200">
+              <i class="fa-solid fa-chart-line text-xl"></i>
+            </a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- Bottom Section -->
+  <div class="flex flex-col items-center gap-y-3">
+    <!-- Feedback -->
+    <div class="tooltip tooltip-right" data-tip="Submit Feedback">
+      <a href="{% url 'feedback' %}" class="flex h-12 w-12 items-center justify-center rounded-lg text-gray-500 hover:bg-base-200 hover:text-blue-600 transition-all duration-200">
+        <i class="fa-solid fa-comment-dots text-xl"></i>
+      </a>
+    </div>
+
+    <!-- User Account -->
+    <div class="tooltip tooltip-right" data-tip="Account Settings">
+      <a href="{% url 'account_settings' %}" class="avatar placeholder">
+        <div class="w-10 rounded-full bg-neutral text-neutral-content hover:bg-blue-600 transition-all duration-200 cursor-pointer">
+          <span class="text-lg">F</span>
         </div>
-      </div>
-    </aside>
+      </a>
+    </div>
+  </div>
+</aside>
+
+<style>
+/* Enhanced navigation styles */
+.nav-link {
+  position: relative;
+}
+
+.nav-link:hover {
+  transform: scale(1.05);
+}
+
+.nav-link.active {
+  background-color: rgb(219 234 254);
+  color: rgb(37 99 235);
+}
+
+.tooltip {
+  z-index: 1000;
+}
+</style>

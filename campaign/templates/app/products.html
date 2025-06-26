@@ -1,0 +1,77 @@
+{% extends "base-app.html" %}
+
+{% block title %}Products{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Products</h1>
+        <p class="text-gray-600">Manage your products and services for campaign targeting</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex items-center justify-center">
+        <div class="text-center max-w-md">
+            <!-- Icon -->
+            <div class="mb-6">
+                <div class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                    <i class="fa-solid fa-box text-3xl"></i>
+                </div>
+            </div>
+            
+            <!-- Title -->
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">Products Management</h2>
+            
+            <!-- Description -->
+            <p class="text-gray-600 mb-8 leading-relaxed">
+                This page will allow you to manage your products and services. You'll be able to create product catalogs, 
+                set pricing, manage inventory, and organize products for targeted campaigns.
+            </p>
+            
+            <!-- Features List -->
+            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 mb-8">
+                <h3 class="font-semibold text-gray-900 mb-4">Coming Features:</h3>
+                <ul class="text-left space-y-2 text-gray-600">
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
+                        Product catalog management
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
+                        Pricing and inventory tracking
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
+                        Product categorization
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
+                        Campaign product targeting
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
+                        Sales analytics per product
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Action Button -->
+            <button class="btn btn-primary" onclick="showComingSoon()">
+                <i class="fa-solid fa-plus mr-2"></i>
+                Add Product
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function showComingSoon() {
+    if (window.ModalSystem) {
+        window.ModalSystem.toast('Products management coming soon!', 'info');
+    } else {
+        alert('Products management coming soon!');
+    }
+}
+</script>
+{% endblock %}

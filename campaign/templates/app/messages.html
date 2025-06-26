@@ -1,0 +1,77 @@
+{% extends "base-app.html" %}
+
+{% block title %}Messages{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Messages</h1>
+        <p class="text-gray-600">Create and manage email templates and message sequences</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex items-center justify-center">
+        <div class="text-center max-w-md">
+            <!-- Icon -->
+            <div class="mb-6">
+                <div class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-purple-100 text-purple-600">
+                    <i class="fa-solid fa-envelope text-3xl"></i>
+                </div>
+            </div>
+            
+            <!-- Title -->
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">Messages Management</h2>
+            
+            <!-- Description -->
+            <p class="text-gray-600 mb-8 leading-relaxed">
+                Create, edit, and organize your email templates and message sequences. Build reusable 
+                templates with personalization and track performance across all your campaigns.
+            </p>
+            
+            <!-- Features List -->
+            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 mb-8">
+                <h3 class="font-semibold text-gray-900 mb-4">Coming Features:</h3>
+                <ul class="text-left space-y-2 text-gray-600">
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
+                        Email template library
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
+                        Drag & drop email builder
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
+                        Personalization variables
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
+                        A/B testing templates
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
+                        Template performance analytics
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Action Button -->
+            <button class="btn btn-primary" onclick="showComingSoon()">
+                <i class="fa-solid fa-plus mr-2"></i>
+                Create Template
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function showComingSoon() {
+    if (window.ModalSystem) {
+        window.ModalSystem.toast('Messages management coming soon!', 'info');
+    } else {
+        alert('Messages management coming soon!');
+    }
+}
+</script>
+{% endblock %}

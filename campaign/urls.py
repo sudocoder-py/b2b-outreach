@@ -14,6 +14,13 @@ urlpatterns = [
     path('campaign-scheduele/<int:pk>', views.campaign_scheduele, name='campaign_scheduele'),
     path('campaign-options/<int:pk>', views.campaign_options, name='campaign_options'),
 
-
+    # New navigation pages
+    path('products/', views.products_view, name='products'),
+    path('email-accounts/', views.email_accounts_view, name='email_accounts'),
+    path('messages/', views.messages_view, name='messages'),
+    path('links/', views.links_view, name='links'),
+    path('overall-dashboard/', views.overall_dashboard_view, name='overall_dashboard'),
+    path('feedback/', views.feedback_view, name='feedback'),
+    path('account-settings/', views.account_settings_view, name='account_settings'),
 ]
 

@@ -1,0 +1,83 @@
+{% extends "base-app.html" %}
+
+{% block title %}Account Settings{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Account Settings</h1>
+        <p class="text-gray-600">Manage your account preferences, security, and billing settings</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex items-center justify-center">
+        <div class="text-center max-w-md">
+            <!-- Icon -->
+            <div class="mb-6">
+                <div class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-gray-600">
+                    <i class="fa-solid fa-user-gear text-3xl"></i>
+                </div>
+            </div>
+            
+            <!-- Title -->
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">Account Settings</h2>
+            
+            <!-- Description -->
+            <p class="text-gray-600 mb-8 leading-relaxed">
+                Customize your account settings, manage your profile, update security preferences, 
+                and configure billing information for your subscription.
+            </p>
+            
+            <!-- Features List -->
+            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 mb-8">
+                <h3 class="font-semibold text-gray-900 mb-4">Settings Categories:</h3>
+                <ul class="text-left space-y-2 text-gray-600">
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-user text-blue-500 text-sm"></i>
+                        Profile & personal information
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-green-500 text-sm"></i>
+                        Security & authentication
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-bell text-yellow-500 text-sm"></i>
+                        Notifications & preferences
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-credit-card text-purple-500 text-sm"></i>
+                        Billing & subscription
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fa-solid fa-palette text-pink-500 text-sm"></i>
+                        Theme & appearance
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+                <button class="btn btn-primary w-full" onclick="showComingSoon()">
+                    <i class="fa-solid fa-gear mr-2"></i>
+                    Manage Settings
+                </button>
+                <button class="btn btn-outline w-full" onclick="showComingSoon()">
+                    <i class="fa-solid fa-key mr-2"></i>
+                    Security Settings
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showComingSoon() {
+    if (window.ModalSystem) {
+        window.ModalSystem.toast('Account settings coming soon!', 'info');
+    } else {
+        alert('Account settings coming soon!');
+    }
+}
+</script>
+{% endblock %}
