@@ -81,3 +81,11 @@
     .steps-list::-webkit-scrollbar-thumb:hover {
         background: #9ca3af; /* bg-gray-400 */
     }
+
+
+.gradient-logo {
+  background: linear-gradient(90deg,rgba(82, 32, 3, 1) 0%, rgba(153, 109, 8, 1) 35%, rgba(255, 64, 0, 1) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

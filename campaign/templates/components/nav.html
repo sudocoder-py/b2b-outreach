@@ -3,31 +3,75 @@
   <!-- Top Section -->
   <div class="flex flex-col items-center gap-y-5">
     <!-- Logo -->
-    <div class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
-      <i class="fa-solid fa-bolt fa-lg"></i>
-      <!-- <svg width="345" height="120" viewBox="0 0 345 120" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="vibeGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-            <stop offset="0%" stop-color="rgba(82, 32, 3, 1)" />
-            <stop offset="35%" stop-color="rgba(153, 109, 8, 1)" />
-            <stop offset="100%" stop-color="rgba(255, 64, 0, 1)" />
-          </linearGradient>
+    <div class="inline-flex h-12 w-12 items-center justify-center rounded-lg ">
+    <svg width="280" height="120" viewBox="126.714 -18.634 153.286 138.634" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <path id="vibeShape" fill-rule="evenodd" d="
+          /* V: Inverted triangle with a hollow center */
+          M5,10 L75,10 L40,75 Z 
+          M20,22 L60,22 L40,52 Z 
 
-          <g id="vibeShape">
-            <path fill-rule="evenodd" d="
-              M5,10 L75,10 L40,75 Z M20,22 L60,22 L40,52 Z /* V */
-              M85,10 L108,10 L108,110 L85,110 Z /* I */
-              M120,10 v100 h22 c35,0 35,-22.5 0,-45 h-5 c35,0 35,-22.5 0,-45 h-17z m20,10 h5 c15,0 15,15 0,25 h-5z m0,40 h10 c15,0 15,15 0,25 h-10z /* B */
-              M210,10 h70 v22 h-70z M210,49 h70 v22 h-70z M210,88 h70 v22 h-70z /* E */
-            "/>
-          </g>
-        </defs>
+          /* I: Simple vertical bar */
+          M85,10 H108 V110 H85 Z
 
-        <use href="#vibeShape" fill="rgba(82, 32, 3, 1)" transform="translate(-2, 0)"/>
-        
-        <use href="#vibeShape" fill="rgba(255, 64, 0, 1)" transform="translate(2, 0)"/>
-        <use href="#vibeShape" fill="url(#vibeGradient)"/>
-      </svg> -->
+          /* B: Stylized, composed of a stem and two separate bowls */
+          M120,10 H140 V110 H120 Z 
+          M140,10 C180,10 180,55 140,55 Z 
+          M140,60 C180,60 180,110 140,110 Z
+
+          /* E: Three horizontal bars with rounded right corners */
+          M200,10 H260 C271,10 271,32 260,32 H200 Z 
+          M200,49 H260 C271,49 271,71 260,71 H200 Z 
+          M200,88 H260 C271,88 271,110 260,110 H200 Z
+        "></path>
+        <g id="vibeOriginalShape">
+          <path fill-rule="evenodd" d="M49.5 99L0 0H99L49.5 99ZM49.5 68.2L72.6 22H26.4L49.5 68.2Z"></path>
+          <path d="M108.9 0H140.8V99H108.9V0Z"></path>
+          <path d="M150.7 0H210.1C243.1 0 243.1 40.7 210.1 40.7H182.6V58.3H219.45C252.45 58.3 252.45 99 219.45 99H150.7V0Z"></path>
+          <path d="M264 0H354V25.3H264V0ZM264 36.8H354V62.1H264V36.8ZM264 73.7H354V99H264V73.7Z"></path>
+        </g>
+        <path id="bShape" fill-rule="evenodd" d="M0,0 V212 C50,220 125,180 118,136 C111,92 90,106 74,106 C111,106 114,80 108,54 C102,28 67,0 0,0 Z M16,22 L16,86 C50,91 78,80 78,54 C78,28 50,17 16,22 Z M16,127 L16,189 C56,194 88,181 88,158 C88,135 56,122 16,127 Z"></path>
+        <g id="group-1">
+          <path fill-rule="evenodd" d="
+                  M5,10 L75,10 L40,75 Z M20,22 L60,22 L40,52 Z /* V */
+                  M85,10 L108,10 L108,110 L85,110 Z /* I */
+                  M120,10 v100 h22 c35,0 35,-22.5 0,-45 h-5 c35,0 35,-22.5 0,-45 h-17z m20,10 h5 c15,0 15,15 0,25 h-5z m0,40 h10 c15,0 15,15 0,25 h-10z /* B */
+                  M210,10 h70 v22 h-70z M210,49 h70 v22 h-70z M210,88 h70 v22 h-70z /* E */
+                "></path>
+        </g>
+        <g id="group-2">
+          <path fill-rule="evenodd" d="M49.5 99L0 0H99L49.5 99ZM49.5 68.2L72.6 22H26.4L49.5 68.2Z"></path>
+          <path d="M108.9 0H140.8V99H108.9V0Z"></path>
+          <path d="M150.7 0H210.1C243.1 0 243.1 40.7 210.1 40.7H182.6V58.3H219.45C252.45 58.3 252.45 99 219.45 99H150.7V0Z"></path>
+          <path d="M264 0H354V25.3H264V0ZM264 36.8H354V62.1H264V36.8ZM264 73.7H354V99H264V73.7Z"></path>
+        </g>
+        <path id="path-1" fill-rule="evenodd" d="M0,0 V212 C50,220 125,180 118,136 C111,92 90,106 74,106 C111,106 114,80 108,54 C102,28 67,0 0,0 Z M16,22 L16,86 C50,91 78,80 78,54 C78,28 50,17 16,22 Z M16,127 L16,189 C56,194 88,181 88,158 C88,135 56,122 16,127 Z"></path>
+        <g id="group-3">
+          <path fill-rule="evenodd" d="
+                  M5,10 L75,10 L40,75 Z M20,22 L60,22 L40,52 Z /* V */
+                  M85,10 L108,10 L108,110 L85,110 Z /* I */
+                  M120,10 v100 h22 c35,0 35,-22.5 0,-45 h-5 c35,0 35,-22.5 0,-45 h-17z m20,10 h5 c15,0 15,15 0,25 h-5z m0,40 h10 c15,0 15,15 0,25 h-10z /* B */
+                  M210,10 h70 v22 h-70z M210,49 h70 v22 h-70z M210,88 h70 v22 h-70z /* E */
+                "></path>
+        </g>
+        <linearGradient id="vibeGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0" stop-color="rgba(82, 32, 3, 1)"></stop>
+          <stop offset="0.35" stop-color="rgba(153, 109, 8, 1)"></stop>
+          <stop offset="1" stop-color="rgba(255, 64, 0, 1)"></stop>
+        </linearGradient>
+      </defs>
+      <g transform="matrix(2.025581, 0, 0, 2.025581, -80.065315, -60.809776)" >
+        <g transform="matrix(1, 0, 0, 1, 97.514618, 12.476502)" fill="rgba(82, 32, 3, 1)">
+          <path fill-rule="evenodd" d=" M5,10 L75,10 L40,75 Z M20,22 L60,22 L40,52 Z /* V */ M85,10 L108,10 L108,110 L85,110 Z /* I */ M120,10 v100 h22 c35,0 35,-22.5 0,-45 h-5 c35,0 35,-22.5 0,-45 h-17z m20,10 h5 c15,0 15,15 0,25 h-5z m0,40 h10 c15,0 15,15 0,25 h-10z /* B */ M210,10 h70 v22 h-70z M210,49 h70 v22 h-70z M210,88 h70 v22 h-70z /* E */ "></path>
+        </g>
+        <g transform="matrix(1, 0, 0, 1, 101.514618, 12.476502)" fill="rgba(255, 64, 0, 1)">
+          <path fill-rule="evenodd" d=" M5,10 L75,10 L40,75 Z M20,22 L60,22 L40,52 Z /* V */ M85,10 L108,10 L108,110 L85,110 Z /* I */ M120,10 v100 h22 c35,0 35,-22.5 0,-45 h-5 c35,0 35,-22.5 0,-45 h-17z m20,10 h5 c15,0 15,15 0,25 h-5z m0,40 h10 c15,0 15,15 0,25 h-10z /* B */ M210,10 h70 v22 h-70z M210,49 h70 v22 h-70z M210,88 h70 v22 h-70z /* E */ "></path>
+        </g>
+        <g fill="url(#vibeGradient)" transform="matrix(1, 0, 0, 1, 99.514618, 12.476502)">
+          <path fill-rule="evenodd" d=" M5,10 L75,10 L40,75 Z M20,22 L60,22 L40,52 Z /* V */ M85,10 L108,10 L108,110 L85,110 Z /* I */ M120,10 v100 h22 c35,0 35,-22.5 0,-45 h-5 c35,0 35,-22.5 0,-45 h-17z m20,10 h5 c15,0 15,15 0,25 h-5z m0,40 h10 c15,0 15,15 0,25 h-10z /* B */ M210,10 h70 v22 h-70z M210,49 h70 v22 h-70z M210,88 h70 v22 h-70z /* E */ "></path>
+        </g>
+      </g>
+    </svg>
     </div>
 
     <!-- Navigation Icons -->
