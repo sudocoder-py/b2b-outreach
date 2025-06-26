@@ -60,55 +60,289 @@ def dashboard(request):
 
 
 def leads_view(request):
-    # Simulate overall leads data
+    # Simulate leads data with the exact structure you provided
     simulated_leads = [
         {
             'id': 1,
-            'name': 'John Smith',
-            'email': 'john@example.com',
-            'company': 'Acme Inc',
-            'status': 'Active',
-            'added_date': 'Oct 15, 2023',
+            'subscribed_company': 'fdudgames',
+            'full_name': 'fdud ramo',
+            'first_name': 'fdud',
+            'last_name': 'ramo',
+            'position': 'ceo',
+            'email': 'fdudramo@gmail.com',
+            'phone_number': None,
+            'linkedin_profile': None,
+            'company_name': 'fdudgames',
+            'company_website': None,
+            'industry': 'Gaming',
+            'employee_count': 'N/A',
+            'company_linkedin_page': None,
+            'location': 'N/A',
+            'source': 'LinkedIn',
+            'lead_type': 'Cold',
+            'lead_type_class': 'badge-ghost',
+            'lead_type_icon': 'fa-solid fa-snowflake',
+            'source_class': 'badge-info',
+            'source_icon': 'fa-brands fa-linkedin',
+            'created_at': 'Jun 04, 2025',
         },
         {
             'id': 2,
-            'name': 'Sarah Johnson',
-            'email': 'sarah@techcorp.com',
-            'company': 'TechCorp',
-            'status': 'Contacted',
-            'added_date': 'Oct 14, 2023',
+            'subscribed_company': 'Elkood',
+            'full_name': 'Yamen Alabsi',
+            'first_name': 'Yamen',
+            'last_name': 'Alabsi',
+            'position': 'CEO & Co-founder‎‏ at Elkood',
+            'email': 'yamenabsi@gmail.com',
+            'phone_number': None,
+            'linkedin_profile': 'https://www.linkedin.com/in/yamen-alabsi-669816164',
+            'company_name': 'Elkood',
+            'company_website': 'https://elkood.com/',
+            'industry': 'IT Services',
+            'employee_count': '11-50',
+            'company_linkedin_page': None,
+            'location': 'Riyadh, Saudi Arabia',
+            'source': 'LinkedIn',
+            'lead_type': 'Cold',
+            'lead_type_class': 'badge-ghost',
+            'lead_type_icon': 'fa-solid fa-snowflake',
+            'source_class': 'badge-info',
+            'source_icon': 'fa-brands fa-linkedin',
+            'created_at': 'Jun 04, 2025',
         },
         {
             'id': 3,
-            'name': 'Mike Davis',
-            'email': 'mike@startup.io',
-            'company': 'StartupIO',
-            'status': 'Replied',
-            'added_date': 'Oct 13, 2023',
+            'subscribed_company': 'Prootech Agency',
+            'full_name': 'Salem AL-najjar',
+            'first_name': 'Salem',
+            'last_name': 'AL-najjar',
+            'position': 'Ceo - founder at Prootech Agency',
+            'email': 'mhmadnajjer2004@gmail.com',
+            'phone_number': None,
+            'linkedin_profile': 'https://www.linkedin.com/in/mohamad-salem-alnajjar-9a4069219',
+            'company_name': 'Prootech Agency',
+            'company_website': None,
+            'industry': 'IT Services',
+            'employee_count': '2-10',
+            'company_linkedin_page': None,
+            'location': 'Dubai, UAE',
+            'source': 'LinkedIn',
+            'lead_type': 'Cold',
+            'lead_type_class': 'badge-ghost',
+            'lead_type_icon': 'fa-solid fa-snowflake',
+            'source_class': 'badge-info',
+            'source_icon': 'fa-brands fa-linkedin',
+            'created_at': 'Jun 04, 2025',
         },
         {
             'id': 4,
-            'name': 'Lisa Brown',
-            'email': 'lisa@enterprise.com',
-            'company': 'Enterprise Corp',
-            'status': 'Converted',
-            'added_date': 'Oct 12, 2023',
+            'subscribed_company': 'Pancode',
+            'full_name': 'Ghassan Rizk',
+            'first_name': 'Ghassan',
+            'last_name': 'Rizk',
+            'position': 'Chief Executive Officer at Pancode',
+            'email': 'ghassanrizk@pan-code.com',
+            'phone_number': None,
+            'linkedin_profile': 'https://www.linkedin.com/in/ghassan-rizk-7a2266190',
+            'company_name': 'Pancode',
+            'company_website': 'http://www.pan-code.com',
+            'industry': 'IT Services',
+            'employee_count': '11-50',
+            'company_linkedin_page': None,
+            'location': 'Damascus, Syria',
+            'source': 'LinkedIn',
+            'lead_type': 'Cold',
+            'lead_type_class': 'badge-ghost',
+            'lead_type_icon': 'fa-solid fa-snowflake',
+            'source_class': 'badge-info',
+            'source_icon': 'fa-brands fa-linkedin',
+            'created_at': 'Jun 04, 2025',
         },
         {
             'id': 5,
-            'name': 'Alex Garcia',
-            'email': 'alex@digital.net',
-            'company': 'Digital Networks',
-            'status': 'Bounced',
-            'added_date': 'Oct 11, 2023',
+            'subscribed_company': 'Florinz',
+            'full_name': 'Gheias A.',
+            'first_name': 'Gheias',
+            'last_name': 'A.',
+            'position': 'Co-founder - CEO at Florinz',
+            'email': 'gy.alamin@hotmail.com',
+            'phone_number': None,
+            'linkedin_profile': 'https://www.linkedin.com/in/gheias-a-5392b498',
+            'company_name': 'Florinz',
+            'company_website': 'http://florinz.com',
+            'industry': 'IT Services',
+            'employee_count': '11-50',
+            'company_linkedin_page': None,
+            'location': 'Riyadh, Saudi Arabia',
+            'source': 'LinkedIn',
+            'lead_type': 'Cold',
+            'lead_type_class': 'badge-ghost',
+            'lead_type_icon': 'fa-solid fa-snowflake',
+            'source_class': 'badge-info',
+            'source_icon': 'fa-brands fa-linkedin',
+            'created_at': 'Jun 04, 2025',
+        },
+        {
+            'id': 6,
+            'subscribed_company': 'CodeGuru.ae',
+            'full_name': 'Ashraf Altawashi',
+            'first_name': 'Ashraf',
+            'last_name': 'Altawashi',
+            'position': 'Chief Executive Officer at CodeGuru.ae',
+            'email': 'ashraf.altawashi@codeguru.ae',
+            'phone_number': None,
+            'linkedin_profile': 'https://www.linkedin.com/in/ashrafaltawashi',
+            'company_name': 'CodeGuru.ae',
+            'company_website': 'https://codeguru.ae',
+            'industry': 'IT Services',
+            'employee_count': '2-10',
+            'company_linkedin_page': None,
+            'location': 'Dubai, UAE',
+            'source': 'LinkedIn',
+            'lead_type': 'Cold',
+            'lead_type_class': 'badge-ghost',
+            'lead_type_icon': 'fa-solid fa-snowflake',
+            'source_class': 'badge-info',
+            'source_icon': 'fa-brands fa-linkedin',
+            'created_at': 'Jun 04, 2025',
+        },
+        {
+            'id': 7,
+            'subscribed_company': 'Zeolans Technologies',
+            'full_name': 'Shameer Mohammed',
+            'first_name': 'Shameer',
+            'last_name': 'Mohammed',
+            'position': 'Chief Executive Officer at Zeolans Technologies',
+            'email': 'shameerkummalil@gmail.com',
+            'phone_number': None,
+            'linkedin_profile': 'https://www.linkedin.com/in/shameer-mohammed-33051b59',
+            'company_name': 'Zeolans Technologies',
+            'company_website': 'https://www.zeolans.ae',
+            'industry': 'IT Services',
+            'employee_count': '11-50',
+            'company_linkedin_page': None,
+            'location': 'Dubai, UAE',
+            'source': 'LinkedIn',
+            'lead_type': 'Cold',
+            'lead_type_class': 'badge-ghost',
+            'lead_type_icon': 'fa-solid fa-snowflake',
+            'source_class': 'badge-info',
+            'source_icon': 'fa-brands fa-linkedin',
+            'created_at': 'Jun 04, 2025',
+        },
+        {
+            'id': 8,
+            'subscribed_company': 'Raizer',
+            'full_name': 'Razek Daoud',
+            'first_name': 'Razek',
+            'last_name': 'Daoud',
+            'position': 'CEO',
+            'email': 'razek.daoud@raizer.tech',
+            'phone_number': None,
+            'linkedin_profile': 'https://www.linkedin',
+            'company_name': 'Raizer',
+            'company_website': 'http://raizer.tech',
+            'industry': 'Software Development',
+            'employee_count': '11-50',
+            'company_linkedin_page': None,
+            'location': 'N/A',
+            'source': 'LinkedIn',
+            'lead_type': 'Warm',
+            'lead_type_class': 'badge-warning',
+            'lead_type_icon': 'fa-solid fa-fire',
+            'source_class': 'badge-info',
+            'source_icon': 'fa-brands fa-linkedin',
+            'created_at': 'Jun 03, 2025',
         },
     ]
 
+    # Calculate stats from the simulated data
+    stats = {
+        'total_leads': len(simulated_leads),
+        'cold': len([l for l in simulated_leads if l['lead_type'] == 'Cold']),
+        'warm': len([l for l in simulated_leads if l['lead_type'] == 'Warm']),
+        'linkedin_source': len([l for l in simulated_leads if l['source'] == 'LinkedIn']),
+        'it_industry': len([l for l in simulated_leads if 'IT' in l['industry']]),
+    }
+
     context = {
         'leads': simulated_leads,
-        'total_leads': len(simulated_leads),
+        'stats': stats,
     }
     return render(request, "app/leads/leads-view.html", context)
+
+
+def leads_filter(request):
+    """HTMX endpoint for filtering leads (for future use)"""
+    # Get the same simulated data as leads_view
+    simulated_leads = [
+        {
+            'id': 1,
+            'subscribed_company': 'fdudgames',
+            'full_name': 'fdud ramo',
+            'first_name': 'fdud',
+            'last_name': 'ramo',
+            'position': 'ceo',
+            'email': 'fdudramo@gmail.com',
+            'phone_number': None,
+            'linkedin_profile': None,
+            'company_name': 'fdudgames',
+            'company_website': None,
+            'industry': 'Gaming',
+            'employee_count': 'N/A',
+            'company_linkedin_page': None,
+            'location': 'N/A',
+            'source': 'LinkedIn',
+            'lead_type': 'Cold',
+            'lead_type_class': 'badge-ghost',
+            'lead_type_icon': 'fa-solid fa-snowflake',
+            'source_class': 'badge-info',
+            'source_icon': 'fa-brands fa-linkedin',
+            'created_at': 'Jun 04, 2025',
+        },
+        # Add other leads here if needed for backend filtering
+    ]
+
+    # Get filter parameters
+    search_query = request.GET.get('search', '').lower().strip()
+    lead_type_filter = request.GET.get('lead_type', '')
+    source_filter = request.GET.get('source', '')
+
+    # Filter leads
+    filtered_leads = []
+    for lead in simulated_leads:
+        # Search filter
+        search_text = f"{lead['full_name']} {lead['email']} {lead['company_name']} {lead['position']} {lead['location']}".lower()
+        matches_search = not search_query or search_query in search_text
+
+        # Lead type filter
+        matches_type = not lead_type_filter or lead['lead_type'].lower() == lead_type_filter.lower()
+
+        # Source filter
+        matches_source = not source_filter or lead['source'].lower() == source_filter.lower()
+
+        if matches_search and matches_type and matches_source:
+            filtered_leads.append(lead)
+
+    # Calculate stats for filtered leads
+    stats = {
+        'total_leads': len(filtered_leads),
+        'cold': len([l for l in filtered_leads if l['lead_type'] == 'Cold']),
+        'warm': len([l for l in filtered_leads if l['lead_type'] == 'Warm']),
+        'linkedin_source': len([l for l in filtered_leads if l['source'] == 'LinkedIn']),
+        'it_industry': len([l for l in filtered_leads if 'IT' in l['industry']]),
+    }
+
+    context = {
+        'leads': filtered_leads,
+        'stats': stats,
+        'search_query': search_query,
+        'lead_type_filter': lead_type_filter,
+        'source_filter': source_filter,
+    }
+
+    # Return the filtered table content (for future HTMX use)
+    return render(request, "app/leads/partials/leads-table.html", context)
 
 
 def campaign_view_list(request):
