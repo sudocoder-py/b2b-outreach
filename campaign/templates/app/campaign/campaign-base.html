@@ -8,11 +8,36 @@
         <!-- Top Nav & Actions -->
         <div class="flex items-center justify-between">
             <div role="tablist" class="tabs">
-                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-gray-500 mx-4">Analytics</a>
-                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-primary tab-active-underline border-primary">Leads</a>
-                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-gray-500 mx-4">Sequences</a>
-                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-gray-500 mx-4">Schedule</a>
-                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-gray-500 mx-4">Options</a>
+                <a role="tab"
+                   href="{% url 'campaign_dashboard' campaign_id %}"
+                   class="tab h-auto pb-2 px-1 text-base mx-4 {% if current_tab == 'analytics' %}text-primary tab-active-underline border-primary{% else %}text-gray-500{% endif %}"
+                   hx-get="{% url 'campaign_dashboard' campaign_id %}"
+                   hx-target="body"
+                   hx-push-url="true">Analytics</a>
+                <a role="tab"
+                   href="{% url 'campaign_leads' campaign_id %}"
+                   class="tab h-auto pb-2 px-1 text-base mx-4 {% if current_tab == 'leads' %}text-primary tab-active-underline border-primary{% else %}text-gray-500{% endif %}"
+                   hx-get="{% url 'campaign_leads' campaign_id %}"
+                   hx-target="body"
+                   hx-push-url="true">Leads</a>
+                <a role="tab"
+                   href="{% url 'campaign_sequence' campaign_id %}"
+                   class="tab h-auto pb-2 px-1 text-base mx-4 {% if current_tab == 'sequences' %}text-primary tab-active-underline border-primary{% else %}text-gray-500{% endif %}"
+                   hx-get="{% url 'campaign_sequence' campaign_id %}"
+                   hx-target="body"
+                   hx-push-url="true">Sequences</a>
+                <a role="tab"
+                   href="{% url 'campaign_scheduele' campaign_id %}"
+                   class="tab h-auto pb-2 px-1 text-base mx-4 {% if current_tab == 'schedule' %}text-primary tab-active-underline border-primary{% else %}text-gray-500{% endif %}"
+                   hx-get="{% url 'campaign_scheduele' campaign_id %}"
+                   hx-target="body"
+                   hx-push-url="true">Schedule</a>
+                <a role="tab"
+                   href="{% url 'campaign_options' campaign_id %}"
+                   class="tab h-auto pb-2 px-1 text-base mx-4 {% if current_tab == 'options' %}text-primary tab-active-underline border-primary{% else %}text-gray-500{% endif %}"
+                   hx-get="{% url 'campaign_options' campaign_id %}"
+                   hx-target="body"
+                   hx-push-url="true">Options</a>
             </div>
             <div class="flex items-center gap-3">
                 <button class="btn bg-green-100 text-green-700 hover:bg-green-200 border-none h-10 min-h-10 rounded-lg px-4 text-sm"><i class="fa-solid fa-play mr-1 text-xs"></i>Resume campaign</button>

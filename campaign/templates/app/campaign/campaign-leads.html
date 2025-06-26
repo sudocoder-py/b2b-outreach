@@ -21,12 +21,12 @@
             <div class="flex items-center gap-4">
                 <label class="input input-bordered flex items-center gap-2 h-10 w-64 bg-white"><i class="fa-solid fa-magnifying-glass text-gray-400"></i><input type="text" class="grow text-sm" placeholder="Search..." /></label>
                 <div class="flex items-center gap-4 text-gray-500 text-sm p-2 rounded-lg bg-gray-100">
-                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-users"></i><span class="font-semibold">8</span></div>
-                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-eye"></i><span class="font-semibold">0</span></div>
-                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-paper-plane"></i><span class="font-semibold">0</span></div>
-                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-reply"></i><span class="font-semibold">0</span></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-users"></i><span class="font-semibold">{{ total_leads }}</span></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-eye"></i><span class="font-semibold">3</span></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-paper-plane"></i><span class="font-semibold">2</span></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-reply"></i><span class="font-semibold">1</span></div>
                     <div class="flex items-center gap-1.5"><i class="fa-regular fa-handshake"></i><span class="font-semibold">0</span></div>
-                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i><span class="font-semibold">0</span></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i><span class="font-semibold">1</span></div>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -43,54 +43,58 @@
                     <tr>
                         <th class="w-12 text-center"><input type="checkbox" class="checkbox checkbox-sm rounded" /></th>
                         <th class="w-16"></th> <!-- Index number column -->
-                        <th class="text-left">Email</th>
-                        <th class="text-left">Email Provider</th>
-                        <th class="text-left">Status</th>
-                        <th class="text-left">Contact</th>
+                        <th class="text-left">Lead</th>
                         <th class="text-left">Company</th>
-                        <th class="text-left">Website</th>
-                        <th class="text-left">Pe...</th>
+                        <th class="text-left">Status</th>
+                        <th class="text-left">Links</th>    
+                        <th class="text-left">Converted at</th>
+                        <th class="text-left">Created at</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Data Rows -->
-                    <script>
-                        const leadsData = [
-                            { id: 1, email: 'yamenabsi@gmail.com', provider: 'Google', contact: 'Yamen Alabsi', company: 'Elkood', website: 'https://elkood.com/', pe: 'Yamen Al' },
-                            { id: 2, email: 'mhmadnajjer2004@gmail.com', provider: 'Google', contact: 'Mohammad Salem Al-najjar', company: 'Prootech Agency', website: 'https://prootech.agency', pe: 'Salem Al' },
-                            { id: 3, email: 'ashraf.altawashi@codeguru.ae', provider: 'Google', contact: 'Ashraf Altawashi', company: 'CodeGuru.ae', website: 'https://codeguru.ae', pe: 'Ashraf Al' },
-                            { id: 4, email: 'razek.daoud@raizer.tech', provider: 'Other', contact: 'Razek Daoud', company: 'Raizer', website: 'http://raizer.tech', pe: 'Razek Do' },
-                            { id: 5, email: 'gy.alamin@hotmail.com', provider: 'Microsoft', contact: 'Gheias A.', company: 'Florinz', website: 'http://flarinz.com', pe: 'Gheias A' },
-                            { id: 6, email: 'fdudramo@gmail.com', provider: 'Google', contact: 'fdud ramo', company: 'fdudgames', website: 'http://fdudgames', pe: 'fdud ram' },
-                            { id: 7, email: 'shameerkummali@gmail.com', provider: 'Google', contact: 'Shameer Mohammed', company: 'Zeolans Technologies', website: 'https://www.zeolans.ae', pe: 'Shameer' },
-                            { id: 8, email: 'ghassanrizk@pan-code.com', provider: 'Other', contact: 'Ghassan Rizk', company: 'Pancode', website: 'www.pan-code.com', pe: 'Ghassan' },
-                        ];
-
-                        leadsData.forEach(lead => {
-                            let providerHtml = '';
-                            if (lead.provider === 'Google') {
-                                providerHtml = `<i class="fa-brands fa-google text-red-500 mr-2"></i> Google`;
-                            } else if (lead.provider === 'Microsoft') {
-                                providerHtml = `<i class="fa-brands fa-microsoft text-blue-600 mr-2"></i> Microsoft`;
-                            } else {
-                                providerHtml = `Other <i class="fa-solid fa-circle-info text-gray-400 ml-1"></i>`;
-                            }
-
-                            document.write(`
-                                <tr>
-                                    <td class="text-center"><input type="checkbox" class="checkbox checkbox-sm rounded" /></td>
-                                    <td class="text-gray-500 text-center">${lead.id}</td>
-                                    <td class="font-medium text-gray-700">${lead.email}</td>
-                                    <td><div class="flex items-center">${providerHtml}</div></td>
-                                    <td><div class="badge badge-ghost gap-2 font-medium py-3"><i class="fa-regular fa-clock"></i>Not yet contacted</div></td>
-                                    <td class="text-gray-600">${lead.contact}</td>
-                                    <td class="text-gray-600">${lead.company}</td>
-                                    <td class="text-gray-600">${lead.website}</td>
-                                    <td class="text-gray-600">${lead.pe}</td>
-                                </tr>
-                            `);
-                        });
-                    </script>
+                    {% for lead in leads %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="text-center">
+                            <input type="checkbox" class="checkbox checkbox-sm rounded" />
+                        </td>
+                        <td class="text-gray-500 text-center">{{ lead.id }}</td>
+                        <td class="font-medium text-gray-700">
+                            <div class="flex flex-col">
+                                <span>{{ lead.first_name }} {{ lead.last_name }}</span>
+                                <span class="text-sm text-gray-500">{{ lead.email }}</span>
+                            </div>
+                        </td>
+                        <td class="text-gray-600">{{ lead.company }}</td>
+                        <td>
+                            <div class="badge {{ lead.status_class }} gap-2 font-medium py-3">
+                                <i class="{{ lead.status_icon }}"></i>
+                                {{ lead.status }}
+                            </div>
+                        </td>
+                        <td class="text-gray-600">
+                            {% if lead.links_count > 0 %}
+                                <span class="badge badge-outline">{{ lead.links_count }} links</span>
+                            {% else %}
+                                <span class="text-gray-400">No links</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-gray-600">
+                            {% if lead.converted_at %}
+                                {{ lead.converted_at }}
+                            {% else %}
+                                <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-gray-600">{{ lead.created_at }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-8 text-gray-500">
+                            <i class="fa-solid fa-users text-2xl mb-2"></i>
+                            <p>No leads found for this campaign</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
