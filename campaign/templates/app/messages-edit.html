@@ -1,0 +1,497 @@
+{% extends "base-app.html" %}
+
+{% block title %}Edit Messages{% endblock %}
+
+{% block content %}
+<style>
+/* Custom styles for messages table */
+.message-row {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.message-row:hover {
+    background-color: #f8fafc;
+}
+
+.message-row.active-message {
+    background-color: #eff6ff;
+    border-left: 4px solid #3b82f6;
+}
+
+.messages-table {
+    scrollbar-width: thin;
+    scrollbar-color: #e5e7eb #f9fafb;
+}
+
+.messages-table::-webkit-scrollbar {
+    width: 6px;
+}
+
+.messages-table::-webkit-scrollbar-track {
+    background: #f9fafb;
+}
+
+.messages-table::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 3px;
+}
+
+.messages-table::-webkit-scrollbar-thumb:hover {
+    background: #d1d5db;
+}
+
+#message-content {
+    min-height: 300px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+}
+
+.message-subject:focus,
+#message-subject:focus,
+#message-content:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+</style>
+
+<div class="flex-1 flex flex-col overflow-hidden bg-gray-50 p-6">
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button class="btn btn-ghost btn-sm" onclick="window.history.back()">
+                    <i class="fa-solid fa-arrow-left mr-2"></i>
+                    Back to Messages
+                </button>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Edit Messages</h1>
+                    <p class="text-gray-600">Create and manage email templates and message sequences</p>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="addNewMessage()">
+                <i class="fa-solid fa-plus mr-2"></i>
+                New Message
+            </button>
+        </div>
+    </div>
+
+    <!-- Two-column layout -->
+    <div class="flex-1 flex gap-6 overflow-hidden">
+        <!-- Left Column: Messages Table -->
+        <div class="w-full max-w-lg flex-shrink-0 flex flex-col bg-white border border-base-200 rounded-lg overflow-hidden">
+            <!-- Table Header -->
+            <div class="p-4 border-b border-base-200 bg-gray-50">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-semibold text-gray-900">Message Templates</h3>
+                    <span class="text-sm text-gray-500" id="message-count">3 messages</span>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="p-4 border-b border-base-200">
+                <div class="flex gap-2">
+                    <input type="text" 
+                           placeholder="Search messages..." 
+                           class="input input-bordered input-sm flex-1 bg-white"
+                           id="search-messages"
+                           oninput="filterMessages()">
+                    <select class="select select-bordered select-sm bg-white" id="filter-type" onchange="filterMessages()">
+                        <option value="">All Types</option>
+                        <option value="welcome">Welcome</option>
+                        <option value="follow-up">Follow-up</option>
+                        <option value="promotional">Promotional</option>
+                        <option value="newsletter">Newsletter</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Messages Table -->
+            <div class="flex-1 overflow-y-auto messages-table" id="messages-container">
+                <!-- Message Row 1 (Active by default) -->
+                <div class="message-row active-message p-4 border-b border-base-200" data-message="1" onclick="selectMessage(1)">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium text-gray-900 truncate">Welcome Email Template</h4>
+                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">Welcome to our platform! We're excited to have you on board...</p>
+                            <div class="flex items-center gap-4 mt-2">
+                                <span class="text-xs text-gray-400">Type: Welcome</span>
+                                <span class="text-xs text-gray-400">Updated: 2 days ago</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 ml-2">
+                            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(1)" title="Duplicate">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(1)" title="Delete">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Message Row 2 -->
+                <div class="message-row p-4 border-b border-base-200" data-message="2" onclick="selectMessage(2)">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium text-gray-900 truncate">Follow-up Sequence #1</h4>
+                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">Thanks for signing up! Here's what you can expect next...</p>
+                            <div class="flex items-center gap-4 mt-2">
+                                <span class="text-xs text-gray-400">Type: Follow-up</span>
+                                <span class="text-xs text-gray-400">Updated: 1 week ago</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 ml-2">
+                            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(2)" title="Duplicate">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(2)" title="Delete">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Message Row 3 -->
+                <div class="message-row p-4 border-b border-base-200" data-message="3" onclick="selectMessage(3)">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium text-gray-900 truncate">Product Launch Announcement</h4>
+                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">We're thrilled to announce our latest product feature...</p>
+                            <div class="flex items-center gap-4 mt-2">
+                                <span class="text-xs text-gray-400">Type: Promotional</span>
+                                <span class="text-xs text-gray-400">Updated: 3 days ago</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 ml-2">
+                            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(3)" title="Duplicate">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(3)" title="Delete">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Message Editor -->
+        <div class="flex-1 flex flex-col bg-white border border-base-200 rounded-lg h-[calc(100vh-180px)]">
+            <!-- Header -->
+            <div class="flex justify-between items-center p-4 border-b border-base-200">
+                <div class="text-sm">
+                    <span class="font-bold text-gray-800">Subject</span>
+                    <span class="text-gray-500 ml-2" id="subject-display">Welcome Email Template</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="btn btn-sm bg-white border border-base-300" onclick="previewMessage()">
+                        <i class="fa-regular fa-eye mr-2"></i>Preview
+                    </button>
+                    <button class="btn btn-sm btn-square bg-white border border-base-300" title="Variables">
+                        <i class="fa-solid fa-bolt text-blue-500"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Message Form -->
+            <div class="flex-grow overflow-y-auto">
+                <form id="message-form" class="p-4 space-y-4">
+                    <!-- Message Type and Product -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="label">
+                                <span class="label-text font-medium">Message Type</span>
+                            </label>
+                            <select class="select select-bordered w-full bg-white" id="message-type" name="type">
+                                <option value="welcome">Welcome</option>
+                                <option value="follow-up">Follow-up</option>
+                                <option value="promotional">Promotional</option>
+                                <option value="newsletter">Newsletter</option>
+                                <option value="reminder">Reminder</option>
+                                <option value="thank-you">Thank You</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="label">
+                                <span class="label-text font-medium">Product</span>
+                            </label>
+                            <select class="select select-bordered w-full bg-white" id="message-product" name="product">
+                                <option value="crm-pro">CRM Pro</option>
+                                <option value="analytics-suite">Analytics Suite</option>
+                                <option value="marketing-tools">Marketing Tools</option>
+                                <option value="sales-automation">Sales Automation</option>
+                                <option value="general">General</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Subject -->
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">Subject</span>
+                        </label>
+                        <input type="text"
+                               placeholder="Your email subject"
+                               class="input input-bordered w-full bg-white"
+                               id="message-subject"
+                               name="subject" />
+                    </div>
+
+                    <!-- Intro -->
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">Intro</span>
+                        </label>
+                        <textarea class="textarea textarea-bordered w-full bg-white"
+                                  rows="3"
+                                  placeholder="Start typing here..."
+                                  id="message-intro"
+                                  name="intro"></textarea>
+                    </div>
+
+                    <!-- Content -->
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">Content</span>
+                        </label>
+                        <textarea class="textarea textarea-bordered w-full bg-white"
+                                  rows="6"
+                                  placeholder="Start typing here..."
+                                  id="message-content"
+                                  name="content"></textarea>
+                    </div>
+
+                    <!-- CTA -->
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">Call to Action</span>
+                        </label>
+                        <input type="text"
+                               placeholder="Your call to action"
+                               class="input input-bordered w-full bg-white"
+                               id="message-cta"
+                               name="cta" />
+                    </div>
+
+                    <!-- P.S -->
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">P.S</span>
+                        </label>
+                        <textarea class="textarea textarea-bordered w-full bg-white"
+                                  rows="2"
+                                  placeholder="P.S. message..."
+                                  id="message-ps"
+                                  name="ps"></textarea>
+                    </div>
+
+                    <!-- P.P.S -->
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">P.P.S</span>
+                        </label>
+                        <textarea class="textarea textarea-bordered w-full bg-white"
+                                  rows="2"
+                                  placeholder="P.P.S. message..."
+                                  id="message-pps"
+                                  name="pps"></textarea>
+                    </div>
+
+                    <!-- End/Signature -->
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">Signature</span>
+                        </label>
+                        <textarea class="textarea textarea-bordered w-full bg-white"
+                                  rows="3"
+                                  placeholder="Best regards,&#10;Your name"
+                                  id="message-end"
+                                  name="end"></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Bottom Toolbar -->
+            <div class="p-4 border-t border-base-200">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <button class="btn btn-sm btn-primary" onclick="saveMessage()">
+                            Save
+                        </button>
+                        <button class="btn btn-sm btn-ghost" onclick="showTemplates()">
+                            <i class="fa-solid fa-file-text mr-2"></i>Templates
+                        </button>
+                        <button class="btn btn-sm btn-ghost" onclick="showVariables()">
+                            <i class="fa-solid fa-code mr-2"></i>Variables
+                        </button>
+                        <button class="btn btn-sm btn-ghost" onclick="showAI()">
+                            <i class="fa-solid fa-magic mr-2"></i>AI
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="btn btn-sm btn-ghost" onclick="copyMessage()">
+                            <i class="fa-solid fa-copy mr-2"></i>Copy
+                        </button>
+                        <button class="btn btn-sm btn-ghost" onclick="exportMessage()">
+                            <i class="fa-solid fa-download mr-2"></i>Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Message Management System (same as original messages.html)
+let activeMessage = 1;
+let messageCounter = 3;
+let messages = {};
+
+// Sample message data with products
+const sampleMessages = {
+    1: {
+        type: 'welcome',
+        product: 'crm-pro',
+        subject: 'Welcome Email Template',
+        intro: 'Welcome to our platform! We\'re excited to have you on board.',
+        content: 'Thank you for joining us. Here\'s everything you need to know to get started with your journey.',
+        cta: 'Get Started Now',
+        ps: 'If you have any questions, don\'t hesitate to reach out to our support team.',
+        pps: 'Follow us on social media for the latest updates and tips.',
+        end: 'Best regards,\nThe Team',
+        description: 'Welcome to our platform! We\'re excited to have you on board...',
+        updated: '2 days ago'
+    },
+    2: {
+        type: 'follow-up',
+        product: 'analytics-suite',
+        subject: 'Follow-up Sequence #1',
+        intro: 'Thanks for signing up! Here\'s what you can expect next.',
+        content: 'We wanted to follow up and make sure you\'re getting the most out of your experience.',
+        cta: 'Continue Your Journey',
+        ps: 'Remember, we\'re here to help every step of the way.',
+        pps: '',
+        end: 'Best regards,\nYour Success Team',
+        description: 'Thanks for signing up! Here\'s what you can expect next...',
+        updated: '1 week ago'
+    },
+    3: {
+        type: 'promotional',
+        product: 'marketing-tools',
+        subject: 'Product Launch Announcement',
+        intro: 'We\'re thrilled to announce our latest product feature.',
+        content: 'After months of development and testing, we\'re excited to share our newest feature with you.',
+        cta: 'Try It Now',
+        ps: 'Early adopters get exclusive benefits and priority support.',
+        pps: 'Limited time offer - don\'t miss out!',
+        end: 'Best regards,\nThe Product Team',
+        description: 'We\'re thrilled to announce our latest product feature...',
+        updated: '3 days ago'
+    }
+};
+
+messages = { ...sampleMessages };
+
+function selectMessage(messageId) {
+    saveCurrentMessage();
+    document.querySelectorAll('.message-row').forEach(row => {
+        row.classList.remove('active-message');
+    });
+    const selectedRow = document.querySelector(`[data-message="${messageId}"]`);
+    if (selectedRow) {
+        selectedRow.classList.add('active-message');
+        activeMessage = messageId;
+        loadMessageContent(messageId);
+    }
+}
+
+function loadMessageContent(messageId) {
+    const message = messages[messageId] || {};
+    document.getElementById('message-type').value = message.type || 'welcome';
+    document.getElementById('message-product').value = message.product || 'general';
+    document.getElementById('message-subject').value = message.subject || '';
+    document.getElementById('message-intro').value = message.intro || '';
+    document.getElementById('message-content').value = message.content || '';
+    document.getElementById('message-cta').value = message.cta || '';
+    document.getElementById('message-ps').value = message.ps || '';
+    document.getElementById('message-pps').value = message.pps || '';
+    document.getElementById('message-end').value = message.end || '';
+    document.getElementById('subject-display').textContent = message.subject || 'New Message';
+}
+
+function saveCurrentMessage() {
+    if (!activeMessage) return;
+    const messageData = {
+        type: document.getElementById('message-type').value,
+        product: document.getElementById('message-product').value,
+        subject: document.getElementById('message-subject').value,
+        intro: document.getElementById('message-intro').value,
+        content: document.getElementById('message-content').value,
+        cta: document.getElementById('message-cta').value,
+        ps: document.getElementById('message-ps').value,
+        pps: document.getElementById('message-pps').value,
+        end: document.getElementById('message-end').value,
+        description: document.getElementById('message-intro').value.substring(0, 60) + '...',
+        updated: 'Just now'
+    };
+    messages[activeMessage] = { ...messages[activeMessage], ...messageData };
+    updateMessageRow(activeMessage, messageData);
+    document.getElementById('subject-display').textContent = messageData.subject || 'New Message';
+}
+
+function updateMessageRow(messageId, messageData) {
+    const messageRow = document.querySelector(`[data-message="${messageId}"]`);
+    if (messageRow) {
+        const titleElement = messageRow.querySelector('h4');
+        const descElement = messageRow.querySelector('p');
+        const typeElement = messageRow.querySelector('.text-xs');
+        if (titleElement) titleElement.textContent = messageData.subject || 'Untitled Message';
+        if (descElement) descElement.textContent = messageData.description || messageData.intro?.substring(0, 60) + '...' || '';
+        if (typeElement) typeElement.textContent = `Type: ${messageData.type?.charAt(0).toUpperCase() + messageData.type?.slice(1) || 'Welcome'}`;
+    }
+}
+
+function addNewMessage() {
+    saveCurrentMessage();
+    messageCounter++;
+    const newMessageId = messageCounter;
+    const newMessage = {
+        type: 'welcome', product: 'general', subject: 'New Message Template', intro: '', content: '', cta: '', ps: '', pps: '', end: '', description: 'New message template...', updated: 'Just now'
+    };
+    messages[newMessageId] = newMessage;
+    const newMessageHTML = `<div class="message-row p-4 border-b border-base-200" data-message="${newMessageId}" onclick="selectMessage(${newMessageId})"><div class="flex justify-between items-start"><div class="flex-1 min-w-0"><h4 class="font-medium text-gray-900 truncate">New Message Template</h4><p class="text-sm text-gray-500 mt-1 line-clamp-2">New message template...</p><div class="flex items-center gap-4 mt-2"><span class="text-xs text-gray-400">Type: Welcome</span><span class="text-xs text-gray-400">Updated: Just now</span></div></div><div class="flex items-center gap-2 ml-2"><button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(${newMessageId})" title="Duplicate"><i class="fa-solid fa-copy"></i></button><button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(${newMessageId})" title="Delete"><i class="fa-solid fa-trash"></i></button></div></div></div>`;
+    document.getElementById('messages-container').insertAdjacentHTML('afterbegin', newMessageHTML);
+    selectMessage(newMessageId);
+    updateMessageCount();
+    window.ModalSystem.toast('New message created successfully!');
+}
+
+function duplicateMessage(messageId) { window.ModalSystem.toast('Duplicate functionality coming soon!', 'info'); }
+function confirmDeleteMessage(messageId) { window.ModalSystem.toast('Delete functionality coming soon!', 'info'); }
+function filterMessages() { /* Filter logic */ }
+function updateMessageCount() { document.getElementById('message-count').textContent = `${Object.keys(messages).length} messages`; }
+function saveMessage() { saveCurrentMessage(); window.ModalSystem.toast('Message saved successfully!'); }
+function previewMessage() { window.ModalSystem.toast('Preview functionality coming soon!', 'info'); }
+function showTemplates() { window.ModalSystem.toast('Templates functionality coming soon!', 'info'); }
+function showVariables() { window.ModalSystem.toast('Variables functionality coming soon!', 'info'); }
+function showAI() { window.ModalSystem.toast('AI assistance coming soon!', 'info'); }
+function copyMessage() { window.ModalSystem.toast('Copy functionality coming soon!', 'info'); }
+function exportMessage() { window.ModalSystem.toast('Export functionality coming soon!', 'info'); }
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadMessageContent(1);
+    updateMessageCount();
+    document.addEventListener('input', function(e) {
+        if (e.target.closest('#message-form')) {
+            setTimeout(() => { saveCurrentMessage(); }, 500);
+        }
+    });
+    document.getElementById('message-subject').addEventListener('input', function() {
+        document.getElementById('subject-display').textContent = this.value || 'New Message';
+    });
+});
+</script>
+
+{% endblock %}

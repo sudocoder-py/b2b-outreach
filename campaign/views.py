@@ -600,6 +600,11 @@ def messages_view(request):
     return render(request, "app/messages.html")
 
 
+def messages_edit_view(request, pk):
+    """Messages management page"""
+    return render(request, "app/messages-edit.html")
+
+
 def links_view(request):
     """Links management page"""
     return render(request, "app/links.html")

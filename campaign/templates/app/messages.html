@@ -3,714 +3,511 @@
 {% block title %}Messages{% endblock %}
 
 {% block content %}
-<style>
-/* Custom styles for messages table */
-.message-row {
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.message-row:hover {
-    background-color: #f8fafc;
-}
-
-.message-row.active-message {
-    background-color: #eff6ff;
-    border-left: 4px solid #3b82f6;
-}
-
-.messages-table {
-    scrollbar-width: thin;
-    scrollbar-color: #e5e7eb #f9fafb;
-}
-
-.messages-table::-webkit-scrollbar {
-    width: 6px;
-}
-
-.messages-table::-webkit-scrollbar-track {
-    background: #f9fafb;
-}
-
-.messages-table::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
-    border-radius: 3px;
-}
-
-.messages-table::-webkit-scrollbar-thumb:hover {
-    background: #d1d5db;
-}
-
-#message-content {
-    min-height: 300px;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    line-height: 1.6;
-}
-
-.message-subject:focus,
-#message-subject:focus,
-#message-content:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-</style>
-
 <div class="flex-1 flex flex-col overflow-hidden bg-gray-50 p-6">
     <!-- Header -->
     <div class="mb-6">
         <div class="flex justify-between items-center">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">Messages</h1>
-                <p class="text-gray-600">Create and manage email templates and message sequences</p>
+                <p class="text-gray-600">Manage email templates and view performance analytics</p>
             </div>
-            <button class="btn btn-primary" onclick="addNewMessage()">
-                <i class="fa-solid fa-plus mr-2"></i>
-                New Message
-            </button>
+            <div class="flex gap-2">
+                <button class="btn btn-ghost" onclick="window.location.href='messages-edit.html'">
+                    <i class="fa-solid fa-edit mr-2"></i>
+                    Edit Messages
+                </button>
+                <button class="btn btn-primary" onclick="addNewMessage()">
+                    <i class="fa-solid fa-plus mr-2"></i>
+                    New Message
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Two-column layout -->
-    <div class="flex-1 flex gap-6 overflow-hidden">
-        <!-- Left Column: Messages Table -->
-        <div class="w-full max-w-lg flex-shrink-0 flex flex-col bg-white border border-base-200 rounded-lg overflow-hidden">
-            <!-- Table Header -->
-            <div class="p-4 border-b border-base-200 bg-gray-50">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-semibold text-gray-900">Message Templates</h3>
-                    <span class="text-sm text-gray-500" id="message-count">3 messages</span>
+    <!-- Performance Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Best Performing Subject Line -->
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Best Subject Line</p>
+                    <p class="text-2xl font-bold text-gray-900">42.3%</p>
+                    <p class="text-xs text-gray-500 mt-1 truncate">Welcome to CRM Pro - Get Started!</p>
                 </div>
-            </div>
-
-            <!-- Search and Filter -->
-            <div class="p-4 border-b border-base-200">
-                <div class="flex gap-2">
-                    <input type="text"
-                           placeholder="Search messages..."
-                           class="input input-bordered input-sm flex-1 bg-white"
-                           id="search-messages"
-                           oninput="filterMessages()">
-                    <select class="select select-bordered select-sm bg-white" id="filter-type" onchange="filterMessages()">
-                        <option value="">All Types</option>
-                        <option value="welcome">Welcome</option>
-                        <option value="follow-up">Follow-up</option>
-                        <option value="promotional">Promotional</option>
-                        <option value="newsletter">Newsletter</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Messages Table -->
-            <div class="flex-1 overflow-y-auto messages-table" id="messages-container">
-                <!-- Message Row 1 (Active by default) -->
-                <div class="message-row active-message p-4 border-b border-base-200" data-message="1" onclick="selectMessage(1)">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-medium text-gray-900 truncate">Welcome Email Template</h4>
-                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">Welcome to our platform! We're excited to have you on board...</p>
-                            <div class="flex items-center gap-4 mt-2">
-                                <span class="text-xs text-gray-400">Type: Welcome</span>
-                                <span class="text-xs text-gray-400">Updated: 2 days ago</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 ml-2">
-                            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(1)" title="Duplicate">
-                                <i class="fa-solid fa-copy"></i>
-                            </button>
-                            <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(1)" title="Delete">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Message Row 2 -->
-                <div class="message-row p-4 border-b border-base-200" data-message="2" onclick="selectMessage(2)">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-medium text-gray-900 truncate">Follow-up Sequence #1</h4>
-                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">Thanks for signing up! Here's what you can expect next...</p>
-                            <div class="flex items-center gap-4 mt-2">
-                                <span class="text-xs text-gray-400">Type: Follow-up</span>
-                                <span class="text-xs text-gray-400">Updated: 1 week ago</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 ml-2">
-                            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(2)" title="Duplicate">
-                                <i class="fa-solid fa-copy"></i>
-                            </button>
-                            <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(2)" title="Delete">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Message Row 3 -->
-                <div class="message-row p-4 border-b border-base-200" data-message="3" onclick="selectMessage(3)">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-medium text-gray-900 truncate">Product Launch Announcement</h4>
-                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">We're thrilled to announce our latest product feature...</p>
-                            <div class="flex items-center gap-4 mt-2">
-                                <span class="text-xs text-gray-400">Type: Promotional</span>
-                                <span class="text-xs text-gray-400">Updated: 3 days ago</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 ml-2">
-                            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(3)" title="Duplicate">
-                                <i class="fa-solid fa-copy"></i>
-                            </button>
-                            <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(3)" title="Delete">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
+                <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-envelope-open text-blue-600"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Right Column: Message Editor -->
-        <div class="flex-1 flex flex-col bg-white border border-base-200 rounded-lg h-[calc(100vh-180px)]">
-            <!-- Header -->
-            <div class="flex justify-between items-center p-4 border-b border-base-200">
-                <div class="text-sm">
-                    <span class="font-bold text-gray-800">Subject</span>
-                    <span class="text-gray-500 ml-2" id="subject-display">Welcome Email Template</span>
+        <!-- Best Performing CTA -->
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Best CTA</p>
+                    <p class="text-2xl font-bold text-gray-900">38.7%</p>
+                    <p class="text-xs text-gray-500 mt-1 truncate">Start Your Free Trial</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button class="btn btn-sm bg-white border border-base-300" onclick="previewMessage()">
-                        <i class="fa-regular fa-eye mr-2"></i>Preview
-                    </button>
-                    <button class="btn btn-sm btn-square bg-white border border-base-300" title="Variables">
-                        <i class="fa-solid fa-bolt text-blue-500"></i>
-                    </button>
+                <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-mouse-pointer text-green-600"></i>
                 </div>
             </div>
+        </div>
 
-            <!-- Message Form -->
-            <div class="flex-grow overflow-y-auto">
-                <form id="message-form" class="p-4 space-y-4">
-                    <!-- Message Type -->
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-medium">Message Type</span>
-                        </label>
-                        <select class="select select-bordered w-full bg-white" id="message-type" name="type">
-                            <option value="welcome">Welcome</option>
-                            <option value="follow-up">Follow-up</option>
-                            <option value="promotional">Promotional</option>
-                            <option value="newsletter">Newsletter</option>
-                            <option value="reminder">Reminder</option>
-                            <option value="thank-you">Thank You</option>
-                        </select>
-                    </div>
-
-                    <!-- Subject -->
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-medium">Subject</span>
-                        </label>
-                        <input type="text"
-                               placeholder="Your email subject"
-                               class="input input-bordered w-full bg-white"
-                               id="message-subject"
-                               name="subject" />
-                    </div>
-
-                    <!-- Intro -->
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-medium">Intro</span>
-                        </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white"
-                                  rows="3"
-                                  placeholder="Start typing here..."
-                                  id="message-intro"
-                                  name="intro"></textarea>
-                    </div>
-
-                    <!-- Content -->
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-medium">Content</span>
-                        </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white"
-                                  rows="6"
-                                  placeholder="Start typing here..."
-                                  id="message-content"
-                                  name="content"></textarea>
-                    </div>
-
-                    <!-- CTA -->
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-medium">Call to Action</span>
-                        </label>
-                        <input type="text"
-                               placeholder="Your call to action"
-                               class="input input-bordered w-full bg-white"
-                               id="message-cta"
-                               name="cta" />
-                    </div>
-
-                    <!-- P.S -->
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-medium">P.S</span>
-                        </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white"
-                                  rows="2"
-                                  placeholder="P.S. message..."
-                                  id="message-ps"
-                                  name="ps"></textarea>
-                    </div>
-
-                    <!-- P.P.S -->
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-medium">P.P.S</span>
-                        </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white"
-                                  rows="2"
-                                  placeholder="P.P.S. message..."
-                                  id="message-pps"
-                                  name="pps"></textarea>
-                    </div>
-
-                    <!-- End/Signature -->
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-medium">Signature</span>
-                        </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white"
-                                  rows="3"
-                                  placeholder="Best regards,&#10;Your name"
-                                  id="message-end"
-                                  name="end"></textarea>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Bottom Toolbar -->
-            <div class="p-4 border-t border-base-200">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <button class="btn btn-sm btn-primary" onclick="saveMessage()">
-                            Save
-                        </button>
-                        <button class="btn btn-sm btn-ghost" onclick="showTemplates()">
-                            <i class="fa-solid fa-file-text mr-2"></i>Templates
-                        </button>
-                        <button class="btn btn-sm btn-ghost" onclick="showVariables()">
-                            <i class="fa-solid fa-code mr-2"></i>Variables
-                        </button>
-                        <button class="btn btn-sm btn-ghost" onclick="showAI()">
-                            <i class="fa-solid fa-magic mr-2"></i>AI
-                        </button>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button class="btn btn-sm btn-ghost" onclick="copyMessage()">
-                            <i class="fa-solid fa-copy mr-2"></i>Copy
-                        </button>
-                        <button class="btn btn-sm btn-ghost" onclick="exportMessage()">
-                            <i class="fa-solid fa-download mr-2"></i>Export
-                        </button>
-                    </div>
+        <!-- Best Performing P.S -->
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Best P.S</p>
+                    <p class="text-2xl font-bold text-gray-900">28.9%</p>
+                    <p class="text-xs text-gray-500 mt-1 truncate">P.S. Limited time offer!</p>
+                </div>
+                <div class="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-star text-purple-600"></i>
                 </div>
             </div>
+        </div>
+
+        <!-- Overall Performance -->
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Avg. Open Rate</p>
+                    <p class="text-2xl font-bold text-gray-900">24.1%</p>
+                    <p class="text-xs text-green-500 mt-1">↑ 12% from last month</p>
+                </div>
+                <div class="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-chart-line text-orange-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="mb-6 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+        <div class="flex flex-wrap gap-4 items-center">
+            <div class="flex-1 min-w-64">
+                <input type="text"
+                       placeholder="Search messages by subject, content..."
+                       class="input input-bordered w-full bg-white"
+                       id="search-messages"
+                       oninput="filterMessages()">
+            </div>
+            <select class="select select-bordered bg-white" id="filter-product" onchange="filterMessages()">
+                <option value="">All Products</option>
+                <option value="crm-pro">CRM Pro</option>
+                <option value="analytics-suite">Analytics Suite</option>
+                <option value="marketing-tools">Marketing Tools</option>
+                <option value="sales-automation">Sales Automation</option>
+                <option value="general">General</option>
+            </select>
+            <select class="select select-bordered bg-white" id="filter-type" onchange="filterMessages()">
+                <option value="">All Types</option>
+                <option value="welcome">Welcome</option>
+                <option value="follow-up">Follow-up</option>
+                <option value="promotional">Promotional</option>
+                <option value="newsletter">Newsletter</option>
+                <option value="reminder">Reminder</option>
+            </select>
+            <div class="text-sm text-gray-500">
+                <span id="message-count">8 messages</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages Table -->
+    <div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="text-left font-semibold text-gray-900">Subject</th>
+                        <th class="text-left font-semibold text-gray-900">Product</th>
+                        <th class="text-left font-semibold text-gray-900">Type</th>
+                        <th class="text-left font-semibold text-gray-900">Performance</th>
+                        <th class="text-left font-semibold text-gray-900">Open Rate</th>
+                        <th class="text-left font-semibold text-gray-900">Click Rate</th>
+                        <th class="text-left font-semibold text-gray-900">Updated</th>
+                        <th class="text-left font-semibold text-gray-900">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="messages-table-body">
+                    <!-- Message Row 1 -->
+                    <tr class="hover:bg-gray-50 cursor-pointer" data-message="1" onclick="editMessage(1)">
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 bg-green-500 rounded-full" title="High performing"></div>
+                                <div>
+                                    <div class="font-medium text-gray-900">Welcome to CRM Pro - Get Started!</div>
+                                    <div class="text-sm text-gray-500">Welcome email for new CRM Pro users</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-primary badge-sm">CRM Pro</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-ghost badge-sm">Welcome</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-16 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-green-600">85%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-sm font-medium text-gray-900">42.3%</span>
+                        </td>
+                        <td>
+                            <span class="text-sm font-medium text-gray-900">18.7%</span>
+                        </td>
+                        <td>
+                            <span class="text-sm text-gray-500">2 days ago</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(1)" title="Duplicate">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); previewMessage(1)" title="Preview">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(1)" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Message Row 2 -->
+                    <tr class="hover:bg-gray-50 cursor-pointer" data-message="2" onclick="editMessage(2)">
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 bg-yellow-500 rounded-full" title="Medium performing"></div>
+                                <div>
+                                    <div class="font-medium text-gray-900">Your Analytics Dashboard is Ready</div>
+                                    <div class="text-sm text-gray-500">Follow-up for Analytics Suite setup</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-secondary badge-sm">Analytics Suite</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-ghost badge-sm">Follow-up</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-16 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 65%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-yellow-600">65%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-sm font-medium text-gray-900">28.1%</span>
+                        </td>
+                        <td>
+                            <span class="text-sm font-medium text-gray-900">12.4%</span>
+                        </td>
+                        <td>
+                            <span class="text-sm text-gray-500">1 week ago</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(2)" title="Duplicate">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); previewMessage(2)" title="Preview">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(2)" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Message Row 3 -->
+                    <tr class="hover:bg-gray-50 cursor-pointer" data-message="3" onclick="editMessage(3)">
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 bg-red-500 rounded-full" title="Low performing"></div>
+                                <div>
+                                    <div class="font-medium text-gray-900">Boost Your Marketing ROI Today</div>
+                                    <div class="text-sm text-gray-500">Promotional email for Marketing Tools</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-accent badge-sm">Marketing Tools</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-ghost badge-sm">Promotional</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-16 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: 35%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-red-600">35%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-sm font-medium text-gray-900">15.2%</span>
+                        </td>
+                        <td>
+                            <span class="text-sm font-medium text-gray-900">6.8%</span>
+                        </td>
+                        <td>
+                            <span class="text-sm text-gray-500">3 days ago</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(3)" title="Duplicate">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); previewMessage(3)" title="Preview">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(3)" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Message Row 4 -->
+                    <tr class="hover:bg-gray-50 cursor-pointer" data-message="4" onclick="editMessage(4)">
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 bg-green-500 rounded-full" title="High performing"></div>
+                                <div>
+                                    <div class="font-medium text-gray-900">Don't Miss Out - Limited Time Offer!</div>
+                                    <div class="text-sm text-gray-500">Urgency-driven promotional email</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-warning badge-sm">Sales Automation</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-ghost badge-sm">Promotional</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-16 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 78%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-green-600">78%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-sm font-medium text-gray-900">38.7%</span>
+                        </td>
+                        <td>
+                            <span class="text-sm font-medium text-gray-900">22.1%</span>
+                        </td>
+                        <td>
+                            <span class="text-sm text-gray-500">5 days ago</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(4)" title="Duplicate">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); previewMessage(4)" title="Preview">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(4)" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Message Row 5 -->
+                    <tr class="hover:bg-gray-50 cursor-pointer" data-message="5" onclick="editMessage(5)">
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 bg-yellow-500 rounded-full" title="Medium performing"></div>
+                                <div>
+                                    <div class="font-medium text-gray-900">Weekly Newsletter - Industry Updates</div>
+                                    <div class="text-sm text-gray-500">Weekly newsletter with latest updates</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-info badge-sm">General</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-ghost badge-sm">Newsletter</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-16 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 58%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-yellow-600">58%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-sm font-medium text-gray-900">24.5%</span>
+                        </td>
+                        <td>
+                            <span class="text-sm font-medium text-gray-900">8.9%</span>
+                        </td>
+                        <td>
+                            <span class="text-sm text-gray-500">1 week ago</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(5)" title="Duplicate">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); previewMessage(5)" title="Preview">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(5)" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 <script>
-// Message Management System
-let activeMessage = 1; // Currently selected message
-let messageCounter = 3; // Counter for new messages
-let messages = {}; // Store messages data
-
-// Sample message data
-const sampleMessages = {
+// Sample message data with performance metrics
+const messagesData = {
     1: {
+        id: 1,
+        subject: 'Welcome to CRM Pro - Get Started!',
+        product: 'crm-pro',
         type: 'welcome',
-        subject: 'Welcome Email Template',
-        intro: 'Welcome to our platform! We\'re excited to have you on board.',
-        content: 'Thank you for joining us. Here\'s everything you need to know to get started with your journey. We\'ve prepared some helpful resources and guides to help you make the most of our platform.',
-        cta: 'Get Started Now',
-        ps: 'If you have any questions, don\'t hesitate to reach out to our support team.',
-        pps: 'Follow us on social media for the latest updates and tips.',
-        end: 'Best regards,\nThe Team',
-        description: 'Welcome to our platform! We\'re excited to have you on board...',
-        updated: '2 days ago'
+        performance: 85,
+        openRate: 42.3,
+        clickRate: 18.7,
+        updated: '2 days ago',
+        description: 'Welcome email for new CRM Pro users'
     },
     2: {
+        id: 2,
+        subject: 'Your Analytics Dashboard is Ready',
+        product: 'analytics-suite',
         type: 'follow-up',
-        subject: 'Follow-up Sequence #1',
-        intro: 'Thanks for signing up! Here\'s what you can expect next.',
-        content: 'We wanted to follow up and make sure you\'re getting the most out of your experience. Here are some next steps we recommend to help you achieve your goals.',
-        cta: 'Continue Your Journey',
-        ps: 'Remember, we\'re here to help every step of the way.',
-        pps: '',
-        end: 'Best regards,\nYour Success Team',
-        description: 'Thanks for signing up! Here\'s what you can expect next...',
-        updated: '1 week ago'
+        performance: 65,
+        openRate: 28.1,
+        clickRate: 12.4,
+        updated: '1 week ago',
+        description: 'Follow-up for Analytics Suite setup'
     },
     3: {
+        id: 3,
+        subject: 'Boost Your Marketing ROI Today',
+        product: 'marketing-tools',
         type: 'promotional',
-        subject: 'Product Launch Announcement',
-        intro: 'We\'re thrilled to announce our latest product feature.',
-        content: 'After months of development and testing, we\'re excited to share our newest feature with you. This enhancement will help you achieve better results and streamline your workflow.',
-        cta: 'Try It Now',
-        ps: 'Early adopters get exclusive benefits and priority support.',
-        pps: 'Limited time offer - don\'t miss out!',
-        end: 'Best regards,\nThe Product Team',
-        description: 'We\'re thrilled to announce our latest product feature...',
-        updated: '3 days ago'
+        performance: 35,
+        openRate: 15.2,
+        clickRate: 6.8,
+        updated: '3 days ago',
+        description: 'Promotional email for Marketing Tools'
+    },
+    4: {
+        id: 4,
+        subject: 'Don\'t Miss Out - Limited Time Offer!',
+        product: 'sales-automation',
+        type: 'promotional',
+        performance: 78,
+        openRate: 38.7,
+        clickRate: 22.1,
+        updated: '5 days ago',
+        description: 'Urgency-driven promotional email'
+    },
+    5: {
+        id: 5,
+        subject: 'Weekly Newsletter - Industry Updates',
+        product: 'general',
+        type: 'newsletter',
+        performance: 58,
+        openRate: 24.5,
+        clickRate: 8.9,
+        updated: '1 week ago',
+        description: 'Weekly newsletter with latest updates'
     }
 };
 
-// Initialize messages
-messages = { ...sampleMessages };
-
-// Message Selection Functions
-function selectMessage(messageId) {
-    // Save current message before switching
-    saveCurrentMessage();
-
-    // Remove active class from all message rows
-    document.querySelectorAll('.message-row').forEach(row => {
-        row.classList.remove('active-message');
-    });
-
-    // Add active class to selected message
-    const selectedRow = document.querySelector(`[data-message="${messageId}"]`);
-    if (selectedRow) {
-        selectedRow.classList.add('active-message');
-        activeMessage = messageId;
-
-        // Load message content into editor
-        loadMessageContent(messageId);
-    }
+function editMessage(messageId) {
+    // Navigate to edit page with message ID
+    window.location.href = `messages-edit.html?id=${messageId}`;
 }
 
-function loadMessageContent(messageId) {
-    const message = messages[messageId] || {};
-
-    // Load message data into form
-    document.getElementById('message-type').value = message.type || 'welcome';
-    document.getElementById('message-subject').value = message.subject || '';
-    document.getElementById('message-intro').value = message.intro || '';
-    document.getElementById('message-content').value = message.content || '';
-    document.getElementById('message-cta').value = message.cta || '';
-    document.getElementById('message-ps').value = message.ps || '';
-    document.getElementById('message-pps').value = message.pps || '';
-    document.getElementById('message-end').value = message.end || '';
-
-    // Update subject display
-    document.getElementById('subject-display').textContent = message.subject || 'New Message';
-}
-
-function saveCurrentMessage() {
-    if (!activeMessage) return;
-
-    // Get form data
-    const messageData = {
-        type: document.getElementById('message-type').value,
-        subject: document.getElementById('message-subject').value,
-        intro: document.getElementById('message-intro').value,
-        content: document.getElementById('message-content').value,
-        cta: document.getElementById('message-cta').value,
-        ps: document.getElementById('message-ps').value,
-        pps: document.getElementById('message-pps').value,
-        end: document.getElementById('message-end').value,
-        description: document.getElementById('message-intro').value.substring(0, 60) + '...',
-        updated: 'Just now'
-    };
-
-    // Store in messages object
-    messages[activeMessage] = { ...messages[activeMessage], ...messageData };
-
-    // Update message row in table
-    updateMessageRow(activeMessage, messageData);
-
-    // Update subject display
-    document.getElementById('subject-display').textContent = messageData.subject || 'New Message';
-}
-
-function updateMessageRow(messageId, messageData) {
-    const messageRow = document.querySelector(`[data-message="${messageId}"]`);
-    if (messageRow) {
-        const titleElement = messageRow.querySelector('h4');
-        const descElement = messageRow.querySelector('p');
-        const typeElement = messageRow.querySelector('.text-xs');
-
-        if (titleElement) titleElement.textContent = messageData.subject || 'Untitled Message';
-        if (descElement) descElement.textContent = messageData.description || messageData.intro?.substring(0, 60) + '...' || '';
-        if (typeElement) typeElement.textContent = `Type: ${messageData.type?.charAt(0).toUpperCase() + messageData.type?.slice(1) || 'Welcome'}`;
-    }
-}
-
-// Message CRUD Functions
 function addNewMessage() {
-    // Save current message first
-    saveCurrentMessage();
-
-    messageCounter++;
-    const newMessageId = messageCounter;
-
-    // Create new message data
-    const newMessage = {
-        type: 'welcome',
-        subject: 'New Message Template',
-        intro: '',
-        content: '',
-        cta: '',
-        ps: '',
-        pps: '',
-        end: '',
-        description: 'New message template...',
-        updated: 'Just now'
-    };
-
-    // Add to messages object
-    messages[newMessageId] = newMessage;
-
-    // Create new message row HTML
-    const newMessageHTML = `
-        <div class="message-row p-4 border-b border-base-200" data-message="${newMessageId}" onclick="selectMessage(${newMessageId})">
-            <div class="flex justify-between items-start">
-                <div class="flex-1 min-w-0">
-                    <h4 class="font-medium text-gray-900 truncate">New Message Template</h4>
-                    <p class="text-sm text-gray-500 mt-1 line-clamp-2">New message template...</p>
-                    <div class="flex items-center gap-4 mt-2">
-                        <span class="text-xs text-gray-400">Type: Welcome</span>
-                        <span class="text-xs text-gray-400">Updated: Just now</span>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 ml-2">
-                    <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(${newMessageId})" title="Duplicate">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(${newMessageId})" title="Delete">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // Insert the new message row at the top of the messages container
-    const messagesContainer = document.getElementById('messages-container');
-    messagesContainer.insertAdjacentHTML('afterbegin', newMessageHTML);
-
-    // Select the new message
-    selectMessage(newMessageId);
-
-    // Update message count
-    updateMessageCount();
-
-    window.ModalSystem.toast('New message created successfully!');
+    // Navigate to edit page for new message
+    window.location.href = 'messages-edit.html';
 }
 
 function duplicateMessage(messageId) {
-    const originalMessage = messages[messageId];
-    if (!originalMessage) return;
+    window.ModalSystem.toast('Message duplicated successfully!', 'success');
+    // Add duplication logic here
+}
 
-    messageCounter++;
-    const newMessageId = messageCounter;
-
-    // Create duplicate with modified subject
-    const duplicateMessage = {
-        ...originalMessage,
-        subject: originalMessage.subject + ' (Copy)',
-        description: (originalMessage.subject + ' (Copy)').substring(0, 60) + '...',
-        updated: 'Just now'
-    };
-
-    // Add to messages object
-    messages[newMessageId] = duplicateMessage;
-
-    // Create new message row HTML
-    const newMessageHTML = `
-        <div class="message-row p-4 border-b border-base-200" data-message="${newMessageId}" onclick="selectMessage(${newMessageId})">
-            <div class="flex justify-between items-start">
-                <div class="flex-1 min-w-0">
-                    <h4 class="font-medium text-gray-900 truncate">${duplicateMessage.subject}</h4>
-                    <p class="text-sm text-gray-500 mt-1 line-clamp-2">${duplicateMessage.description}</p>
-                    <div class="flex items-center gap-4 mt-2">
-                        <span class="text-xs text-gray-400">Type: ${duplicateMessage.type.charAt(0).toUpperCase() + duplicateMessage.type.slice(1)}</span>
-                        <span class="text-xs text-gray-400">Updated: Just now</span>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 ml-2">
-                    <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(${newMessageId})" title="Duplicate">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(${newMessageId})" title="Delete">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // Insert after the original message
-    const originalRow = document.querySelector(`[data-message="${messageId}"]`);
-    originalRow.insertAdjacentHTML('afterend', newMessageHTML);
-
-    // Update message count
-    updateMessageCount();
-
-    window.ModalSystem.toast('Message duplicated successfully!');
+function previewMessage(messageId) {
+    window.ModalSystem.toast('Preview functionality coming soon!', 'info');
 }
 
 function confirmDeleteMessage(messageId) {
-    if (Object.keys(messages).length <= 1) {
-        window.ModalSystem.error('Cannot delete the last remaining message.');
-        return;
-    }
-
-    const message = messages[messageId];
-    const messageTitle = message?.subject || 'this message';
-
-    window.ModalSystem.confirm({
-        title: 'Delete Message',
-        message: `Are you sure you want to delete "${messageTitle}"? This action cannot be undone.`,
-        confirmText: 'Delete',
-        confirmClass: 'btn-error',
-        action: () => deleteMessage(messageId)
-    });
-}
-
-function deleteMessage(messageId) {
-    const messageRow = document.querySelector(`[data-message="${messageId}"]`);
-    if (messageRow) {
-        messageRow.remove();
-
-        // Remove from messages
-        delete messages[messageId];
-
-        // If this was the active message, select another one
-        if (activeMessage == messageId) {
-            const firstMessage = document.querySelector('.message-row');
-            if (firstMessage) {
-                const firstMessageId = parseInt(firstMessage.getAttribute('data-message'));
-                selectMessage(firstMessageId);
-            }
+    window.ModalSystem.confirm(
+        'Delete Message',
+        'Are you sure you want to delete this message? This action cannot be undone.',
+        () => {
+            // Delete logic here
+            window.ModalSystem.toast('Message deleted successfully!', 'success');
         }
-
-        // Update message count
-        updateMessageCount();
-
-        window.ModalSystem.toast('Message deleted successfully');
-    }
+    );
 }
 
-// Search and Filter Functions
 function filterMessages() {
     const searchTerm = document.getElementById('search-messages').value.toLowerCase();
-    const filterType = document.getElementById('filter-type').value;
-    const messageRows = document.querySelectorAll('.message-row');
+    const productFilter = document.getElementById('filter-product').value;
+    const typeFilter = document.getElementById('filter-type').value;
 
+    const rows = document.querySelectorAll('#messages-table-body tr');
     let visibleCount = 0;
 
-    messageRows.forEach(row => {
+    rows.forEach(row => {
         const messageId = row.getAttribute('data-message');
-        const message = messages[messageId];
+        const message = messagesData[messageId];
 
         if (!message) return;
 
         const matchesSearch = !searchTerm ||
             message.subject.toLowerCase().includes(searchTerm) ||
-            message.description.toLowerCase().includes(searchTerm) ||
-            message.content.toLowerCase().includes(searchTerm);
+            message.description.toLowerCase().includes(searchTerm);
 
-        const matchesType = !filterType || message.type === filterType;
+        const matchesProduct = !productFilter || message.product === productFilter;
+        const matchesType = !typeFilter || message.type === typeFilter;
 
-        if (matchesSearch && matchesType) {
-            row.style.display = 'block';
+        if (matchesSearch && matchesProduct && matchesType) {
+            row.style.display = '';
             visibleCount++;
         } else {
             row.style.display = 'none';
         }
     });
 
-    // Update message count
-    document.getElementById('message-count').textContent = `${visibleCount} message${visibleCount !== 1 ? 's' : ''}`;
+    document.getElementById('message-count').textContent = `${visibleCount} messages`;
 }
 
-function updateMessageCount() {
-    const totalMessages = Object.keys(messages).length;
-    document.getElementById('message-count').textContent = `${totalMessages} message${totalMessages !== 1 ? 's' : ''}`;
-}
-
-// Message Action Functions
-function saveMessage() {
-    saveCurrentMessage();
-    window.ModalSystem.toast('Message saved successfully!');
-}
-
-function previewMessage() {
-    const subject = document.getElementById('message-subject').value;
-    const content = document.getElementById('message-content').value;
-
-    if (!subject && !content) {
-        window.ModalSystem.error('Please add some content to preview.');
-        return;
-    }
-
-    window.ModalSystem.toast('Preview functionality coming soon!', 'info');
-}
-
-function showTemplates() {
-    window.ModalSystem.toast('Templates functionality coming soon!', 'info');
-}
-
-function showVariables() {
-    window.ModalSystem.toast('Variables functionality coming soon!', 'info');
-}
-
-function showAI() {
-    window.ModalSystem.toast('AI assistance coming soon!', 'info');
-}
-
-function copyMessage() {
-    const content = document.getElementById('message-content').value;
-    if (content) {
-        navigator.clipboard.writeText(content).then(() => {
-            window.ModalSystem.toast('Content copied to clipboard!');
-        });
-    } else {
-        window.ModalSystem.error('No content to copy.');
-    }
-}
-
-function exportMessage() {
-    window.ModalSystem.toast('Export functionality coming soon!', 'info');
-}
-
-// Initialize
+// Initialize page
 document.addEventListener('DOMContentLoaded', function() {
-    // Load first message content
-    loadMessageContent(1);
-
-    // Auto-save on form changes
-    document.addEventListener('input', function(e) {
-        if (e.target.closest('#message-form')) {
-            // Auto-save current message when user types
-            setTimeout(() => {
-                saveCurrentMessage();
-            }, 500);
-        }
-    });
-
-    // Update subject display when typing in subject field
-    document.getElementById('message-subject').addEventListener('input', function() {
-        document.getElementById('subject-display').textContent = this.value || 'New Message';
-    });
-
-    // Update message count
-    updateMessageCount();
+    // Set initial message count
+    document.getElementById('message-count').textContent = `${Object.keys(messagesData).length} messages`;
 });
 </script>
 

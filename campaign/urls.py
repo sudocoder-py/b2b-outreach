@@ -18,6 +18,7 @@ urlpatterns = [
     path('products/', views.products_view, name='products'),
     path('email-accounts/', views.email_accounts_view, name='email_accounts'),
     path('messages/', views.messages_view, name='messages'),
+    path('messages/edit/<int:pk>/', views.messages_edit_view, name='messages_edit'),
     path('links/', views.links_view, name='links'),
     path('overall-dashboard/', views.overall_dashboard_view, name='overall_dashboard'),
     path('feedback/', views.feedback_view, name='feedback'),
