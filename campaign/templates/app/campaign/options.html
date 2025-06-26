@@ -1,88 +1,305 @@
- {% extends "app/campaign/campaign-base.html" %}
- 
- {% block title %}Campaign options{% endblock %}
- 
- 
- 
- {% block cmp-base-content %}     
-     
-     
-     
-     
-     
+{% extends "app/campaign/campaign-base.html" %}
+
+{% block title %}Campaign options{% endblock %}
+
+{% block cmp-base-content %}
+
+<style>
+/* Custom styles for options page */
+.option-card {
+    transition: all 0.2s ease;
+}
+
+.option-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-group .btn {
+    transition: all 0.2s ease;
+}
+
+.toggle-group .btn.active {
+    transform: scale(1.02);
+}
+
+.form-control input:focus,
+.form-control select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.save-indicator {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.save-indicator.show {
+    opacity: 1;
+}
+</style>
 
         <!-- Options Container -->
         <div class="mt-6 w-full max-w-4xl mx-auto">
-            <div class="space-y-4">
+            <form id="options-form" class="space-y-4">
                 <!-- Card: Accounts to use -->
-                <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between">
+                <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between option-card">
                     <div>
                         <h3 class="font-bold text-gray-800 text-base">Accounts to use</h3>
                         <p class="text-sm text-gray-500 mt-1">Select one or more accounts to send emails from</p>
                     </div>
                     <div class="flex flex-col items-end gap-2">
-                        <select class="select select-bordered bg-white w-64"><option selected>Select...</option></select>
-                        <a href="#" class="text-sm text-primary font-semibold">Connect new email account</a>
+                        <select id="email-accounts" name="emailAccounts" class="select select-bordered bg-white w-64" onchange="updateAccountSelection()">
+                            <option value="">Select...</option>
+                            <option value="john@company.com">john@company.com</option>
+                            <option value="sales@company.com">sales@company.com</option>
+                            <option value="support@company.com">support@company.com</option>
+                        </select>
+                        <button type="button" class="text-sm text-primary font-semibold hover:underline" onclick="connectNewAccount()">
+                            Connect new email account
+                        </button>
                     </div>
                 </div>
                 <!-- Card: Stop sending emails -->
-                 <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between">
+                <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between option-card">
                     <div>
                         <h3 class="font-bold text-gray-800 text-base">Stop sending emails on reply</h3>
                         <p class="text-sm text-gray-500 mt-1">Stop sending emails to a lead if a response has been received</p>
                     </div>
-                    <div class="join rounded-lg">
-                        <button class="join-item btn btn-sm bg-gray-100 border-gray-300 text-gray-500">Disable</button>
-                        <button class="join-item btn btn-sm btn-success text-white">Enable</button>
+                    <div class="join rounded-lg toggle-group" data-option="stopOnReply">
+                        <button type="button" class="join-item btn btn-sm bg-gray-100 border-gray-300 text-gray-500"
+                                onclick="toggleOption('stopOnReply', false)" data-value="false">Disable</button>
+                        <button type="button" class="join-item btn btn-sm btn-success text-white active"
+                                onclick="toggleOption('stopOnReply', true)" data-value="true">Enable</button>
                     </div>
                 </div>
+
                 <!-- Card: Open Tracking -->
-                <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between">
+                <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between option-card">
                     <div>
                         <h3 class="font-bold text-gray-800 text-base">Open Tracking</h3>
                         <p class="text-sm text-gray-500 mt-1">Track email opens</p>
                     </div>
                     <div class="flex items-center gap-4">
-                        <label class="label cursor-pointer gap-2"><input type="checkbox" class="checkbox" /> <span class="label-text">Link tracking</span></label>
-                        <div class="join rounded-lg">
-                            <button class="join-item btn btn-sm btn-neutral text-white">Disable</button>
-                            <button class="join-item btn btn-sm bg-gray-100 border-gray-300 text-gray-500">Enable</button>
+                        <label class="label cursor-pointer gap-2">
+                            <input type="checkbox" name="linkTracking" class="checkbox checkbox-primary" onchange="updateOption('linkTracking', this.checked)" />
+                            <span class="label-text">Link tracking</span>
+                        </label>
+                        <div class="join rounded-lg toggle-group" data-option="openTracking">
+                            <button type="button" class="join-item btn btn-sm btn-neutral text-white active"
+                                    onclick="toggleOption('openTracking', false)" data-value="false">Disable</button>
+                            <button type="button" class="join-item btn btn-sm bg-gray-100 border-gray-300 text-gray-500"
+                                    onclick="toggleOption('openTracking', true)" data-value="true">Enable</button>
                         </div>
                     </div>
                 </div>
                 <!-- Card: Delivery Optimization -->
-                <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between">
+                <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between option-card">
                     <div>
-                        <h3 class="font-bold text-gray-800 text-base flex items-center gap-2">Delivery Optimization <div class="badge badge-success badge-outline text-xs font-semibold">Recommended</div></h3>
+                        <h3 class="font-bold text-gray-800 text-base flex items-center gap-2">
+                            Delivery Optimization
+                            <div class="badge badge-success badge-outline text-xs font-semibold">Recommended</div>
+                        </h3>
                         <p class="text-sm text-gray-500 mt-1">Disables open tracking</p>
                     </div>
                     <div class="flex flex-col items-start gap-2">
-                         <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" class="checkbox" /> <span class="label-text text-sm">Send emails as text-only (no HTML)</span></label>
-                         <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" class="checkbox" /> <span class="label-text text-sm flex items-center gap-2">Send first email as text-only <div class="badge badge-warning text-yellow-800 font-bold text-xs">Pro</div></span></label>
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="checkbox" name="textOnly" class="checkbox checkbox-primary" onchange="updateOption('textOnly', this.checked)" />
+                            <span class="label-text text-sm">Send emails as text-only (no HTML)</span>
+                        </label>
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="checkbox" name="firstEmailTextOnly" class="checkbox checkbox-primary" onchange="updateOption('firstEmailTextOnly', this.checked)" />
+                            <span class="label-text text-sm flex items-center gap-2">
+                                Send first email as text-only
+                                <div class="badge badge-warning text-yellow-800 font-bold text-xs">Pro</div>
+                            </span>
+                        </label>
                     </div>
                 </div>
-                 <!-- Card: Daily Limit -->
-                <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between">
+
+                <!-- Card: Daily Limit -->
+                <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between option-card">
                     <div>
                         <h3 class="font-bold text-gray-800 text-base">Daily Limit</h3>
                         <p class="text-sm text-gray-500 mt-1">Max number of emails to send per day for this campaign</p>
                     </div>
-                    <input type="number" value="30" class="input input-bordered bg-white w-24 text-center" />
+                    <div class="flex items-center gap-2">
+                        <input type="number"
+                               id="daily-limit"
+                               name="dailyLimit"
+                               value="30"
+                               min="1"
+                               max="1000"
+                               class="input input-bordered bg-white w-24 text-center"
+                               onchange="updateOption('dailyLimit', this.value)" />
+                        <span class="text-sm text-gray-500 save-indicator" id="daily-limit-saved">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                        </span>
+                    </div>
                 </div>
+            </form>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-center mt-10 space-x-4">
+                <button class="btn btn-outline btn-primary" onclick="saveOptions()">
+                    <i class="fas fa-save mr-2"></i> Save
+                </button>
+                <button class="btn btn-primary" onclick="launchCampaign()">
+                    <i class="fas fa-rocket mr-2"></i> Launch
+                </button>
             </div>
+        </div>
 
-           <div class="flex justify-center mt-10 space-x-4">
-  <button class="btn btn-outline btn-primary">
-    <i class="fas fa-save mr-2"></i> Save
-  </button>
-  <button class="btn btn-primary">
-    <i class="fas fa-rocket mr-2"></i> Launch
-  </button>
-</div>
+<script>
+// Campaign Options Management
+let campaignOptions = {
+    emailAccounts: '',
+    stopOnReply: true,
+    openTracking: false,
+    linkTracking: false,
+    textOnly: false,
+    firstEmailTextOnly: false,
+    dailyLimit: 30
+};
 
-</div>
+// Toggle button functionality
+function toggleOption(optionName, value) {
+    const toggleGroup = document.querySelector(`[data-option="${optionName}"]`);
+    const buttons = toggleGroup.querySelectorAll('button');
 
+    // Update button states
+    buttons.forEach(btn => {
+        const btnValue = btn.getAttribute('data-value') === 'true';
+        if (btnValue === value) {
+            btn.classList.add('active');
+            if (value) {
+                btn.classList.add('btn-success', 'text-white');
+                btn.classList.remove('bg-gray-100', 'border-gray-300', 'text-gray-500', 'btn-neutral');
+            } else {
+                btn.classList.add('btn-neutral', 'text-white');
+                btn.classList.remove('bg-gray-100', 'border-gray-300', 'text-gray-500', 'btn-success');
+            }
+        } else {
+            btn.classList.remove('active', 'btn-success', 'btn-neutral', 'text-white');
+            btn.classList.add('bg-gray-100', 'border-gray-300', 'text-gray-500');
+        }
+    });
 
+    // Update option value
+    updateOption(optionName, value);
+}
 
+// Update option value
+function updateOption(optionName, value) {
+    campaignOptions[optionName] = value;
 
-{% endblock %}        
+    // Show save indicator for daily limit
+    if (optionName === 'dailyLimit') {
+        showSaveIndicator('daily-limit-saved');
+    }
+
+    // Auto-save after short delay
+    setTimeout(() => {
+        autoSave();
+    }, 500);
+}
+
+// Show save indicator
+function showSaveIndicator(elementId) {
+    const indicator = document.getElementById(elementId);
+    if (indicator) {
+        indicator.classList.add('show');
+        setTimeout(() => {
+            indicator.classList.remove('show');
+        }, 2000);
+    }
+}
+
+// Auto-save functionality
+function autoSave() {
+    // Simulate auto-save
+    console.log('Auto-saving options:', campaignOptions);
+}
+
+// Account selection
+function updateAccountSelection() {
+    const select = document.getElementById('email-accounts');
+    updateOption('emailAccounts', select.value);
+
+    if (select.value) {
+        window.ModalSystem.toast(`Selected account: ${select.value}`, 'success');
+    }
+}
+
+// Connect new account
+function connectNewAccount() {
+    window.ModalSystem.confirm({
+        title: 'Connect Email Account',
+        message: 'This will redirect you to connect a new email account. Continue?',
+        confirmText: 'Continue',
+        confirmClass: 'btn-primary',
+        action: () => {
+            window.ModalSystem.toast('Email account connection coming soon!', 'info');
+        }
+    });
+}
+
+// Save options
+function saveOptions() {
+    window.ModalSystem.loading('Saving campaign options...');
+
+    // Simulate save
+    setTimeout(() => {
+        window.ModalSystem.hideLoading();
+        window.ModalSystem.toast('Campaign options saved successfully!');
+    }, 1500);
+}
+
+// Launch campaign
+function launchCampaign() {
+    // Validate required fields
+    if (!campaignOptions.emailAccounts) {
+        window.ModalSystem.error('Please select an email account before launching the campaign.');
+        return;
+    }
+
+    window.ModalSystem.confirm({
+        title: 'Launch Campaign',
+        message: 'Are you sure you want to launch this campaign? This action cannot be undone.',
+        confirmText: 'Launch',
+        confirmClass: 'btn-primary',
+        action: () => {
+            window.ModalSystem.loading('Launching campaign...');
+
+            setTimeout(() => {
+                window.ModalSystem.hideLoading();
+                window.ModalSystem.success({
+                    title: 'Campaign Launched!',
+                    message: 'Your campaign has been successfully launched and is now active.',
+                    action: () => {
+                        // Redirect to dashboard
+                        window.location.href = '/campaign/dashboard/';
+                    }
+                });
+            }, 2000);
+        }
+    });
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Set initial toggle states
+    toggleOption('stopOnReply', true);
+    toggleOption('openTracking', false);
+
+    // Auto-save on form changes
+    document.addEventListener('input', function(e) {
+        if (e.target.closest('#options-form')) {
+            setTimeout(() => {
+                autoSave();
+            }, 500);
+        }
+    });
+});
+</script>
+
+{% endblock %}

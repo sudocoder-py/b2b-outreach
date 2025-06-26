@@ -1,82 +1,635 @@
- {% extends "app/campaign/campaign-base.html" %}
- 
- {% block title %}Campaign Dashboard{% endblock %}
- 
- 
- {% block cmp-base-content %}     
+{% extends "app/campaign/campaign-base.html" %}
+
+{% block title %}Campaign Dashboard{% endblock %}
+
+{% block cmp-base-content %}
+
+<style>
+/* Custom styles for dashboard */
+.stat-card {
+    transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.progress-ring {
+    transition: stroke-dasharray 0.5s ease;
+}
+
+.dropdown-content {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.tab-content {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.tab-content.active {
+    opacity: 1;
+}
+
+.activity-item {
+    transition: all 0.2s ease;
+}
+
+.activity-item:hover {
+    background-color: #f9fafb;
+}
+</style>
 
         <!-- Status & Filters -->
         <div class="flex items-center justify-between mt-8">
             <div class="flex items-center gap-3">
                 <span class="text-sm font-medium text-gray-500">Status:</span>
-                <div class="badge badge-neutral text-white font-semibold text-xs py-3">Draft</div>
-                <span class="text-sm font-bold text-gray-800">0%</span>
-                <progress class="progress progress-primary w-40 h-1.5" value="0" max="100"></progress>
+                <div class="badge text-white font-semibold text-xs py-3" id="campaign-status-badge">Draft</div>
+                <span class="text-sm font-bold text-gray-800" id="campaign-progress-text">0%</span>
+                <progress class="progress progress-primary w-40 h-1.5" value="0" max="100" id="campaign-progress-bar"></progress>
             </div>
             <div class="flex items-center gap-3">
-                <button class="btn bg-white border border-base-300 h-10 min-h-10 rounded-lg px-4 text-sm">
+                <button class="btn bg-white border border-base-300 h-10 min-h-10 rounded-lg px-4 text-sm hover:bg-gray-50" onclick="shareCampaign()">
                     <i class="fa-solid fa-share-nodes mr-2 text-gray-500"></i>
                     Share
                 </button>
-                 <div class="dropdown dropdown-end">
-                    <button tabindex="0" role="button" class="btn bg-white border border-base-300 h-10 min-h-10 px-3 flex items-center gap-2 rounded-lg">
-                        <span class="text-sm font-medium text-gray-700">Last 4 weeks</span>
+                <div class="dropdown dropdown-end">
+                    <button tabindex="0" role="button" class="btn bg-white border border-base-300 h-10 min-h-10 px-3 flex items-center gap-2 rounded-lg hover:bg-gray-50">
+                        <span class="text-sm font-medium text-gray-700" id="time-filter-text">Last 4 weeks</span>
                         <i class="fa-solid fa-chevron-down text-xs text-gray-500"></i>
                     </button>
+                    <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-white rounded-box w-52 mt-2">
+                        <li><a onclick="changeTimeFilter('Last 24 hours')">Last 24 hours</a></li>
+                        <li><a onclick="changeTimeFilter('Last 7 days')">Last 7 days</a></li>
+                        <li><a onclick="changeTimeFilter('Last 4 weeks')" class="active">Last 4 weeks</a></li>
+                        <li><a onclick="changeTimeFilter('Last 3 months')">Last 3 months</a></li>
+                        <li><a onclick="changeTimeFilter('All time')">All time</a></li>
+                    </ul>
                 </div>
-                <button class="btn bg-white border border-base-300 btn-square h-10 min-h-10 w-10">
+                <button class="btn bg-white border border-base-300 btn-square h-10 min-h-10 w-10 hover:bg-gray-50" onclick="openSettings()">
                     <i class="fa-solid fa-gear text-gray-500"></i>
                 </button>
             </div>
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6">
-            <!-- Card 1 -->
-            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-                <div class="flex justify-between items-center text-gray-400 text-sm font-medium"><span>Sequence started</span><i class="fa-solid fa-circle-info"></i></div>
-                <div class="mt-4 text-4xl font-bold text-gray-800">-</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6" id="stats-container">
+            <!-- Card 1: Sequence Started -->
+            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer" onclick="showStatDetails('sequence')">
+                <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
+                    <span>Sequence started</span>
+                    <div class="tooltip tooltip-left" data-tip="Number of leads who started the sequence">
+                        <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-4xl font-bold text-gray-800" id="sequence-started">-</div>
             </div>
-            <!-- Card 2 -->
-            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-                <div class="flex justify-between items-center text-gray-400 text-sm font-medium"><span>Open rate</span><i class="fa-solid fa-circle-info"></i></div>
-                <div class="mt-4 text-4xl font-bold text-gray-800">0 <span class="text-gray-300 font-light mx-1">|</span> <span class="text-2xl font-semibold">-</span></div>
+
+            <!-- Card 2: Open Rate -->
+            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer" onclick="showStatDetails('opens')">
+                <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
+                    <span>Open rate</span>
+                    <div class="tooltip tooltip-left" data-tip="Percentage of emails opened by recipients">
+                        <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-4xl font-bold text-gray-800">
+                    <span id="opens-count">0</span>
+                    <span class="text-gray-300 font-light mx-1">|</span>
+                    <span class="text-2xl font-semibold" id="open-rate">-</span>
+                </div>
             </div>
-            <!-- Card 3 -->
-            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-                <div class="flex justify-between items-center text-gray-400 text-sm font-medium"><span>Click rate</span><i class="fa-solid fa-circle-info"></i></div>
-                <div class="mt-4 text-4xl font-bold text-gray-800">0 <span class="text-gray-300 font-light mx-1">|</span> <span class="text-2xl font-semibold">-</span></div>
+
+            <!-- Card 3: Click Rate -->
+            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer" onclick="showStatDetails('clicks')">
+                <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
+                    <span>Click rate</span>
+                    <div class="tooltip tooltip-left" data-tip="Percentage of emails where links were clicked">
+                        <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-4xl font-bold text-gray-800">
+                    <span id="clicks-count">0</span>
+                    <span class="text-gray-300 font-light mx-1">|</span>
+                    <span class="text-2xl font-semibold" id="click-rate">-</span>
+                </div>
             </div>
-            <!-- Card 4 -->
-            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-                <div class="flex justify-between items-center text-gray-400 text-sm font-medium"><span>Opportunities</span><i class="fa-solid fa-circle-info"></i></div>
-                <div class="mt-4 text-4xl font-bold text-gray-800">0 <span class="text-gray-300 font-light mx-1">|</span> <span class="text-2xl font-semibold text-gray-500">$0</span></div>
+
+            <!-- Card 4: Opportunities -->
+            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer" onclick="showStatDetails('opportunities')">
+                <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
+                    <span>Opportunities</span>
+                    <div class="tooltip tooltip-left" data-tip="Number of qualified opportunities and their total potential value">
+                        <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-4xl font-bold text-gray-800">
+                    <span id="opportunities-count">0</span>
+                    <span class="text-gray-300 font-light mx-1">|</span>
+                    <span class="text-2xl font-semibold text-gray-500" id="opportunities-value">$0</span>
+                </div>
             </div>
-            <!-- Card 5 -->
-            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-                <div class="flex justify-between items-center text-gray-400 text-sm font-medium"><span>Conversions</span><i class="fa-solid fa-circle-info"></i></div>
-                <div class="mt-4 text-4xl font-bold text-gray-800">0 <span class="text-gray-300 font-light mx-1">|</span> <span class="text-2xl font-semibold text-gray-500">$0</span></div>
+
+            <!-- Card 5: Conversions -->
+            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer" onclick="showStatDetails('conversions')">
+                <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
+                    <span>Conversions</span>
+                    <div class="tooltip tooltip-left" data-tip="Number of closed deals and total revenue generated">
+                        <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-4xl font-bold text-gray-800">
+                    <span id="conversions-count">0</span>
+                    <span class="text-gray-300 font-light mx-1">|</span>
+                    <span class="text-2xl font-semibold text-gray-500" id="conversions-value">$0</span>
+                </div>
             </div>
         </div>
         
-        <!-- Empty Chart Placeholder -->
-        <div class="mt-6 bg-white border border-gray-200 rounded-xl p-12 flex items-center justify-center">
-            <p class="text-gray-500 text-sm">No data available for specified time</p>
+        <!-- Chart Section -->
+        <div class="mt-6 bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-800">Performance Overview</h3>
+                <div class="flex items-center gap-2">
+                    <!-- Chart Legend -->
+                    <div class="flex items-center gap-4 text-sm" id="chart-legend" style="display: none;">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                            <span class="text-gray-600">Sent</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span class="text-gray-600">Opened</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                            <span class="text-gray-600">Clicked</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                            <span class="text-gray-600">Replied</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-ghost" onclick="refreshChart()">
+                        <i class="fa-solid fa-refresh mr-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="h-64 relative" id="chart-container">
+                <!-- Empty State -->
+                <div class="h-full flex items-center justify-center" id="chart-empty-state">
+                    <div class="text-center">
+                        <i class="fa-solid fa-chart-line text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 text-sm" id="chart-message">No data available for specified time period</p>
+                        <button class="btn btn-sm btn-primary mt-4" onclick="generateSampleData()" id="generate-data-btn">
+                            Generate Sample Data
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chart Canvas -->
+                <div class="h-full w-full" id="chart-canvas" style="display: none;">
+                    <svg width="100%" height="100%" viewBox="0 0 800 240" id="performance-chart">
+                        <!-- Grid lines -->
+                        <defs>
+                            <pattern id="grid" width="80" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M 80 0 L 0 0 0 40" fill="none" stroke="#f3f4f6" stroke-width="1"/>
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+
+                        <!-- Chart content will be generated by JavaScript -->
+                        <g id="chart-content"></g>
+
+                        <!-- Tooltip -->
+                        <g id="chart-tooltip" style="display: none;">
+                            <rect x="0" y="0" width="120" height="60" fill="rgba(0,0,0,0.8)" rx="4"/>
+                            <text x="10" y="20" fill="white" font-size="12" id="tooltip-date"></text>
+                            <text x="10" y="35" fill="white" font-size="11" id="tooltip-value"></text>
+                            <text x="10" y="50" fill="white" font-size="11" id="tooltip-metric"></text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
         </div>
 
         <!-- Step Analytics & Activity -->
         <div class="mt-6 bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
             <div role="tablist" class="tabs tabs-boxed bg-gray-100 w-max">
-                <a role="tab" class="tab tab-active bg-white text-primary shadow-sm">Step Analytics</a> 
-                <a role="tab" class="tab">Activity</a>
+                <a role="tab" class="tab tab-active bg-white text-primary shadow-sm" onclick="switchTab('analytics')">Step Analytics</a>
+                <a role="tab" class="tab" onclick="switchTab('activity')">Activity</a>
             </div>
-            <div class="mt-6">
-                <p class="text-sm text-gray-600">👋 Step analytics will appear here once the campaign is published</p>
+
+            <!-- Step Analytics Tab -->
+            <div class="mt-6 tab-content active" id="analytics-tab">
+                <div class="space-y-4" id="step-analytics-container">
+                    <p class="text-sm text-gray-600">👋 Step analytics will appear here once the campaign is published</p>
+                    <button class="btn btn-sm btn-outline btn-primary" onclick="loadStepAnalytics()">
+                        Load Sample Analytics
+                    </button>
+                </div>
+            </div>
+
+            <!-- Activity Tab -->
+            <div class="mt-6 tab-content" id="activity-tab">
+                <div class="space-y-3" id="activity-container">
+                    <p class="text-sm text-gray-600">Recent campaign activity will appear here</p>
+                    <button class="btn btn-sm btn-outline btn-primary" onclick="loadActivity()">
+                        Load Sample Activity
+                    </button>
+                </div>
             </div>
         </div>
 
+<script>
+// Dashboard Data Management
+let dashboardData = {
+    campaignStatus: 'draft',
+    progress: 0,
+    timeFilter: 'Last 4 weeks',
+    stats: {
+        sequenceStarted: 0,
+        opensCount: 0,
+        openRate: 0,
+        clicksCount: 0,
+        clickRate: 0,
+        opportunitiesCount: 0,
+        opportunitiesValue: 0,
+        conversionsCount: 0,
+        conversionsValue: 0
+    },
+    hasData: false
+};
 
+// Campaign status management
+function updateCampaignStatus(status) {
+    dashboardData.campaignStatus = status;
+    const badge = document.getElementById('campaign-status-badge');
+    const progressText = document.getElementById('campaign-progress-text');
+    const progressBar = document.getElementById('campaign-progress-bar');
 
+    switch(status) {
+        case 'draft':
+            badge.className = 'badge badge-neutral text-white font-semibold text-xs py-3';
+            badge.textContent = 'Draft';
+            dashboardData.progress = 0;
+            break;
+        case 'active':
+            badge.className = 'badge badge-success text-white font-semibold text-xs py-3';
+            badge.textContent = 'Active';
+            dashboardData.progress = 45;
+            break;
+        case 'paused':
+            badge.className = 'badge badge-warning text-white font-semibold text-xs py-3';
+            badge.textContent = 'Paused';
+            break;
+        case 'completed':
+            badge.className = 'badge badge-info text-white font-semibold text-xs py-3';
+            badge.textContent = 'Completed';
+            dashboardData.progress = 100;
+            break;
+    }
 
+    progressText.textContent = `${dashboardData.progress}%`;
+    progressBar.value = dashboardData.progress;
+}
 
-{% endblock %}        
+// Time filter management
+function changeTimeFilter(filter) {
+    dashboardData.timeFilter = filter;
+    document.getElementById('time-filter-text').textContent = filter;
+
+    // Update dropdown active state
+    document.querySelectorAll('.dropdown-content a').forEach(item => {
+        item.classList.remove('active');
+    });
+    event.target.classList.add('active');
+
+    // Refresh data
+    refreshDashboardData();
+    window.ModalSystem.toast(`Time filter changed to: ${filter}`);
+}
+
+// Stats management
+function updateStats(newStats) {
+    Object.assign(dashboardData.stats, newStats);
+
+    // Update UI
+    document.getElementById('sequence-started').textContent = dashboardData.stats.sequenceStarted;
+    document.getElementById('opens-count').textContent = dashboardData.stats.opensCount;
+    document.getElementById('open-rate').textContent = dashboardData.stats.openRate > 0 ? `${dashboardData.stats.openRate}%` : '-';
+    document.getElementById('clicks-count').textContent = dashboardData.stats.clicksCount;
+    document.getElementById('click-rate').textContent = dashboardData.stats.clickRate > 0 ? `${dashboardData.stats.clickRate}%` : '-';
+    document.getElementById('opportunities-count').textContent = dashboardData.stats.opportunitiesCount;
+    document.getElementById('opportunities-value').textContent = `$${dashboardData.stats.opportunitiesValue.toLocaleString()}`;
+    document.getElementById('conversions-count').textContent = dashboardData.stats.conversionsCount;
+    document.getElementById('conversions-value').textContent = `$${dashboardData.stats.conversionsValue.toLocaleString()}`;
+}
+
+// Generate sample data
+function generateSampleData() {
+    window.ModalSystem.loading('Generating sample data...');
+
+    setTimeout(() => {
+        // Update campaign status
+        updateCampaignStatus('active');
+
+        // Generate sample stats
+        const sampleStats = {
+            sequenceStarted: Math.floor(Math.random() * 500) + 100,
+            opensCount: Math.floor(Math.random() * 300) + 50,
+            openRate: Math.floor(Math.random() * 40) + 20,
+            clicksCount: Math.floor(Math.random() * 100) + 10,
+            clickRate: Math.floor(Math.random() * 15) + 5,
+            opportunitiesCount: Math.floor(Math.random() * 20) + 5,
+            opportunitiesValue: Math.floor(Math.random() * 50000) + 10000,
+            conversionsCount: Math.floor(Math.random() * 10) + 2,
+            conversionsValue: Math.floor(Math.random() * 25000) + 5000
+        };
+
+        updateStats(sampleStats);
+        dashboardData.hasData = true;
+
+        // Generate and display chart
+        generateChart();
+
+        window.ModalSystem.hideLoading();
+        window.ModalSystem.toast('Sample data generated successfully!');
+    }, 2000);
+}
+
+// Generate chart visualization
+function generateChart() {
+    // Hide empty state and show chart
+    document.getElementById('chart-empty-state').style.display = 'none';
+    document.getElementById('chart-canvas').style.display = 'block';
+    document.getElementById('chart-legend').style.display = 'flex';
+
+    // Generate sample time series data
+    const days = [];
+    const sentData = [];
+    const openedData = [];
+    const clickedData = [];
+    const repliedData = [];
+
+    // Generate data for last 30 days
+    for (let i = 29; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        days.push(date);
+
+        // Generate cumulative data with some randomness
+        const baseSent = Math.floor((30 - i) * (dashboardData.stats.sequenceStarted / 30)) + Math.floor(Math.random() * 20);
+        const baseOpened = Math.floor(baseSent * (dashboardData.stats.openRate / 100)) + Math.floor(Math.random() * 10);
+        const baseClicked = Math.floor(baseOpened * 0.3) + Math.floor(Math.random() * 5);
+        const baseReplied = Math.floor(baseClicked * 0.2) + Math.floor(Math.random() * 3);
+
+        sentData.push(baseSent);
+        openedData.push(baseOpened);
+        clickedData.push(baseClicked);
+        repliedData.push(baseReplied);
+    }
+
+    // Draw the chart
+    drawChart(days, { sent: sentData, opened: openedData, clicked: clickedData, replied: repliedData });
+}
+
+// Draw chart function
+function drawChart(days, data) {
+    const svg = document.getElementById('performance-chart');
+    const chartContent = document.getElementById('chart-content');
+
+    // Clear previous content
+    chartContent.innerHTML = '';
+
+    const width = 800;
+    const height = 240;
+    const padding = { top: 20, right: 40, bottom: 40, left: 40 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+
+    // Find max value for scaling
+    const maxValue = Math.max(...data.sent);
+
+    // Create scales
+    const xScale = (index) => padding.left + (index / (days.length - 1)) * chartWidth;
+    const yScale = (value) => padding.top + chartHeight - (value / maxValue) * chartHeight;
+
+    // Draw axes
+    const axes = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    axes.innerHTML = `
+        <!-- Y-axis -->
+        <line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${height - padding.bottom}" stroke="#e5e7eb" stroke-width="1"/>
+        <!-- X-axis -->
+        <line x1="${padding.left}" y1="${height - padding.bottom}" x2="${width - padding.right}" y2="${height - padding.bottom}" stroke="#e5e7eb" stroke-width="1"/>
+
+        <!-- Y-axis labels -->
+        <text x="${padding.left - 10}" y="${padding.top + 5}" text-anchor="end" font-size="10" fill="#6b7280">${maxValue}</text>
+        <text x="${padding.left - 10}" y="${height - padding.bottom + 5}" text-anchor="end" font-size="10" fill="#6b7280">0</text>
+
+        <!-- X-axis labels -->
+        <text x="${padding.left}" y="${height - padding.bottom + 20}" text-anchor="middle" font-size="10" fill="#6b7280">${days[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</text>
+        <text x="${width - padding.right}" y="${height - padding.bottom + 20}" text-anchor="middle" font-size="10" fill="#6b7280">${days[days.length - 1].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</text>
+    `;
+    chartContent.appendChild(axes);
+
+    // Draw lines for each metric
+    const metrics = [
+        { name: 'sent', data: data.sent, color: '#3b82f6', fill: 'rgba(59, 130, 246, 0.1)' },
+        { name: 'opened', data: data.opened, color: '#10b981', fill: 'rgba(16, 185, 129, 0.1)' },
+        { name: 'clicked', data: data.clicked, color: '#f59e0b', fill: 'rgba(245, 158, 11, 0.1)' },
+        { name: 'replied', data: data.replied, color: '#8b5cf6', fill: 'rgba(139, 92, 246, 0.1)' }
+    ];
+
+    metrics.forEach((metric, metricIndex) => {
+        // Create path for line
+        let pathData = `M ${xScale(0)} ${yScale(metric.data[0])}`;
+        for (let i = 1; i < metric.data.length; i++) {
+            pathData += ` L ${xScale(i)} ${yScale(metric.data[i])}`;
+        }
+
+        // Create area fill (only for the first metric)
+        if (metricIndex === 0) {
+            let areaData = pathData + ` L ${xScale(metric.data.length - 1)} ${yScale(0)} L ${xScale(0)} ${yScale(0)} Z`;
+            const area = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            area.setAttribute('d', areaData);
+            area.setAttribute('fill', metric.fill);
+            area.setAttribute('stroke', 'none');
+            chartContent.appendChild(area);
+        }
+
+        // Create line
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        line.setAttribute('d', pathData);
+        line.setAttribute('stroke', metric.color);
+        line.setAttribute('stroke-width', '2');
+        line.setAttribute('fill', 'none');
+        chartContent.appendChild(line);
+
+        // Add data points
+        metric.data.forEach((value, index) => {
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', xScale(index));
+            circle.setAttribute('cy', yScale(value));
+            circle.setAttribute('r', '3');
+            circle.setAttribute('fill', metric.color);
+            circle.setAttribute('stroke', 'white');
+            circle.setAttribute('stroke-width', '2');
+            circle.style.cursor = 'pointer';
+
+            // Add tooltip functionality
+            circle.addEventListener('mouseenter', (e) => showTooltip(e, days[index], value, metric.name));
+            circle.addEventListener('mouseleave', hideTooltip);
+
+            chartContent.appendChild(circle);
+        });
+    });
+}
+
+// Tooltip functions
+function showTooltip(event, date, value, metric) {
+    const tooltip = document.getElementById('chart-tooltip');
+    const tooltipDate = document.getElementById('tooltip-date');
+    const tooltipValue = document.getElementById('tooltip-value');
+    const tooltipMetric = document.getElementById('tooltip-metric');
+
+    tooltipDate.textContent = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    tooltipValue.textContent = `Value: ${value}`;
+    tooltipMetric.textContent = `Metric: ${metric}`;
+
+    // Position tooltip
+    const rect = event.target.getBoundingClientRect();
+    const svgRect = document.getElementById('performance-chart').getBoundingClientRect();
+
+    const x = event.target.getAttribute('cx') - 60;
+    const y = event.target.getAttribute('cy') - 70;
+
+    tooltip.setAttribute('transform', `translate(${x}, ${y})`);
+    tooltip.style.display = 'block';
+}
+
+function hideTooltip() {
+    document.getElementById('chart-tooltip').style.display = 'none';
+}
+
+// Tab management
+function switchTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('tab-active', 'bg-white', 'text-primary', 'shadow-sm');
+    });
+    event.target.classList.add('tab-active', 'bg-white', 'text-primary', 'shadow-sm');
+
+    // Update tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`${tabName}-tab`).classList.add('active');
+}
+
+// Load step analytics
+function loadStepAnalytics() {
+    const container = document.getElementById('step-analytics-container');
+    container.innerHTML = `
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800">Step 1</h4>
+                    <p class="text-sm text-gray-600">Welcome Email</p>
+                    <div class="mt-2">
+                        <span class="text-2xl font-bold text-blue-600">85%</span>
+                        <span class="text-sm text-gray-500">open rate</span>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800">Step 2</h4>
+                    <p class="text-sm text-gray-600">Follow-up Email</p>
+                    <div class="mt-2">
+                        <span class="text-2xl font-bold text-green-600">72%</span>
+                        <span class="text-sm text-gray-500">open rate</span>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800">Step 3</h4>
+                    <p class="text-sm text-gray-600">Final Follow-up</p>
+                    <div class="mt-2">
+                        <span class="text-2xl font-bold text-orange-600">68%</span>
+                        <span class="text-sm text-gray-500">open rate</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    window.ModalSystem.toast('Step analytics loaded');
+}
+
+// Load activity
+function loadActivity() {
+    const container = document.getElementById('activity-container');
+    const activities = [
+        { time: '2 minutes ago', action: 'Email opened', lead: 'John Smith', step: 'Step 1' },
+        { time: '5 minutes ago', action: 'Link clicked', lead: 'Sarah Johnson', step: 'Step 2' },
+        { time: '12 minutes ago', action: 'Email sent', lead: 'Mike Davis', step: 'Step 1' },
+        { time: '18 minutes ago', action: 'Reply received', lead: 'Lisa Wilson', step: 'Step 3' },
+        { time: '25 minutes ago', action: 'Email opened', lead: 'Tom Brown', step: 'Step 2' }
+    ];
+
+    container.innerHTML = `
+        <div class="space-y-2">
+            ${activities.map(activity => `
+                <div class="activity-item p-3 rounded-lg border border-gray-100 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <div>
+                            <span class="font-medium text-gray-800">${activity.action}</span>
+                            <span class="text-gray-600">by ${activity.lead}</span>
+                            <span class="text-gray-500">(${activity.step})</span>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-500">${activity.time}</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    window.ModalSystem.toast('Activity feed loaded');
+}
+
+// Utility functions
+function showStatDetails(statType) {
+    window.ModalSystem.toast(`${statType.charAt(0).toUpperCase() + statType.slice(1)} details coming soon!`, 'info');
+}
+
+function shareCampaign() {
+    window.ModalSystem.toast('Campaign sharing coming soon!', 'info');
+}
+
+function openSettings() {
+    window.ModalSystem.toast('Dashboard settings coming soon!', 'info');
+}
+
+function refreshChart() {
+    if (dashboardData.hasData) {
+        generateChart();
+        window.ModalSystem.toast('Chart refreshed with latest data');
+    } else {
+        window.ModalSystem.toast('No data available to refresh chart', 'info');
+    }
+}
+
+function refreshDashboardData() {
+    window.ModalSystem.toast('Dashboard data refreshed');
+}
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    // Set initial state
+    updateCampaignStatus('draft');
+    updateStats(dashboardData.stats);
+});
+</script>
+
+{% endblock %}
