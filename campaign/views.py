@@ -590,6 +590,11 @@ def products_view(request):
     return render(request, "app/products.html")
 
 
+def products_edit_view(request, pk):
+    """Products management page"""
+    return render(request, "app/products-edit.html")
+
+
 def email_accounts_view(request):
     """Email accounts management page"""
     return render(request, "app/email-accounts.html")

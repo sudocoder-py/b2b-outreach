@@ -3,75 +3,447 @@
 {% block title %}Products{% endblock %}
 
 {% block content %}
-<div class="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-8">
+<div class="flex-1 flex flex-col overflow-hidden bg-gray-50 p-6">
     <!-- Header -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Products</h1>
-        <p class="text-gray-600">Manage your products and services for campaign targeting</p>
+    <div class="mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Products</h1>
+                <p class="text-gray-600">Manage your products and services for campaign targeting</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="btn btn-ghost" onclick="window.location.href='products-edit.html'">
+                    <i class="fa-solid fa-edit mr-2"></i>
+                    Edit Products
+                </button>
+                <button class="btn btn-primary" onclick="addNewProduct()">
+                    <i class="fa-solid fa-plus mr-2"></i>
+                    New Product
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="flex-1 flex items-center justify-center">
-        <div class="text-center max-w-md">
-            <!-- Icon -->
-            <div class="mb-6">
-                <div class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                    <i class="fa-solid fa-box text-3xl"></i>
+    <!-- Search and Filters -->
+    <div class="mb-6">
+        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div class="flex flex-col sm:flex-row gap-4 flex-1">
+                <div class="relative flex-1 max-w-md">
+                    <input type="text"
+                           placeholder="Search products..."
+                           class="input input-bordered w-full bg-white pl-10"
+                           id="search-products"
+                           oninput="filterProducts()">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                 </div>
+                <select class="select select-bordered bg-white" id="filter-status" onchange="filterProducts()">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="draft">Draft</option>
+                </select>
             </div>
-            
-            <!-- Title -->
-            <h2 class="text-2xl font-semibold text-gray-900 mb-4">Products Management</h2>
-            
-            <!-- Description -->
-            <p class="text-gray-600 mb-8 leading-relaxed">
-                This page will allow you to manage your products and services. You'll be able to create product catalogs, 
-                set pricing, manage inventory, and organize products for targeted campaigns.
-            </p>
-            
-            <!-- Features List -->
-            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 mb-8">
-                <h3 class="font-semibold text-gray-900 mb-4">Coming Features:</h3>
-                <ul class="text-left space-y-2 text-gray-600">
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Product catalog management
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Pricing and inventory tracking
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Product categorization
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Campaign product targeting
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Sales analytics per product
-                    </li>
-                </ul>
+            <div class="text-sm text-gray-500">
+                <span id="product-count">5 products</span>
             </div>
-            
-            <!-- Action Button -->
-            <button class="btn btn-primary" onclick="showComingSoon()">
-                <i class="fa-solid fa-plus mr-2"></i>
-                Add Product
-            </button>
+        </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="text-left font-semibold text-gray-900">Product Name</th>
+                        <th class="text-left font-semibold text-gray-900">Description</th>
+                        <th class="text-left font-semibold text-gray-900">Landing Page URL</th>
+                        <th class="text-left font-semibold text-gray-900">Status</th>
+                        <th class="text-left font-semibold text-gray-900">Created</th>
+                        <th class="text-left font-semibold text-gray-900">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="products-table-body">
+                    <!-- Product Row 1 -->
+                    <tr class="hover:bg-gray-50 cursor-pointer" data-product="1" onclick="editProduct(1)">
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-desktop text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">CRM Pro</div>
+                                    <div class="text-sm text-gray-500">Professional CRM Solution</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="max-w-xs">
+                                <p class="text-sm text-gray-900 line-clamp-2">
+                                    Complete customer relationship management platform with advanced analytics,
+                                    automation tools, and team collaboration features.
+                                </p>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="https://example.com/crm-pro" target="_blank"
+                               class="text-blue-600 hover:text-blue-800 text-sm underline"
+                               onclick="event.stopPropagation()">
+                                example.com/crm-pro
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge badge-success badge-sm">Active</span>
+                        </td>
+                        <td>
+                            <span class="text-sm text-gray-500">2 weeks ago</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateProduct(1)" title="Duplicate">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); viewProduct(1)" title="View">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteProduct(1)" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Product Row 2 -->
+                    <tr class="hover:bg-gray-50 cursor-pointer" data-product="2" onclick="editProduct(2)">
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-chart-line text-green-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">Analytics Suite</div>
+                                    <div class="text-sm text-gray-500">Business Intelligence Platform</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="max-w-xs">
+                                <p class="text-sm text-gray-900 line-clamp-2">
+                                    Comprehensive analytics and reporting platform with real-time dashboards,
+                                    custom reports, and data visualization tools.
+                                </p>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="https://example.com/analytics" target="_blank"
+                               class="text-blue-600 hover:text-blue-800 text-sm underline"
+                               onclick="event.stopPropagation()">
+                                example.com/analytics
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge badge-success badge-sm">Active</span>
+                        </td>
+                        <td>
+                            <span class="text-sm text-gray-500">1 month ago</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateProduct(2)" title="Duplicate">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); viewProduct(2)" title="View">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteProduct(2)" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Product Row 3 -->
+                    <tr class="hover:bg-gray-50 cursor-pointer" data-product="3" onclick="editProduct(3)">
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-bullhorn text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">Marketing Tools</div>
+                                    <div class="text-sm text-gray-500">Digital Marketing Platform</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="max-w-xs">
+                                <p class="text-sm text-gray-900 line-clamp-2">
+                                    All-in-one marketing automation platform with email campaigns,
+                                    social media management, and lead generation tools.
+                                </p>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="https://example.com/marketing" target="_blank"
+                               class="text-blue-600 hover:text-blue-800 text-sm underline"
+                               onclick="event.stopPropagation()">
+                                example.com/marketing
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge badge-warning badge-sm">Draft</span>
+                        </td>
+                        <td>
+                            <span class="text-sm text-gray-500">3 days ago</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateProduct(3)" title="Duplicate">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); viewProduct(3)" title="View">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteProduct(3)" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Product Row 4 -->
+                    <tr class="hover:bg-gray-50 cursor-pointer" data-product="4" onclick="editProduct(4)">
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-robot text-orange-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">Sales Automation</div>
+                                    <div class="text-sm text-gray-500">AI-Powered Sales Platform</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="max-w-xs">
+                                <p class="text-sm text-gray-900 line-clamp-2">
+                                    Intelligent sales automation platform with AI-driven lead scoring,
+                                    pipeline management, and automated follow-up sequences.
+                                </p>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="https://example.com/sales-automation" target="_blank"
+                               class="text-blue-600 hover:text-blue-800 text-sm underline"
+                               onclick="event.stopPropagation()">
+                                example.com/sales-automation
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge badge-success badge-sm">Active</span>
+                        </td>
+                        <td>
+                            <span class="text-sm text-gray-500">1 week ago</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateProduct(4)" title="Duplicate">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); viewProduct(4)" title="View">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteProduct(4)" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Product Row 5 -->
+                    <tr class="hover:bg-gray-50 cursor-pointer" data-product="5" onclick="editProduct(5)">
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-shield-halved text-red-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">Security Suite</div>
+                                    <div class="text-sm text-gray-500">Enterprise Security Solution</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="max-w-xs">
+                                <p class="text-sm text-gray-900 line-clamp-2">
+                                    Comprehensive cybersecurity platform with threat detection,
+                                    vulnerability scanning, and compliance management tools.
+                                </p>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-sm text-gray-400">Not set</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-error badge-sm">Inactive</span>
+                        </td>
+                        <td>
+                            <span class="text-sm text-gray-500">2 months ago</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateProduct(5)" title="Duplicate">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); viewProduct(5)" title="View">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteProduct(5)" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 <script>
-function showComingSoon() {
-    if (window.ModalSystem) {
-        window.ModalSystem.toast('Products management coming soon!', 'info');
+// Sample product data
+const productsData = {
+    1: {
+        id: 1,
+        name: 'CRM Pro',
+        subtitle: 'Professional CRM Solution',
+        description: 'Complete customer relationship management platform with advanced analytics, automation tools, and team collaboration features.',
+        landingPageUrl: 'https://example.com/crm-pro',
+        status: 'active',
+        icon: 'fa-desktop',
+        iconColor: 'blue',
+        created: '2 weeks ago'
+    },
+    2: {
+        id: 2,
+        name: 'Analytics Suite',
+        subtitle: 'Business Intelligence Platform',
+        description: 'Comprehensive analytics and reporting platform with real-time dashboards, custom reports, and data visualization tools.',
+        landingPageUrl: 'https://example.com/analytics',
+        status: 'active',
+        icon: 'fa-chart-line',
+        iconColor: 'green',
+        created: '1 month ago'
+    },
+    3: {
+        id: 3,
+        name: 'Marketing Tools',
+        subtitle: 'Digital Marketing Platform',
+        description: 'All-in-one marketing automation platform with email campaigns, social media management, and lead generation tools.',
+        landingPageUrl: 'https://example.com/marketing',
+        status: 'draft',
+        icon: 'fa-bullhorn',
+        iconColor: 'purple',
+        created: '3 days ago'
+    },
+    4: {
+        id: 4,
+        name: 'Sales Automation',
+        subtitle: 'AI-Powered Sales Platform',
+        description: 'Intelligent sales automation platform with AI-driven lead scoring, pipeline management, and automated follow-up sequences.',
+        landingPageUrl: 'https://example.com/sales-automation',
+        status: 'active',
+        icon: 'fa-robot',
+        iconColor: 'orange',
+        created: '1 week ago'
+    },
+    5: {
+        id: 5,
+        name: 'Security Suite',
+        subtitle: 'Enterprise Security Solution',
+        description: 'Comprehensive cybersecurity platform with threat detection, vulnerability scanning, and compliance management tools.',
+        landingPageUrl: '',
+        status: 'inactive',
+        icon: 'fa-shield-halved',
+        iconColor: 'red',
+        created: '2 months ago'
+    }
+};
+
+function editProduct(productId) {
+    // Navigate to edit page with product ID
+    window.location.href = `products-edit.html?id=${productId}`;
+}
+
+function addNewProduct() {
+    // Navigate to edit page for new product
+    window.location.href = 'products-edit.html';
+}
+
+function duplicateProduct(productId) {
+    window.ModalSystem.toast('Product duplicated successfully!', 'success');
+    // Add duplication logic here
+}
+
+function viewProduct(productId) {
+    const product = productsData[productId];
+    if (product && product.landingPageUrl) {
+        window.open(product.landingPageUrl, '_blank');
     } else {
-        alert('Products management coming soon!');
+        window.ModalSystem.toast('No landing page URL set for this product', 'warning');
     }
 }
+
+function confirmDeleteProduct(productId) {
+    const product = productsData[productId];
+    const productName = product?.name || 'this product';
+
+    window.ModalSystem.confirm(
+        'Delete Product',
+        `Are you sure you want to delete "${productName}"? This action cannot be undone.`,
+        () => {
+            // Delete logic here
+            window.ModalSystem.toast('Product deleted successfully!', 'success');
+        }
+    );
+}
+
+function filterProducts() {
+    const searchTerm = document.getElementById('search-products').value.toLowerCase();
+    const statusFilter = document.getElementById('filter-status').value;
+
+    const rows = document.querySelectorAll('#products-table-body tr');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const productId = row.getAttribute('data-product');
+        const product = productsData[productId];
+
+        if (!product) return;
+
+        const matchesSearch = !searchTerm ||
+            product.name.toLowerCase().includes(searchTerm) ||
+            product.subtitle.toLowerCase().includes(searchTerm) ||
+            product.description.toLowerCase().includes(searchTerm);
+
+        const matchesStatus = !statusFilter || product.status === statusFilter;
+
+        if (matchesSearch && matchesStatus) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    document.getElementById('product-count').textContent = `${visibleCount} products`;
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Set initial product count
+    document.getElementById('product-count').textContent = `${Object.keys(productsData).length} products`;
+});
 </script>
+
 {% endblock %}

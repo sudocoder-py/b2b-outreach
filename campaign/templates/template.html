@@ -106,46 +106,5 @@
     </div>
   </section>
 
-
-  <svg width="280" height="120" viewBox="0 0 280 120" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <!-- The gradient you requested: brown to orange, bottom to top -->
-    <linearGradient id="vibeGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-      <stop offset="0%" stop-color="rgba(82, 32, 3, 1)" />
-      <stop offset="35%" stop-color="rgba(153, 109, 8, 1)" />
-      <stop offset="100%" stop-color="rgba(255, 64, 0, 1)" />
-    </linearGradient>
-
-    <!-- Defines the complete "VIBE" shape using SVG paths -->
-    <path id="vibeShape" fill-rule="evenodd" d="
-      /* V: Inverted triangle with a hollow center */
-      M5,10 L75,10 L40,75 Z 
-      M20,22 L60,22 L40,52 Z 
-
-      /* I: Simple vertical bar */
-      M85,10 H108 V110 H85 Z
-
-      /* B: Stylized, composed of a stem and two separate bowls */
-      M120,10 H140 V110 H120 Z 
-      M140,10 C180,10 180,55 140,55 Z 
-      M140,60 C180,60 180,110 140,110 Z
-
-      /* E: Three horizontal bars with rounded right corners */
-      M200,10 H260 C271,10 271,32 260,32 H200 Z 
-      M200,49 H260 C271,49 271,71 260,71 H200 Z 
-      M200,88 H260 C271,88 271,110 260,110 H200 Z
-    "/>
-  </defs>
-
-  <!-- Recreating the 3D effect with your colors -->
-  <!-- Back layer (dark brown shadow, shifted left) -->
-  <use href="#vibeShape" fill="rgba(82, 32, 3, 1)" transform="translate(-3, 0)"/>
-  
-  <!-- Back layer (bright orange highlight, shifted right) -->
-  <use href="#vibeShape" fill="rgba(255, 64, 0, 1)" transform="translate(3, 0)"/>
-
-  <!-- Top layer with the main gradient -->
-  <use href="#vibeShape" fill="url(#vibeGradient)"/>
-</svg>
 </body>
 </html>

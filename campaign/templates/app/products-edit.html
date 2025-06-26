@@ -1,0 +1,413 @@
+{% extends "base-app.html" %}
+
+{% block title %}Edit Product{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col overflow-hidden bg-gray-50 p-6">
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2" id="page-title">Edit Product</h1>
+                <p class="text-gray-600">Manage product details and settings</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="btn btn-ghost" onclick="window.location.href='products.html'">
+                    <i class="fa-solid fa-arrow-left mr-2"></i>
+                    Back to Products
+                </button>
+                <button class="btn btn-primary" onclick="saveProduct()">
+                    <i class="fa-solid fa-save mr-2"></i>
+                    Save Product
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Product Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-6">Product Information</h2>
+                
+                <form id="product-form" class="space-y-6">
+                    <!-- Product Name -->
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">Product Name *</span>
+                        </label>
+                        <input type="text"
+                               placeholder="Enter product name"
+                               class="input input-bordered w-full bg-white"
+                               id="product-name"
+                               name="name"
+                               required />
+                    </div>
+
+                    <!-- Product Subtitle -->
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">Subtitle</span>
+                        </label>
+                        <input type="text"
+                               placeholder="Brief product tagline"
+                               class="input input-bordered w-full bg-white"
+                               id="product-subtitle"
+                               name="subtitle" />
+                    </div>
+
+                    <!-- Product Description -->
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">Description *</span>
+                        </label>
+                        <textarea class="textarea textarea-bordered w-full bg-white"
+                                  rows="4"
+                                  placeholder="Detailed product description..."
+                                  id="product-description"
+                                  name="description"
+                                  required></textarea>
+                    </div>
+
+                    <!-- Landing Page URL -->
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">Landing Page URL</span>
+                        </label>
+                        <input type="url"
+                               placeholder="https://example.com/product"
+                               class="input input-bordered w-full bg-white"
+                               id="product-url"
+                               name="landingPageUrl" />
+                        <div class="label">
+                            <span class="label-text-alt text-gray-500">The main page where customers can learn about this product</span>
+                        </div>
+                    </div>
+
+                    <!-- Product Status -->
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">Status</span>
+                        </label>
+                        <select class="select select-bordered w-full bg-white" id="product-status" name="status">
+                            <option value="active">Active</option>
+                            <option value="draft">Draft</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Product Preview & Settings -->
+        <div class="lg:col-span-1">
+            <!-- Product Preview -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Preview</h3>
+                
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center" id="preview-icon">
+                            <i class="fa-solid fa-box text-blue-600"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900" id="preview-name">Product Name</div>
+                            <div class="text-sm text-gray-500" id="preview-subtitle">Product Subtitle</div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3" id="preview-description">Product description will appear here...</p>
+                    <div class="flex items-center justify-between">
+                        <span class="badge badge-primary badge-sm" id="preview-status">Active</span>
+                        <a href="#" class="text-blue-600 text-sm" id="preview-url" target="_blank">View Page</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Icon Selection -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Product Icon</h3>
+                
+                <div class="grid grid-cols-4 gap-3" id="icon-selector">
+                    <button type="button" class="icon-option p-3 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50" 
+                            data-icon="fa-box" data-color="blue">
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mx-auto">
+                            <i class="fa-solid fa-box text-blue-600"></i>
+                        </div>
+                    </button>
+                    <button type="button" class="icon-option p-3 border border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50" 
+                            data-icon="fa-chart-line" data-color="green">
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mx-auto">
+                            <i class="fa-solid fa-chart-line text-green-600"></i>
+                        </div>
+                    </button>
+                    <button type="button" class="icon-option p-3 border border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50" 
+                            data-icon="fa-bullhorn" data-color="purple">
+                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mx-auto">
+                            <i class="fa-solid fa-bullhorn text-purple-600"></i>
+                        </div>
+                    </button>
+                    <button type="button" class="icon-option p-3 border border-gray-200 rounded-lg hover:border-orange-500 hover:bg-orange-50" 
+                            data-icon="fa-robot" data-color="orange">
+                        <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mx-auto">
+                            <i class="fa-solid fa-robot text-orange-600"></i>
+                        </div>
+                    </button>
+                    <button type="button" class="icon-option p-3 border border-gray-200 rounded-lg hover:border-red-500 hover:bg-red-50" 
+                            data-icon="fa-shield-halved" data-color="red">
+                        <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mx-auto">
+                            <i class="fa-solid fa-shield-halved text-red-600"></i>
+                        </div>
+                    </button>
+                    <button type="button" class="icon-option p-3 border border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50" 
+                            data-icon="fa-desktop" data-color="indigo">
+                        <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto">
+                            <i class="fa-solid fa-desktop text-indigo-600"></i>
+                        </div>
+                    </button>
+                    <button type="button" class="icon-option p-3 border border-gray-200 rounded-lg hover:border-yellow-500 hover:bg-yellow-50" 
+                            data-icon="fa-cog" data-color="yellow">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center mx-auto">
+                            <i class="fa-solid fa-cog text-yellow-600"></i>
+                        </div>
+                    </button>
+                    <button type="button" class="icon-option p-3 border border-gray-200 rounded-lg hover:border-pink-500 hover:bg-pink-50" 
+                            data-icon="fa-heart" data-color="pink">
+                        <div class="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center mx-auto">
+                            <i class="fa-solid fa-heart text-pink-600"></i>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Product data storage
+let currentProduct = null;
+let selectedIcon = 'fa-box';
+let selectedIconColor = 'blue';
+
+// Sample product data (same as products.html)
+const productsData = {
+    1: {
+        id: 1,
+        name: 'CRM Pro',
+        subtitle: 'Professional CRM Solution',
+        description: 'Complete customer relationship management platform with advanced analytics, automation tools, and team collaboration features.',
+        landingPageUrl: 'https://example.com/crm-pro',
+        status: 'active',
+        icon: 'fa-desktop',
+        iconColor: 'blue'
+    },
+    2: {
+        id: 2,
+        name: 'Analytics Suite',
+        subtitle: 'Business Intelligence Platform',
+        description: 'Comprehensive analytics and reporting platform with real-time dashboards, custom reports, and data visualization tools.',
+        landingPageUrl: 'https://example.com/analytics',
+        status: 'active',
+        icon: 'fa-chart-line',
+        iconColor: 'green'
+    },
+    3: {
+        id: 3,
+        name: 'Marketing Tools',
+        subtitle: 'Digital Marketing Platform',
+        description: 'All-in-one marketing automation platform with email campaigns, social media management, and lead generation tools.',
+        landingPageUrl: 'https://example.com/marketing',
+        status: 'draft',
+        icon: 'fa-bullhorn',
+        iconColor: 'purple'
+    },
+    4: {
+        id: 4,
+        name: 'Sales Automation',
+        subtitle: 'AI-Powered Sales Platform',
+        description: 'Intelligent sales automation platform with AI-driven lead scoring, pipeline management, and automated follow-up sequences.',
+        landingPageUrl: 'https://example.com/sales-automation',
+        status: 'active',
+        icon: 'fa-robot',
+        iconColor: 'orange'
+    },
+    5: {
+        id: 5,
+        name: 'Security Suite',
+        subtitle: 'Enterprise Security Solution',
+        description: 'Comprehensive cybersecurity platform with threat detection, vulnerability scanning, and compliance management tools.',
+        landingPageUrl: '',
+        status: 'inactive',
+        icon: 'fa-shield-halved',
+        iconColor: 'red'
+    }
+};
+
+// Get URL parameters
+function getUrlParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+// Load product data
+function loadProduct(productId) {
+    const product = productsData[productId];
+    if (product) {
+        currentProduct = product;
+
+        // Update page title
+        document.getElementById('page-title').textContent = `Edit ${product.name}`;
+
+        // Load form data
+        document.getElementById('product-name').value = product.name;
+        document.getElementById('product-subtitle').value = product.subtitle;
+        document.getElementById('product-description').value = product.description;
+        document.getElementById('product-url').value = product.landingPageUrl;
+        document.getElementById('product-status').value = product.status;
+
+        // Set selected icon
+        selectedIcon = product.icon;
+        selectedIconColor = product.iconColor;
+
+        // Update icon selection
+        updateIconSelection();
+
+        // Update preview
+        updatePreview();
+    } else {
+        // New product
+        document.getElementById('page-title').textContent = 'Add New Product';
+        currentProduct = null;
+        updatePreview();
+    }
+}
+
+// Update icon selection visual state
+function updateIconSelection() {
+    document.querySelectorAll('.icon-option').forEach(option => {
+        option.classList.remove('border-blue-500', 'bg-blue-50', 'border-green-500', 'bg-green-50',
+                                'border-purple-500', 'bg-purple-50', 'border-orange-500', 'bg-orange-50',
+                                'border-red-500', 'bg-red-50', 'border-indigo-500', 'bg-indigo-50',
+                                'border-yellow-500', 'bg-yellow-50', 'border-pink-500', 'bg-pink-50');
+
+        if (option.dataset.icon === selectedIcon) {
+            const color = option.dataset.color;
+            option.classList.add(`border-${color}-500`, `bg-${color}-50`);
+        }
+    });
+}
+
+// Update preview
+function updatePreview() {
+    const name = document.getElementById('product-name').value || 'Product Name';
+    const subtitle = document.getElementById('product-subtitle').value || 'Product Subtitle';
+    const description = document.getElementById('product-description').value || 'Product description will appear here...';
+    const url = document.getElementById('product-url').value;
+    const status = document.getElementById('product-status').value;
+
+    // Update preview content
+    document.getElementById('preview-name').textContent = name;
+    document.getElementById('preview-subtitle').textContent = subtitle;
+    document.getElementById('preview-description').textContent = description;
+
+    // Update preview icon
+    const previewIcon = document.getElementById('preview-icon');
+    previewIcon.className = `w-10 h-10 bg-${selectedIconColor}-100 rounded-lg flex items-center justify-center`;
+    previewIcon.innerHTML = `<i class="fa-solid ${selectedIcon} text-${selectedIconColor}-600"></i>`;
+
+    // Update preview status
+    const previewStatus = document.getElementById('preview-status');
+    previewStatus.className = `badge badge-sm ${status === 'active' ? 'badge-success' : status === 'draft' ? 'badge-warning' : 'badge-error'}`;
+    previewStatus.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+
+    // Update preview URL
+    const previewUrl = document.getElementById('preview-url');
+    if (url) {
+        previewUrl.href = url;
+        previewUrl.textContent = 'View Page';
+        previewUrl.style.display = 'inline';
+    } else {
+        previewUrl.style.display = 'none';
+    }
+}
+
+// Save product
+function saveProduct() {
+    const formData = {
+        name: document.getElementById('product-name').value,
+        subtitle: document.getElementById('product-subtitle').value,
+        description: document.getElementById('product-description').value,
+        landingPageUrl: document.getElementById('product-url').value,
+        status: document.getElementById('product-status').value,
+        icon: selectedIcon,
+        iconColor: selectedIconColor
+    };
+
+    // Validate required fields
+    if (!formData.name.trim()) {
+        window.ModalSystem.error('Product name is required.');
+        return;
+    }
+
+    if (!formData.description.trim()) {
+        window.ModalSystem.error('Product description is required.');
+        return;
+    }
+
+    // Simulate save
+    if (currentProduct) {
+        window.ModalSystem.toast('Product updated successfully!', 'success');
+    } else {
+        window.ModalSystem.toast('Product created successfully!', 'success');
+    }
+
+    // Redirect back to products list after a short delay
+    setTimeout(() => {
+        window.location.href = 'products.html';
+    }, 1500);
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if editing existing product
+    const productId = getUrlParameter('id');
+    if (productId) {
+        loadProduct(parseInt(productId));
+    } else {
+        // New product - set defaults
+        updatePreview();
+        updateIconSelection();
+    }
+
+    // Add event listeners for form inputs
+    document.getElementById('product-name').addEventListener('input', updatePreview);
+    document.getElementById('product-subtitle').addEventListener('input', updatePreview);
+    document.getElementById('product-description').addEventListener('input', updatePreview);
+    document.getElementById('product-url').addEventListener('input', updatePreview);
+    document.getElementById('product-status').addEventListener('change', updatePreview);
+
+    // Add event listeners for icon selection
+    document.querySelectorAll('.icon-option').forEach(option => {
+        option.addEventListener('click', function() {
+            selectedIcon = this.dataset.icon;
+            selectedIconColor = this.dataset.color;
+            updateIconSelection();
+            updatePreview();
+        });
+    });
+
+    // Auto-save functionality
+    let autoSaveTimeout;
+    document.addEventListener('input', function(e) {
+        if (e.target.closest('#product-form')) {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                // Auto-save logic here (optional)
+                console.log('Auto-saving...');
+            }, 2000);
+        }
+    });
+});
+</script>
+
+{% endblock %}
