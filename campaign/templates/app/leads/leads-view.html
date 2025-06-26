@@ -1,0 +1,747 @@
+<html lang="en-us" dir="ltr" nighteye="disabled" data-theme="auto"><head><style data-emotion="css" data-s=""></style><style data-merge-styles="true"></style>
+<style data-merge-styles="true"></style><style data-merge-styles="true"></style><title>Select campaign to change | Django site admin</title>
+<link rel="stylesheet" href="/static/admin/css/base.css">
+
+  <link rel="stylesheet" href="/static/admin/css/dark_mode.css">
+  <script src="/static/admin/js/theme.js"></script>
+
+
+  <link rel="stylesheet" href="/static/admin/css/nav_sidebar.css">
+  <script src="/static/admin/js/nav_sidebar.js" defer=""></script>
+
+
+  
+  <link rel="stylesheet" href="/static/admin/css/changelists.css">
+  
+  
+    <script src="/admin/jsi18n/"></script>
+  
+  
+  
+
+
+
+
+<script src="/static/admin/js/vendor/jquery/jquery.js"></script>
+<script src="/static/admin/js/jquery.init.js"></script>
+<script src="/static/admin/js/core.js"></script>
+<script src="/static/admin/js/admin/RelatedObjectLookups.js"></script>
+<script src="/static/admin/js/actions.js"></script>
+<script src="/static/admin/js/urlify.js"></script>
+<script src="/static/admin/js/prepopulate.js"></script>
+<script src="/static/admin/js/vendor/xregexp/xregexp.js"></script>
+<script src="/static/admin/js/filters.js" defer=""></script>
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/admin/css/responsive.css">
+    
+
+<meta name="robots" content="NONE,NOARCHIVE">
+<style data-styled="active" data-styled-version="5.3.11"></style></head>
+
+<body class=" app-campaign model-campaign change-list" data-admin-utc-offset="10800">
+<a href="#content-start" class="skip-to-content-link">Skip to main content</a>
+<!-- Container -->
+<div id="container">
+
+    
+    <!-- Header -->
+    
+      <header id="header">
+        <div id="branding">
+        
+<div id="site-name"><a href="/admin/">Django administration</a></div>
+
+
+        </div>
+        
+        
+        <div id="user-tools">
+            
+                Welcome,
+                <strong>omar</strong>.
+            
+            
+                
+                    <a href="/">View site</a> /
+                
+                
+                    
+                    
+                
+                
+                <a href="/admin/password_change/">Change password</a> /
+                
+                <form id="logout-form" method="post" action="/admin/logout/">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="SnQ6QF5V40bdBrQv5RoSuYDmBN3koKbhSZCi3TdXu5Y6YOPiz8kWwjUSaZrI5TAn">
+                    <button type="submit">Log out</button>
+                </form>
+                
+<button class="theme-toggle">
+  <span class="visually-hidden theme-label-when-auto">Toggle theme (current theme: auto)</span>
+  <span class="visually-hidden theme-label-when-light">Toggle theme (current theme: light)</span>
+  <span class="visually-hidden theme-label-when-dark">Toggle theme (current theme: dark)</span>
+  <svg aria-hidden="true" class="theme-icon-when-auto">
+    <use xlink:href="#icon-auto"></use>
+  </svg>
+  <svg aria-hidden="true" class="theme-icon-when-dark">
+    <use xlink:href="#icon-moon"></use>
+  </svg>
+  <svg aria-hidden="true" class="theme-icon-when-light">
+    <use xlink:href="#icon-sun"></use>
+  </svg>
+</button>
+
+            
+        </div>
+        
+        
+        
+      </header>
+    
+    <!-- END Header -->
+    
+      <nav aria-label="Breadcrumbs">
+        
+<div class="breadcrumbs">
+<a href="/admin/">Home</a>
+› <a href="/admin/campaign/">Campaign</a>
+› Campaigns
+</div>
+
+      </nav>
+    
+    
+
+    <div class="main" id="main">
+      
+        
+          
+<button class="sticky toggle-nav-sidebar" id="toggle-nav-sidebar" aria-label="Toggle navigation"></button>
+<nav class="sticky" id="nav-sidebar" aria-label="Sidebar" aria-expanded="false">
+  <input type="search" id="nav-filter" placeholder="Start typing to filter…" aria-label="Filter navigation items" spellcheck="false" data-ms-editor="true">
+  
+
+
+  
+    <div class="app-auth module">
+      <table>
+        <caption>
+          <a href="/admin/auth/" class="section" title="Models in the Authentication and Authorization application">Authentication and Authorization</a>
+        </caption>
+        <thead class="visually-hidden">
+          <tr>
+            <th scope="col">Model name</th>
+            <th scope="col">Add link</th>
+            <th scope="col">Change or view list link</th>
+          </tr>
+        </thead>
+        
+          
+            <tbody><tr class="model-group">
+              <th scope="row" id="auth-group">
+                
+                  <a href="/admin/auth/group/">Groups</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/auth/group/add/" class="addlink" aria-describedby="auth-group">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+      </tbody></table>
+    </div>
+  
+    <div class="app-campaign module current-app">
+      <table>
+        <caption>
+          <a href="/admin/campaign/" class="section" title="Models in the Campaign application">Campaign</a>
+        </caption>
+        <thead class="visually-hidden">
+          <tr>
+            <th scope="col">Model name</th>
+            <th scope="col">Add link</th>
+            <th scope="col">Change or view list link</th>
+          </tr>
+        </thead>
+        
+          
+            <tbody><tr class="model-campaignlead">
+              <th scope="row" id="campaign-campaignlead">
+                
+                  <a href="/admin/campaign/campaignlead/">Campaign leads</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/campaign/campaignlead/add/" class="addlink" aria-describedby="campaign-campaignlead">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+          
+            <tr class="model-campaign current-model">
+              <th scope="row" id="campaign-campaign">
+                
+                  <a href="/admin/campaign/campaign/" aria-current="page">Campaigns</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/campaign/campaign/add/" class="addlink" aria-describedby="campaign-campaign">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+          
+            <tr class="model-lead">
+              <th scope="row" id="campaign-lead">
+                
+                  <a href="/admin/campaign/lead/">Leads</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/campaign/lead/add/" class="addlink" aria-describedby="campaign-lead">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+          
+            <tr class="model-link">
+              <th scope="row" id="campaign-link">
+                
+                  <a href="/admin/campaign/link/">Links</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/campaign/link/add/" class="addlink" aria-describedby="campaign-link">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+          
+            <tr class="model-messageassignment">
+              <th scope="row" id="campaign-messageassignment">
+                
+                  <a href="/admin/campaign/messageassignment/">Message assignments</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/campaign/messageassignment/add/" class="addlink" aria-describedby="campaign-messageassignment">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+          
+            <tr class="model-message">
+              <th scope="row" id="campaign-message">
+                
+                  <a href="/admin/campaign/message/">Messages</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/campaign/message/add/" class="addlink" aria-describedby="campaign-message">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+          
+            <tr class="model-newslettersubscriber">
+              <th scope="row" id="campaign-newslettersubscriber">
+                
+                  <a href="/admin/campaign/newslettersubscriber/">Newsletter subscribers</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/campaign/newslettersubscriber/add/" class="addlink" aria-describedby="campaign-newslettersubscriber">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+      </tbody></table>
+    </div>
+  
+    <div class="app-django_celery_results module">
+      <table>
+        <caption>
+          <a href="/admin/django_celery_results/" class="section" title="Models in the Celery Results application">Celery Results</a>
+        </caption>
+        <thead class="visually-hidden">
+          <tr>
+            <th scope="col">Model name</th>
+            <th scope="col">Add link</th>
+            <th scope="col">Change or view list link</th>
+          </tr>
+        </thead>
+        
+          
+            <tbody><tr class="model-groupresult">
+              <th scope="row" id="django_celery_results-groupresult">
+                
+                  <a href="/admin/django_celery_results/groupresult/">Group results</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/django_celery_results/groupresult/add/" class="addlink" aria-describedby="django_celery_results-groupresult">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+          
+            <tr class="model-taskresult">
+              <th scope="row" id="django_celery_results-taskresult">
+                
+                  <a href="/admin/django_celery_results/taskresult/">Task results</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/django_celery_results/taskresult/add/" class="addlink" aria-describedby="django_celery_results-taskresult">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+      </tbody></table>
+    </div>
+  
+    <div class="app-clients module">
+      <table>
+        <caption>
+          <a href="/admin/clients/" class="section" title="Models in the Clients application">Clients</a>
+        </caption>
+        <thead class="visually-hidden">
+          <tr>
+            <th scope="col">Model name</th>
+            <th scope="col">Add link</th>
+            <th scope="col">Change or view list link</th>
+          </tr>
+        </thead>
+        
+          
+            <tbody><tr class="model-billinghistory">
+              <th scope="row" id="clients-billinghistory">
+                
+                  <a href="/admin/clients/billinghistory/">Billing Histories</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/clients/billinghistory/add/" class="addlink" aria-describedby="clients-billinghistory">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+          
+            <tr class="model-plan">
+              <th scope="row" id="clients-plan">
+                
+                  <a href="/admin/clients/plan/">Plans</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/clients/plan/add/" class="addlink" aria-describedby="clients-plan">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+          
+            <tr class="model-product">
+              <th scope="row" id="clients-product">
+                
+                  <a href="/admin/clients/product/">Products</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/clients/product/add/" class="addlink" aria-describedby="clients-product">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+          
+            <tr class="model-subscribedcompany">
+              <th scope="row" id="clients-subscribedcompany">
+                
+                  <a href="/admin/clients/subscribedcompany/">Subscribed companys</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/clients/subscribedcompany/add/" class="addlink" aria-describedby="clients-subscribedcompany">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+          
+            <tr class="model-subscription">
+              <th scope="row" id="clients-subscription">
+                
+                  <a href="/admin/clients/subscription/">Subscriptions</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/clients/subscription/add/" class="addlink" aria-describedby="clients-subscription">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+          
+            <tr class="model-customuser">
+              <th scope="row" id="clients-customuser">
+                
+                  <a href="/admin/clients/customuser/">Users</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/clients/customuser/add/" class="addlink" aria-describedby="clients-customuser">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+      </tbody></table>
+    </div>
+  
+    <div class="app-posts module">
+      <table>
+        <caption>
+          <a href="/admin/posts/" class="section" title="Models in the Posts application">Posts</a>
+        </caption>
+        <thead class="visually-hidden">
+          <tr>
+            <th scope="col">Model name</th>
+            <th scope="col">Add link</th>
+            <th scope="col">Change or view list link</th>
+          </tr>
+        </thead>
+        
+          
+            <tbody><tr class="model-link">
+              <th scope="row" id="posts-link">
+                
+                  <a href="/admin/posts/link/">Links</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/posts/link/add/" class="addlink" aria-describedby="posts-link">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+          
+            <tr class="model-post">
+              <th scope="row" id="posts-post">
+                
+                  <a href="/admin/posts/post/">Posts</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/posts/post/add/" class="addlink" aria-describedby="posts-post">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+          
+            <tr class="model-postscampaign">
+              <th scope="row" id="posts-postscampaign">
+                
+                  <a href="/admin/posts/postscampaign/">Posts campaigns</a>
+                
+              </th>
+
+              
+                <td><a href="/admin/posts/postscampaign/add/" class="addlink" aria-describedby="posts-postscampaign">Add</a></td>
+              
+
+              
+            </tr>
+          
+        
+      </tbody></table>
+    </div>
+  
+
+
+</nav>
+
+        
+      
+      <main id="content-start" class="content" tabindex="-1">
+        
+          
+        
+        <!-- Content -->
+        <div id="content" class="">
+          
+          <h1>Select campaign to change</h1>
+          
+          
+  <div id="content-main">
+    
+        <ul class="object-tools">
+          
+            
+
+
+  
+  <li>
+    
+    <a href="/admin/campaign/campaign/add/" class="addlink">
+      Add campaign
+    </a>
+  </li>
+  
+
+
+          
+        </ul>
+    
+    
+    <div class="module filtered" id="changelist">
+      <div class="changelist-form-container">
+        
+
+<div id="toolbar"><form id="changelist-search" method="get" role="search">
+<div><!-- DIV needed for valid HTML -->
+<label for="searchbar"><img src="/static/admin/img/search.svg" alt="Search"></label>
+<input type="text" size="40" name="q" value="" id="searchbar" spellcheck="false" data-ms-editor="true">
+<input type="submit" value="Search">
+
+
+</div>
+
+</form></div>
+
+
+        
+
+        <form id="changelist-form" method="post" novalidate=""><input type="hidden" name="csrfmiddlewaretoken" value="SnQ6QF5V40bdBrQv5RoSuYDmBN3koKbhSZCi3TdXu5Y6YOPiz8kWwjUSaZrI5TAn">
+        
+
+        
+          
+<div class="actions">
+  
+    
+    <label>Action: <select name="action" required="">
+  <option value="" selected="">---------</option>
+
+  <option value="delete_selected">Delete selected campaigns</option>
+
+</select></label><input type="hidden" name="select_across" value="0" class="select-across">
+    
+    
+    <button type="submit" class="button" title="Run the selected action" name="index" value="0">Go</button>
+    
+    
+    
+        <span class="action-counter" data-actions-icnt="1">0 of 1 selected</span>
+        
+    
+    
+  
+</div>
+
+          
+
+
+<div class="results">
+<table id="result_list">
+<thead>
+<tr>
+
+<th scope="col" class="action-checkbox-column">
+   
+   <div class="text"><span><input type="checkbox" id="action-toggle" aria-label="Select all objects on this page for an action"></span></div>
+   <div class="clear"></div>
+</th>
+<th scope="col" class="sortable column-name">
+   
+   <div class="text"><a href="?o=1">Name</a></div>
+   <div class="clear"></div>
+</th>
+<th scope="col" class="sortable column-product">
+   
+   <div class="text"><a href="?o=2">Product</a></div>
+   <div class="clear"></div>
+</th>
+<th scope="col" class="sortable column-start_date">
+   
+   <div class="text"><a href="?o=3">Start date</a></div>
+   <div class="clear"></div>
+</th>
+<th scope="col" class="sortable column-end_date">
+   
+   <div class="text"><a href="?o=4">End date</a></div>
+   <div class="clear"></div>
+</th>
+<th scope="col" class="sortable column-is_active">
+   
+   <div class="text"><a href="?o=5">Is active</a></div>
+   <div class="clear"></div>
+</th>
+<th scope="col" class="column-lead_count">
+   
+   <div class="text"><span>Leads</span></div>
+   <div class="clear"></div>
+</th>
+<th scope="col" class="column-conversion_rate">
+   
+   <div class="text"><span>Conversion</span></div>
+   <div class="clear"></div>
+</th>
+</tr>
+</thead>
+<tbody>
+
+
+<tr><td class="action-checkbox"><input type="checkbox" name="_selected_action" value="1" class="action-select" aria-label="Select this object for an action - B2B Cold Outreach-1 - B2B Cold Outreach"></td><th class="field-name"><a href="/admin/campaign/campaign/1/change/">B2B Cold Outreach-1</a></th><td class="field-product nowrap">B2B Cold Outreach</td><td class="field-start_date nowrap">June 8, 2025, 1:29 p.m.</td><td class="field-end_date nowrap">-</td><td class="field-is_active"><img src="/static/admin/img/icon-yes.svg" alt="True"></td><td class="field-lead_count">1</td><td class="field-conversion_rate">0.0%</td></tr>
+
+</tbody>
+</table>
+</div>
+
+
+          
+        
+        
+
+<p class="paginator">
+
+1 campaign
+
+
+</p>
+
+        </form>
+      </div>
+      
+        
+          <nav id="changelist-filter" aria-labelledby="changelist-filter-header">
+            <h2 id="changelist-filter-header">Filter</h2>
+            <div id="changelist-filter-extra-actions">
+              <h3>
+                <a href="?_facets=True" class="viewlink">Show counts</a>
+              </h3>
+              
+            </div>
+            
+<details data-filter-title="is active" open="">
+  <summary>
+     By is active 
+  </summary>
+  <ul>
+  
+    <li class="selected">
+    <a href="?">All</a></li>
+  
+    <li>
+    <a href="?is_active__exact=1">Yes</a></li>
+  
+    <li>
+    <a href="?is_active__exact=0">No</a></li>
+  
+  </ul>
+</details>
+
+<details data-filter-title="start date" open="">
+  <summary>
+     By start date 
+  </summary>
+  <ul>
+  
+    <li class="selected">
+    <a href="?">Any date</a></li>
+  
+    <li>
+    <a href="?start_date__gte=2025-06-17+00%3A00%3A00%2B03%3A00&amp;start_date__lt=2025-06-18+00%3A00%3A00%2B03%3A00">Today</a></li>
+  
+    <li>
+    <a href="?start_date__gte=2025-06-10+00%3A00%3A00%2B03%3A00&amp;start_date__lt=2025-06-18+00%3A00%3A00%2B03%3A00">Past 7 days</a></li>
+  
+    <li>
+    <a href="?start_date__gte=2025-06-01+00%3A00%3A00%2B03%3A00&amp;start_date__lt=2025-07-01+00%3A00%3A00%2B03%3A00">This month</a></li>
+  
+    <li>
+    <a href="?start_date__gte=2025-01-01+00%3A00%3A00%2B03%3A00&amp;start_date__lt=2026-01-01+00%3A00%3A00%2B03%3A00">This year</a></li>
+  
+  </ul>
+</details>
+
+          </nav>
+        
+      
+    </div>
+  </div>
+
+          
+          <br class="clear">
+        </div>
+        <!-- END Content -->
+      </main>
+    </div>
+    <footer id="footer"></footer>
+</div>
+<!-- END Container -->
+
+<!-- SVGs -->
+<svg xmlns="http://www.w3.org/2000/svg" class="base-svgs">
+  <symbol viewBox="0 0 24 24" width="1.5rem" height="1.5rem" id="icon-auto"><path d="M0 0h24v24H0z" fill="currentColor"></path><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2V4a8 8 0 1 0 0 16z"></path></symbol>
+  <symbol viewBox="0 0 24 24" width="1.5rem" height="1.5rem" id="icon-moon"><path d="M0 0h24v24H0z" fill="currentColor"></path><path d="M10 7a7 7 0 0 0 12 4.9v.1c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2h.1A6.979 6.979 0 0 0 10 7zm-6 5a8 8 0 0 0 15.062 3.762A9 9 0 0 1 8.238 4.938 7.999 7.999 0 0 0 4 12z"></path></symbol>
+  <symbol viewBox="0 0 24 24" width="1.5rem" height="1.5rem" id="icon-sun"><path d="M0 0h24v24H0z" fill="currentColor"></path><path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85l1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"></path></symbol>
+</svg>
+<!-- END SVGs -->
+
+
+
+<div></div><div id="compose-ai-general-snackbar-root"></div><div id="Chat-Plugin-Root" class="compose-root-component"></div></body>
+<editor-card style="position:absolute;top:0px;left:0px;z-index:auto;display: block !important"><div dir="ltr" style="all: initial;"><div style="color-scheme: initial; forced-color-adjust: initial; mask: initial; math-depth: initial; position: absolute; position-anchor: initial; text-size-adjust: initial; appearance: initial; color: initial; font: initial; font-palette: initial; font-synthesis: initial; position-area: initial; text-orientation: initial; text-rendering: initial; text-spacing-trim: initial; -webkit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orientation: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: initial; accent-color: initial; place-content: initial; place-items: initial; place-self: initial; alignment-baseline: initial; anchor-name: initial; anchor-scope: initial; animation-composition: initial; animation: initial; app-region: initial; aspect-ratio: initial; backdrop-filter: initial; backface-visibility: initial; background: initial; background-blend-mode: initial; baseline-shift: initial; baseline-source: initial; block-size: initial; border-block: initial; border: initial; border-radius: initial; border-collapse: initial; border-end-end-radius: initial; border-end-start-radius: initial; border-inline: initial; border-start-end-radius: initial; border-start-start-radius: initial; inset: initial; box-decoration-break: initial; box-shadow: initial; box-sizing: initial; break-after: initial; break-before: initial; break-inside: initial; buffered-rendering: initial; caption-side: initial; caret-color: initial; clear: initial; clip: initial; clip-path: initial; clip-rule: initial; color-interpolation: initial; color-interpolation-filters: initial; color-rendering: initial; columns: initial; column-fill: initial; gap: initial; column-rule: initial; column-span: initial; contain: initial; contain-intrinsic-block-size: initial; contain-intrinsic-size: initial; contain-intrinsic-inline-size: initial; container: initial; content: initial; content-visibility: initial; counter-increment: initial; counter-reset: initial; counter-set: initial; cursor: initial; cx: initial; cy: initial; d: initial; display: initial; dominant-baseline: initial; dynamic-range-limit: initial; empty-cells: initial; field-sizing: initial; fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; flex: initial; flex-flow: initial; float: initial; flood-color: initial; flood-opacity: initial; grid: initial; grid-area: initial; height: initial; hyphenate-character: initial; hyphenate-limit-chars: initial; hyphens: initial; image-orientation: initial; image-rendering: initial; initial-letter: initial; inline-size: initial; inset-block: initial; inset-inline: initial; interpolate-size: initial; isolation: initial; letter-spacing: initial; lighting-color: initial; line-break: initial; list-style: initial; margin-block: initial; margin: initial; margin-inline: initial; marker: initial; mask-type: initial; math-shift: initial; math-style: initial; max-block-size: initial; max-height: initial; max-inline-size: initial; max-width: initial; min-block-size: initial; min-height: initial; min-inline-size: initial; min-width: initial; mix-blend-mode: initial; object-fit: initial; object-position: initial; object-view-box: initial; offset: initial; opacity: initial; order: initial; orphans: initial; outline: initial; outline-offset: initial; overflow-anchor: initial; overflow-block: initial; overflow-clip-margin: initial; overflow-inline: initial; overflow-wrap: initial; overflow: initial; overlay: initial; overscroll-behavior-block: initial; overscroll-behavior-inline: initial; overscroll-behavior: initial; padding-block: initial; padding: initial; padding-inline: initial; page: initial; page-orientation: initial; paint-order: initial; perspective: initial; perspective-origin: initial; pointer-events: initial; position-try: initial; position-visibility: initial; print-color-adjust: initial; quotes: initial; r: initial; resize: initial; rotate: initial; ruby-align: initial; ruby-position: initial; rx: initial; ry: initial; scale: initial; scroll-behavior: initial; scroll-initial-target: initial; scroll-margin-block: initial; scroll-margin: initial; scroll-margin-inline: initial; scroll-marker-group: initial; scroll-padding-block: initial; scroll-padding: initial; scroll-padding-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; scroll-snap-type: initial; scroll-timeline: initial; scrollbar-color: initial; scrollbar-gutter: initial; scrollbar-width: initial; shape-image-threshold: initial; shape-margin: initial; shape-outside: initial; shape-rendering: initial; size: initial; speak: initial; stop-color: initial; stop-opacity: initial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: initial; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: initial; stroke-opacity: initial; stroke-width: initial; tab-size: initial; table-layout: initial; text-align: initial; text-align-last: initial; text-anchor: initial; text-box: initial; text-combine-upright: initial; text-decoration: initial; text-decoration-skip-ink: initial; text-emphasis: initial; text-emphasis-position: initial; text-indent: initial; text-overflow: initial; text-shadow: initial; text-transform: initial; text-underline-offset: initial; text-underline-position: initial; text-wrap: initial; timeline-scope: initial; touch-action: initial; transform: initial; transform-box: initial; transform-origin: initial; transform-style: initial; transition: initial; translate: initial; user-select: initial; vector-effect: initial; vertical-align: initial; view-timeline: initial; view-transition-class: initial; view-transition-name: initial; visibility: initial; border-spacing: initial; -webkit-box-align: initial; -webkit-box-decoration-break: initial; -webkit-box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordinal-group: initial; -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit-box-reflect: initial; -webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: initial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial; -webkit-text-decorations-in-effect: initial; -webkit-text-fill-color: initial; -webkit-text-security: initial; -webkit-text-stroke: initial; -webkit-user-drag: initial; white-space-collapse: initial; widows: initial; width: initial; will-change: initial; word-break: initial; word-spacing: initial; x: initial; y: initial; z-index: 2147483647;"><link rel="stylesheet" href="chrome-extension://gpaiobkfhnonedkhhfjpmhdalgeoebfa/fonts/fabric-icons.css"><div style="all: initial;"></div></div><div style="color-scheme: initial; forced-color-adjust: initial; mask: initial; math-depth: initial; position: absolute; position-anchor: initial; text-size-adjust: initial; appearance: initial; color: initial; font: initial; font-palette: initial; font-synthesis: initial; position-area: initial; text-orientation: initial; text-rendering: initial; text-spacing-trim: initial; -webkit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orientation: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: initial; accent-color: initial; place-content: initial; place-items: initial; place-self: initial; alignment-baseline: initial; anchor-name: initial; anchor-scope: initial; animation-composition: initial; animation: initial; app-region: initial; aspect-ratio: initial; backdrop-filter: initial; backface-visibility: initial; background: initial; background-blend-mode: initial; baseline-shift: initial; baseline-source: initial; block-size: initial; border-block: initial; border: initial; border-radius: initial; border-collapse: initial; border-end-end-radius: initial; border-end-start-radius: initial; border-inline: initial; border-start-end-radius: initial; border-start-start-radius: initial; inset: initial; box-decoration-break: initial; box-shadow: initial; box-sizing: initial; break-after: initial; break-before: initial; break-inside: initial; buffered-rendering: initial; caption-side: initial; caret-color: initial; clear: initial; clip: initial; clip-path: initial; clip-rule: initial; color-interpolation: initial; color-interpolation-filters: initial; color-rendering: initial; columns: initial; column-fill: initial; gap: initial; column-rule: initial; column-span: initial; contain: initial; contain-intrinsic-block-size: initial; contain-intrinsic-size: initial; contain-intrinsic-inline-size: initial; container: initial; content: initial; content-visibility: initial; counter-increment: initial; counter-reset: initial; counter-set: initial; cursor: initial; cx: initial; cy: initial; d: initial; display: initial; dominant-baseline: initial; dynamic-range-limit: initial; empty-cells: initial; field-sizing: initial; fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; flex: initial; flex-flow: initial; float: initial; flood-color: initial; flood-opacity: initial; grid: initial; grid-area: initial; height: initial; hyphenate-character: initial; hyphenate-limit-chars: initial; hyphens: initial; image-orientation: initial; image-rendering: initial; initial-letter: initial; inline-size: initial; inset-block: initial; inset-inline: initial; interpolate-size: initial; isolation: initial; letter-spacing: initial; lighting-color: initial; line-break: initial; list-style: initial; margin-block: initial; margin: initial; margin-inline: initial; marker: initial; mask-type: initial; math-shift: initial; math-style: initial; max-block-size: initial; max-height: initial; max-inline-size: initial; max-width: initial; min-block-size: initial; min-height: initial; min-inline-size: initial; min-width: initial; mix-blend-mode: initial; object-fit: initial; object-position: initial; object-view-box: initial; offset: initial; opacity: initial; order: initial; orphans: initial; outline: initial; outline-offset: initial; overflow-anchor: initial; overflow-block: initial; overflow-clip-margin: initial; overflow-inline: initial; overflow-wrap: initial; overflow: initial; overlay: initial; overscroll-behavior-block: initial; overscroll-behavior-inline: initial; overscroll-behavior: initial; padding-block: initial; padding: initial; padding-inline: initial; page: initial; page-orientation: initial; paint-order: initial; perspective: initial; perspective-origin: initial; pointer-events: initial; position-try: initial; position-visibility: initial; print-color-adjust: initial; quotes: initial; r: initial; resize: initial; rotate: initial; ruby-align: initial; ruby-position: initial; rx: initial; ry: initial; scale: initial; scroll-behavior: initial; scroll-initial-target: initial; scroll-margin-block: initial; scroll-margin: initial; scroll-margin-inline: initial; scroll-marker-group: initial; scroll-padding-block: initial; scroll-padding: initial; scroll-padding-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; scroll-snap-type: initial; scroll-timeline: initial; scrollbar-color: initial; scrollbar-gutter: initial; scrollbar-width: initial; shape-image-threshold: initial; shape-margin: initial; shape-outside: initial; shape-rendering: initial; size: initial; speak: initial; stop-color: initial; stop-opacity: initial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: initial; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: initial; stroke-opacity: initial; stroke-width: initial; tab-size: initial; table-layout: initial; text-align: initial; text-align-last: initial; text-anchor: initial; text-box: initial; text-combine-upright: initial; text-decoration: initial; text-decoration-skip-ink: initial; text-emphasis: initial; text-emphasis-position: initial; text-indent: initial; text-overflow: initial; text-shadow: initial; text-transform: initial; text-underline-offset: initial; text-underline-position: initial; text-wrap: initial; timeline-scope: initial; touch-action: initial; transform: initial; transform-box: initial; transform-origin: initial; transform-style: initial; transition: initial; translate: initial; user-select: initial; vector-effect: initial; vertical-align: initial; view-timeline: initial; view-transition-class: initial; view-transition-name: initial; visibility: initial; border-spacing: initial; -webkit-box-align: initial; -webkit-box-decoration-break: initial; -webkit-box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordinal-group: initial; -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit-box-reflect: initial; -webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: initial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial; -webkit-text-decorations-in-effect: initial; -webkit-text-fill-color: initial; -webkit-text-security: initial; -webkit-text-stroke: initial; -webkit-user-drag: initial; white-space-collapse: initial; widows: initial; width: initial; will-change: initial; word-break: initial; word-spacing: initial; x: initial; y: initial; z-index: 2147483647;"><link rel="stylesheet" href="chrome-extension://gpaiobkfhnonedkhhfjpmhdalgeoebfa/fonts/fabric-icons.css"></div></div></editor-card></html>

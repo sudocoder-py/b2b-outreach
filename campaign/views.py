@@ -52,6 +52,45 @@ def dashboard_non_functional(request):
 
 
 
-def beta_dashboard(request):
+def dashboard(request):
 
-    return render(request, "beta/dashboard.html")
+    return render(request, "base-app.html")
+
+
+def leads_view(request):
+    
+    return render(request, "app/leads/leads-view.html")
+
+
+def campaign_view_list(request):
+    
+    return render(request, "app/campaign/view-list.html")
+
+
+def campaign_dashboard(request, pk):
+    
+    return render(request, "app/campaign/dashboard.html")
+
+
+def campaign_leads(request, pk):
+    
+    return render(request, "app/campaign/campaign-leads.html")
+
+
+def campaign_sequence(request, pk):
+    
+    return render(request, "app/campaign/sequence.html")    
+
+
+
+
+def campaign_scheduele(request, pk):
+    
+    return render(request, "app/campaign/scheduele.html")       
+
+
+
+
+def campaign_options(request, pk):
+    
+    return render(request, "app/campaign/options.html")     

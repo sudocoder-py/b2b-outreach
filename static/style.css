@@ -1,0 +1,66 @@
+ .main-content-bg {
+      position: relative;
+      background-color: #f9fafb; /* bg-gray-50 */
+    }
+    .main-content-bg::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 40%;
+      height: 40%;
+      background: radial-gradient(ellipse at bottom right, rgba(0, 0, 0, 0.04), transparent 70%);
+      pointer-events: none;
+    }
+    /* Ensure no text transformation on the primary button */
+    .btn.btn-primary {
+        text-transform: none;
+    }
+
+    .btn.btn-primary, .btn.btn-ghost {
+        text-transform: none; /* Prevent DaisyUI from uppercasing button text */
+        font-weight: 600;
+    }
+    .table-header {
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+    }    
+
+    .tab-active-underline {
+        border-bottom: 2px solid;
+    }
+    /* Make progress bar track lighter */
+    progress.progress::-webkit-progress-bar {
+        background-color: #e5e7eb; /* bg-gray-200 */
+    }
+    progress.progress::-moz-progress-bar {
+        background-color: #e5e7eb; /* bg-gray-200 */
+    }
+
+
+
+    /* Custom table styles */
+    .custom-table {
+        border-collapse: collapse;
+    }
+    .custom-table th,
+    .custom-table td {
+        border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+        padding: 0.75rem 1rem; /* p-3 px-4 */
+        vertical-align: middle;
+    }
+    .custom-table th:not(:last-child),
+    .custom-table td:not(:last-child) {
+        border-right: 1px solid #e5e7eb; /* border-gray-200 */
+    }
+    .custom-table th {
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #6b7280; /* text-gray-500 */
+        letter-spacing: 0.05em;
+        background-color: #f9fafb; /* bg-gray-50 */
+    }
+    .custom-table td {
+        font-size: 0.875rem; /* text-sm */
+    }

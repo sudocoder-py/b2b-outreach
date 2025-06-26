@@ -1,0 +1,93 @@
+ {% extends "base-app.html" %}
+ 
+ {% block title %}Campaigns{% endblock %}
+ 
+ 
+ 
+ {% block content %}
+ 
+ 
+ 
+ 
+ <!-- Toolbar -->
+      <div class="flex-1 overflow-y-auto bg-gray-50 p-8">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <label class="input input-bordered flex items-center gap-2 h-10 w-72 bg-white">
+                    <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+                    <input type="text" class="grow text-sm" placeholder="Search..." />
+                </label>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="dropdown dropdown-end">
+                    <button tabindex="0" role="button" class="btn bg-white hover:bg-base-200 border border-base-300 h-10 min-h-10 pl-3 pr-4 flex items-center gap-2 rounded-lg">
+                        <i class="fa-solid fa-bolt text-gray-500"></i>
+                        <span class="text-sm font-medium text-gray-700">All statuses</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-gray-500"></i>
+                    </button>
+                </div>
+                 <div class="dropdown dropdown-end">
+                    <button tabindex="0" role="button" class="btn bg-white hover:bg-base-200 border border-base-300 h-10 min-h-10 px-3 flex items-center gap-2 rounded-lg">
+                        <span class="text-sm font-medium text-gray-700">Newest first</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-gray-500"></i>
+                    </button>
+                </div>
+                <button class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm">
+                    <i class="fa-solid fa-plus mr-1"></i>
+                    Add New
+                </button>
+            </div>
+        </div>
+
+        <!-- Table / List Area -->
+        <div class="mt-6">
+            <!-- Table Header -->
+            <div class="grid grid-cols-[48px_2fr_1fr_1fr_1fr_1fr_1fr_1fr_48px] gap-4 items-center px-4 py-2 text-gray-500 uppercase font-semibold table-header">
+                <label>
+                    <input type="checkbox" class="checkbox checkbox-sm rounded" />
+                </label>
+                <span>Name</span>
+                <span class="text-center">Status</span>
+                <span class="text-center">Progress</span>
+                <span class="text-center">Sent</span>
+                <span class="text-center">Click</span>
+                <span class="text-center">Replied</span>
+                <span class="text-center">Opportunities</span>
+                <span></span> <!-- For ellipsis icon column -->
+            </div>
+
+            <!-- Table Row Card -->
+            <div class="grid grid-cols-[48px_2fr_1fr_1fr_1fr_1fr_1fr_1fr_48px] gap-4 items-center bg-white border border-base-200 rounded-xl shadow-sm px-4 py-3 mt-2">
+                <!-- Checkbox -->
+                <label>
+                    <input type="checkbox" class="checkbox checkbox-sm rounded" />
+                </label>
+                <!-- Name -->
+                <div class="font-bold text-sm text-gray-800">test</div>
+                <!-- Status -->
+                <div class="text-center">
+                    <div class="badge badge-neutral text-white font-semibold text-xs py-3">Draft</div>
+                </div>
+                <!-- Progress -->
+                <div class="text-center text-gray-600">-</div>
+                <!-- Sent -->
+                <div class="text-center text-gray-600">-</div>
+                <!-- Click -->
+                <div class="text-center text-gray-600">-</div>
+                <!-- Replied -->
+                <div class="text-center text-gray-600">-</div>
+                <!-- Opportunities -->
+                <div class="text-center text-gray-600">-</div>
+                <!-- Actions -->
+                <div class="text-center">
+                    <button class="btn btn-ghost btn-circle btn-sm">
+                        <i class="fa-solid fa-ellipsis text-gray-500"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+      </div>
+
+
+
+{% endblock %}          

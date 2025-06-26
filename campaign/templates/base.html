@@ -1,20 +1,24 @@
-<html>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
   <head>
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
-    <link
-      rel="stylesheet"
-      as="style"
-      onload="this.rel='stylesheet'"
-      href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
-    />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 
     <title>{% block title %}campaigns{% endblock %}</title>
-    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- DaisyUI and Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static 'style.css' %}">
   </head>
-  <body>
-        {% block content %}
+  <body class="h-screen overflow-hidden bg-base-200">
+        {% block base-content %}
+     
         {% endblock %}
   </body>
 </html>

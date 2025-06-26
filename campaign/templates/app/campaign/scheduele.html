@@ -1,0 +1,115 @@
+    {% extends "base-app.html" %}
+ 
+ {% block title %}Campaign schedule{% endblock %}
+ 
+ 
+ 
+ {% block content %}     
+     
+     
+     
+     
+     
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   <div class="flex-1 flex flex-col overflow-hidden bg-gray-50 p-8">
+        <!-- Top Nav & Actions -->
+        <div class="flex items-center justify-between">
+            <div role="tablist" class="tabs">
+                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-gray-500">Analytics</a>
+                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-gray-500 mx-4">Leads</a>
+                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-gray-500 mx-4">Sequences</a>
+                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-primary tab-active-underline border-primary">Schedule</a>
+                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-gray-500 mx-4">Options</a>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="btn bg-green-100 text-green-700 hover:bg-green-200 border-none h-10 min-h-10 rounded-lg px-4 text-sm"><i class="fa-solid fa-play mr-1 text-xs"></i>Resume campaign</button>
+                <button class="btn bg-white border border-base-300 btn-square h-10 min-h-10 w-10"><i class="fa-solid fa-ellipsis"></i></button>
+            </div>
+        </div>
+
+        <!-- div two-column layout -->
+        <div class="flex-1 flex gap-8 mt-6 overflow-hidden">
+          <!-- Left Column: Schedule List -->
+          <div class="w-full max-w-xs flex-shrink-0 flex flex-col gap-4">
+            <div class="space-y-3 text-sm">
+                <div class="flex items-center gap-3"><i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i> <span class="font-semibold text-gray-600">Start</span> <div class="w-full border-b border-dashed"></div> <a href="#" class="font-semibold text-primary">Now</a></div>
+                <div class="flex items-center gap-3"><i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i> <span class="font-semibold text-gray-600">End</span> <div class="w-full border-b border-dashed"></div> <a href="#" class="font-semibold text-primary whitespace-nowrap">No end date</a></div>
+            </div>
+
+            <div class="divider my-1"></div>
+
+            <div class="space-y-3">
+                <!-- Inactive Schedule -->
+                <div class="bg-white border border-gray-200 rounded-lg p-3 flex items-center justify-between cursor-pointer">
+                    <div class="flex items-center gap-2 text-gray-600"><i class="fa-regular fa-calendar-days"></i> <span>New schedule</span></div>
+                    <button class="btn btn-ghost btn-sm btn-square text-gray-400"><i class="fa-regular fa-trash-can"></i></button>
+                </div>
+                <!-- Active Schedule -->
+                <div class="bg-white border-2 border-primary rounded-lg p-3 flex items-center justify-between cursor-pointer">
+                    <div class="flex items-center gap-2 text-gray-800 font-semibold"><i class="fa-regular fa-calendar-days"></i> <span>New schedule</span></div>
+                    <button class="btn btn-ghost btn-sm btn-square text-gray-400"><i class="fa-regular fa-trash-can"></i></button>
+                </div>
+            </div>
+
+            <button class="btn btn-ghost bg-white border border-gray-200 mt-2 text-primary font-semibold">Add schedule</button>
+
+          </div>
+
+          <!-- Right Column: Schedule Editor -->
+          <div class="flex-1 flex flex-col gap-6 overflow-y-auto">
+            <form class="space-y-6">
+                <!-- Schedule Name Card -->
+                <div class="card bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="font-bold text-gray-800 text-lg mb-4">Schedule Name</h3>
+                    <input type="text" value="New schedule" class="input input-bordered w-full bg-white" />
+                </div>
+                <!-- Timing Card -->
+                <div class="card bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="font-bold text-gray-800 text-lg mb-4">Timing</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">From</span></label>
+                            <select class="select select-bordered bg-white"><option>9:00 AM</option></select>
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">To</span></label>
+                            <select class="select select-bordered bg-white"><option>6:00 PM</option></select>
+                        </div>
+                    </div>
+                     <div class="form-control">
+                        <label class="label"><span class="label-text">Timezone</span></label>
+                        <select class="select select-bordered bg-white"><option>Eastern Time (US & Canada) (UTC-04:00)</option></select>
+                    </div>
+                </div>
+                <!-- Days Card -->
+                <div class="card bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="font-bold text-gray-800 text-lg mb-4">Days</h3>
+                    <div class="flex flex-wrap gap-x-6 gap-y-3">
+                        <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" checked class="checkbox checkbox-primary" /> <span class="label-text">Monday</span></label>
+                        <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" checked class="checkbox checkbox-primary" /> <span class="label-text">Tuesday</span></label>
+                        <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" checked class="checkbox checkbox-primary" /> <span class="label-text">Wednesday</span></label>
+                        <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" checked class="checkbox checkbox-primary" /> <span class="label-text">Thursday</span></label>
+                        <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" checked class="checkbox checkbox-primary" /> <span class="label-text">Friday</span></label>
+                        <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" class="checkbox checkbox-primary" /> <span class="label-text">Saturday</span></label>
+                        <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" class="checkbox checkbox-primary" /> <span class="label-text">Sunday</span></label>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+
+      {% endblock %}  

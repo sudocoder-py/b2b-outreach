@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}{% endblock %}
+
+
+{% block base-content %}
+<div class="flex h-full font-sans">
+
+    <!-- side-nav -->
+    {% include "components/nav.html" %}
+
+    <!-- Main Content Area -->
+    <div class="flex w-full flex-col">
+      <!-- Header -->
+       {% include "components/header.html" %}
+      
+      
+      <!-- Content -->
+      <main class="flex-1 main-content-bg">
+        {% block content %}{% endblock %}  
+        <!-- The main content is empty as per the screenshot -->
+      </main>
+    </div>
+
+  </div>
+
+{% endblock %}  

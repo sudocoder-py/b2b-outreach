@@ -1,0 +1,133 @@
+ {% extends "base-app.html" %}
+ 
+ {% block title %}Campaign Leads{% endblock %}
+ 
+ 
+ 
+ {% block content %}     
+     
+     
+     
+     
+       
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!-- Content -->
+      <div class="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-8">
+        <!-- Top Nav & Actions -->
+        <div class="flex items-center justify-between">
+            <div role="tablist" class="tabs">
+                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-gray-500 mx-4">Analytics</a>
+                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-primary tab-active-underline border-primary">Leads</a>
+                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-gray-500 mx-4">Sequences</a>
+                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-gray-500 mx-4">Schedule</a>
+                <a role="tab" class="tab h-auto pb-2 px-1 text-base text-gray-500 mx-4">Options</a>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="btn bg-green-100 text-green-700 hover:bg-green-200 border-none h-10 min-h-10 rounded-lg px-4 text-sm"><i class="fa-solid fa-play mr-1 text-xs"></i>Resume campaign</button>
+                <button class="btn bg-white border border-base-300 btn-square h-10 min-h-10 w-10"><i class="fa-solid fa-ellipsis"></i></button>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="flex items-center justify-between mt-8">
+            <div class="flex items-center gap-4">
+                <label class="input input-bordered flex items-center gap-2 h-10 w-64 bg-white"><i class="fa-solid fa-magnifying-glass text-gray-400"></i><input type="text" class="grow text-sm" placeholder="Search..." /></label>
+                <div class="flex items-center gap-4 text-gray-500 text-sm p-2 rounded-lg bg-gray-100">
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-users"></i><span class="font-semibold">8</span></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-eye"></i><span class="font-semibold">0</span></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-paper-plane"></i><span class="font-semibold">0</span></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-reply"></i><span class="font-semibold">0</span></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-regular fa-handshake"></i><span class="font-semibold">0</span></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i><span class="font-semibold">0</span></div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="btn bg-white border border-base-300 h-10 min-h-10 rounded-lg px-4 text-sm"><i class="fa-solid fa-filter mr-2 text-gray-500"></i>Filters</button>
+                <button class="btn btn-primary btn-outline btn-square h-10 w-10 min-h-10"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+                <button class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm">Add Leads</button>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="mt-4 flex-grow overflow-x-auto rounded-lg border border-gray-200 bg-white">
+            <table class="table-auto w-full custom-table">
+                <thead>
+                    <tr>
+                        <th class="w-12 text-center"><input type="checkbox" class="checkbox checkbox-sm rounded" /></th>
+                        <th class="w-16"></th> <!-- Index number column -->
+                        <th class="text-left">Email</th>
+                        <th class="text-left">Email Provider</th>
+                        <th class="text-left">Status</th>
+                        <th class="text-left">Contact</th>
+                        <th class="text-left">Company</th>
+                        <th class="text-left">Website</th>
+                        <th class="text-left">Pe...</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data Rows -->
+                    <script>
+                        const leadsData = [
+                            { id: 1, email: 'yamenabsi@gmail.com', provider: 'Google', contact: 'Yamen Alabsi', company: 'Elkood', website: 'https://elkood.com/', pe: 'Yamen Al' },
+                            { id: 2, email: 'mhmadnajjer2004@gmail.com', provider: 'Google', contact: 'Mohammad Salem Al-najjar', company: 'Prootech Agency', website: 'https://prootech.agency', pe: 'Salem Al' },
+                            { id: 3, email: 'ashraf.altawashi@codeguru.ae', provider: 'Google', contact: 'Ashraf Altawashi', company: 'CodeGuru.ae', website: 'https://codeguru.ae', pe: 'Ashraf Al' },
+                            { id: 4, email: 'razek.daoud@raizer.tech', provider: 'Other', contact: 'Razek Daoud', company: 'Raizer', website: 'http://raizer.tech', pe: 'Razek Do' },
+                            { id: 5, email: 'gy.alamin@hotmail.com', provider: 'Microsoft', contact: 'Gheias A.', company: 'Florinz', website: 'http://flarinz.com', pe: 'Gheias A' },
+                            { id: 6, email: 'fdudramo@gmail.com', provider: 'Google', contact: 'fdud ramo', company: 'fdudgames', website: 'http://fdudgames', pe: 'fdud ram' },
+                            { id: 7, email: 'shameerkummali@gmail.com', provider: 'Google', contact: 'Shameer Mohammed', company: 'Zeolans Technologies', website: 'https://www.zeolans.ae', pe: 'Shameer' },
+                            { id: 8, email: 'ghassanrizk@pan-code.com', provider: 'Other', contact: 'Ghassan Rizk', company: 'Pancode', website: 'www.pan-code.com', pe: 'Ghassan' },
+                        ];
+
+                        leadsData.forEach(lead => {
+                            let providerHtml = '';
+                            if (lead.provider === 'Google') {
+                                providerHtml = `<i class="fa-brands fa-google text-red-500 mr-2"></i> Google`;
+                            } else if (lead.provider === 'Microsoft') {
+                                providerHtml = `<i class="fa-brands fa-microsoft text-blue-600 mr-2"></i> Microsoft`;
+                            } else {
+                                providerHtml = `Other <i class="fa-solid fa-circle-info text-gray-400 ml-1"></i>`;
+                            }
+
+                            document.write(`
+                                <tr>
+                                    <td class="text-center"><input type="checkbox" class="checkbox checkbox-sm rounded" /></td>
+                                    <td class="text-gray-500 text-center">${lead.id}</td>
+                                    <td class="font-medium text-gray-700">${lead.email}</td>
+                                    <td><div class="flex items-center">${providerHtml}</div></td>
+                                    <td><div class="badge badge-ghost gap-2 font-medium py-3"><i class="fa-regular fa-clock"></i>Not yet contacted</div></td>
+                                    <td class="text-gray-600">${lead.contact}</td>
+                                    <td class="text-gray-600">${lead.company}</td>
+                                    <td class="text-gray-600">${lead.website}</td>
+                                    <td class="text-gray-600">${lead.pe}</td>
+                                </tr>
+                            `);
+                        });
+                    </script>
+                </tbody>
+            </table>
+        </div>
+        <!-- Footer -->
+        <div class="py-6 text-center">
+            <hr class="mb-4">
+            <div class="flex items-center justify-center gap-4">
+                <span class="text-sm text-gray-400">Searching</span>
+                <button class="btn btn-sm bg-white border border-gray-300" disabled>No more to load</button>
+            </div>
+        </div>
+      </div>
+
+
+
+
+
+
+      {% endblock %}  
