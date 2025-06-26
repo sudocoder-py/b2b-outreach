@@ -1,0 +1,191 @@
+<!-- Shared Modal Components for the entire app -->
+
+<!-- Generic Confirmation Modal -->
+<dialog id="confirm-modal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg" id="confirm-modal-title">Confirm Action</h3>
+        <p class="py-4" id="confirm-modal-message">Are you sure you want to proceed?</p>
+        <div class="modal-action">
+            <button class="btn" id="confirm-modal-btn" onclick="executeConfirmAction()">
+                Confirm
+            </button>
+            <button class="btn btn-ghost" onclick="closeModal('confirm-modal')">
+                Cancel
+            </button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Success Modal -->
+<dialog id="success-modal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg text-success">
+            <i class="fa-solid fa-check-circle mr-2"></i>Success
+        </h3>
+        <p class="py-4" id="success-modal-message">Operation completed successfully!</p>
+        <div class="modal-action">
+            <button class="btn btn-success" onclick="closeModal('success-modal')">
+                OK
+            </button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Error Modal -->
+<dialog id="error-modal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg text-error">
+            <i class="fa-solid fa-exclamation-triangle mr-2"></i>Error
+        </h3>
+        <p class="py-4" id="error-modal-message">An error occurred. Please try again.</p>
+        <div class="modal-action">
+            <button class="btn btn-error" onclick="closeModal('error-modal')">
+                OK
+            </button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Loading Modal -->
+<dialog id="loading-modal" class="modal">
+    <div class="modal-box text-center">
+        <div class="loading loading-spinner loading-lg text-primary"></div>
+        <h3 class="font-bold text-lg mt-4">Processing...</h3>
+        <p class="py-4" id="loading-modal-message">Please wait while we process your request.</p>
+    </div>
+</dialog>
+
+<script>
+// Global Modal System for the entire app
+window.ModalSystem = {
+    // Current action to execute on confirmation
+    currentAction: null,
+    
+    // Open any modal
+    open: function(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.showModal();
+        }
+    },
+    
+    // Close any modal
+    close: function(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.close();
+        }
+    },
+    
+    // Show confirmation modal
+    confirm: function(options = {}) {
+        const {
+            title = 'Confirm Action',
+            message = 'Are you sure you want to proceed?',
+            confirmText = 'Confirm',
+            confirmClass = 'btn-primary',
+            action = null
+        } = options;
+        
+        // Set modal content
+        document.getElementById('confirm-modal-title').textContent = title;
+        document.getElementById('confirm-modal-message').textContent = message;
+        
+        const confirmBtn = document.getElementById('confirm-modal-btn');
+        confirmBtn.textContent = confirmText;
+        confirmBtn.className = `btn ${confirmClass}`;
+        
+        // Store action
+        this.currentAction = action;
+        
+        // Show modal
+        this.open('confirm-modal');
+    },
+    
+    // Show success modal
+    success: function(message = 'Operation completed successfully!') {
+        document.getElementById('success-modal-message').textContent = message;
+        this.open('success-modal');
+    },
+    
+    // Show error modal
+    error: function(message = 'An error occurred. Please try again.') {
+        document.getElementById('error-modal-message').textContent = message;
+        this.open('error-modal');
+    },
+    
+    // Show loading modal
+    loading: function(message = 'Please wait while we process your request.') {
+        document.getElementById('loading-modal-message').textContent = message;
+        this.open('loading-modal');
+    },
+    
+    // Hide loading modal
+    hideLoading: function() {
+        this.close('loading-modal');
+    },
+    
+    // Show success toast (non-blocking)
+    toast: function(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = 'toast toast-top toast-end z-50';
+        
+        const alertClass = type === 'error' ? 'alert-error' : 
+                          type === 'warning' ? 'alert-warning' : 
+                          type === 'info' ? 'alert-info' : 'alert-success';
+        
+        const icon = type === 'error' ? 'fa-exclamation-circle' : 
+                    type === 'warning' ? 'fa-exclamation-triangle' : 
+                    type === 'info' ? 'fa-info-circle' : 'fa-check-circle';
+        
+        toast.innerHTML = `
+            <div class="alert ${alertClass}">
+                <i class="fa-solid ${icon}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+};
+
+// Execute the stored confirmation action
+function executeConfirmAction() {
+    if (window.ModalSystem.currentAction) {
+        window.ModalSystem.currentAction();
+        window.ModalSystem.currentAction = null;
+    }
+    window.ModalSystem.close('confirm-modal');
+}
+
+// Legacy function for backward compatibility
+function openModal(modalId) {
+    window.ModalSystem.open(modalId);
+}
+
+function closeModal(modalId) {
+    window.ModalSystem.close(modalId);
+}
+
+function showSuccessToast(message) {
+    window.ModalSystem.toast(message, 'success');
+}
+
+function showErrorToast(message) {
+    window.ModalSystem.toast(message, 'error');
+}
+</script>

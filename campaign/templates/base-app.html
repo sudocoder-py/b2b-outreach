@@ -17,11 +17,14 @@
       
       <!-- Content -->
       <main class="flex-1 main-content-bg">
-        {% block content %}{% endblock %}  
+        {% block content %}{% endblock %}
         <!-- The main content is empty as per the screenshot -->
       </main>
     </div>
 
   </div>
 
-{% endblock %}  
+  <!-- Include Shared Modals for entire app -->
+  {% include 'components/modals.html' %}
+
+{% endblock %}

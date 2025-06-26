@@ -264,42 +264,56 @@ function deleteSelected() {
 
     if (leadIds.length === 0) return;
 
-    if (confirm(`Are you sure you want to delete ${leadIds.length} selected lead(s)?`)) {
-        // Simulate deletion by removing rows
-        checkedBoxes.forEach(checkbox => {
-            const row = checkbox.closest('tr');
-            row.remove();
-        });
+    // Use the new modal system
+    ModalSystem.confirm({
+        title: 'Delete Selected Leads',
+        message: `Are you sure you want to delete ${leadIds.length} selected lead(s)? This action cannot be undone.`,
+        confirmText: 'Delete',
+        confirmClass: 'btn-error',
+        action: function() {
+            // Simulate deletion by removing rows
+            checkedBoxes.forEach(checkbox => {
+                const row = checkbox.closest('tr');
+                row.remove();
+            });
 
-        // Clear selection
-        clearSelection();
+            // Clear selection
+            clearSelection();
 
-        // Show success message
-        alert(`${leadIds.length} lead(s) deleted successfully!`);
+            // Show success toast
+            ModalSystem.toast(`${leadIds.length} lead(s) deleted successfully!`);
 
-        // Trigger HTMX refresh to update stats
-        htmx.trigger('#search-input', 'keyup');
-    }
+            // Trigger HTMX refresh to update stats
+            htmx.trigger('#search-input', 'keyup');
+        }
+    });
 }
 
 function deleteLead(leadId) {
-    if (confirm('Are you sure you want to delete this lead?')) {
-        // Find and remove the row
-        const checkbox = document.querySelector(`input[value="${leadId}"]`);
-        if (checkbox) {
-            const row = checkbox.closest('tr');
-            row.remove();
+    // Use the new modal system
+    ModalSystem.confirm({
+        title: 'Delete Lead',
+        message: 'Are you sure you want to delete this lead? This action cannot be undone.',
+        confirmText: 'Delete',
+        confirmClass: 'btn-error',
+        action: function() {
+            // Find and remove the row
+            const checkbox = document.querySelector(`input[value="${leadId}"]`);
+            if (checkbox) {
+                const row = checkbox.closest('tr');
+                row.remove();
+            }
+
+            // Update bulk actions
+            updateBulkActions();
+
+            // Show success toast
+            ModalSystem.toast('Lead deleted successfully!');
+
+            // Trigger HTMX refresh to update stats
+            htmx.trigger('#search-input', 'keyup');
         }
-
-        // Update bulk actions
-        updateBulkActions();
-
-        // Show success message
-        alert('Lead deleted successfully!');
-
-        // Trigger HTMX refresh to update stats
-        htmx.trigger('#search-input', 'keyup');
-    }
+    });
 }
 
 function clearFilters() {
@@ -307,6 +321,8 @@ function clearFilters() {
     document.getElementById('status-filter').value = '';
     htmx.trigger('#search-input', 'keyup');
 }
+
+
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
