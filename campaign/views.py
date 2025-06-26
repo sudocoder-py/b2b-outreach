@@ -1,5 +1,7 @@
 from django.shortcuts import redirect, get_object_or_404, render
-from django.http import Http404
+from django.http import Http404, HttpResponse, JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from .models import Link
 import logging
 
@@ -299,3 +301,6 @@ def campaign_options(request, pk):
         'current_tab': 'options'
     }
     return render(request, "app/campaign/options.html", context)
+
+
+

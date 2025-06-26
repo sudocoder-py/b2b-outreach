@@ -13,5 +13,7 @@ urlpatterns = [
     path('campaign-sequence/<int:pk>', views.campaign_sequence, name='campaign_sequence'),
     path('campaign-scheduele/<int:pk>', views.campaign_scheduele, name='campaign_scheduele'),
     path('campaign-options/<int:pk>', views.campaign_options, name='campaign_options'),
+
+
 ]
 
