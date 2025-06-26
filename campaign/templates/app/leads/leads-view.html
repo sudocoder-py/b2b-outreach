@@ -12,11 +12,7 @@
                            name="search"
                            id="search-input"
                            class="grow text-sm"
-                           placeholder="Search leads..."
-                           hx-get="{% url 'leads_filter' %}"
-                           hx-trigger="keyup changed delay:300ms"
-                           hx-target="#leads-container"
-                           hx-include="#lead-type-filter,#source-filter" />
+                           placeholder="Search leads..." />
                 </label>
                 <div id="stats-container" class="flex items-center gap-4 text-gray-500 text-sm p-2 rounded-lg bg-gray-100">
                     <div class="flex items-center gap-1.5" title="Total Leads">
@@ -53,11 +49,7 @@
                             </label>
                             <select name="lead_type"
                                     id="lead-type-filter"
-                                    class="select select-bordered select-sm w-full bg-white"
-                                    hx-get="{% url 'leads_filter' %}"
-                                    hx-trigger="change"
-                                    hx-target="#leads-container"
-                                    hx-include="#search-input">
+                                    class="select select-bordered select-sm w-full bg-white">
                                 <option value="">All Types</option>
                                 <option value="cold">Cold</option>
                                 <option value="warm">Warm</option>
@@ -69,13 +61,9 @@
                             </label>
                             <select name="source"
                                     id="source-filter"
-                                    class="select select-bordered select-sm w-full bg-white"
-                                    hx-get="{% url 'leads_filter' %}"
-                                    hx-trigger="change"
-                                    hx-target="#leads-container"
-                                    hx-include="#search-input,#lead-type-filter">
+                                    class="select select-bordered select-sm w-full bg-white">
                                 <option value="">All Sources</option>
-                                <option value="linkedin_scrape">LinkedIn Scrape</option>
+                                <option value="linkedin">LinkedIn</option>
                                 <option value="manual">Manual</option>
                             </select>
                         </div>
@@ -780,17 +768,68 @@ function clearFilters() {
     document.getElementById('search-input').value = '';
     document.getElementById('lead-type-filter').value = '';
     document.getElementById('source-filter').value = '';
-    htmx.trigger('#search-input', 'keyup');
+    filterLeads();
+}
+
+// Filter functionality
+function filterLeads() {
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const leadTypeFilter = document.getElementById('lead-type-filter').value.toLowerCase();
+    const sourceFilter = document.getElementById('source-filter').value.toLowerCase();
+
+    const rows = document.querySelectorAll('.lead-row');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const leadText = row.textContent.toLowerCase();
+
+        // Get lead type from badge
+        const typeBadge = row.querySelector('.badge');
+        const leadType = typeBadge ? typeBadge.textContent.toLowerCase() : '';
+
+        // Get source from second badge
+        const badges = row.querySelectorAll('.badge');
+        const source = badges.length > 1 ? badges[1].textContent.toLowerCase() : '';
+
+        const matchesSearch = searchTerm === '' || leadText.includes(searchTerm);
+        const matchesType = leadTypeFilter === '' || leadType.includes(leadTypeFilter);
+        const matchesSource = sourceFilter === '' || source.includes(sourceFilter);
+
+        if (matchesSearch && matchesType && matchesSource) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    // Show/hide empty state
+    const noLeadsRow = document.getElementById('no-leads-row');
+    if (visibleCount === 0) {
+        noLeadsRow.classList.remove('hidden');
+    } else {
+        noLeadsRow.classList.add('hidden');
+    }
+
+    // Update search status
+    const searchStatus = document.getElementById('search-status');
+    if (searchStatus) {
+        if (searchTerm || leadTypeFilter || sourceFilter) {
+            searchStatus.textContent = `Showing ${visibleCount} of 8 leads`;
+        } else {
+            searchStatus.textContent = 'Showing all leads';
+        }
+    }
 }
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     updateBulkActions();
-});
 
-// Re-initialize after HTMX updates
-document.addEventListener('htmx:afterSwap', function() {
-    updateBulkActions();
+    // Add event listeners for filters
+    document.getElementById('search-input').addEventListener('input', filterLeads);
+    document.getElementById('lead-type-filter').addEventListener('change', filterLeads);
+    document.getElementById('source-filter').addEventListener('change', filterLeads);
 });
 </script>
 {% endblock %}
