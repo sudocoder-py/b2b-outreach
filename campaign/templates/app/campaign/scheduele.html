@@ -1,99 +1,418 @@
- {% extends "app/campaign/campaign-base.html" %}
- 
- {% block title %}Campaign schedule{% endblock %}
- 
- 
- 
- {% block cmp-base-content %}     
-     
-     
-     
-     
-     
-   
-   
-   
-   
-   
-   
-   
-   
+{% extends "app/campaign/campaign-base.html" %}
 
+{% block title %}Campaign schedule{% endblock %}
+
+{% block cmp-base-content %}
+
+<style>
+/* Custom styles for schedule page */
+.schedule-item {
+    transition: all 0.2s ease;
+}
+
+.schedule-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-item.active {
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+}
+
+.delete-schedule-btn {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.schedule-item:hover .delete-schedule-btn {
+    opacity: 1;
+}
+
+.delete-schedule-btn:hover {
+    color: #ef4444 !important;
+}
+
+.time-select, .timezone-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+.form-control input:focus,
+.form-control select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+</style>
 
         <!-- div two-column layout -->
         <div class="flex-1 flex gap-8 mt-6 overflow-hidden">
           <!-- Left Column: Schedule List -->
           <div class="w-full max-w-xs flex-shrink-0 flex flex-col gap-4">
+            <!-- Campaign Dates -->
             <div class="space-y-3 text-sm">
-                <div class="flex items-center gap-3"><i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i> <span class="font-semibold text-gray-600">Start</span> <div class="w-full border-b border-dashed"></div> <a href="#" class="font-semibold text-primary">Now</a></div>
-                <div class="flex items-center gap-3"><i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i> <span class="font-semibold text-gray-600">End</span> <div class="w-full border-b border-dashed"></div> <a href="#" class="font-semibold text-primary whitespace-nowrap">No end date</a></div>
+                <div class="flex items-center gap-3">
+                    <i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i>
+                    <span class="font-semibold text-gray-600">Start</span>
+                    <div class="w-full border-b border-dashed"></div>
+                    <button class="font-semibold text-primary" onclick="editCampaignStart()" id="campaign-start">Now</button>
+                </div>
+                <div class="flex items-center gap-3">
+                    <i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i>
+                    <span class="font-semibold text-gray-600">End</span>
+                    <div class="w-full border-b border-dashed"></div>
+                    <button class="font-semibold text-primary whitespace-nowrap" onclick="editCampaignEnd()" id="campaign-end">No end date</button>
+                </div>
             </div>
 
             <div class="divider my-1"></div>
 
-            <div class="space-y-3">
-                <!-- Inactive Schedule -->
-                <div class="bg-white border border-gray-200 rounded-lg p-3 flex items-center justify-between cursor-pointer">
-                    <div class="flex items-center gap-2 text-gray-600"><i class="fa-regular fa-calendar-days"></i> <span>New schedule</span></div>
-                    <button class="btn btn-ghost btn-sm btn-square text-gray-400"><i class="fa-regular fa-trash-can"></i></button>
-                </div>
-                <!-- Active Schedule -->
-                <div class="bg-white border-2 border-primary rounded-lg p-3 flex items-center justify-between cursor-pointer">
-                    <div class="flex items-center gap-2 text-gray-800 font-semibold"><i class="fa-regular fa-calendar-days"></i> <span>New schedule</span></div>
-                    <button class="btn btn-ghost btn-sm btn-square text-gray-400"><i class="fa-regular fa-trash-can"></i></button>
+            <!-- Schedules List -->
+            <div class="space-y-3" id="schedules-container">
+                <!-- Default Schedule -->
+                <div class="bg-white border-2 border-primary rounded-lg p-3 flex items-center justify-between cursor-pointer schedule-item active"
+                     data-schedule-id="1" onclick="selectSchedule(1)">
+                    <div class="flex items-center gap-2 text-gray-800 font-semibold">
+                        <i class="fa-regular fa-calendar-days"></i>
+                        <span class="schedule-name">Business Hours</span>
+                    </div>
+                    <button class="btn btn-ghost btn-sm btn-square text-gray-400 delete-schedule-btn"
+                            onclick="confirmDeleteSchedule(1)" title="Delete schedule">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </div>
             </div>
 
-            <button class="btn btn-ghost bg-white border border-gray-200 mt-2 text-primary font-semibold">Add schedule</button>
+            <button class="btn btn-ghost bg-white border border-gray-200 mt-2 text-primary font-semibold"
+                    onclick="addSchedule()">
+                <i class="fa-solid fa-plus mr-2"></i>Add schedule
+            </button>
 
           </div>
 
           <!-- Right Column: Schedule Editor -->
           <div class="flex-1 flex flex-col gap-6 overflow-y-auto">
-            <form class="space-y-6">
+            <form id="schedule-form" class="space-y-6" onsubmit="saveSchedule(event)">
                 <!-- Schedule Name Card -->
                 <div class="card bg-white p-6 rounded-lg shadow-sm">
                     <h3 class="font-bold text-gray-800 text-lg mb-4">Schedule Name</h3>
-                    <input type="text" value="New schedule" class="input input-bordered w-full bg-white" />
+                    <input type="text"
+                           id="schedule-name"
+                           name="name"
+                           value="Business Hours"
+                           class="input input-bordered w-full bg-white"
+                           placeholder="Enter schedule name" />
                 </div>
+
                 <!-- Timing Card -->
                 <div class="card bg-white p-6 rounded-lg shadow-sm">
                     <h3 class="font-bold text-gray-800 text-lg mb-4">Timing</h3>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
                         <div class="form-control">
                             <label class="label"><span class="label-text">From</span></label>
-                            <select class="select select-bordered bg-white"><option>9:00 AM</option></select>
+                            <select id="time-from" name="timeFrom" class="select select-bordered bg-white time-select">
+                                <option value="06:00">6:00 AM</option>
+                                <option value="07:00">7:00 AM</option>
+                                <option value="08:00">8:00 AM</option>
+                                <option value="09:00" selected>9:00 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="12:00">12:00 PM</option>
+                                <option value="13:00">1:00 PM</option>
+                                <option value="14:00">2:00 PM</option>
+                                <option value="15:00">3:00 PM</option>
+                                <option value="16:00">4:00 PM</option>
+                                <option value="17:00">5:00 PM</option>
+                            </select>
                         </div>
                         <div class="form-control">
                             <label class="label"><span class="label-text">To</span></label>
-                            <select class="select select-bordered bg-white"><option>6:00 PM</option></select>
+                            <select id="time-to" name="timeTo" class="select select-bordered bg-white time-select">
+                                <option value="12:00">12:00 PM</option>
+                                <option value="13:00">1:00 PM</option>
+                                <option value="14:00">2:00 PM</option>
+                                <option value="15:00">3:00 PM</option>
+                                <option value="16:00">4:00 PM</option>
+                                <option value="17:00">5:00 PM</option>
+                                <option value="18:00" selected>6:00 PM</option>
+                                <option value="19:00">7:00 PM</option>
+                                <option value="20:00">8:00 PM</option>
+                                <option value="21:00">9:00 PM</option>
+                                <option value="22:00">10:00 PM</option>
+                            </select>
                         </div>
                     </div>
-                     <div class="form-control">
+                    <div class="form-control">
                         <label class="label"><span class="label-text">Timezone</span></label>
-                        <select class="select select-bordered bg-white"><option>Eastern Time (US & Canada) (UTC-04:00)</option></select>
+                        <select id="timezone" name="timezone" class="select select-bordered bg-white timezone-select">
+                            <option value="America/New_York" selected>Eastern Time (US & Canada) (UTC-05:00)</option>
+                            <option value="America/Chicago">Central Time (US & Canada) (UTC-06:00)</option>
+                            <option value="America/Denver">Mountain Time (US & Canada) (UTC-07:00)</option>
+                            <option value="America/Los_Angeles">Pacific Time (US & Canada) (UTC-08:00)</option>
+                            <option value="Europe/London">London (UTC+00:00)</option>
+                            <option value="Europe/Paris">Paris (UTC+01:00)</option>
+                            <option value="Asia/Tokyo">Tokyo (UTC+09:00)</option>
+                        </select>
                     </div>
                 </div>
+
                 <!-- Days Card -->
                 <div class="card bg-white p-6 rounded-lg shadow-sm">
                     <h3 class="font-bold text-gray-800 text-lg mb-4">Days</h3>
                     <div class="flex flex-wrap gap-x-6 gap-y-3">
-                        <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" checked class="checkbox checkbox-primary" /> <span class="label-text">Monday</span></label>
-                        <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" checked class="checkbox checkbox-primary" /> <span class="label-text">Tuesday</span></label>
-                        <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" checked class="checkbox checkbox-primary" /> <span class="label-text">Wednesday</span></label>
-                        <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" checked class="checkbox checkbox-primary" /> <span class="label-text">Thursday</span></label>
-                        <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" checked class="checkbox checkbox-primary" /> <span class="label-text">Friday</span></label>
-                        <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" class="checkbox checkbox-primary" /> <span class="label-text">Saturday</span></label>
-                        <label class="label cursor-pointer justify-start gap-2"><input type="checkbox" class="checkbox checkbox-primary" /> <span class="label-text">Sunday</span></label>
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="checkbox" name="days" value="monday" checked class="checkbox checkbox-primary" />
+                            <span class="label-text">Monday</span>
+                        </label>
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="checkbox" name="days" value="tuesday" checked class="checkbox checkbox-primary" />
+                            <span class="label-text">Tuesday</span>
+                        </label>
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="checkbox" name="days" value="wednesday" checked class="checkbox checkbox-primary" />
+                            <span class="label-text">Wednesday</span>
+                        </label>
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="checkbox" name="days" value="thursday" checked class="checkbox checkbox-primary" />
+                            <span class="label-text">Thursday</span>
+                        </label>
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="checkbox" name="days" value="friday" checked class="checkbox checkbox-primary" />
+                            <span class="label-text">Friday</span>
+                        </label>
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="checkbox" name="days" value="saturday" class="checkbox checkbox-primary" />
+                            <span class="label-text">Saturday</span>
+                        </label>
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="checkbox" name="days" value="sunday" class="checkbox checkbox-primary" />
+                            <span class="label-text">Sunday</span>
+                        </label>
                     </div>
                 </div>
-                <div>
-                    <button type="submit" class="btn btn-primary">Save</button>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-save mr-2"></i>Save Schedule
+                    </button>
+                    <button type="button" class="btn btn-ghost" onclick="resetForm()">
+                        <i class="fa-solid fa-undo mr-2"></i>Reset
+                    </button>
                 </div>
             </form>
           </div>
         </div>
 
+<script>
+// Schedule Management System
+let activeScheduleId = 1;
+let scheduleCounter = 1;
+let schedules = {};
 
+// Initialize with default schedule
+schedules[1] = {
+    id: 1,
+    name: 'Business Hours',
+    timeFrom: '09:00',
+    timeTo: '18:00',
+    timezone: 'America/New_York',
+    days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+};
 
-      {% endblock %}  
+// Schedule Management Functions
+function selectSchedule(scheduleId) {
+    // Save current schedule before switching
+    saveCurrentSchedule();
+
+    // Remove active class from all schedules
+    document.querySelectorAll('.schedule-item').forEach(item => {
+        item.classList.remove('active', 'border-2', 'border-primary');
+        item.classList.add('border', 'border-gray-200');
+        item.querySelector('.schedule-name').parentElement.classList.remove('text-gray-800', 'font-semibold');
+        item.querySelector('.schedule-name').parentElement.classList.add('text-gray-600');
+    });
+
+    // Add active class to selected schedule
+    const selectedItem = document.querySelector(`[data-schedule-id="${scheduleId}"]`);
+    if (selectedItem) {
+        selectedItem.classList.add('active', 'border-2', 'border-primary');
+        selectedItem.classList.remove('border', 'border-gray-200');
+        selectedItem.querySelector('.schedule-name').parentElement.classList.add('text-gray-800', 'font-semibold');
+        selectedItem.querySelector('.schedule-name').parentElement.classList.remove('text-gray-600');
+        activeScheduleId = scheduleId;
+
+        // Load schedule data into form
+        loadScheduleData(scheduleId);
+    }
+}
+
+function loadScheduleData(scheduleId) {
+    const schedule = schedules[scheduleId];
+    if (!schedule) return;
+
+    // Load form data
+    document.getElementById('schedule-name').value = schedule.name;
+    document.getElementById('time-from').value = schedule.timeFrom;
+    document.getElementById('time-to').value = schedule.timeTo;
+    document.getElementById('timezone').value = schedule.timezone;
+
+    // Clear all day checkboxes
+    document.querySelectorAll('input[name="days"]').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+
+    // Check selected days
+    schedule.days.forEach(day => {
+        const checkbox = document.querySelector(`input[name="days"][value="${day}"]`);
+        if (checkbox) checkbox.checked = true;
+    });
+}
+
+function saveCurrentSchedule() {
+    if (!activeScheduleId) return;
+
+    // Get form data
+    const formData = new FormData(document.getElementById('schedule-form'));
+    const scheduleData = {
+        id: activeScheduleId,
+        name: formData.get('name'),
+        timeFrom: formData.get('timeFrom'),
+        timeTo: formData.get('timeTo'),
+        timezone: formData.get('timezone'),
+        days: formData.getAll('days')
+    };
+
+    // Store in schedules object
+    schedules[activeScheduleId] = scheduleData;
+
+    // Update schedule name in list
+    const scheduleItem = document.querySelector(`[data-schedule-id="${activeScheduleId}"]`);
+    if (scheduleItem) {
+        scheduleItem.querySelector('.schedule-name').textContent = scheduleData.name;
+    }
+}
+
+function saveSchedule(event) {
+    event.preventDefault();
+    saveCurrentSchedule();
+    window.ModalSystem.toast('Schedule saved successfully!');
+}
+
+function addSchedule() {
+    // Save current schedule first
+    saveCurrentSchedule();
+
+    scheduleCounter++;
+    const newScheduleId = scheduleCounter;
+
+    // Create new schedule data
+    const newSchedule = {
+        id: newScheduleId,
+        name: `New Schedule ${newScheduleId}`,
+        timeFrom: '09:00',
+        timeTo: '17:00',
+        timezone: 'America/New_York',
+        days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+    };
+
+    schedules[newScheduleId] = newSchedule;
+
+    // Create new schedule HTML
+    const newScheduleHTML = `
+        <div class="bg-white border border-gray-200 rounded-lg p-3 flex items-center justify-between cursor-pointer schedule-item"
+             data-schedule-id="${newScheduleId}" onclick="selectSchedule(${newScheduleId})">
+            <div class="flex items-center gap-2 text-gray-600">
+                <i class="fa-regular fa-calendar-days"></i>
+                <span class="schedule-name">${newSchedule.name}</span>
+            </div>
+            <button class="btn btn-ghost btn-sm btn-square text-gray-400 delete-schedule-btn"
+                    onclick="confirmDeleteSchedule(${newScheduleId})" title="Delete schedule">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </div>
+    `;
+
+    // Insert before the Add Schedule button
+    const addButton = document.querySelector('.btn.btn-ghost.bg-white.border.border-gray-200');
+    addButton.insertAdjacentHTML('beforebegin', newScheduleHTML);
+
+    // Select the new schedule
+    selectSchedule(newScheduleId);
+
+    window.ModalSystem.toast('New schedule added successfully!');
+}
+
+function confirmDeleteSchedule(scheduleId) {
+    if (Object.keys(schedules).length <= 1) {
+        window.ModalSystem.error('Cannot delete the last remaining schedule.');
+        return;
+    }
+
+    const schedule = schedules[scheduleId];
+    window.ModalSystem.confirm({
+        title: 'Delete Schedule',
+        message: `Are you sure you want to delete "${schedule.name}"? This action cannot be undone.`,
+        confirmText: 'Delete',
+        confirmClass: 'btn-error',
+        action: () => deleteSchedule(scheduleId)
+    });
+}
+
+function deleteSchedule(scheduleId) {
+    const scheduleItem = document.querySelector(`[data-schedule-id="${scheduleId}"]`);
+    if (scheduleItem) {
+        scheduleItem.remove();
+
+        // Remove from schedules
+        delete schedules[scheduleId];
+
+        // Select first available schedule
+        const firstSchedule = document.querySelector('.schedule-item');
+        if (firstSchedule) {
+            const firstScheduleId = parseInt(firstSchedule.getAttribute('data-schedule-id'));
+            selectSchedule(firstScheduleId);
+        }
+
+        window.ModalSystem.toast('Schedule deleted successfully');
+    }
+}
+
+function resetForm() {
+    if (activeScheduleId && schedules[activeScheduleId]) {
+        loadScheduleData(activeScheduleId);
+        window.ModalSystem.toast('Form reset to saved values');
+    }
+}
+
+function editCampaignStart() {
+    window.ModalSystem.toast('Campaign start date editing coming soon!', 'info');
+}
+
+function editCampaignEnd() {
+    window.ModalSystem.toast('Campaign end date editing coming soon!', 'info');
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Load initial schedule data
+    loadScheduleData(1);
+
+    // Auto-save on form changes
+    document.addEventListener('input', function(e) {
+        if (e.target.closest('#schedule-form')) {
+            // Auto-save current schedule when user makes changes
+            setTimeout(() => {
+                saveCurrentSchedule();
+            }, 500);
+        }
+    });
+
+    // Update schedule name in real-time
+    document.getElementById('schedule-name').addEventListener('input', function() {
+        const scheduleItem = document.querySelector(`[data-schedule-id="${activeScheduleId}"]`);
+        if (scheduleItem) {
+            scheduleItem.querySelector('.schedule-name').textContent = this.value;
+        }
+    });
+});
+</script>
+
+{% endblock %}
