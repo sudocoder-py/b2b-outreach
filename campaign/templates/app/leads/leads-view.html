@@ -3,106 +3,794 @@
 {% block title %}Leads{% endblock %}
 
 {% block content %}
-<div class="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-8">
-    <!-- Header -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Leads</h1>
-        <p class="text-gray-600">Manage your leads and contacts for campaigns</p>
-    </div>
-
-    <!-- Main Content -->
-    <div class="flex-1">
         <!-- Toolbar -->
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center justify-between mt-8">
             <div class="flex items-center gap-4">
-                <label class="input input-bordered flex items-center gap-2 h-10 w-72 bg-white">
+                <label class="input input-bordered flex items-center gap-2 h-10 w-64 bg-white">
                     <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
-                    <input type="text" class="grow text-sm" placeholder="Search leads..." />
+                    <input type="text"
+                           name="search"
+                           id="search-input"
+                           class="grow text-sm"
+                           placeholder="Search leads..."
+                           hx-get="{% url 'leads_filter' %}"
+                           hx-trigger="keyup changed delay:300ms"
+                           hx-target="#leads-container"
+                           hx-include="#lead-type-filter,#source-filter" />
                 </label>
+                <div id="stats-container" class="flex items-center gap-4 text-gray-500 text-sm p-2 rounded-lg bg-gray-100">
+                    <div class="flex items-center gap-1.5" title="Total Leads">
+                        <i class="fa-solid fa-users"></i>
+                        <span class="font-semibold">8</span>
+                    </div>
+                    <div class="flex items-center gap-1.5" title="Cold Leads">
+                        <i class="fa-solid fa-snowflake"></i>
+                        <span class="font-semibold">7</span>
+                    </div>
+                    <div class="flex items-center gap-1.5" title="Warm Leads">
+                        <i class="fa-solid fa-fire"></i>
+                        <span class="font-semibold">1</span>
+                    </div>
+                    <div class="flex items-center gap-1.5" title="LinkedIn Source">
+                        <i class="fa-brands fa-linkedin"></i>
+                        <span class="font-semibold">8</span>
+                    </div>
+                    <div class="flex items-center gap-1.5" title="IT Industry">
+                        <i class="fa-solid fa-laptop-code"></i>
+                        <span class="font-semibold">7</span>
+                    </div>
+                </div>
             </div>
             <div class="flex items-center gap-3">
                 <div class="dropdown dropdown-end">
-                    <button tabindex="0" role="button" class="btn bg-white hover:bg-base-200 border border-base-300 h-10 min-h-10 px-3 flex items-center gap-2 rounded-lg">
-                        <span class="text-sm font-medium text-gray-700">All leads</span>
-                        <i class="fa-solid fa-chevron-down text-xs text-gray-500"></i>
-                    </button>
+                    <div tabindex="0" role="button" class="btn bg-white border border-base-300 h-10 min-h-10 rounded-lg px-4 text-sm">
+                        <i class="fa-solid fa-filter mr-2 text-gray-500"></i>Filters
+                    </div>
+                    <div tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-52 border border-gray-200">
+                        <div class="p-2">
+                            <label class="label">
+                                <span class="label-text font-medium">Lead Type</span>
+                            </label>
+                            <select name="lead_type"
+                                    id="lead-type-filter"
+                                    class="select select-bordered select-sm w-full bg-white"
+                                    hx-get="{% url 'leads_filter' %}"
+                                    hx-trigger="change"
+                                    hx-target="#leads-container"
+                                    hx-include="#search-input">
+                                <option value="">All Types</option>
+                                <option value="cold">Cold</option>
+                                <option value="warm">Warm</option>
+                            </select>
+                        </div>
+                        <div class="p-2">
+                            <label class="label">
+                                <span class="label-text font-medium">Source</span>
+                            </label>
+                            <select name="source"
+                                    id="source-filter"
+                                    class="select select-bordered select-sm w-full bg-white"
+                                    hx-get="{% url 'leads_filter' %}"
+                                    hx-trigger="change"
+                                    hx-target="#leads-container"
+                                    hx-include="#search-input,#lead-type-filter">
+                                <option value="">All Sources</option>
+                                <option value="linkedin_scrape">LinkedIn Scrape</option>
+                                <option value="manual">Manual</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm">
-                    <i class="fa-solid fa-plus mr-1"></i>
-                    Add Lead
-                </button>
+                <button class="btn btn-primary btn-outline btn-square h-10 w-10 min-h-10" title="Import Leads"><i class="fa-solid fa-file-import"></i></button>
+                <button class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm">Add Lead</button>
             </div>
         </div>
 
-        <!-- Table / List Area -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-            <!-- Table Header -->
-            <div class="grid grid-cols-[48px_2fr_1fr_1fr_1fr_1fr_48px] gap-4 items-center px-4 py-3 border-b border-gray-200">
-                <label>
-                    <input type="checkbox" class="checkbox checkbox-sm rounded" />
-                </label>
-                <span class="text-sm font-semibold text-gray-700">Name</span>
-                <span class="text-sm font-semibold text-gray-700">Email</span>
-                <span class="text-sm font-semibold text-gray-700">Company</span>
-                <span class="text-sm font-semibold text-gray-700">Status</span>
-                <span class="text-sm font-semibold text-gray-700">Added</span>
-                <span></span> <!-- For actions column -->
-            </div>
-
-            <!-- Table Rows -->
-            <div class="divide-y divide-gray-100">
-                <!-- Sample Lead Row -->
-                <div class="grid grid-cols-[48px_2fr_1fr_1fr_1fr_1fr_48px] gap-4 items-center px-4 py-3 hover:bg-gray-50">
-                    <label>
-                        <input type="checkbox" class="checkbox checkbox-sm rounded" />
-                    </label>
-                    <div class="font-medium text-gray-900">John Smith</div>
-                    <div class="text-gray-600 text-sm">john@example.com</div>
-                    <div class="text-gray-600 text-sm">Acme Inc</div>
-                    <div>
-                        <span class="badge badge-sm bg-green-100 text-green-800 font-medium">Active</span>
-                    </div>
-                    <div class="text-gray-600 text-sm">Oct 15, 2023</div>
-                    <div class="flex justify-end">
-                        <button class="btn btn-ghost btn-sm btn-circle">
-                            <i class="fa-solid fa-ellipsis-vertical text-gray-500"></i>
+        <!-- Leads Container -->
+        <div id="leads-container">
+            <!-- Bulk Actions Bar -->
+            <div id="bulk-actions" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 mt-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-blue-700">
+                        <span id="selected-count">0</span> leads selected
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <button class="btn btn-sm btn-primary"
+                                onclick="addToCampaign()"
+                                id="add-to-campaign-btn">
+                            <i class="fa-solid fa-plus mr-1"></i>
+                            Add to Campaign
+                        </button>
+                        <button class="btn btn-sm btn-error"
+                                onclick="deleteSelected()"
+                                id="delete-selected-btn">
+                            <i class="fa-solid fa-trash mr-1"></i>
+                            Delete Selected
+                        </button>
+                        <button class="btn btn-sm btn-ghost" onclick="clearSelection()">
+                            Clear Selection
                         </button>
                     </div>
                 </div>
-
-                <!-- Empty State (shown when no leads) -->
-                <div class="hidden py-12 text-center">
-                    <div class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-gray-400 mb-4">
-                        <i class="fa-solid fa-user-plus text-3xl"></i>
-                    </div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">No leads yet</h3>
-                    <p class="text-gray-500 max-w-md mx-auto mb-6">
-                        Start by adding your first lead to begin creating targeted campaigns
-                    </p>
-                    <button class="btn btn-primary">
-                        <i class="fa-solid fa-plus mr-2"></i>
-                        Add Your First Lead
-                    </button>
-                </div>
             </div>
 
-            <!-- Pagination -->
-            <div class="flex items-center justify-between border-t border-gray-200 px-4 py-3">
-                <div class="text-sm text-gray-500">
-                    Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">20</span> leads
-                </div>
-                <div class="flex items-center gap-2">
-                    <button class="btn btn-sm btn-ghost">
-                        <i class="fa-solid fa-chevron-left text-gray-500"></i>
-                    </button>
-                    <button class="btn btn-sm btn-ghost bg-primary/10 text-primary">1</button>
-                    <button class="btn btn-sm btn-ghost">2</button>
-                    <button class="btn btn-sm btn-ghost">
-                        <i class="fa-solid fa-chevron-right text-gray-500"></i>
-                    </button>
-                </div>
+            <!-- Table Container -->
+            <div class="mt-4 flex-grow overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                <table class="table-auto w-full custom-table">
+                    <thead>
+                        <tr>
+                            <th class="w-12 text-center">
+                                <input type="checkbox"
+                                       class="checkbox checkbox-sm rounded"
+                                       id="select-all-checkbox"
+                                       onchange="toggleSelectAll()" />
+                            </th>
+                            <th class="w-16"></th> <!-- Index number column -->
+                            <th class="text-left">Lead</th>
+                            <th class="text-left">Company</th>
+                            <th class="text-left">Position</th>
+                            <th class="text-left">Location</th>
+                            <th class="text-left">Type</th>
+                            <th class="text-left">Source</th>
+                            <th class="text-left">Created at</th>
+                            <th class="w-12"></th> <!-- Actions column -->
+                        </tr>
+                    </thead>
+                    <tbody id="leads-table-body">
+                        <!-- Sample data based on your provided structure -->
+                        <tr class="hover:bg-gray-50 lead-row">
+                            <td class="text-center">
+                                <input type="checkbox"
+                                       class="checkbox checkbox-sm rounded lead-checkbox"
+                                       value="1"
+                                       onchange="updateBulkActions()" />
+                            </td>
+                            <td class="text-gray-500 text-center">1</td>
+                            <td class="font-medium text-gray-700">
+                                <div class="flex flex-col">
+                                    <span>fdud ramo</span>
+                                    <span class="text-sm text-gray-500">fdudramo@gmail.com</span>
+                                    <span class="text-xs text-gray-400">📞 N/A</span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">
+                                <div class="flex flex-col">
+                                    <span>fdudgames</span>
+                                    <span class="text-sm text-gray-400">No website</span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">ceo</td>
+                            <td class="text-gray-600">N/A</td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-ghost gap-1 font-medium py-2">
+                                    <i class="fa-solid fa-snowflake"></i> Cold
+                                </span>
+                            </td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-info gap-1 font-medium py-2">
+                                    <i class="fa-brands fa-linkedin"></i> LinkedIn
+                                </span>
+                            </td>
+                            <td class="text-gray-600">Jun 04, 2025</td>
+                            <td class="text-center">
+                                <div class="dropdown dropdown-end">
+                                    <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </div>
+                                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-40 border border-gray-200">
+                                        <li><a href="#" class="text-blue-600"><i class="fa-solid fa-eye mr-2"></i>View Details</a></li>
+                                        <li><a href="#" class="text-green-600"><i class="fa-solid fa-plus mr-2"></i>Add to Campaign</a></li>
+                                        <li><a onclick="deleteLead(1)" class="text-red-600"><i class="fa-solid fa-trash mr-2"></i>Delete</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-gray-50 lead-row">
+                            <td class="text-center">
+                                <input type="checkbox"
+                                       class="checkbox checkbox-sm rounded lead-checkbox"
+                                       value="2"
+                                       onchange="updateBulkActions()" />
+                            </td>
+                            <td class="text-gray-500 text-center">2</td>
+                            <td class="font-medium text-gray-700">
+                                <div class="flex flex-col">
+                                    <span>Yamen Alabsi</span>
+                                    <span class="text-sm text-gray-500">yamenabsi@gmail.com</span>
+                                    <span class="text-xs text-blue-500">
+                                        <a href="https://www.linkedin.com/in/yamen-alabsi-669816164" target="_blank" class="hover:underline">
+                                            <i class="fa-brands fa-linkedin mr-1"></i>LinkedIn
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">
+                                <div class="flex flex-col">
+                                    <span>Elkood</span>
+                                    <span class="text-sm text-blue-500">
+                                        <a href="https://elkood.com/" target="_blank" class="hover:underline">
+                                            <i class="fa-solid fa-link mr-1"></i>Website
+                                        </a>
+                                    </span>
+                                    <span class="text-xs text-gray-400">IT Services • 11-50 employees</span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">CEO & Co-founder‎‏ at Elkood</td>
+                            <td class="text-gray-600">Riyadh, Saudi Arabia</td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-ghost gap-1 font-medium py-2">
+                                    <i class="fa-solid fa-snowflake"></i> Cold
+                                </span>
+                            </td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-info gap-1 font-medium py-2">
+                                    <i class="fa-brands fa-linkedin"></i> LinkedIn
+                                </span>
+                            </td>
+                            <td class="text-gray-600">Jun 04, 2025</td>
+                            <td class="text-center">
+                                <div class="dropdown dropdown-end">
+                                    <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </div>
+                                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-40 border border-gray-200">
+                                        <li><a href="#" class="text-blue-600"><i class="fa-solid fa-eye mr-2"></i>View Details</a></li>
+                                        <li><a href="#" class="text-green-600"><i class="fa-solid fa-plus mr-2"></i>Add to Campaign</a></li>
+                                        <li><a onclick="deleteLead(2)" class="text-red-600"><i class="fa-solid fa-trash mr-2"></i>Delete</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-gray-50 lead-row">
+                            <td class="text-center">
+                                <input type="checkbox"
+                                       class="checkbox checkbox-sm rounded lead-checkbox"
+                                       value="3"
+                                       onchange="updateBulkActions()" />
+                            </td>
+                            <td class="text-gray-500 text-center">3</td>
+                            <td class="font-medium text-gray-700">
+                                <div class="flex flex-col">
+                                    <span>Salem AL-najjar</span>
+                                    <span class="text-sm text-gray-500">mhmadnajjer2004@gmail.com</span>
+                                    <span class="text-xs text-blue-500">
+                                        <a href="https://www.linkedin.com/in/mohamad-salem-alnajjar-9a4069219" target="_blank" class="hover:underline">
+                                            <i class="fa-brands fa-linkedin mr-1"></i>LinkedIn
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">
+                                <div class="flex flex-col">
+                                    <span>Prootech Agency</span>
+                                    <span class="text-sm text-gray-400">No website</span>
+                                    <span class="text-xs text-gray-400">IT Services • 2-10 employees</span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">Ceo - founder at Prootech Agency</td>
+                            <td class="text-gray-600">Dubai, UAE</td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-ghost gap-1 font-medium py-2">
+                                    <i class="fa-solid fa-snowflake"></i> Cold
+                                </span>
+                            </td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-info gap-1 font-medium py-2">
+                                    <i class="fa-brands fa-linkedin"></i> LinkedIn
+                                </span>
+                            </td>
+                            <td class="text-gray-600">Jun 04, 2025</td>
+                            <td class="text-center">
+                                <div class="dropdown dropdown-end">
+                                    <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </div>
+                                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-40 border border-gray-200">
+                                        <li><a href="#" class="text-blue-600"><i class="fa-solid fa-eye mr-2"></i>View Details</a></li>
+                                        <li><a href="#" class="text-green-600"><i class="fa-solid fa-plus mr-2"></i>Add to Campaign</a></li>
+                                        <li><a onclick="deleteLead(3)" class="text-red-600"><i class="fa-solid fa-trash mr-2"></i>Delete</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-gray-50 lead-row">
+                            <td class="text-center">
+                                <input type="checkbox"
+                                       class="checkbox checkbox-sm rounded lead-checkbox"
+                                       value="4"
+                                       onchange="updateBulkActions()" />
+                            </td>
+                            <td class="text-gray-500 text-center">4</td>
+                            <td class="font-medium text-gray-700">
+                                <div class="flex flex-col">
+                                    <span>Ghassan Rizk</span>
+                                    <span class="text-sm text-gray-500">ghassanrizk@pan-code.com</span>
+                                    <span class="text-xs text-blue-500">
+                                        <a href="https://www.linkedin.com/in/ghassan-rizk-7a2266190" target="_blank" class="hover:underline">
+                                            <i class="fa-brands fa-linkedin mr-1"></i>LinkedIn
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">
+                                <div class="flex flex-col">
+                                    <span>Pancode</span>
+                                    <span class="text-sm text-blue-500">
+                                        <a href="http://www.pan-code.com" target="_blank" class="hover:underline">
+                                            <i class="fa-solid fa-link mr-1"></i>Website
+                                        </a>
+                                    </span>
+                                    <span class="text-xs text-gray-400">IT Services • 11-50 employees</span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">Chief Executive Officer at Pancode</td>
+                            <td class="text-gray-600">Damascus, Syria</td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-ghost gap-1 font-medium py-2">
+                                    <i class="fa-solid fa-snowflake"></i> Cold
+                                </span>
+                            </td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-info gap-1 font-medium py-2">
+                                    <i class="fa-brands fa-linkedin"></i> LinkedIn
+                                </span>
+                            </td>
+                            <td class="text-gray-600">Jun 04, 2025</td>
+                            <td class="text-center">
+                                <div class="dropdown dropdown-end">
+                                    <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </div>
+                                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-40 border border-gray-200">
+                                        <li><a href="#" class="text-blue-600"><i class="fa-solid fa-eye mr-2"></i>View Details</a></li>
+                                        <li><a href="#" class="text-green-600"><i class="fa-solid fa-plus mr-2"></i>Add to Campaign</a></li>
+                                        <li><a onclick="deleteLead(4)" class="text-red-600"><i class="fa-solid fa-trash mr-2"></i>Delete</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-gray-50 lead-row">
+                            <td class="text-center">
+                                <input type="checkbox"
+                                       class="checkbox checkbox-sm rounded lead-checkbox"
+                                       value="5"
+                                       onchange="updateBulkActions()" />
+                            </td>
+                            <td class="text-gray-500 text-center">5</td>
+                            <td class="font-medium text-gray-700">
+                                <div class="flex flex-col">
+                                    <span>Gheias A.</span>
+                                    <span class="text-sm text-gray-500">gy.alamin@hotmail.com</span>
+                                    <span class="text-xs text-blue-500">
+                                        <a href="https://www.linkedin.com/in/gheias-a-5392b498" target="_blank" class="hover:underline">
+                                            <i class="fa-brands fa-linkedin mr-1"></i>LinkedIn
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">
+                                <div class="flex flex-col">
+                                    <span>Florinz</span>
+                                    <span class="text-sm text-blue-500">
+                                        <a href="http://florinz.com" target="_blank" class="hover:underline">
+                                            <i class="fa-solid fa-link mr-1"></i>Website
+                                        </a>
+                                    </span>
+                                    <span class="text-xs text-gray-400">IT Services • 11-50 employees</span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">Co-founder - CEO at Florinz</td>
+                            <td class="text-gray-600">Riyadh, Saudi Arabia</td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-ghost gap-1 font-medium py-2">
+                                    <i class="fa-solid fa-snowflake"></i> Cold
+                                </span>
+                            </td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-info gap-1 font-medium py-2">
+                                    <i class="fa-brands fa-linkedin"></i> LinkedIn
+                                </span>
+                            </td>
+                            <td class="text-gray-600">Jun 04, 2025</td>
+                            <td class="text-center">
+                                <div class="dropdown dropdown-end">
+                                    <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </div>
+                                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-40 border border-gray-200">
+                                        <li><a href="#" class="text-blue-600"><i class="fa-solid fa-eye mr-2"></i>View Details</a></li>
+                                        <li><a href="#" class="text-green-600"><i class="fa-solid fa-plus mr-2"></i>Add to Campaign</a></li>
+                                        <li><a onclick="deleteLead(5)" class="text-red-600"><i class="fa-solid fa-trash mr-2"></i>Delete</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-gray-50 lead-row">
+                            <td class="text-center">
+                                <input type="checkbox"
+                                       class="checkbox checkbox-sm rounded lead-checkbox"
+                                       value="6"
+                                       onchange="updateBulkActions()" />
+                            </td>
+                            <td class="text-gray-500 text-center">6</td>
+                            <td class="font-medium text-gray-700">
+                                <div class="flex flex-col">
+                                    <span>Ashraf Altawashi</span>
+                                    <span class="text-sm text-gray-500">ashraf.altawashi@codeguru.ae</span>
+                                    <span class="text-xs text-blue-500">
+                                        <a href="https://www.linkedin.com/in/ashrafaltawashi" target="_blank" class="hover:underline">
+                                            <i class="fa-brands fa-linkedin mr-1"></i>LinkedIn
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">
+                                <div class="flex flex-col">
+                                    <span>CodeGuru.ae</span>
+                                    <span class="text-sm text-blue-500">
+                                        <a href="https://codeguru.ae" target="_blank" class="hover:underline">
+                                            <i class="fa-solid fa-link mr-1"></i>Website
+                                        </a>
+                                    </span>
+                                    <span class="text-xs text-gray-400">IT Services • 2-10 employees</span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">Chief Executive Officer at CodeGuru.ae</td>
+                            <td class="text-gray-600">Dubai, UAE</td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-ghost gap-1 font-medium py-2">
+                                    <i class="fa-solid fa-snowflake"></i> Cold
+                                </span>
+                            </td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-info gap-1 font-medium py-2">
+                                    <i class="fa-brands fa-linkedin"></i> LinkedIn
+                                </span>
+                            </td>
+                            <td class="text-gray-600">Jun 04, 2025</td>
+                            <td class="text-center">
+                                <div class="dropdown dropdown-end">
+                                    <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </div>
+                                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-40 border border-gray-200">
+                                        <li><a href="#" class="text-blue-600"><i class="fa-solid fa-eye mr-2"></i>View Details</a></li>
+                                        <li><a href="#" class="text-green-600"><i class="fa-solid fa-plus mr-2"></i>Add to Campaign</a></li>
+                                        <li><a onclick="deleteLead(6)" class="text-red-600"><i class="fa-solid fa-trash mr-2"></i>Delete</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-gray-50 lead-row">
+                            <td class="text-center">
+                                <input type="checkbox"
+                                       class="checkbox checkbox-sm rounded lead-checkbox"
+                                       value="7"
+                                       onchange="updateBulkActions()" />
+                            </td>
+                            <td class="text-gray-500 text-center">7</td>
+                            <td class="font-medium text-gray-700">
+                                <div class="flex flex-col">
+                                    <span>Shameer Mohammed</span>
+                                    <span class="text-sm text-gray-500">shameerkummalil@gmail.com</span>
+                                    <span class="text-xs text-blue-500">
+                                        <a href="https://www.linkedin.com/in/shameer-mohammed-33051b59" target="_blank" class="hover:underline">
+                                            <i class="fa-brands fa-linkedin mr-1"></i>LinkedIn
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">
+                                <div class="flex flex-col">
+                                    <span>Zeolans Technologies</span>
+                                    <span class="text-sm text-blue-500">
+                                        <a href="https://www.zeolans.ae" target="_blank" class="hover:underline">
+                                            <i class="fa-solid fa-link mr-1"></i>Website
+                                        </a>
+                                    </span>
+                                    <span class="text-xs text-gray-400">IT Services • 11-50 employees</span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">Chief Executive Officer at Zeolans Technologies</td>
+                            <td class="text-gray-600">Dubai, UAE</td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-ghost gap-1 font-medium py-2">
+                                    <i class="fa-solid fa-snowflake"></i> Cold
+                                </span>
+                            </td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-info gap-1 font-medium py-2">
+                                    <i class="fa-brands fa-linkedin"></i> LinkedIn
+                                </span>
+                            </td>
+                            <td class="text-gray-600">Jun 04, 2025</td>
+                            <td class="text-center">
+                                <div class="dropdown dropdown-end">
+                                    <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </div>
+                                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-40 border border-gray-200">
+                                        <li><a href="#" class="text-blue-600"><i class="fa-solid fa-eye mr-2"></i>View Details</a></li>
+                                        <li><a href="#" class="text-green-600"><i class="fa-solid fa-plus mr-2"></i>Add to Campaign</a></li>
+                                        <li><a onclick="deleteLead(7)" class="text-red-600"><i class="fa-solid fa-trash mr-2"></i>Delete</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-gray-50 lead-row">
+                            <td class="text-center">
+                                <input type="checkbox"
+                                       class="checkbox checkbox-sm rounded lead-checkbox"
+                                       value="8"
+                                       onchange="updateBulkActions()" />
+                            </td>
+                            <td class="text-gray-500 text-center">8</td>
+                            <td class="font-medium text-gray-700">
+                                <div class="flex flex-col">
+                                    <span>Razek Daoud</span>
+                                    <span class="text-sm text-gray-500">razek.daoud@raizer.tech</span>
+                                    <span class="text-xs text-blue-500">
+                                        <a href="https://www.linkedin" target="_blank" class="hover:underline">
+                                            <i class="fa-brands fa-linkedin mr-1"></i>LinkedIn
+                                        </a>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">
+                                <div class="flex flex-col">
+                                    <span>Raizer</span>
+                                    <span class="text-sm text-blue-500">
+                                        <a href="http://raizer.tech" target="_blank" class="hover:underline">
+                                            <i class="fa-solid fa-link mr-1"></i>Website
+                                        </a>
+                                    </span>
+                                    <span class="text-xs text-gray-400">Software Development • 11-50 employees</span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600">CEO</td>
+                            <td class="text-gray-600">N/A</td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-warning gap-1 font-medium py-2">
+                                    <i class="fa-solid fa-fire"></i> Warm
+                                </span>
+                            </td>
+                            <td class="text-gray-600">
+                                <span class="badge badge-info gap-1 font-medium py-2">
+                                    <i class="fa-brands fa-linkedin"></i> LinkedIn
+                                </span>
+                            </td>
+                            <td class="text-gray-600">Jun 03, 2025</td>
+                            <td class="text-center">
+                                <div class="dropdown dropdown-end">
+                                    <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </div>
+                                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-40 border border-gray-200">
+                                        <li><a href="#" class="text-blue-600"><i class="fa-solid fa-eye mr-2"></i>View Details</a></li>
+                                        <li><a href="#" class="text-green-600"><i class="fa-solid fa-plus mr-2"></i>Add to Campaign</a></li>
+                                        <li><a onclick="deleteLead(8)" class="text-red-600"><i class="fa-solid fa-trash mr-2"></i>Delete</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Empty state (hidden by default, shown when no leads match filters) -->
+                        <tr id="no-leads-row" class="hidden">
+                            <td colspan="10" class="text-center py-16">
+                                <div class="flex flex-col items-center justify-center">
+                                    <!-- SVG Illustration -->
+                                    <div class="mb-6 opacity-90">
+                                        <img src="https://raw.githubusercontent.com/Othunderlight/static/refs/heads/main/no-campaign-lead.svg"
+                                             alt="No leads illustration"
+                                             class="w-64 h-auto mx-auto">
+                                    </div>
+
+                                    <!-- Message -->
+                                    <div class="text-center">
+                                        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                                            👋 Add some leads to get started
+                                        </h3>
+                                        <p class="text-gray-500 mb-6">
+                                            Upload your leads or add them manually to start your outreach
+                                        </p>
+
+                                        <!-- Add Leads Button -->
+                                        <button class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm">
+                                            Add Lead
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div> <!-- End leads-container -->
+
+        <!-- Footer -->
+        <div class="py-6 text-center">
+            <hr class="mb-4">
+            <div class="flex items-center justify-center gap-4">
+                <span class="text-sm text-gray-400" id="search-status">Showing all leads</span>
+                <button class="btn btn-sm bg-white border border-gray-300" disabled>No more to load</button>
             </div>
         </div>
+
     </div>
 </div>
+
+
+
+<script>
+// Bulk selection functionality
+function toggleSelectAll() {
+    const selectAllCheckbox = document.getElementById('select-all-checkbox');
+    const leadCheckboxes = document.querySelectorAll('.lead-checkbox');
+
+    leadCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+    });
+
+    updateBulkActions();
+}
+
+function updateBulkActions() {
+    const leadCheckboxes = document.querySelectorAll('.lead-checkbox');
+    const checkedBoxes = document.querySelectorAll('.lead-checkbox:checked');
+    const selectAllCheckbox = document.getElementById('select-all-checkbox');
+    const bulkActions = document.getElementById('bulk-actions');
+    const selectedCount = document.getElementById('selected-count');
+
+    // Update select all checkbox state
+    if (checkedBoxes.length === 0) {
+        selectAllCheckbox.indeterminate = false;
+        selectAllCheckbox.checked = false;
+    } else if (checkedBoxes.length === leadCheckboxes.length) {
+        selectAllCheckbox.indeterminate = false;
+        selectAllCheckbox.checked = true;
+    } else {
+        selectAllCheckbox.indeterminate = true;
+        selectAllCheckbox.checked = false;
+    }
+
+    // Show/hide bulk actions
+    if (checkedBoxes.length > 0) {
+        bulkActions.classList.remove('hidden');
+        selectedCount.textContent = checkedBoxes.length;
+    } else {
+        bulkActions.classList.add('hidden');
+    }
+}
+
+function clearSelection() {
+    const leadCheckboxes = document.querySelectorAll('.lead-checkbox');
+    const selectAllCheckbox = document.getElementById('select-all-checkbox');
+
+    leadCheckboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    selectAllCheckbox.checked = false;
+    selectAllCheckbox.indeterminate = false;
+
+    updateBulkActions();
+}
+
+function deleteSelected() {
+    const checkedBoxes = document.querySelectorAll('.lead-checkbox:checked');
+    const leadIds = Array.from(checkedBoxes).map(cb => cb.value);
+
+    if (leadIds.length === 0) return;
+
+    // Use the modal system
+    ModalSystem.confirm({
+        title: 'Delete Selected Leads',
+        message: `Are you sure you want to delete ${leadIds.length} selected lead(s)? This action cannot be undone.`,
+        confirmText: 'Delete',
+        confirmClass: 'btn-error',
+        action: function() {
+            // Simulate deletion by removing rows
+            checkedBoxes.forEach(checkbox => {
+                const row = checkbox.closest('tr');
+                row.remove();
+            });
+
+            // Clear selection
+            clearSelection();
+
+            // Show success toast
+            ModalSystem.toast(`${leadIds.length} lead(s) deleted successfully!`);
+
+            // Trigger HTMX refresh to update stats
+            htmx.trigger('#search-input', 'keyup');
+        }
+    });
+}
+
+function deleteLead(leadId) {
+    // Use the modal system
+    ModalSystem.confirm({
+        title: 'Delete Lead',
+        message: 'Are you sure you want to delete this lead? This action cannot be undone.',
+        confirmText: 'Delete',
+        confirmClass: 'btn-error',
+        action: function() {
+            // Find and remove the row
+            const checkbox = document.querySelector(`input[value="${leadId}"]`);
+            if (checkbox) {
+                const row = checkbox.closest('tr');
+                row.remove();
+            }
+
+            // Update bulk actions
+            updateBulkActions();
+
+            // Show success toast
+            ModalSystem.toast('Lead deleted successfully!');
+
+            // Trigger HTMX refresh to update stats
+            htmx.trigger('#search-input', 'keyup');
+        }
+    });
+}
+
+function addToCampaign() {
+    const checkedBoxes = document.querySelectorAll('.lead-checkbox:checked');
+    const leadIds = Array.from(checkedBoxes).map(cb => cb.value);
+    
+    if (leadIds.length === 0) return;
+    
+    // Show modal to select campaign
+    ModalSystem.confirm({
+        title: 'Add to Campaign',
+        message: `Select a campaign to add ${leadIds.length} lead(s) to:`,
+        confirmText: 'Add',
+        confirmClass: 'btn-primary',
+        customContent: `
+            <select id="campaign-select" class="select select-bordered w-full mt-2">
+                <option value="">Select a campaign</option>
+                <option value="1">Summer Outreach 2025</option>
+                <option value="2">Tech Startups Q3</option>
+                <option value="3">MENA Region Prospects</option>
+            </select>
+        `,
+        action: function() {
+            const campaignId = document.getElementById('campaign-select').value;
+            if (!campaignId) {
+                ModalSystem.toast('Please select a campaign', 'error');
+                return;
+            }
+            
+            // Show success toast
+            ModalSystem.toast(`${leadIds.length} lead(s) added to campaign successfully!`);
+            
+            // Clear selection
+            clearSelection();
+        }
+    });
+}
+
+function clearFilters() {
+    document.getElementById('search-input').value = '';
+    document.getElementById('lead-type-filter').value = '';
+    document.getElementById('source-filter').value = '';
+    htmx.trigger('#search-input', 'keyup');
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateBulkActions();
+});
+
+// Re-initialize after HTMX updates
+document.addEventListener('htmx:afterSwap', function() {
+    updateBulkActions();
+});
+</script>
 {% endblock %}
