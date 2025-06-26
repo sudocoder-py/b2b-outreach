@@ -184,9 +184,30 @@
                     </tr>
                     {% empty %}
                     <tr id="no-leads-row">
-                        <td colspan="9" class="text-center py-8 text-gray-500">
-                            <i class="fa-solid fa-users text-2xl mb-2"></i>
-                            <p>No leads found for this campaign</p>
+                        <td colspan="9" class="text-center py-16">
+                            <div class="flex flex-col items-center justify-center">
+                                <!-- SVG Illustration -->
+                                <div class="mb-6 opacity-90">
+                                    <img src="https://raw.githubusercontent.com/Othunderlight/static/refs/heads/main/no-campaign-lead.svg"
+                                         alt="No leads illustration"
+                                         class="w-64 h-auto mx-auto">
+                                </div>
+
+                                <!-- Message -->
+                                <div class="text-center">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                                        👋 Add some leads to get started
+                                    </h3>
+                                    <p class="text-gray-500 mb-6">
+                                        Upload your leads or add them manually to start your campaign
+                                    </p>
+
+                                    <!-- Add Leads Button -->
+                                    <button class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm">
+                                        Add Leads
+                                    </button>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
