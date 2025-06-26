@@ -6,7 +6,6 @@ urlpatterns = [
     path('dashboard-test-not-functional/', views.dashboard_non_functional, name='dashboard_non_functional'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('leads/', views.leads_view, name='leads_view'),
-    path('leads/filter/', views.leads_filter, name='leads_filter'),
     path('view-list/', views.campaign_view_list, name='campaign_view_list'),
     path('dashboard/<int:pk>', views.campaign_dashboard, name='campaign_dashboard'),
     path('campaign-leads/<int:pk>', views.campaign_leads, name='campaign_leads'),
