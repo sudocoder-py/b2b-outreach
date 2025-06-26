@@ -1,0 +1,145 @@
+<!-- Stats Update -->
+<div id="stats-container" class="flex items-center gap-4 text-gray-500 text-sm p-2 rounded-lg bg-gray-100" hx-swap-oob="true">
+    <div class="flex items-center gap-1.5" title="Total Leads">
+        <i class="fa-solid fa-users"></i>
+        <span class="font-semibold">{{ stats.total_leads }}</span>
+    </div>
+    <div class="flex items-center gap-1.5" title="Viewed">
+        <i class="fa-solid fa-eye"></i>
+        <span class="font-semibold">{{ stats.viewed }}</span>
+    </div>
+    <div class="flex items-center gap-1.5" title="Contacted">
+        <i class="fa-solid fa-paper-plane"></i>
+        <span class="font-semibold">{{ stats.contacted }}</span>
+    </div>
+    <div class="flex items-center gap-1.5" title="Replied">
+        <i class="fa-solid fa-reply"></i>
+        <span class="font-semibold">{{ stats.replied }}</span>
+    </div>
+    <div class="flex items-center gap-1.5" title="Interested">
+        <i class="fa-regular fa-handshake"></i>
+        <span class="font-semibold">{{ stats.interested }}</span>
+    </div>
+    <div class="flex items-center gap-1.5" title="Converted">
+        <i class="fa-solid fa-circle-check"></i>
+        <span class="font-semibold">{{ stats.converted }}</span>
+    </div>
+</div>
+
+<!-- Search Status Update -->
+<span class="text-sm text-gray-400" id="search-status" hx-swap-oob="true">
+    {% if search_query or status_filter %}
+        Showing {{ stats.total_leads }} of 5 leads
+    {% else %}
+        Showing all leads
+    {% endif %}
+</span>
+
+<!-- Leads Container Content -->
+<!-- Bulk Actions Bar -->
+<div id="bulk-actions" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 mt-4">
+    <div class="flex items-center justify-between">
+        <span class="text-sm text-blue-700">
+            <span id="selected-count">0</span> leads selected
+        </span>
+        <div class="flex items-center gap-2">
+            <button class="btn btn-sm btn-error"
+                    onclick="deleteSelected()"
+                    id="delete-selected-btn">
+                <i class="fa-solid fa-trash mr-1"></i>
+                Delete Selected
+            </button>
+            <button class="btn btn-sm btn-ghost" onclick="clearSelection()">
+                Clear Selection
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Table Container -->
+<div class="mt-4 flex-grow overflow-x-auto rounded-lg border border-gray-200 bg-white">
+    <table class="table-auto w-full custom-table">
+        <thead>
+            <tr>
+                <th class="w-12 text-center">
+                    <input type="checkbox"
+                           class="checkbox checkbox-sm rounded"
+                           id="select-all-checkbox"
+                           onchange="toggleSelectAll()" />
+                </th>
+                <th class="w-16"></th> <!-- Index number column -->
+                <th class="text-left">Lead</th>
+                <th class="text-left">Company</th>
+                <th class="text-left">Status</th>
+                <th class="text-left">Links</th>
+                <th class="text-left">Converted at</th>
+                <th class="text-left">Created at</th>
+                <th class="w-12"></th> <!-- Actions column -->
+            </tr>
+        </thead>
+        <tbody id="leads-table-body">
+            {% for lead in leads %}
+            <tr class="hover:bg-gray-50 lead-row">
+                <td class="text-center">
+                    <input type="checkbox"
+                           class="checkbox checkbox-sm rounded lead-checkbox"
+                           value="{{ lead.id }}"
+                           onchange="updateBulkActions()" />
+                </td>
+                <td class="text-gray-500 text-center">{{ lead.id }}</td>
+                <td class="font-medium text-gray-700">
+                    <div class="flex flex-col">
+                        <span>{{ lead.first_name }} {{ lead.last_name }}</span>
+                        <span class="text-sm text-gray-500">{{ lead.email }}</span>
+                    </div>
+                </td>
+                <td class="text-gray-600">{{ lead.company }}</td>
+                <td>
+                    <div class="badge {{ lead.status_class }} gap-2 font-medium py-3">
+                        <i class="{{ lead.status_icon }}"></i>
+                        {{ lead.status }}
+                    </div>
+                </td>
+                <td class="text-gray-600">
+                    {% if lead.links_count > 0 %}
+                        <span class="badge badge-outline">{{ lead.links_count }} links</span>
+                    {% else %}
+                        <span class="text-gray-400">No links</span>
+                    {% endif %}
+                </td>
+                <td class="text-gray-600">
+                    {% if lead.converted_at %}
+                        {{ lead.converted_at }}
+                    {% else %}
+                        <span class="text-gray-400">-</span>
+                    {% endif %}
+                </td>
+                <td class="text-gray-600">{{ lead.created_at }}</td>
+                <td class="text-center">
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </div>
+                        <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-32 border border-gray-200">
+                            <li><a onclick="deleteLead({{ lead.id }})" class="text-red-600"><i class="fa-solid fa-trash mr-2"></i>Delete</a></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr id="no-results-row">
+                <td colspan="9" class="text-center py-8 text-gray-500">
+                    {% if search_query or status_filter %}
+                        <i class="fa-solid fa-search text-2xl mb-2"></i>
+                        <p>No leads match your search criteria</p>
+                        <button class="btn btn-sm btn-ghost mt-2" onclick="clearFilters()">Clear filters</button>
+                    {% else %}
+                        <i class="fa-solid fa-users text-2xl mb-2"></i>
+                        <p>No leads found for this campaign</p>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

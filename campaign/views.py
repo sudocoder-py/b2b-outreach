@@ -145,13 +145,132 @@ def campaign_leads(request, pk):
         },
     ]
 
+    # Calculate stats from the simulated data
+    stats = {
+        'total_leads': len(simulated_leads),
+        'viewed': len([l for l in simulated_leads if l['status'] in ['Contacted', 'Replied', 'Converted']]),
+        'contacted': len([l for l in simulated_leads if l['status'] in ['Contacted', 'Replied', 'Converted']]),
+        'replied': len([l for l in simulated_leads if l['status'] in ['Replied', 'Converted']]),
+        'interested': 0,  # None in our simulated data
+        'converted': len([l for l in simulated_leads if l['status'] == 'Converted']),
+    }
+
     context = {
         'campaign_id': pk,
         'current_tab': 'leads',
         'leads': simulated_leads,
-        'total_leads': len(simulated_leads),
+        'stats': stats,
     }
     return render(request, "app/campaign/campaign-leads.html", context)
+
+
+def campaign_leads_filter(request, pk):
+    """HTMX endpoint for filtering leads"""
+    # Get the same simulated data
+    simulated_leads = [
+        {
+            'id': 1,
+            'email': 'john.doe@techcorp.com',
+            'first_name': 'John',
+            'last_name': 'Doe',
+            'company': 'TechCorp Inc.',
+            'status': 'Not contacted',
+            'status_class': 'badge-ghost',
+            'status_icon': 'fa-regular fa-clock',
+            'links_count': 3,
+            'converted_at': None,
+            'created_at': '2024-01-15',
+        },
+        {
+            'id': 2,
+            'email': 'sarah.wilson@innovate.io',
+            'first_name': 'Sarah',
+            'last_name': 'Wilson',
+            'company': 'Innovate Solutions',
+            'status': 'Contacted',
+            'status_class': 'badge-info',
+            'status_icon': 'fa-solid fa-paper-plane',
+            'links_count': 2,
+            'converted_at': None,
+            'created_at': '2024-01-14',
+        },
+        {
+            'id': 3,
+            'email': 'mike.chen@startup.co',
+            'first_name': 'Mike',
+            'last_name': 'Chen',
+            'company': 'Startup Co.',
+            'status': 'Replied',
+            'status_class': 'badge-success',
+            'status_icon': 'fa-solid fa-reply',
+            'links_count': 1,
+            'converted_at': None,
+            'created_at': '2024-01-13',
+        },
+        {
+            'id': 4,
+            'email': 'lisa.brown@enterprise.com',
+            'first_name': 'Lisa',
+            'last_name': 'Brown',
+            'company': 'Enterprise Corp',
+            'status': 'Converted',
+            'status_class': 'badge-primary',
+            'status_icon': 'fa-solid fa-circle-check',
+            'links_count': 4,
+            'converted_at': '2024-01-20',
+            'created_at': '2024-01-12',
+        },
+        {
+            'id': 5,
+            'email': 'alex.garcia@digital.net',
+            'first_name': 'Alex',
+            'last_name': 'Garcia',
+            'company': 'Digital Networks',
+            'status': 'Bounced',
+            'status_class': 'badge-error',
+            'status_icon': 'fa-solid fa-exclamation-triangle',
+            'links_count': 0,
+            'converted_at': None,
+            'created_at': '2024-01-11',
+        },
+    ]
+
+    # Get filter parameters
+    search_query = request.GET.get('search', '').lower().strip()
+    status_filter = request.GET.get('status', '')
+
+    # Filter leads
+    filtered_leads = []
+    for lead in simulated_leads:
+        # Search filter
+        search_text = f"{lead['first_name']} {lead['last_name']} {lead['email']} {lead['company']}".lower()
+        matches_search = not search_query or search_query in search_text
+
+        # Status filter
+        matches_status = not status_filter or lead['status'] == status_filter
+
+        if matches_search and matches_status:
+            filtered_leads.append(lead)
+
+    # Calculate stats for filtered leads
+    stats = {
+        'total_leads': len(filtered_leads),
+        'viewed': len([l for l in filtered_leads if l['status'] in ['Contacted', 'Replied', 'Converted']]),
+        'contacted': len([l for l in filtered_leads if l['status'] in ['Contacted', 'Replied', 'Converted']]),
+        'replied': len([l for l in filtered_leads if l['status'] in ['Replied', 'Converted']]),
+        'interested': 0,
+        'converted': len([l for l in filtered_leads if l['status'] == 'Converted']),
+    }
+
+    context = {
+        'campaign_id': pk,
+        'leads': filtered_leads,
+        'stats': stats,
+        'search_query': search_query,
+        'status_filter': status_filter,
+    }
+
+    return render(request, "app/campaign/partials/leads-table.html", context)
 
 
 def campaign_sequence(request, pk):
