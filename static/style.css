@@ -64,3 +64,20 @@
     .custom-table td {
         font-size: 0.875rem; /* text-sm */
     }
+
+
+
+    /* Custom scrollbar for the steps list */
+    .steps-list::-webkit-scrollbar {
+        width: 6px;
+    }
+    .steps-list::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .steps-list::-webkit-scrollbar-thumb {
+        background: #d1d5db; /* bg-gray-300 */
+        border-radius: 3px;
+    }
+    .steps-list::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af; /* bg-gray-400 */
+    }

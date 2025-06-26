@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Options</title>
+
+    <!-- DaisyUI and Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+      /* Minor style adjustments to get closer to the screenshot */
+      .tab-active.tab-bordered {
+        border-color: #2563eb; /* blue-600 */
+        color: #2563eb;
+      }
+      .badge-pro {
+        background-color: #FEF3C7; /* yellow-100 */
+        color: #92400E; /* yellow-800 */
+        border: 1px solid #FDE68A; /* yellow-200 */
+      }
+      .badge-rec {
+        background-color: #DCFCE7; /* green-100 */
+        color: #166534; /* green-800 */
+        border: 1px solid #BBF7D0; /* green-200 */
+      }
+    </style>
+
+  </head>
+  <body class="bg-[#F8F9FB] font-sans">
+
+    <div class="flex flex-col h-screen">
+        <!-- Top Global Header -->
+        <header class="navbar bg-white border-b px-4 h-16 shrink-0">
+            <div class="navbar-start">
+                <div class="flex items-center gap-4">
+                    <a href="#" class="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-md">
+                        <i class="fa-solid fa-bolt text-white text-lg"></i>
+                    </a>
+                    <div class="flex items-center gap-2 text-gray-500">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                        <span class="font-medium text-gray-800">My Campaign</span>
+                    </div>
+                </div>
+            </div>
+            <div class="navbar-end">
+                 <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 text-gray-700">
+                        <i class="fa-solid fa-coins text-yellow-400"></i>
+                        <span class="font-semibold text-sm">79</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                    </div>
+                    <button class="btn btn-primary btn-sm normal-case font-semibold">Get All Features</button>
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-sm normal-case border border-gray-200 bg-white">
+                            My Organizatio...
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </div>
+                        <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 mt-2">
+                            <li><a>Organization 1</a></li>
+                            <li><a>Settings</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Left Sidebar -->
+            <aside class="flex flex-col items-center w-16 py-8 bg-white border-r">
+                <div class="flex flex-col items-center space-y-2">
+                    <a href="#" title="Dashboard" class="p-3 rounded-lg text-gray-500 hover:bg-gray-100"><i class="fa-solid fa-compass text-xl"></i></a>
+                    <a href="#" title="Search" class="p-3 rounded-lg text-gray-500 hover:bg-gray-100"><i class="fa-solid fa-magnifying-glass text-xl"></i></a>
+                    <a href="#" title="Mail" class="p-3 rounded-lg text-gray-500 hover:bg-gray-100"><i class="fa-regular fa-envelope text-xl"></i></a>
+                    <a href="#" title="Campaigns" class="p-3 rounded-lg bg-blue-50 text-blue-600"><i class="fa-solid fa-paper-plane text-xl"></i></a>
+                    <a href="#" title="Templates" class="p-3 rounded-lg text-gray-500 hover:bg-gray-100"><i class="fa-solid fa-layer-group text-xl"></i></a>
+                    <a href="#" title="Reporting" class="p-3 rounded-lg text-gray-500 hover:bg-gray-100"><i class="fa-solid fa-chart-line text-xl"></i></a>
+                    <a href="#" title="Unibox" class="p-3 rounded-lg text-gray-500 hover:bg-gray-100"><i class="fa-solid fa-bolt-lightning text-xl"></i></a>
+                    <a href="#" title="App" class="p-3 rounded-lg text-gray-500 hover:bg-gray-100"><i class="fa-solid fa-satellite-dish text-xl"></i></a>
+                    <a href="#" title="Content" class="p-3 rounded-lg text-gray-500 hover:bg-gray-100"><i class="fa-regular fa-folder text-xl"></i></a>
+                </div>
+                <div class="mt-auto flex flex-col items-center space-y-4">
+                    <a href="#" title="Help" class="p-2 rounded-lg text-gray-500 hover:bg-gray-100"><i class="fa-regular fa-comment-dots text-xl"></i></a>
+                    <a href="#" title="Account" class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-600 font-bold">A</a>
+                    <a href="#" title="Profile" class="flex items-center justify-center w-8 h-8 rounded-full bg-black text-white font-bold">F</a>
+                </div>
+            </aside>
+
+            <!-- Main content with sticky footer -->
+            <div class="flex flex-col flex-1 overflow-hidden">
+                <main class="flex-1 overflow-y-auto">
+                    <div class="p-6 md:p-8">
+                        <!-- Top Controls & Tabs -->
+                        <div class="flex justify-between items-end mb-6">
+                            <div class="tabs">
+                                <a class="tab tab-bordered px-4">Analytics</a> 
+                                <a class="tab tab-bordered px-4">Leads</a> 
+                                <a class="tab tab-bordered px-4">Sequences</a> 
+                                <a class="tab tab-bordered px-4">Schedule</a> 
+                                <a class="tab tab-bordered tab-active px-4 font-semibold">Options</a>
+                              </div>
+    
+                            <div class="flex items-center gap-2">
+                                <button class="btn btn-ghost normal-case bg-white border border-gray-200 font-medium">
+                                    <i class="fa-solid fa-play text-green-500"></i>
+                                    Resume campaign
+                                </button>
+                                <button class="btn btn-square btn-ghost bg-white border border-gray-200">
+                                    <i class="fa-solid fa-ellipsis text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Settings Form -->
+                        <div class="space-y-4 max-w-4xl mx-auto">
+                            <div class="card bg-white shadow-sm border border-gray-200 rounded-lg">
+                                <div class="card-body flex-row justify-between items-center p-6">
+                                    <div>
+                                        <h2 class="card-title text-base font-semibold text-gray-800">Accounts to use</h2>
+                                        <p class="text-sm text-gray-500">Select one or more accounts to send emails from</p>
+                                    </div>
+                                    <div class="flex items-center gap-6">
+                                        <div class="dropdown dropdown-end">
+                                            <div tabindex="0" role="button" class="btn w-64 justify-between bg-white border-gray-300 text-gray-500 font-normal hover:bg-gray-50 hover:border-gray-400">
+                                                <span>Select...</span>
+                                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                                            </div>
+                                            <ul tabindex="0" class="dropdown-content menu p-1 shadow bg-base-100 rounded-box w-64 mt-1">
+                                                <li><a>account1@example.com</a></li>
+                                                <li><a>account2@example.com</a></li>
+                                            </ul>
+                                        </div>
+                                        <button class="btn btn-link no-underline text-blue-600 normal-case font-semibold hover:no-underline">Connect new email account</button>
+                                    </div>
+                                </div>
+                            </div>
+    
+                            <div class="card bg-white shadow-sm border border-gray-200 rounded-lg">
+                                <div class="card-body flex-row justify-between items-center p-6">
+                                    <div>
+                                        <h2 class="card-title text-base font-semibold text-gray-800">Stop sending emails on reply</h2>
+                                        <p class="text-sm text-gray-500">Stop sending emails to a lead if a response has been received</p>
+                                    </div>
+                                    <div class="flex items-center rounded-lg border p-1 bg-gray-100">
+                                        <button class="btn btn-sm btn-ghost text-gray-500 border-0 px-4">Disable</button>
+                                        <button class="btn btn-sm bg-green-500 hover:bg-green-600 text-white border-0 shadow-sm px-4">Enable</button>
+                                    </div>
+                                </div>
+                            </div>
+    
+                            <div class="card bg-white shadow-sm border border-gray-200 rounded-lg">
+                                <div class="card-body flex-row justify-between items-center p-6">
+                                    <div>
+                                        <h2 class="card-title text-base font-semibold text-gray-800">Open Tracking</h2>
+                                        <p class="text-sm text-gray-500">Track email opens</p>
+                                    </div>
+                                    <div class="flex items-center gap-6">
+                                        <div class="form-control">
+                                            <label class="label cursor-pointer gap-2 p-0">
+                                                <input type="checkbox" class="checkbox checkbox-sm" />
+                                                <span class="label-text text-gray-700">Link tracking</span> 
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center rounded-lg border p-1 bg-gray-100">
+                                            <button class="btn btn-sm bg-[#374151] hover:bg-gray-700 text-white border-0 shadow-sm px-4">Disable</button>
+                                            <button class="btn btn-sm btn-ghost text-gray-500 border-0 px-4">Enable</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+    
+                            <div class="card bg-white shadow-sm border border-gray-200 rounded-lg">
+                                <div class="card-body flex-row justify-between items-start p-6">
+                                    <div>
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <h2 class="card-title text-base font-semibold text-gray-800">Delivery Optimization</h2>
+                                            <div class="badge badge-rec font-semibold text-xs py-2">Recommended</div>
+                                        </div>
+                                        <p class="text-sm text-gray-500">Disables open tracking</p>
+                                    </div>
+                                    <div class="flex flex-col gap-3 pt-1">
+                                        <div class="form-control">
+                                            <label class="label cursor-pointer gap-3 justify-start p-0">
+                                                <input type="checkbox" class="checkbox" />
+                                                <span class="label-text text-gray-700">Send emails as text-only (no HTML)</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-control">
+                                            <label class="label cursor-pointer gap-3 justify-start p-0">
+                                                <input type="checkbox" class="checkbox" />
+                                                <span class="label-text text-gray-700">Send first email as text-only</span>
+                                                <div class="badge badge-pro font-bold text-xs px-2 py-1">Pro</div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+    
+                            <div class="card bg-white shadow-sm border border-gray-200 rounded-lg">
+                                <div class="card-body flex-row justify-between items-center p-6">
+                                    <div>
+                                        <h2 class="card-title text-base font-semibold text-gray-800">Daily Limit</h2>
+                                        <p class="text-sm text-gray-500">Max number of emails to send per day for this campaign</p>
+                                    </div>
+                                    <input type="text" value="30" class="input input-bordered w-32" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+    
+                <!-- Sticky Footer Buttons -->
+                <footer class="sticky bottom-0 bg-white/90 backdrop-blur-sm border-t p-4 flex justify-center items-center gap-4 z-10">
+                    <button class="btn btn-outline btn-primary normal-case w-32 font-semibold">
+                        <i class="fa-regular fa-floppy-disk"></i>
+                        Save
+                    </button>
+                    <button class="btn btn-primary normal-case w-32 font-semibold">
+                        <i class="fa-solid fa-rocket"></i>
+                        Launch
+                    </button>
+                </footer>
+            </div>
+        </div>
+    </div>
+  </body>
+</html>
