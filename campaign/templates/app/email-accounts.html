@@ -3,75 +3,623 @@
 {% block title %}Email Accounts{% endblock %}
 
 {% block content %}
-<div class="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-8">
+<div class="flex-1 flex flex-col overflow-hidden bg-gray-50 p-6">
     <!-- Header -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Email Accounts</h1>
-        <p class="text-gray-600">Connect and manage your email accounts for campaigns</p>
+    <div class="mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Email Accounts</h1>
+                <p class="text-gray-600">Connect and manage your email accounts for campaigns</p>
+            </div>
+            <div class="flex gap-2">
+                <select class="select select-bordered bg-white" id="status-filter" onchange="filterAccounts()">
+                    <option value="">All statuses</option>
+                    <option value="connected">Connected</option>
+                    <option value="error">Error</option>
+                    <option value="pending">Pending</option>
+                </select>
+                <button class="btn btn-primary" onclick="showAddAccountModal()">
+                    <i class="fa-solid fa-plus mr-2"></i>
+                    Add New
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="flex-1 flex items-center justify-center">
-        <div class="text-center max-w-md">
-            <!-- Icon -->
-            <div class="mb-6">
-                <div class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-100 text-green-600">
-                    <i class="fa-solid fa-at text-3xl"></i>
+    <!-- Search -->
+    <div class="mb-6">
+        <div class="flex items-center gap-4">
+            <div class="relative flex-1 max-w-md">
+                <input type="text"
+                       placeholder="Search..."
+                       class="input input-bordered w-full bg-white pl-10"
+                       id="search-accounts"
+                       oninput="filterAccounts()">
+                <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+            <div class="text-sm text-gray-500">
+                <span id="account-count">1 account</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Accounts Table -->
+    <div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="text-left font-semibold text-gray-900">
+                            <input type="checkbox" class="checkbox" id="select-all" onchange="toggleSelectAll()">
+                        </th>
+                        <th class="text-left font-semibold text-gray-900">EMAIL</th>
+                        <th class="text-left font-semibold text-gray-900">EMAILS SENT</th>
+                        <th class="text-left font-semibold text-gray-900">WARMUP EMAILS</th>
+                        <th class="text-left font-semibold text-gray-900">HEALTH SCORE</th>
+                        <th class="text-left font-semibold text-gray-900">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody id="accounts-table-body">
+                    <!-- Sample Email Account Row -->
+                    <tr class="hover:bg-gray-50" data-account="1">
+                        <td>
+                            <input type="checkbox" class="checkbox account-checkbox" data-account="1">
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fa-solid fa-envelope text-blue-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">fdudromo@gmail.com</div>
+                                    <div class="text-sm text-gray-500">Connected via IMAP/SMTP</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-sm">
+                                <div class="font-medium text-gray-900">1 of 30</div>
+                                <div class="text-gray-500">Daily limit</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-sm">
+                                <div class="font-medium text-gray-900">0</div>
+                                <div class="text-gray-500">This week</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-16 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-red-600">0%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <button class="btn btn-ghost btn-xs" onclick="editAccount(1)" title="Edit">
+                                    <i class="fa-solid fa-edit"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs" onclick="testConnection(1)" title="Test Connection">
+                                    <i class="fa-solid fa-plug"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="confirmDeleteAccount(1)" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Account Modal -->
+<div class="modal" id="add-account-modal">
+    <div class="modal-box max-w-md">
+        <h3 class="font-bold text-lg mb-4">Connect existing accounts</h3>
+
+        <div class="space-y-4 mb-6">
+            <div class="flex items-center gap-3 text-sm text-gray-600">
+                <i class="fa-solid fa-check text-green-500"></i>
+                <span>Connect any IMAP or SMTP email provider</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm text-gray-600">
+                <i class="fa-solid fa-check text-green-500"></i>
+                <span>Sync up replies in the Unibox</span>
+            </div>
+        </div>
+
+        <div class="space-y-3">
+            <!-- Google Gmail -->
+            <button class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
+                    onclick="selectProvider('google')">
+                <div class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
+                    <i class="fab fa-google text-red-500 text-lg"></i>
+                </div>
+                <div class="text-left">
+                    <div class="font-medium text-gray-900">Google</div>
+                    <div class="text-sm text-gray-500">Gmail / G-Suite</div>
+                </div>
+            </button>
+
+            <!-- Microsoft Outlook -->
+            <button class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
+                    onclick="selectProvider('microsoft')">
+                <div class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
+                    <i class="fab fa-microsoft text-blue-500 text-lg"></i>
+                </div>
+                <div class="text-left">
+                    <div class="font-medium text-gray-900">Microsoft</div>
+                    <div class="text-sm text-gray-500">Office 365 / Outlook</div>
+                </div>
+            </button>
+
+            <!-- Any Provider IMAP/SMTP -->
+            <button class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
+                    onclick="selectProvider('imap')">
+                <div class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
+                    <i class="fa-solid fa-envelope text-gray-600 text-lg"></i>
+                </div>
+                <div class="text-left">
+                    <div class="font-medium text-gray-900">Any Provider</div>
+                    <div class="text-sm text-gray-500">IMAP / SMTP</div>
+                </div>
+            </button>
+        </div>
+
+        <div class="modal-action">
+            <button class="btn btn-ghost" onclick="closeAddAccountModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Step 1: Basic Info Modal -->
+<div class="modal" id="basic-info-modal">
+    <div class="modal-box max-w-md">
+        <div class="flex items-center gap-2 mb-4">
+            <button class="btn btn-ghost btn-sm" onclick="goBackToProviders()">
+                <i class="fa-solid fa-arrow-left"></i>
+                Back
+            </button>
+            <span class="text-sm text-gray-500">Select another provider</span>
+        </div>
+
+        <div class="text-center mb-6">
+            <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <i class="fa-solid fa-envelope text-gray-600 text-lg"></i>
+            </div>
+            <h3 class="font-bold text-lg">Connect Any Provider Account</h3>
+            <p class="text-sm text-gray-500">IMAP / SMTP</p>
+        </div>
+
+        <form id="basic-info-form" class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="label">
+                        <span class="label-text">First Name</span>
+                    </label>
+                    <input type="text" placeholder="First Name" class="input input-bordered w-full bg-white" id="first-name" required>
+                </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text">Last Name</span>
+                    </label>
+                    <input type="text" placeholder="Last Name" class="input input-bordered w-full bg-white" id="last-name" required>
                 </div>
             </div>
-            
-            <!-- Title -->
-            <h2 class="text-2xl font-semibold text-gray-900 mb-4">Email Accounts Management</h2>
-            
-            <!-- Description -->
-            <p class="text-gray-600 mb-8 leading-relaxed">
-                Connect your email accounts to send campaigns. Manage SMTP settings, authentication, 
-                and monitor sending reputation across all your connected email providers.
-            </p>
-            
-            <!-- Features List -->
-            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 mb-8">
-                <h3 class="font-semibold text-gray-900 mb-4">Coming Features:</h3>
-                <ul class="text-left space-y-2 text-gray-600">
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Gmail & Outlook integration
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Custom SMTP configuration
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Email reputation monitoring
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Sending limits management
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Authentication & security
-                    </li>
-                </ul>
+
+            <div>
+                <label class="label">
+                    <span class="label-text">Email *</span>
+                </label>
+                <input type="email" placeholder="Email address to connect" class="input input-bordered w-full bg-white" id="email-address" required>
             </div>
-            
-            <!-- Action Button -->
-            <button class="btn btn-primary" onclick="showComingSoon()">
-                <i class="fa-solid fa-plus mr-2"></i>
-                Connect Email Account
+        </form>
+
+        <div class="modal-action">
+            <button class="btn btn-success w-full" onclick="proceedToImapSettings()">
+                Next >
             </button>
         </div>
     </div>
 </div>
 
+<!-- Step 2: IMAP Settings Modal -->
+<div class="modal" id="imap-settings-modal">
+    <div class="modal-box max-w-md">
+        <div class="flex items-center gap-2 mb-4">
+            <button class="btn btn-ghost btn-sm" onclick="goBackToBasicInfo()">
+                <i class="fa-solid fa-arrow-left"></i>
+                Back
+            </button>
+            <span class="text-sm text-gray-500">Select another provider</span>
+        </div>
+
+        <div class="text-center mb-6">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <i class="fa-solid fa-download text-blue-600 text-lg"></i>
+            </div>
+            <h3 class="font-bold text-lg">IMAP</h3>
+            <p class="text-sm text-gray-500">IMAP Setup</p>
+        </div>
+
+        <form id="imap-settings-form" class="space-y-4">
+            <div>
+                <label class="label">
+                    <span class="label-text">IMAP Username *</span>
+                </label>
+                <input type="text" placeholder="IMAP Username" class="input input-bordered w-full bg-white" id="imap-username" required>
+            </div>
+
+            <div>
+                <label class="label">
+                    <span class="label-text">IMAP Password *</span>
+                </label>
+                <input type="password" placeholder="IMAP Password" class="input input-bordered w-full bg-white" id="imap-password" required>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="label">
+                        <span class="label-text">IMAP Host *</span>
+                    </label>
+                    <input type="text" placeholder="imap.example.com" class="input input-bordered w-full bg-white" id="imap-host" required>
+                </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text">IMAP Port *</span>
+                    </label>
+                    <input type="number" placeholder="993" class="input input-bordered w-full bg-white" id="imap-port" value="993" required>
+                </div>
+            </div>
+        </form>
+
+        <div class="modal-action flex gap-2">
+            <button class="btn btn-ghost flex-1" onclick="goBackToBasicInfo()">
+                < Back
+            </button>
+            <button class="btn btn-success flex-1" onclick="testImapConnection()">
+                Next >
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal" id="loading-modal">
+    <div class="modal-box max-w-sm text-center">
+        <div class="mb-6">
+            <div class="loading loading-spinner loading-lg text-primary mx-auto"></div>
+        </div>
+        <h3 class="font-bold text-lg mb-2">Testing IMAP Connection</h3>
+        <p class="text-gray-600">Please wait while we verify your email settings...</p>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal" id="success-modal">
+    <div class="modal-box max-w-sm text-center">
+        <div class="mb-6">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                <i class="fa-solid fa-check text-green-600 text-2xl"></i>
+            </div>
+        </div>
+        <h3 class="font-bold text-lg mb-2">Connection Successful!</h3>
+        <p class="text-gray-600 mb-6">Your email account has been connected successfully and is ready to use.</p>
+
+        <div class="modal-action">
+            <button class="btn btn-primary w-full" onclick="closeSuccessModal()">
+                Done
+            </button>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
 <script>
-function showComingSoon() {
-    if (window.ModalSystem) {
-        window.ModalSystem.toast('Email accounts management coming soon!', 'info');
-    } else {
-        alert('Email accounts management coming soon!');
+    // Ensure ModalSystem is defined, providing a fallback if it's not.
+    // This prevents errors if the global ModalSystem script isn't loaded correctly.
+    if (typeof ModalSystem === 'undefined') {
+        console.warn("ModalSystem is not defined. Using fallback alert/confirm for actions. Please ensure ModalSystem is loaded before this script.");
+        window.ModalSystem = {
+            confirm: function({ title, message, confirmText, confirmClass, action, customContent }) {
+                let fullMessage = title + "\n\n" + message;
+                if (customContent) {
+                    fullMessage += "\n\n(Note: Custom content is not supported in this fallback modal.)";
+                }
+                // Use native browser confirm as a fallback
+                if (window.confirm(fullMessage)) {
+                    if (action && typeof action === 'function') {
+                        action();
+                    }
+                }
+            },
+            toast: function(message, type = 'success') {
+                // Use native browser alert as a fallback for toast
+                alert(`[${type.toUpperCase()}] ${message}`);
+            }
+        };
     }
-}
+
+    // Sample Data
+    const sampleAccounts = [
+        {
+            id: 1,
+            email: "fdudromo@gmail.com",
+            connectionType: "IMAP/SMTP",
+            emailsSent: 1,
+            dailyLimit: 30,
+            warmupEmails: 0,
+            healthScore: 0,
+            status: "connected"
+        },
+        {
+            id: 2,
+            email: "test.user@example.com",
+            connectionType: "Google",
+            emailsSent: 15,
+            dailyLimit: 50,
+            warmupEmails: 5,
+            healthScore: 75,
+            status: "connected"
+        },
+        {
+            id: 3,
+            email: "another.one@domain.com",
+            connectionType: "Microsoft",
+            emailsSent: 0,
+            dailyLimit: 25,
+            warmupEmails: 0,
+            healthScore: 20,
+            status: "error"
+        },
+        {
+            id: 4,
+            email: "pending.account@web.de",
+            connectionType: "IMAP/SMTP",
+            emailsSent: 0,
+            dailyLimit: 40,
+            warmupEmails: 0,
+            healthScore: 0,
+            status: "pending"
+        }
+    ];
+
+    let currentAccounts = [...sampleAccounts];
+
+    // DOM Elements
+    const accountsTableBody = document.getElementById('accounts-table-body');
+    const accountCount = document.getElementById('account-count');
+    const searchInput = document.getElementById('search-accounts');
+    const statusFilter = document.getElementById('status-filter');
+    const selectAllCheckbox = document.getElementById('select-all');
+
+    // Modals
+    const addAccountModal = document.getElementById('add-account-modal');
+    const basicInfoModal = document.getElementById('basic-info-modal');
+    const imapSettingsModal = document.getElementById('imap-settings-modal');
+    const loadingModal = document.getElementById('loading-modal');
+    const successModal = document.getElementById('success-modal');
+
+    // Render Functions
+    const renderAccounts = () => {
+        accountsTableBody.innerHTML = '';
+        if (currentAccounts.length === 0) {
+            accountsTableBody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500">No accounts found.</td></tr>';
+        } else {
+            currentAccounts.forEach(account => {
+                const healthColor = account.healthScore > 70 ? 'green' : account.healthScore > 40 ? 'yellow' : 'red';
+                const row = `
+                    <tr class="hover:bg-gray-50" data-account="${account.id}" data-status="${account.status}">
+                        <td>
+                            <input type="checkbox" class="checkbox account-checkbox" data-account="${account.id}">
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fa-solid fa-envelope text-blue-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">${account.email}</div>
+                                    <div class="text-sm text-gray-500">Connected via ${account.connectionType}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-sm">
+                                <div class="font-medium text-gray-900">${account.emailsSent} of ${account.dailyLimit}</div>
+                                <div class="text-gray-500">Daily limit</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-sm">
+                                <div class="font-medium text-gray-900">${account.warmupEmails}</div>
+                                <div class="text-gray-500">This week</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-16 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-${healthColor}-500 h-2 rounded-full" style="width: ${account.healthScore}%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-${healthColor}-600">${account.healthScore}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <button class="btn btn-ghost btn-xs" onclick="editAccount(${account.id})" title="Edit">
+                                    <i class="fa-solid fa-edit"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs" onclick="testConnection(${account.id})" title="Test Connection">
+                                    <i class="fa-solid fa-plug"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="confirmDeleteAccount(${account.id})" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                accountsTableBody.innerHTML += row;
+            });
+        }
+        updateAccountCount();
+        attachCheckboxListeners();
+    };
+
+    const updateAccountCount = () => {
+        const count = currentAccounts.length;
+        accountCount.textContent = `${count} account${count !== 1 ? 's' : ''}`;
+    };
+
+    // Event Handlers & Logic
+    const filterAccounts = () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
+
+        currentAccounts = sampleAccounts.filter(acc => {
+            const matchesSearch = acc.email.toLowerCase().includes(searchTerm);
+            const matchesStatus = statusValue ? acc.status === statusValue : true;
+            return matchesSearch && matchesStatus;
+        });
+
+        renderAccounts();
+    };
+
+    const toggleSelectAll = () => {
+        const checkboxes = document.querySelectorAll('.account-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+    };
+
+    const attachCheckboxListeners = () => {
+        const checkboxes = document.querySelectorAll('.account-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                if (!checkbox.checked) {
+                    selectAllCheckbox.checked = false;
+                } else {
+                    const allChecked = [...document.querySelectorAll('.account-checkbox')].every(c => c.checked);
+                    selectAllCheckbox.checked = allChecked;
+                }
+            });
+        });
+    };
+
+    // Modal Management
+    const showModal = (modal) => modal.classList.add('modal-open');
+    const closeModal = (modal) => modal.classList.remove('modal-open');
+
+    const showAddAccountModal = () => showModal(addAccountModal);
+    const closeAddAccountModal = () => closeModal(addAccountModal);
+
+    const selectProvider = (provider) => {
+        closeModal(addAccountModal);
+        if (provider === 'imap' || provider === 'google' || provider === 'microsoft') {
+            showModal(basicInfoModal);
+        }
+    };
+
+    const goBackToProviders = () => {
+        closeModal(basicInfoModal);
+        showModal(addAccountModal);
+    };
+    
+    const proceedToImapSettings = () => {
+        // Basic validation
+        if (document.getElementById('basic-info-form').checkValidity()) {
+            closeModal(basicInfoModal);
+            showModal(imapSettingsModal);
+        } else {
+            document.getElementById('basic-info-form').reportValidity();
+        }
+    };
+
+    const goBackToBasicInfo = () => {
+        closeModal(imapSettingsModal);
+        showModal(basicInfoModal);
+    };
+
+    const testImapConnection = () => {
+        if (document.getElementById('imap-settings-form').checkValidity()) {
+            closeModal(imapSettingsModal);
+            showModal(loadingModal);
+            // Simulate network delay
+            setTimeout(() => {
+                closeModal(loadingModal);
+                showModal(successModal);
+            }, 2000);
+        } else {
+            document.getElementById('imap-settings-form').reportValidity();
+        }
+    };
+    
+    const closeSuccessModal = () => {
+        closeModal(successModal);
+        // Here you would typically add the new account to the list and re-render
+    };
+
+    // Dummy functions for row actions
+    const editAccount = (id) => {
+        ModalSystem.confirm({
+            title: 'Edit Account',
+            message: `You are about to edit the settings for account ${id}. Do you want to proceed?`,
+            confirmText: 'Edit',
+            action: () => {
+                ModalSystem.toast(`Opening settings for account ${id}...`);
+                // In a real app, you would redirect to an edit page:
+                // window.location.href = `/accounts/${id}/edit`;
+            }
+        });
+    };
+
+    const testConnection = (id) => {
+        ModalSystem.confirm({
+            title: 'Test Connection',
+            message: `This will test the IMAP and SMTP connection for account ${id}.`,
+            confirmText: 'Test',
+            action: () => {
+                ModalSystem.toast(`Testing connection for account ${id}...`, 'info');
+                // Here you would trigger the backend test
+            }
+        });
+    };
+
+    const confirmDeleteAccount = (id) => {
+        ModalSystem.confirm({
+            title: 'Delete Account',
+            message: `Are you sure you want to delete account ${id}? This action cannot be undone.`,
+            confirmText: 'Delete',
+            confirmClass: 'btn-error',
+            action: () => {
+                const index = sampleAccounts.findIndex(acc => acc.id === id);
+                if (index > -1) {
+                    sampleAccounts.splice(index, 1);
+                    filterAccounts(); // Re-filter and re-render
+                    ModalSystem.toast(`Account ${id} has been deleted.`, 'success');
+                } else {
+                    ModalSystem.toast(`Could not find account ${id}.`, 'error');
+                }
+            }
+        });
+    };
+
+
+    // Initial Render
+    document.addEventListener('DOMContentLoaded', () => {
+        // Remove hardcoded row
+        const sampleRow = document.querySelector('[data-account="1"]');
+        if(sampleRow) {
+            sampleRow.remove();
+        }
+        renderAccounts();
+    });
+
 </script>
+{% endblock %}
+
 {% endblock %}
