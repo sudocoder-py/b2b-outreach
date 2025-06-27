@@ -272,82 +272,59 @@ def leads_view(request):
     return render(request, "app/leads/leads-view.html", context)
 
 
-def leads_filter(request):
-    """HTMX endpoint for filtering leads (for future use)"""
-    # Get the same simulated data as leads_view
-    simulated_leads = [
-        {
-            'id': 1,
-            'subscribed_company': 'fdudgames',
-            'full_name': 'fdud ramo',
-            'first_name': 'fdud',
-            'last_name': 'ramo',
-            'position': 'ceo',
-            'email': 'fdudramo@gmail.com',
-            'phone_number': None,
-            'linkedin_profile': None,
-            'company_name': 'fdudgames',
-            'company_website': None,
-            'industry': 'Gaming',
-            'employee_count': 'N/A',
-            'company_linkedin_page': None,
-            'location': 'N/A',
-            'source': 'LinkedIn',
-            'lead_type': 'Cold',
-            'lead_type_class': 'badge-ghost',
-            'lead_type_icon': 'fa-solid fa-snowflake',
-            'source_class': 'badge-info',
-            'source_icon': 'fa-brands fa-linkedin',
-            'created_at': 'Jun 04, 2025',
-        },
-        # Add other leads here if needed for backend filtering
-    ]
-
-    # Get filter parameters
-    search_query = request.GET.get('search', '').lower().strip()
-    lead_type_filter = request.GET.get('lead_type', '')
-    source_filter = request.GET.get('source', '')
-
-    # Filter leads
-    filtered_leads = []
-    for lead in simulated_leads:
-        # Search filter
-        search_text = f"{lead['full_name']} {lead['email']} {lead['company_name']} {lead['position']} {lead['location']}".lower()
-        matches_search = not search_query or search_query in search_text
-
-        # Lead type filter
-        matches_type = not lead_type_filter or lead['lead_type'].lower() == lead_type_filter.lower()
-
-        # Source filter
-        matches_source = not source_filter or lead['source'].lower() == source_filter.lower()
-
-        if matches_search and matches_type and matches_source:
-            filtered_leads.append(lead)
-
-    # Calculate stats for filtered leads
-    stats = {
-        'total_leads': len(filtered_leads),
-        'cold': len([l for l in filtered_leads if l['lead_type'] == 'Cold']),
-        'warm': len([l for l in filtered_leads if l['lead_type'] == 'Warm']),
-        'linkedin_source': len([l for l in filtered_leads if l['source'] == 'LinkedIn']),
-        'it_industry': len([l for l in filtered_leads if 'IT' in l['industry']]),
-    }
-
-    context = {
-        'leads': filtered_leads,
-        'stats': stats,
-        'search_query': search_query,
-        'lead_type_filter': lead_type_filter,
-        'source_filter': source_filter,
-    }
-
-    # Return the filtered table content (for future HTMX use)
-    return render(request, "app/leads/partials/leads-table.html", context)
-
 
 def campaign_view_list(request):
-    
-    return render(request, "app/campaign/view-list.html")
+    simulated_campaigns =  [
+        {
+            'id': 1,
+            'name': 'Q3 Tech Outreach',
+            'product': 'SaaS Platform',
+            'status': 'active',
+            'leads': 500,
+            'sent': 450,
+            'clicked': 90,
+            'replied': 25,
+            'opportunities': 5
+        },
+        {
+            'id': 2,
+            'name': 'Summer Sale Promo',
+            'product': 'E-commerce Goods',
+            'status': 'completed',
+            'leads': 2000,
+            'sent': 1980,
+            'clicked': 450,
+            'replied': 120,
+            'opportunities': 40
+        },
+        {
+            'id': 3,
+            'name': 'New Feature Launch',
+            'product': 'Mobile App',
+            'status': 'paused',
+            'leads': 100,
+            'sent': 50,
+            'clicked': 10,
+            'replied': 1,
+            'opportunities': 0
+        },
+        {
+            'id': 4,
+            'name': 'MENA Expansion',
+            'product': 'Enterprise Software',
+            'status': 'draft',
+            'leads': 0,
+            'sent': 0,
+            'clicked': 0,
+            'replied': 0,
+            'opportunities': 0
+        }
+    ]
+    context = {
+        'campaigns': simulated_campaigns,
+    }
+
+    return render(request, "app/campaign/view-list.html", context)
 
 
 def campaign_dashboard(request, pk):

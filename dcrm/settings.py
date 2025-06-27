@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django_celery_results', 
     'import_export',
     'django_htmx',
+    'mathfilters',
     'campaign',
     'posts',
     'clients',

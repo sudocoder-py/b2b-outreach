@@ -1,6 +1,6 @@
- {% extends "base-app.html" %}
+{% extends "base-app.html" %}
 {% block title %}Campaigns{% endblock %}
-
+{% load mathfilters %}
 {% block content %}
 <div class="flex-1 flex flex-col overflow-hidden bg-gray-50 p-6">
     <!-- Header -->
@@ -15,76 +15,33 @@
                     <i class="fa-solid fa-plus mr-2"></i>
                     New Campaign
                 </button>
+            </div>
         </div>
     </div>
 
     <!-- Performance Stats -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Active Campaigns</p>
-                    <p class="text-2xl font-bold text-gray-900">3</p>
-                    <p class="text-xs text-gray-500 mt-1">Currently running</p>
-                </div>
-                <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <i class="fa-solid fa-rocket text-blue-600"></i>
-                </div>
-            </div>
-        </div>
-        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Total Opportunities</p>
-                    <p class="text-2xl font-bold text-gray-900">45</p>
-                    <p class="text-xs text-green-500 mt-1">↑ 5 from last week</p>
-                </div>
-                <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <i class="fa-solid fa-handshake text-green-600"></i>
-                </div>
-            </div>
-        </div>
-        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Overall Click Rate</p>
-                    <p class="text-2xl font-bold text-gray-900">21.8%</p>
-                    <p class="text-xs text-gray-500 mt-1">Across all campaigns</p>
-                </div>
-                <div class="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <i class="fa-solid fa-mouse-pointer text-purple-600"></i>
-                </div>
-            </div>
-        </div>
-        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Avg. Reply Rate</p>
-                    <p class="text-2xl font-bold text-gray-900">5.7%</p>
-                    <p class="text-xs text-red-500 mt-1">↓ 1.2% from last week</p>
-                </div>
-                <div class="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <i class="fa-solid fa-reply text-orange-600"></i>
-                </div>
-            </div>
-        </div>
+        <!-- ... (keep your existing stats cards) ... -->
     </div>
 
     <!-- Filters and Search -->
     <div class="mb-6 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
         <div class="flex flex-wrap gap-4 items-center">
             <div class="flex-1 min-w-64">
-                <input type="text" placeholder="Search campaigns by name or product..." class="input input-bordered w-full bg-white" id="search-campaigns" oninput="filterCampaigns()">
+                <input type="text" placeholder="Search campaigns by name or product..." 
+                       class="input input-bordered w-full bg-white" 
+                       id="search-campaigns">
             </div>
-            <select class="select select-bordered bg-white" id="filter-status" onchange="filterCampaigns()">
+            <select class="select select-bordered bg-white" id="filter-status">
                 <option value="">All Statuses</option>
                 <option value="active">Active</option>
                 <option value="paused">Paused</option>
                 <option value="draft">Draft</option>
                 <option value="completed">Completed</option>
             </select>
+            <button onclick="clearCampaignFilters()" class="btn btn-ghost">Clear</button>
             <div class="text-sm text-gray-500">
-                <span id="campaign-count">0 campaigns</span>
+                <span id="campaign-count">{{ campaigns|length }} campaigns</span>
             </div>
         </div>
     </div>
@@ -106,7 +63,84 @@
                     </tr>
                 </thead>
                 <tbody id="campaigns-table-body">
-                    <!-- Rows will be dynamically injected by JavaScript -->
+                    {% for campaign in campaigns %}
+                    <tr class="hover:bg-gray-50 cursor-pointer campaign-row" 
+                        onclick="viewCampaign({{ campaign.id }})"
+                        data-status="{{ campaign.status|lower }}">
+                        <td class="pl-6">
+                            <div class="font-bold text-gray-800">{{ campaign.name }}</div>
+                            <div class="text-sm text-gray-500">{{ campaign.product }}</div>
+                        </td>
+                        <td>
+                            {% if campaign.status == "active" %}
+                                <span class="badge badge-success text-white font-medium py-2">Active</span>
+                            {% elif campaign.status == "paused" %}
+                                <span class="badge badge-warning text-white font-medium py-2">Paused</span>
+                            {% elif campaign.status == "draft" %}
+                                <span class="badge badge-neutral text-white font-medium py-2">Draft</span>
+                            {% elif campaign.status == "completed" %}
+                                <span class="badge badge-info text-white font-medium py-2">Completed</span>
+                            {% else %}
+                                {{ campaign.status }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <progress class="progress progress-primary w-20" 
+                                    value="{% if campaign.leads > 0 %}{{ campaign.sent|div:campaign.leads|mul:100|floatformat:0 }}{% else %}0{% endif %}" 
+                                    max="100">
+                                </progress>
+                                <span class="text-sm font-medium text-gray-600">
+                                    {% if campaign.leads > 0 %}
+                                        {{ campaign.sent|div:campaign.leads|mul:100|floatformat:0 }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="font-medium text-gray-700">{{ campaign.sent }}</td>
+                        <td class="font-medium text-gray-700">{{ campaign.clicked }}</td>
+                        <td class="font-medium text-gray-700">{{ campaign.replied }}</td>
+                        <td class="font-medium text-gray-700">{{ campaign.opportunities }}</td>
+                        <td>
+                            <div class="flex items-center gap-0">
+                                <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); editCampaign({{ campaign.id }})" title="Edit">
+                                    <i class="fa-solid fa-edit"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-sm text-red-500" onclick="event.stopPropagation(); confirmDeleteCampaign({{ campaign.id }})" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr id="no-campaigns-row">
+                        <td colspan="8" class="text-center py-16">
+                            <div class="flex flex-col items-center justify-center">
+                                <!-- SVG Illustration -->
+                                <div class="mb-6 opacity-90">
+                                    <img src="https://raw.githubusercontent.com/Othunderlight/static/refs/heads/main/no-campaign-lead.svg"
+                                         alt="No campaigns illustration"
+                                         class="w-64 h-auto mx-auto">
+                                </div>
+                                <!-- Message -->
+                                <div class="text-center">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                                        👋 Create your first campaign
+                                    </h3>
+                                    <p class="text-gray-500 mb-6">
+                                        Get started by creating a new outreach campaign
+                                    </p>
+                                    <button class="btn btn-primary" onclick="addNewCampaign()">
+                                        <i class="fa-solid fa-plus mr-2"></i>
+                                        New Campaign
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -114,133 +148,58 @@
 </div>
 
 <script>
-// Sample campaign data
-const campaignsData = [
-    {
-        id: 1,
-        name: 'Q3 Tech Outreach',
-        product: 'SaaS Platform',
-        status: 'active',
-        leads: 500,
-        sent: 450,
-        clicked: 90,
-        replied: 25,
-        opportunities: 5
-    },
-    {
-        id: 2,
-        name: 'Summer Sale Promo',
-        product: 'E-commerce Goods',
-        status: 'completed',
-        leads: 2000,
-        sent: 1980,
-        clicked: 450,
-        replied: 120,
-        opportunities: 40
-    },
-    {
-        id: 3,
-        name: 'New Feature Launch',
-        product: 'Mobile App',
-        status: 'paused',
-        leads: 100,
-        sent: 50,
-        clicked: 10,
-        replied: 1,
-        opportunities: 0
-    },
-    {
-        id: 4,
-        name: 'MENA Expansion',
-        product: 'Enterprise Software',
-        status: 'draft',
-        leads: 0,
-        sent: 0,
-        clicked: 0,
-        replied: 0,
-        opportunities: 0
-    }
-];
-
-function renderCampaigns(filteredData) {
-    const tableBody = document.getElementById('campaigns-table-body');
-    const campaignsToRender = filteredData || campaignsData;
-    tableBody.innerHTML = ''; // Clear existing rows
-
-    if (campaignsToRender.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-16"><p class="text-lg font-semibold text-gray-700">No campaigns found</p><p class="text-gray-500">Try adjusting your search or filter criteria.</p></td></tr>';
-    } else {
-        campaignsToRender.forEach(campaign => {
-            const progress = campaign.leads > 0 ? Math.round((campaign.sent / campaign.leads) * 100) : 0;
-            const statusBadges = {
-                active: '<span class="badge badge-success text-white font-medium py-2">Active</span>',
-                paused: '<span class="badge badge-warning text-white font-medium py-2">Paused</span>',
-                draft: '<span class="badge badge-neutral text-white font-medium py-2">Draft</span>',
-                completed: '<span class="badge badge-info text-white font-medium py-2">Completed</span>'
-            };
-
-            const row = `
-                <tr class="hover:bg-gray-50 cursor-pointer" onclick="viewCampaign(${campaign.id})">
-                    <td class="pl-6">
-                        <div class="font-bold text-gray-800">${campaign.name}</div>
-                        <div class="text-sm text-gray-500">${campaign.product}</div>
-                    </td>
-                    <td>${statusBadges[campaign.status] || campaign.status}</td>
-                    <td>
-                        <div class="flex items-center gap-2">
-                            <progress class="progress progress-primary w-20" value="${progress}" max="100"></progress>
-                            <span class="text-sm font-medium text-gray-600">${progress}%</span>
-                        </div>
-                    </td>
-                    <td class="font-medium text-gray-700">${campaign.sent}</td>
-                    <td class="font-medium text-gray-700">${campaign.clicked}</td>
-                    <td class="font-medium text-gray-700">${campaign.replied}</td>
-                    <td class="font-medium text-gray-700">${campaign.opportunities}</td>
-                    <td>
-                        <div class="flex items-center gap-0">
-                            <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); editCampaign(${campaign.id})" title="Edit">
-                                <i class="fa-solid fa-edit"></i>
-                            </button>
-                            <button class="btn btn-ghost btn-sm text-red-500" onclick="event.stopPropagation(); confirmDeleteCampaign(${campaign.id})" title="Delete">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-            tableBody.innerHTML += row;
-        });
-    }
-    document.getElementById('campaign-count').textContent = `${campaignsToRender.length} campaigns`;
-}
-
+// Campaign filtering functionality
 function filterCampaigns() {
     const searchTerm = document.getElementById('search-campaigns').value.toLowerCase();
-    const statusFilter = document.getElementById('filter-status').value;
+    const statusFilter = document.getElementById('filter-status').value.toLowerCase();
+    
+    const rows = document.querySelectorAll('.campaign-row');
+    let visibleCount = 0;
 
-    const filtered = campaignsData.filter(campaign => {
-        const matchesSearch = !searchTerm || campaign.name.toLowerCase().includes(searchTerm) || campaign.product.toLowerCase().includes(searchTerm);
-        const matchesStatus = !statusFilter || campaign.status === statusFilter;
-        return matchesSearch && matchesStatus;
+    rows.forEach(row => {
+        const campaignText = row.textContent.toLowerCase();
+        const status = row.getAttribute('data-status').toLowerCase();
+        
+        const matchesSearch = searchTerm === '' || campaignText.includes(searchTerm);
+        const matchesStatus = statusFilter === '' || status === statusFilter;
+
+        if (matchesSearch && matchesStatus) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
     });
 
-    renderCampaigns(filtered);
+    // Update empty state
+    const noCampaignsRow = document.getElementById('no-campaigns-row');
+    if (visibleCount === 0 && rows.length > 0) {
+        if (noCampaignsRow) noCampaignsRow.style.display = '';
+    } else {
+        if (noCampaignsRow) noCampaignsRow.style.display = 'none';
+    }
+
+    // Update counter
+    document.getElementById('campaign-count').textContent = `${visibleCount} campaigns`;
 }
 
+function clearCampaignFilters() {
+    document.getElementById('search-campaigns').value = '';
+    document.getElementById('filter-status').value = '';
+    filterCampaigns();
+}
+
+// Action functions
 function viewCampaign(id) {
-    // In a real Django app, this would be:
-    // Using a placeholder for now:
-    window.location.href = `/campaign/dashboard/1/`;
+    window.location.href = `/campaign/dashboard/${id}`;
 }
 
 function addNewCampaign() {
-    ModalSystem.toast('Redirecting to create new campaign page...', 'info');
-    // In a real app: window.location.href = '/campaigns/create/';
+    window.location.href = '/campaigns/new/';
 }
 
 function editCampaign(id) {
-    ModalSystem.toast(`Opening settings for campaign ${id}...`, 'info');
-    // In a real app: window.location.href = `/campaigns/${id}/edit/`;
+    window.location.href = `/campaigns/${id}/edit/`;
 }
 
 function confirmDeleteCampaign(id) {
@@ -249,20 +208,55 @@ function confirmDeleteCampaign(id) {
         message: 'Are you sure you want to delete this campaign? All associated data will be lost.',
         confirmText: 'Delete',
         confirmClass: 'btn-error',
-        action: () => {
-            const index = campaignsData.findIndex(c => c.id === id);
-            if (index > -1) {
-                campaignsData.splice(index, 1);
-                filterCampaigns();
-                ModalSystem.toast(`Campaign ${id} has been deleted.`, 'success');
-            }
+        action: function() {
+            // Find and remove the row
+            const row = document.querySelector(`tr[onclick="viewCampaign(${id})"]`);
+            if (row) row.remove();
+            
+            // Update counts
+            filterCampaigns();
+            
+            // Show success message
+            ModalSystem.toast('Campaign deleted successfully!');
+            
+            // Optional: Send delete request to server
+            fetch(`/campaigns/${id}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                }
+            });
         }
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    renderCampaigns();
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners for filters
+    document.getElementById('search-campaigns').addEventListener('input', filterCampaigns);
+    document.getElementById('filter-status').addEventListener('change', filterCampaigns);
+    
+    // Hide empty state if we have campaigns
+    const noCampaignsRow = document.getElementById('no-campaigns-row');
+    if (noCampaignsRow && document.querySelectorAll('.campaign-row').length > 0) {
+        noCampaignsRow.style.display = 'none';
+    }
 });
 </script>
 {% endblock %}
-          
