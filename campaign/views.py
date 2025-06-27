@@ -576,7 +576,21 @@ def products_edit_view(request, pk):
 
 def email_accounts_view(request):
     """Email accounts management page"""
-    return render(request, "app/email-accounts.html")
+
+    sampleAccounts = [
+        {
+            'id': 1,
+            'email': "fdudromo@gmail.com",
+            'connection_type': "IMAP/SMTP",
+            'emails_sent': 1,
+            'daily_limit': 30,
+            'status': "connected"
+        }
+    ]
+    context = {
+        'emails': sampleAccounts
+    }
+    return render(request, "app/email-accounts.html", context)
 
 
 def messages_view(request):

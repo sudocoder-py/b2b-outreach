@@ -12,7 +12,7 @@
                 <p class="text-gray-600">Connect and manage your email accounts for campaigns</p>
             </div>
             <div class="flex gap-2">
-                <select class="select select-bordered bg-white" id="status-filter" onchange="filterAccounts()">
+                <select class="select select-bordered bg-white" id="status-filter">
                     <option value="">All statuses</option>
                     <option value="connected">Connected</option>
                     <option value="error">Error</option>
@@ -33,12 +33,12 @@
                 <input type="text"
                        placeholder="Search..."
                        class="input input-bordered w-full bg-white pl-10"
-                       id="search-accounts"
-                       oninput="filterAccounts()">
+                       id="search-accounts">
                 <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
             </div>
+            <button onclick="clearAccountFilters()" class="btn btn-ghost">Clear</button>
             <div class="text-sm text-gray-500">
-                <span id="account-count">1 account</span>
+                <span id="account-count">{{ emails|length }} accounts</span>
             </div>
         </div>
     </div>
@@ -49,74 +49,88 @@
             <table class="table w-full">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="text-left font-semibold text-gray-900">
-                            <input type="checkbox" class="checkbox" id="select-all" onchange="toggleSelectAll()">
-                        </th>
                         <th class="text-left font-semibold text-gray-900">EMAIL</th>
                         <th class="text-left font-semibold text-gray-900">EMAILS SENT</th>
-                        <th class="text-left font-semibold text-gray-900">WARMUP EMAILS</th>
-                        <th class="text-left font-semibold text-gray-900">HEALTH SCORE</th>
+                        <th class="text-left font-semibold text-gray-900">STATUS</th>
                         <th class="text-left font-semibold text-gray-900">ACTIONS</th>
                     </tr>
                 </thead>
                 <tbody id="accounts-table-body">
-                    <!-- Sample Email Account Row -->
-                    <tr class="hover:bg-gray-50" data-account="1">
-                        <td>
-                            <input type="checkbox" class="checkbox account-checkbox" data-account="1">
-                        </td>
+                    {% for email in emails %}
+                    <tr class="hover:bg-gray-50 account-row" 
+                        data-status="{{ email.status|lower }}"
+                        data-email="{{ email.email|lower }}"
+                        data-connection="{{ email.connection_type|lower }}">
                         <td>
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                                     <i class="fa-solid fa-envelope text-blue-600 text-sm"></i>
                                 </div>
                                 <div>
-                                    <div class="font-medium text-gray-900">fdudromo@gmail.com</div>
-                                    <div class="text-sm text-gray-500">Connected via IMAP/SMTP</div>
+                                    <div class="font-medium text-gray-900">{{ email.email }}</div>
+                                    <div class="text-sm text-gray-500">Connected via {{ email.connection_type }}</div>
                                 </div>
                             </div>
                         </td>
                         <td>
                             <div class="text-sm">
-                                <div class="font-medium text-gray-900">1 of 30</div>
+                                <div class="font-medium text-gray-900">{{ email.emails_sent }} of {{ email.daily_limit }}</div>
                                 <div class="text-gray-500">Daily limit</div>
                             </div>
-                        </td>
+                        </td>      
                         <td>
                             <div class="text-sm">
-                                <div class="font-medium text-gray-900">0</div>
-                                <div class="text-gray-500">This week</div>
+                                {% if email.status == "connected" %}
+                                    <span class="badge badge-success text-gray-100">{{ email.status }}</span>
+                                {% elif email.status == "error" %}
+                                    <span class="badge badge-error text-gray-100">{{ email.status }}</span>
+                                {% else %}
+                                    <span class="badge badge-warning text-gray-100">{{ email.status }}</span>
+                                {% endif %}
                             </div>
-                        </td>
+                        </td>             
                         <td>
                             <div class="flex items-center gap-2">
-                                <div class="w-16 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-red-500 h-2 rounded-full" style="width: 0%"></div>
-                                </div>
-                                <span class="text-sm font-medium text-red-600">0%</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <button class="btn btn-ghost btn-xs" onclick="editAccount(1)" title="Edit">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); editAccount('{{ email.id }}')" title="Edit">
                                     <i class="fa-solid fa-edit"></i>
                                 </button>
-                                <button class="btn btn-ghost btn-xs" onclick="testConnection(1)" title="Test Connection">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); testConnection('{{ email.id }}')" title="Test Connection">
                                     <i class="fa-solid fa-plug"></i>
                                 </button>
-                                <button class="btn btn-ghost btn-xs text-red-500" onclick="confirmDeleteAccount(1)" title="Delete">
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteAccount('{{ email.id }}')" title="Delete">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>
+                    {% empty %}
+                    <tr id="no-accounts-row">
+                        <td colspan="4" class="text-center py-16">
+                            <div class="flex flex-col items-center justify-center">
+                                <img src="https://raw.githubusercontent.com/Othunderlight/static/refs/heads/main/no-accounts.svg"
+                                     alt="No accounts illustration"
+                                     class="w-64 h-auto mx-auto">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2 mt-4">
+                                    👋 Connect your first email account
+                                </h3>
+                                <p class="text-gray-500 mb-6">
+                                    Get started by connecting an email account for your campaigns
+                                </p>
+                                <button class="btn btn-primary" onclick="showAddAccountModal()">
+                                    <i class="fa-solid fa-plus mr-2"></i>
+                                    Add Email Account
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- Add Account Modal -->
+<!-- Add Account Modal (EXACTLY AS BEFORE) -->
 <div class="modal" id="add-account-modal">
     <div class="modal-box max-w-md">
         <h3 class="font-bold text-lg mb-4">Connect existing accounts</h3>
@@ -126,10 +140,10 @@
                 <i class="fa-solid fa-check text-green-500"></i>
                 <span>Connect any IMAP or SMTP email provider</span>
             </div>
-            <div class="flex items-center gap-3 text-sm text-gray-600">
+            <!-- <div class="flex items-center gap-3 text-sm text-gray-600">
                 <i class="fa-solid fa-check text-green-500"></i>
                 <span>Sync up replies in the Unibox</span>
-            </div>
+            </div> -->
         </div>
 
         <div class="space-y-3">
@@ -176,7 +190,7 @@
     </div>
 </div>
 
-<!-- Step 1: Basic Info Modal -->
+<!-- Step 1: Basic Info Modal (EXACTLY AS BEFORE) -->
 <div class="modal" id="basic-info-modal">
     <div class="modal-box max-w-md">
         <div class="flex items-center gap-2 mb-4">
@@ -227,7 +241,7 @@
     </div>
 </div>
 
-<!-- Step 2: IMAP Settings Modal -->
+<!-- Step 2: IMAP Settings Modal (EXACTLY AS BEFORE) -->
 <div class="modal" id="imap-settings-modal">
     <div class="modal-box max-w-md">
         <div class="flex items-center gap-2 mb-4">
@@ -288,7 +302,7 @@
     </div>
 </div>
 
-<!-- Loading Modal -->
+<!-- Loading Modal (EXACTLY AS BEFORE) -->
 <div class="modal" id="loading-modal">
     <div class="modal-box max-w-sm text-center">
         <div class="mb-6">
@@ -299,7 +313,7 @@
     </div>
 </div>
 
-<!-- Success Modal -->
+<!-- Success Modal (EXACTLY AS BEFORE) -->
 <div class="modal" id="success-modal">
     <div class="modal-box max-w-sm text-center">
         <div class="mb-6">
@@ -318,199 +332,14 @@
     </div>
 </div>
 
-{% block scripts %}
 <script>
-    // Ensure ModalSystem is defined, providing a fallback if it's not.
-    // This prevents errors if the global ModalSystem script isn't loaded correctly.
-    if (typeof ModalSystem === 'undefined') {
-        console.warn("ModalSystem is not defined. Using fallback alert/confirm for actions. Please ensure ModalSystem is loaded before this script.");
-        window.ModalSystem = {
-            confirm: function({ title, message, confirmText, confirmClass, action, customContent }) {
-                let fullMessage = title + "\n\n" + message;
-                if (customContent) {
-                    fullMessage += "\n\n(Note: Custom content is not supported in this fallback modal.)";
-                }
-                // Use native browser confirm as a fallback
-                if (window.confirm(fullMessage)) {
-                    if (action && typeof action === 'function') {
-                        action();
-                    }
-                }
-            },
-            toast: function(message, type = 'success') {
-                // Use native browser alert as a fallback for toast
-                alert(`[${type.toUpperCase()}] ${message}`);
-            }
-        };
-    }
 
-    // Sample Data
-    const sampleAccounts = [
-        {
-            id: 1,
-            email: "fdudromo@gmail.com",
-            connectionType: "IMAP/SMTP",
-            emailsSent: 1,
-            dailyLimit: 30,
-            warmupEmails: 0,
-            healthScore: 0,
-            status: "connected"
-        },
-        {
-            id: 2,
-            email: "test.user@example.com",
-            connectionType: "Google",
-            emailsSent: 15,
-            dailyLimit: 50,
-            warmupEmails: 5,
-            healthScore: 75,
-            status: "connected"
-        },
-        {
-            id: 3,
-            email: "another.one@domain.com",
-            connectionType: "Microsoft",
-            emailsSent: 0,
-            dailyLimit: 25,
-            warmupEmails: 0,
-            healthScore: 20,
-            status: "error"
-        },
-        {
-            id: 4,
-            email: "pending.account@web.de",
-            connectionType: "IMAP/SMTP",
-            emailsSent: 0,
-            dailyLimit: 40,
-            warmupEmails: 0,
-            healthScore: 0,
-            status: "pending"
-        }
-    ];
+// Modal fun
+function showModal(id) {
+    const modal = document.getElementById(id);
+    modal.style.display = 'block';
 
-    let currentAccounts = [...sampleAccounts];
-
-    // DOM Elements
-    const accountsTableBody = document.getElementById('accounts-table-body');
-    const accountCount = document.getElementById('account-count');
-    const searchInput = document.getElementById('search-accounts');
-    const statusFilter = document.getElementById('status-filter');
-    const selectAllCheckbox = document.getElementById('select-all');
-
-    // Modals
-    const addAccountModal = document.getElementById('add-account-modal');
-    const basicInfoModal = document.getElementById('basic-info-modal');
-    const imapSettingsModal = document.getElementById('imap-settings-modal');
-    const loadingModal = document.getElementById('loading-modal');
-    const successModal = document.getElementById('success-modal');
-
-    // Render Functions
-    const renderAccounts = () => {
-        accountsTableBody.innerHTML = '';
-        if (currentAccounts.length === 0) {
-            accountsTableBody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500">No accounts found.</td></tr>';
-        } else {
-            currentAccounts.forEach(account => {
-                const healthColor = account.healthScore > 70 ? 'green' : account.healthScore > 40 ? 'yellow' : 'red';
-                const row = `
-                    <tr class="hover:bg-gray-50" data-account="${account.id}" data-status="${account.status}">
-                        <td>
-                            <input type="checkbox" class="checkbox account-checkbox" data-account="${account.id}">
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <i class="fa-solid fa-envelope text-blue-600 text-sm"></i>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-gray-900">${account.email}</div>
-                                    <div class="text-sm text-gray-500">Connected via ${account.connectionType}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="text-sm">
-                                <div class="font-medium text-gray-900">${account.emailsSent} of ${account.dailyLimit}</div>
-                                <div class="text-gray-500">Daily limit</div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="text-sm">
-                                <div class="font-medium text-gray-900">${account.warmupEmails}</div>
-                                <div class="text-gray-500">This week</div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <div class="w-16 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-${healthColor}-500 h-2 rounded-full" style="width: ${account.healthScore}%"></div>
-                                </div>
-                                <span class="text-sm font-medium text-${healthColor}-600">${account.healthScore}%</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <button class="btn btn-ghost btn-xs" onclick="editAccount(${account.id})" title="Edit">
-                                    <i class="fa-solid fa-edit"></i>
-                                </button>
-                                <button class="btn btn-ghost btn-xs" onclick="testConnection(${account.id})" title="Test Connection">
-                                    <i class="fa-solid fa-plug"></i>
-                                </button>
-                                <button class="btn btn-ghost btn-xs text-red-500" onclick="confirmDeleteAccount(${account.id})" title="Delete">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                accountsTableBody.innerHTML += row;
-            });
-        }
-        updateAccountCount();
-        attachCheckboxListeners();
-    };
-
-    const updateAccountCount = () => {
-        const count = currentAccounts.length;
-        accountCount.textContent = `${count} account${count !== 1 ? 's' : ''}`;
-    };
-
-    // Event Handlers & Logic
-    const filterAccounts = () => {
-        const searchTerm = searchInput.value.toLowerCase();
-        const statusValue = statusFilter.value;
-
-        currentAccounts = sampleAccounts.filter(acc => {
-            const matchesSearch = acc.email.toLowerCase().includes(searchTerm);
-            const matchesStatus = statusValue ? acc.status === statusValue : true;
-            return matchesSearch && matchesStatus;
-        });
-
-        renderAccounts();
-    };
-
-    const toggleSelectAll = () => {
-        const checkboxes = document.querySelectorAll('.account-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = selectAllCheckbox.checked;
-        });
-    };
-
-    const attachCheckboxListeners = () => {
-        const checkboxes = document.querySelectorAll('.account-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                if (!checkbox.checked) {
-                    selectAllCheckbox.checked = false;
-                } else {
-                    const allChecked = [...document.querySelectorAll('.account-checkbox')].every(c => c.checked);
-                    selectAllCheckbox.checked = allChecked;
-                }
-            });
-        });
-    };
-
-    // Modal Management
+        // Modal Management
     const showModal = (modal) => modal.classList.add('modal-open');
     const closeModal = (modal) => modal.classList.remove('modal-open');
 
@@ -562,64 +391,150 @@
         closeModal(successModal);
         // Here you would typically add the new account to the list and re-render
     };
+}
 
-    // Dummy functions for row actions
-    const editAccount = (id) => {
-        ModalSystem.confirm({
-            title: 'Edit Account',
-            message: `You are about to edit the settings for account ${id}. Do you want to proceed?`,
-            confirmText: 'Edit',
-            action: () => {
-                ModalSystem.toast(`Opening settings for account ${id}...`);
-                // In a real app, you would redirect to an edit page:
-                // window.location.href = `/accounts/${id}/edit`;
-            }
-        });
-    };
-
-    const testConnection = (id) => {
-        ModalSystem.confirm({
-            title: 'Test Connection',
-            message: `This will test the IMAP and SMTP connection for account ${id}.`,
-            confirmText: 'Test',
-            action: () => {
-                ModalSystem.toast(`Testing connection for account ${id}...`, 'info');
-                // Here you would trigger the backend test
-            }
-        });
-    };
-
-    const confirmDeleteAccount = (id) => {
-        ModalSystem.confirm({
-            title: 'Delete Account',
-            message: `Are you sure you want to delete account ${id}? This action cannot be undone.`,
-            confirmText: 'Delete',
-            confirmClass: 'btn-error',
-            action: () => {
-                const index = sampleAccounts.findIndex(acc => acc.id === id);
-                if (index > -1) {
-                    sampleAccounts.splice(index, 1);
-                    filterAccounts(); // Re-filter and re-render
-                    ModalSystem.toast(`Account ${id} has been deleted.`, 'success');
-                } else {
-                    ModalSystem.toast(`Could not find account ${id}.`, 'error');
-                }
-            }
-        });
-    };
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    modal.style.display = 'none';
+}   
 
 
-    // Initial Render
-    document.addEventListener('DOMContentLoaded', () => {
-        // Remove hardcoded row
-        const sampleRow = document.querySelector('[data-account="1"]');
-        if(sampleRow) {
-            sampleRow.remove();
+
+// Account filtering functionality
+function filterAccounts() {
+    const searchTerm = document.getElementById('search-accounts').value.toLowerCase();
+    const statusFilter = document.getElementById('status-filter').value.toLowerCase();
+    
+    const rows = document.querySelectorAll('.account-row');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const accountText = row.textContent.toLowerCase();
+        const email = row.getAttribute('data-email').toLowerCase();
+        const status = row.getAttribute('data-status').toLowerCase();
+        const connection = row.getAttribute('data-connection').toLowerCase();
+        
+        const matchesSearch = searchTerm === '' || 
+                            accountText.includes(searchTerm) || 
+                            email.includes(searchTerm) ||
+                            connection.includes(searchTerm);
+        const matchesStatus = statusFilter === '' || status === statusFilter;
+
+        if (matchesSearch && matchesStatus) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
         }
-        renderAccounts();
     });
 
-</script>
-{% endblock %}
+    // Update empty state
+    const noAccountsRow = document.getElementById('no-accounts-row');
+    if (visibleCount === 0 && rows.length > 0) {
+        if (noAccountsRow) noAccountsRow.style.display = '';
+    } else {
+        if (noAccountsRow) noAccountsRow.style.display = 'none';
+    }
 
+    // Update counter
+    document.getElementById('account-count').textContent = `${visibleCount} account${visibleCount !== 1 ? 's' : ''}`;
+
+}
+
+function clearAccountFilters() {
+    document.getElementById('search-accounts').value = '';
+    document.getElementById('status-filter').value = '';
+    filterAccounts();
+}
+
+// Action functions (only for table actions, not modal actions)
+function editAccount(id) {
+    ModalSystem.confirm({
+        title: 'Edit Account',
+        message: `You are about to edit the settings for account ${id}. Do you want to proceed?`,
+        confirmText: 'Edit',
+        action: () => {
+            ModalSystem.toast(`Opening settings for account ${id}...`);
+            // In a real app, you would redirect to an edit page:
+            // window.location.href = `/accounts/${id}/edit`;
+        }
+    });
+}
+
+function testConnection(id) {
+    ModalSystem.confirm({
+        title: 'Test Connection',
+        message: `This will test the IMAP and SMTP connection for account ${id}.`,
+        confirmText: 'Test',
+        action: () => {
+            ModalSystem.toast(`Testing connection for account ${id}...`, 'info');
+            // Here you would trigger the backend test
+        }
+    });
+}
+
+function confirmDeleteAccount(id) {
+    ModalSystem.confirm({
+        title: 'Delete Account',
+        message: `Are you sure you want to delete account ${id}? This action cannot be undone.`,
+        confirmText: 'Delete',
+        confirmClass: 'btn-error',
+        action: () => {
+            fetch(`/accounts/${id}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove the row from the table
+                    const row = document.querySelector(`tr[data-id="${id}"]`);
+                    if (row) row.remove();
+                    
+                    // Update counts
+                    filterAccounts();
+                    
+                    ModalSystem.toast('Account deleted successfully!', 'success');
+                } else {
+                    ModalSystem.toast('Error deleting account', 'error');
+                }
+            })
+            .catch(error => {
+                ModalSystem.toast('Error deleting account', 'error');
+            });
+        }
+    });
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners for filters
+    document.getElementById('search-accounts').addEventListener('input', filterAccounts);
+    document.getElementById('status-filter').addEventListener('change', filterAccounts);
+    
+    // Hide empty state if we have accounts
+    const noAccountsRow = document.getElementById('no-accounts-row');
+    if (noAccountsRow && document.querySelectorAll('.account-row').length > 0) {
+        noAccountsRow.style.display = 'none';
+    }
+});
+</script>
 {% endblock %}
