@@ -3,7 +3,7 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 
-from clients.models import Product
+from campaign.helpers import get_company_products
 from .models import Link, Message
 import logging
 
@@ -566,7 +566,14 @@ def campaign_options(request, pk):
 # New navigation views
 def products_view(request):
     """Products management page"""
-    return render(request, "app/products.html")
+
+    subscribed_company= request.user.subscribed_company
+    products = get_company_products(subscribed_company)
+    
+    context = {
+        'products': products
+    }
+    return render(request, "app/products.html", context)
 
 
 def products_edit_view(request, pk):
@@ -596,7 +603,7 @@ def email_accounts_view(request):
 def messages_view(request):
     """Messages management page"""
     subscribed_company= request.user.subscribed_company
-    products = Product.objects.filter(subscribed_company=subscribed_company)
+    products = get_company_products(subscribed_company)
     messages = Message.objects.filter(product__in=products)
 
     context = {
