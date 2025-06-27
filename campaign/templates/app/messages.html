@@ -24,7 +24,7 @@
         </div>
     </div>
 
-    <!-- Performance Stats -->
+     <!-- Performance Stats -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <!-- Best Performing Subject Line -->
         <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
@@ -83,6 +83,7 @@
         </div>
     </div>
 
+
     <!-- Filters and Search -->
     <div class="mb-6 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
         <div class="flex flex-wrap gap-4 items-center">
@@ -90,27 +91,24 @@
                 <input type="text"
                        placeholder="Search messages by subject, content..."
                        class="input input-bordered w-full bg-white"
-                       id="search-messages"
-                       oninput="filterMessages()">
+                       id="search-messages">
             </div>
-            <select class="select select-bordered bg-white" id="filter-product" onchange="filterMessages()">
+            <button onclick="clearMessageFilters()" class="btn btn-ghost">Clear</button>
+            <select class="select select-bordered bg-white" id="filter-product">
                 <option value="">All Products</option>
-                <option value="crm-pro">CRM Pro</option>
-                <option value="analytics-suite">Analytics Suite</option>
-                <option value="marketing-tools">Marketing Tools</option>
-                <option value="sales-automation">Sales Automation</option>
-                <option value="general">General</option>
+                {% for product in products %}
+                <option value="{{ product.name|lower }}">{{ product.name }}</option>
+                {% endfor %}
             </select>
-            <select class="select select-bordered bg-white" id="filter-type" onchange="filterMessages()">
-                <option value="">All Types</option>
-                <option value="welcome">Welcome</option>
-                <option value="follow-up">Follow-up</option>
-                <option value="promotional">Promotional</option>
-                <option value="newsletter">Newsletter</option>
-                <option value="reminder">Reminder</option>
+            <select class="select select-bordered bg-white" id="filter-sort">
+                <option value="">Sort By</option>
+                <option value="name">Name</option>
+                <option value="performance">Performance</option>
+                <option value="open-rate">Open Rate</option>
+                <option value="click-rate">Click Rate</option>
             </select>
             <div class="text-sm text-gray-500">
-                <span id="message-count">8 messages</span>
+                <span id="message-count">{{ messages|length }} messages</span>
             </div>
         </div>
     </div>
@@ -123,33 +121,67 @@
                     <tr>
                         <th class="text-left font-semibold text-gray-900">Subject</th>
                         <th class="text-left font-semibold text-gray-900">Product</th>
-                        <th class="text-left font-semibold text-gray-900">Type</th>
                         <th class="text-left font-semibold text-gray-900">Performance</th>
                         <th class="text-left font-semibold text-gray-900">Open Rate</th>
                         <th class="text-left font-semibold text-gray-900">Click Rate</th>
-                        <th class="text-left font-semibold text-gray-900">Updated</th>
                         <th class="text-left font-semibold text-gray-900">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="messages-table-body">
-                    <!-- Message Row 1 -->
-                    <tr class="hover:bg-gray-50 cursor-pointer" data-message="1" onclick="editMessage(1)">
+                    {% for message in messages %}
+                    <tr class="hover:bg-gray-50 cursor-pointer message-row" 
+                        onclick="editMessage({{ message.id }})"
+                        data-product="{{ message.product|lower }}"
+                        data-performance="{{ message.performance }}"
+                        data-open-rate="{{ message.open_rate }}"
+                        data-click-rate="{{ message.click_rate }}"
+                        data-name="{{ message.subject|lower }}">
                         <td>
                             <div class="flex items-center gap-3">
-                                <div class="w-2 h-2 bg-green-500 rounded-full" title="High performing"></div>
+                                <div class="w-2 h-2 
+                                    {% if message.performance >= 70 %}bg-green-500
+                                    {% elif message.performance >= 40 %}bg-yellow-500
+                                    {% else %}bg-red-500{% endif %} 
+                                    rounded-full" 
+                                    title="{% if message.performance >= 70 %}High performing
+                                    {% elif message.performance >= 40 %}Medium performing
+                                    {% else %}Low performing{% endif %}">
+                                </div>
                                 <div>
-                                    <div class="font-medium text-gray-900">Welcome to CRM Pro - Get Started!</div>
-                                    <div class="text-sm text-gray-500">Welcome email for new CRM Pro users</div>
+                                    <div class="font-medium text-gray-900">{{ message.subject }}</div>
+                                    <div class="text-sm text-gray-500">{{ message.intro|truncatechars:40 }}</div>
                                 </div>
                             </div>
                         </td>
                         <td>
-                            <span class="badge badge-primary badge-sm">CRM Pro</span>
+                            <span class="badge badge-ghost badge-sm">{{ message.product }}</span>
+                        </td>
+                        <!-- <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-16 bg-gray-200 rounded-full h-2">
+                                    <div class="
+                                        {% if message.performance >= 70 %}bg-green-500
+                                        {% elif message.performance >= 40 %}bg-yellow-500
+                                        {% else %}bg-red-500{% endif %}
+                                        h-2 rounded-full" 
+                                        style="width: {{ message.performance }}%">
+                                    </div>
+                                </div>
+                                <span class="text-sm font-medium 
+                                    {% if message.performance >= 70 %}text-green-600
+                                    {% elif message.performance >= 40 %}text-yellow-600
+                                    {% else %}text-red-600{% endif %}">
+                                    {{ message.performance }}%
+                                </span>
+                            </div>
                         </td>
                         <td>
-                            <span class="badge badge-ghost badge-sm">Welcome</span>
+                            <span class="text-sm font-medium text-gray-900">{{ message.open_rate }}%</span>
                         </td>
                         <td>
+                            <span class="text-sm font-medium text-gray-900">{{ message.click_rate }}%</span>
+                        </td> -->
+                         <td>
                             <div class="flex items-center gap-2">
                                 <div class="w-16 bg-gray-200 rounded-full h-2">
                                     <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
@@ -164,218 +196,40 @@
                             <span class="text-sm font-medium text-gray-900">18.7%</span>
                         </td>
                         <td>
-                            <span class="text-sm text-gray-500">2 days ago</span>
-                        </td>
-                        <td>
                             <div class="flex items-center gap-2">
-                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(1)" title="Duplicate">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage({{ message.id }})" title="Duplicate">
                                     <i class="fa-solid fa-copy"></i>
                                 </button>
-                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); previewMessage(1)" title="Preview">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); previewMessage({{ message.id }})" title="Preview">
                                     <i class="fa-regular fa-eye"></i>
                                 </button>
-                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(1)" title="Delete">
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage({{ message.id }})" title="Delete">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>
-
-                    <!-- Message Row 2 -->
-                    <tr class="hover:bg-gray-50 cursor-pointer" data-message="2" onclick="editMessage(2)">
-                        <td>
-                            <div class="flex items-center gap-3">
-                                <div class="w-2 h-2 bg-yellow-500 rounded-full" title="Medium performing"></div>
-                                <div>
-                                    <div class="font-medium text-gray-900">Your Analytics Dashboard is Ready</div>
-                                    <div class="text-sm text-gray-500">Follow-up for Analytics Suite setup</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="badge badge-secondary badge-sm">Analytics Suite</span>
-                        </td>
-                        <td>
-                            <span class="badge badge-ghost badge-sm">Follow-up</span>
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <div class="w-16 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 65%"></div>
-                                </div>
-                                <span class="text-sm font-medium text-yellow-600">65%</span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="text-sm font-medium text-gray-900">28.1%</span>
-                        </td>
-                        <td>
-                            <span class="text-sm font-medium text-gray-900">12.4%</span>
-                        </td>
-                        <td>
-                            <span class="text-sm text-gray-500">1 week ago</span>
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(2)" title="Duplicate">
-                                    <i class="fa-solid fa-copy"></i>
-                                </button>
-                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); previewMessage(2)" title="Preview">
-                                    <i class="fa-regular fa-eye"></i>
-                                </button>
-                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(2)" title="Delete">
-                                    <i class="fa-solid fa-trash"></i>
+                    {% empty %}
+                    <tr id="no-messages-row">
+                        <td colspan="6" class="text-center py-16">
+                            <div class="flex flex-col items-center justify-center">
+                                <img src="https://raw.githubusercontent.com/Othunderlight/static/refs/heads/main/no-messages.svg"
+                                     alt="No messages illustration"
+                                     class="w-64 h-auto mx-auto">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2 mt-4">
+                                    👋 Create your first message
+                                </h3>
+                                <p class="text-gray-500 mb-6">
+                                    Get started by creating a new email message template
+                                </p>
+                                <button class="btn btn-primary" onclick="addNewMessage()">
+                                    <i class="fa-solid fa-plus mr-2"></i>
+                                    New Message
                                 </button>
                             </div>
                         </td>
                     </tr>
-
-                    <!-- Message Row 3 -->
-                    <tr class="hover:bg-gray-50 cursor-pointer" data-message="3" onclick="editMessage(3)">
-                        <td>
-                            <div class="flex items-center gap-3">
-                                <div class="w-2 h-2 bg-red-500 rounded-full" title="Low performing"></div>
-                                <div>
-                                    <div class="font-medium text-gray-900">Boost Your Marketing ROI Today</div>
-                                    <div class="text-sm text-gray-500">Promotional email for Marketing Tools</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="badge badge-accent badge-sm">Marketing Tools</span>
-                        </td>
-                        <td>
-                            <span class="badge badge-ghost badge-sm">Promotional</span>
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <div class="w-16 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-red-500 h-2 rounded-full" style="width: 35%"></div>
-                                </div>
-                                <span class="text-sm font-medium text-red-600">35%</span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="text-sm font-medium text-gray-900">15.2%</span>
-                        </td>
-                        <td>
-                            <span class="text-sm font-medium text-gray-900">6.8%</span>
-                        </td>
-                        <td>
-                            <span class="text-sm text-gray-500">3 days ago</span>
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(3)" title="Duplicate">
-                                    <i class="fa-solid fa-copy"></i>
-                                </button>
-                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); previewMessage(3)" title="Preview">
-                                    <i class="fa-regular fa-eye"></i>
-                                </button>
-                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(3)" title="Delete">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Message Row 4 -->
-                    <tr class="hover:bg-gray-50 cursor-pointer" data-message="4" onclick="editMessage(4)">
-                        <td>
-                            <div class="flex items-center gap-3">
-                                <div class="w-2 h-2 bg-green-500 rounded-full" title="High performing"></div>
-                                <div>
-                                    <div class="font-medium text-gray-900">Don't Miss Out - Limited Time Offer!</div>
-                                    <div class="text-sm text-gray-500">Urgency-driven promotional email</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="badge badge-warning badge-sm">Sales Automation</span>
-                        </td>
-                        <td>
-                            <span class="badge badge-ghost badge-sm">Promotional</span>
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <div class="w-16 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-green-500 h-2 rounded-full" style="width: 78%"></div>
-                                </div>
-                                <span class="text-sm font-medium text-green-600">78%</span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="text-sm font-medium text-gray-900">38.7%</span>
-                        </td>
-                        <td>
-                            <span class="text-sm font-medium text-gray-900">22.1%</span>
-                        </td>
-                        <td>
-                            <span class="text-sm text-gray-500">5 days ago</span>
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(4)" title="Duplicate">
-                                    <i class="fa-solid fa-copy"></i>
-                                </button>
-                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); previewMessage(4)" title="Preview">
-                                    <i class="fa-regular fa-eye"></i>
-                                </button>
-                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(4)" title="Delete">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Message Row 5 -->
-                    <tr class="hover:bg-gray-50 cursor-pointer" data-message="5" onclick="editMessage(5)">
-                        <td>
-                            <div class="flex items-center gap-3">
-                                <div class="w-2 h-2 bg-yellow-500 rounded-full" title="Medium performing"></div>
-                                <div>
-                                    <div class="font-medium text-gray-900">Weekly Newsletter - Industry Updates</div>
-                                    <div class="text-sm text-gray-500">Weekly newsletter with latest updates</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="badge badge-info badge-sm">General</span>
-                        </td>
-                        <td>
-                            <span class="badge badge-ghost badge-sm">Newsletter</span>
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <div class="w-16 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 58%"></div>
-                                </div>
-                                <span class="text-sm font-medium text-yellow-600">58%</span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="text-sm font-medium text-gray-900">24.5%</span>
-                        </td>
-                        <td>
-                            <span class="text-sm font-medium text-gray-900">8.9%</span>
-                        </td>
-                        <td>
-                            <span class="text-sm text-gray-500">1 week ago</span>
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(5)" title="Duplicate">
-                                    <i class="fa-solid fa-copy"></i>
-                                </button>
-                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); previewMessage(5)" title="Preview">
-                                    <i class="fa-regular fa-eye"></i>
-                                </button>
-                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(5)" title="Delete">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -383,117 +237,27 @@
 </div>
 
 <script>
-// Sample message data with performance metrics
-const messagesData = {
-    1: {
-        id: 1,
-        subject: 'Welcome to CRM Pro - Get Started!',
-        product: 'crm-pro',
-        type: 'welcome',
-        performance: 85,
-        openRate: 42.3,
-        clickRate: 18.7,
-        updated: '2 days ago',
-        description: 'Welcome email for new CRM Pro users'
-    },
-    2: {
-        id: 2,
-        subject: 'Your Analytics Dashboard is Ready',
-        product: 'analytics-suite',
-        type: 'follow-up',
-        performance: 65,
-        openRate: 28.1,
-        clickRate: 12.4,
-        updated: '1 week ago',
-        description: 'Follow-up for Analytics Suite setup'
-    },
-    3: {
-        id: 3,
-        subject: 'Boost Your Marketing ROI Today',
-        product: 'marketing-tools',
-        type: 'promotional',
-        performance: 35,
-        openRate: 15.2,
-        clickRate: 6.8,
-        updated: '3 days ago',
-        description: 'Promotional email for Marketing Tools'
-    },
-    4: {
-        id: 4,
-        subject: 'Don\'t Miss Out - Limited Time Offer!',
-        product: 'sales-automation',
-        type: 'promotional',
-        performance: 78,
-        openRate: 38.7,
-        clickRate: 22.1,
-        updated: '5 days ago',
-        description: 'Urgency-driven promotional email'
-    },
-    5: {
-        id: 5,
-        subject: 'Weekly Newsletter - Industry Updates',
-        product: 'general',
-        type: 'newsletter',
-        performance: 58,
-        openRate: 24.5,
-        clickRate: 8.9,
-        updated: '1 week ago',
-        description: 'Weekly newsletter with latest updates'
-    }
-};
-
-function editMessage(messageId) {
-    // Navigate to edit page with message ID
-    window.location.href = `messages-edit.html?id=${messageId}`;
-}
-
-function addNewMessage() {
-    // Navigate to edit page for new message
-    window.location.href = 'messages-edit.html';
-}
-
-function duplicateMessage(messageId) {
-    window.ModalSystem.toast('Message duplicated successfully!', 'success');
-    // Add duplication logic here
-}
-
-function previewMessage(messageId) {
-    window.ModalSystem.toast('Preview functionality coming soon!', 'info');
-}
-
-function confirmDeleteMessage(messageId) {
-    window.ModalSystem.confirm(
-        'Delete Message',
-        'Are you sure you want to delete this message? This action cannot be undone.',
-        () => {
-            // Delete logic here
-            window.ModalSystem.toast('Message deleted successfully!', 'success');
-        }
-    );
-}
-
+// Message filtering and sorting functionality
 function filterMessages() {
     const searchTerm = document.getElementById('search-messages').value.toLowerCase();
-    const productFilter = document.getElementById('filter-product').value;
-    const typeFilter = document.getElementById('filter-type').value;
-
-    const rows = document.querySelectorAll('#messages-table-body tr');
+    const productFilter = document.getElementById('filter-product').value.toLowerCase();
+    const sortFilter = document.getElementById('filter-sort').value;
+    
+    const rows = document.querySelectorAll('.message-row');
     let visibleCount = 0;
 
+    // First filter the rows
     rows.forEach(row => {
-        const messageId = row.getAttribute('data-message');
-        const message = messagesData[messageId];
+        const messageText = row.textContent.toLowerCase();
+        const product = row.getAttribute('data-product').toLowerCase();
+        const name = row.getAttribute('data-name').toLowerCase();
+        
+        const matchesSearch = searchTerm === '' || 
+                             messageText.includes(searchTerm) || 
+                             name.includes(searchTerm);
+        const matchesProduct = productFilter === '' || product === productFilter;
 
-        if (!message) return;
-
-        const matchesSearch = !searchTerm ||
-            message.subject.toLowerCase().includes(searchTerm) ||
-            message.description.toLowerCase().includes(searchTerm);
-
-        const matchesProduct = !productFilter || message.product === productFilter;
-        const matchesType = !typeFilter || message.type === typeFilter;
-
-        if (matchesSearch && matchesProduct && matchesType) {
+        if (matchesSearch && matchesProduct) {
             row.style.display = '';
             visibleCount++;
         } else {
@@ -501,14 +265,140 @@ function filterMessages() {
         }
     });
 
+    // Then sort if a sort option is selected
+    if (sortFilter) {
+        sortTable(sortFilter);
+    }
+
+    // Update empty state
+    const noMessagesRow = document.getElementById('no-messages-row');
+    if (visibleCount === 0 && rows.length > 0) {
+        noMessagesRow.style.display = '';
+    } else {
+        noMessagesRow.style.display = 'none';
+    }
+
+    // Update counter
     document.getElementById('message-count').textContent = `${visibleCount} messages`;
 }
 
-// Initialize page
+function sortTable(sortBy) {
+    const tbody = document.getElementById('messages-table-body');
+    const rows = Array.from(tbody.querySelectorAll('.message-row[style=""]'));
+    
+    rows.sort((a, b) => {
+        let aValue, bValue;
+        
+        switch(sortBy) {
+            case 'name':
+                aValue = a.getAttribute('data-name');
+                bValue = b.getAttribute('data-name');
+                return aValue.localeCompare(bValue);
+            case 'performance':
+                aValue = parseFloat(a.getAttribute('data-performance'));
+                bValue = parseFloat(b.getAttribute('data-performance'));
+                return bValue - aValue; // Descending order
+            case 'open-rate':
+                aValue = parseFloat(a.getAttribute('data-open-rate'));
+                bValue = parseFloat(b.getAttribute('data-open-rate'));
+                return bValue - aValue;
+            case 'click-rate':
+                aValue = parseFloat(a.getAttribute('data-click-rate'));
+                bValue = parseFloat(b.getAttribute('data-click-rate'));
+                return bValue - aValue;
+            default:
+                return 0;
+        }
+    });
+
+    // Re-append sorted rows
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+function clearMessageFilters() {
+    document.getElementById('search-messages').value = '';
+    document.getElementById('filter-product').value = '';
+    document.getElementById('filter-sort').value = '';
+    filterMessages();
+}
+
+// Action functions
+function editMessage(id) {
+    window.location.href = `/messages/${id}/edit/`;
+}
+
+function addNewMessage() {
+    window.location.href = '/messages/new/';
+}
+
+function duplicateMessage(id) {
+    ModalSystem.toast('Message duplicated successfully!', 'success');
+    // In a real app, this would make an API call to duplicate the message
+}
+
+function previewMessage(id) {
+    ModalSystem.toast('Preview functionality coming soon!', 'info');
+    // In a real app, this would open a modal with message preview
+}
+
+function confirmDeleteMessage(id) {
+    ModalSystem.confirm({
+        title: 'Delete Message',
+        message: 'Are you sure you want to delete this message template? This action cannot be undone.',
+        confirmText: 'Delete',
+        confirmClass: 'btn-error',
+        action: function() {
+            // Find and remove the row
+            const row = document.querySelector(`tr[onclick="editMessage(${id})"]`);
+            if (row) row.remove();
+            
+            // Update counts
+            filterMessages();
+            
+            // Show success message
+            ModalSystem.toast('Message deleted successfully!');
+            
+            // // Optional: Send delete request to server
+            // fetch(`/messages/${id}/delete/`, {
+            //     method: 'POST',
+            //     headers: {
+            //         'X-CSRFToken': getCookie('csrftoken'),
+            //     }
+            // });
+        }
+    });
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Set initial message count
-    document.getElementById('message-count').textContent = `${Object.keys(messagesData).length} messages`;
+    // Add event listeners for filters
+    document.getElementById('search-messages').addEventListener('input', filterMessages);
+    document.getElementById('filter-product').addEventListener('change', filterMessages);
+    document.getElementById('filter-sort').addEventListener('change', function() {
+        filterMessages(); // This will trigger sorting too
+    });
+    
+    // Hide empty state if we have messages
+    const noMessagesRow = document.getElementById('no-messages-row');
+    if (noMessagesRow && document.querySelectorAll('.message-row').length > 0) {
+        noMessagesRow.style.display = 'none';
+    }
 });
 </script>
-
 {% endblock %}

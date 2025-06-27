@@ -2,7 +2,9 @@ from django.shortcuts import redirect, get_object_or_404, render
 from django.http import Http404, HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from .models import Link
+
+from clients.models import Product
+from .models import Link, Message
 import logging
 
 logger = logging.getLogger(__name__)
@@ -579,7 +581,16 @@ def email_accounts_view(request):
 
 def messages_view(request):
     """Messages management page"""
-    return render(request, "app/messages.html")
+    subscribed_company= request.user.subscribed_company
+    products = Product.objects.filter(subscribed_company=subscribed_company)
+    messages = Message.objects.filter(product__in=products)
+
+    context = {
+        'messages': messages,
+        'products': products
+    }
+
+    return render(request, "app/messages.html", context)
 
 
 def messages_edit_view(request, pk):
