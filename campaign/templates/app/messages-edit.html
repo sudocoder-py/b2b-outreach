@@ -138,7 +138,9 @@
             <div class="flex-1 overflow-y-auto" id="messages-container">
                 {% if messages %}
                     {% for message in messages %}
-                    <div class="message-row p-4 border-b border-base-200 {% if forloop.first %}active-message{% endif %}" 
+                    <div class="message-row p-4 border-b border-base-200 {% if message.id == message_id %}active-message
+                                {% elif not message_id and forloop.first %}active-message
+                                {% endif %}" 
                          data-message="{{ message.id }}"
                          data-product="{{ message.product.id }}"
                          onclick="selectMessage({{ message.id }}, true)">
@@ -188,7 +190,7 @@
                         <i class="fa-solid fa-edit mr-2"></i>Edit
                     </button>
                     {% for message in messages %}
-                    <div id="preview-content-{{ message.id }}" class="message-preview-content" style="display: {% if forloop.first %}block{% else %}none{% endif %}">
+                    <div id="preview-content-{{ message.id }}" class="message-preview-content" style="display: {% if message.id == message_id %}block{% elif not message_id and forloop.first %}block{% else %}none{% endif %}">
                         {{ message.full_content|safe }}
                     </div>
                     {% endfor %}
@@ -351,7 +353,8 @@
 
 <script>
 // Message Management System
-let activeMessage = {% if messages %}{{ messages.0.id }}{% else %}null{% endif %};
+let activeMessage = {% if message_id %}{{ message_id }}{% elif messages %}{{ messages.0.id }}{% else %}null{% endif %};
+
 let messages = {};
 
 // Initialize messages from Django template if they exist
@@ -707,8 +710,7 @@ function saveMessage() {
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     {% if messages %}
-        // Show first message by default
-        selectMessage({{ messages.0.id }});
+        selectMessage({{ message_id|default:messages.0.id }});
         showPreview();
     {% endif %}
 
@@ -726,5 +728,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('subject-display').textContent = this.value || 'New Message';
     });
 });
+
 </script>
 {% endblock %}
