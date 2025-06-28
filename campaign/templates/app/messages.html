@@ -12,10 +12,6 @@
                 <p class="text-gray-600">Manage email templates and view performance analytics</p>
             </div>
             <div class="flex gap-2">
-                <button class="btn btn-ghost" onclick="window.location.href='messages-edit.html'">
-                    <i class="fa-solid fa-edit mr-2"></i>
-                    Edit Messages
-                </button>
                 <button class="btn btn-primary" onclick="addNewMessage()">
                     <i class="fa-solid fa-plus mr-2"></i>
                     New Message
@@ -328,7 +324,7 @@ function editMessage(id) {
 }
 
 function addNewMessage() {
-    window.location.href = '/messages/new/';
+    window.location.href = '/campaign/messages/add/?add_new=true';
 }
 
 function duplicateMessage(id) {

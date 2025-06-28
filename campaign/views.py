@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count, Q
 
 
-from campaign.helpers import get_company_products
+from campaign.helpers import get_company_products, get_messages_and_products
 from .models import Link, Message, MessageAssignment
 import logging
 
@@ -618,11 +618,11 @@ def email_accounts_view(request):
     return render(request, "app/email-accounts.html", context)
 
 
+
+
 def messages_view(request):
     """Messages management page"""
-    subscribed_company= request.user.subscribed_company
-    products = get_company_products(subscribed_company)
-    messages = Message.objects.filter(product__in=products)
+    messages, products = get_messages_and_products(request)
 
     context = {
         'messages': messages,
@@ -635,6 +635,19 @@ def messages_view(request):
 def messages_edit_view(request, pk):
     """Messages management page"""
     return render(request, "app/messages-edit.html")
+
+
+def messages_add_view(request):
+    """Messages management page"""
+
+    messages, products = get_messages_and_products(request)
+
+    context = {
+        'messages': messages,
+        'products': products
+    }
+
+    return render(request, "app/messages-edit.html", context)
 
 
 def links_view(request):

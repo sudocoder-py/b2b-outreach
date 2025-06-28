@@ -4,7 +4,7 @@
 
 {% block content %}
 <style>
-/* Custom styles for messages table */
+/* Custom styles for messages */
 .message-row {
     cursor: pointer;
     transition: all 0.2s ease;
@@ -19,41 +19,68 @@
     border-left: 4px solid #3b82f6;
 }
 
-.messages-table {
-    scrollbar-width: thin;
-    scrollbar-color: #e5e7eb #f9fafb;
-}
-
-.messages-table::-webkit-scrollbar {
-    width: 6px;
-}
-
-.messages-table::-webkit-scrollbar-track {
-    background: #f9fafb;
-}
-
-.messages-table::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
-    border-radius: 3px;
-}
-
-.messages-table::-webkit-scrollbar-thumb:hover {
-    background: #d1d5db;
-}
-
-#message-content {
-    min-height: 300px;
+#message-preview {
+    display: none;
+    padding: 2rem;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.6;
+    color: #333;
 }
 
-.message-subject:focus,
-#message-subject:focus,
-#message-content:focus {
+#message-preview h1,
+#message-preview h2,
+#message-preview h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+#message-preview p {
+    margin-bottom: 1rem;
+}
+
+#message-preview a {
+    color: #3b82f6;
+    text-decoration: underline;
+}
+
+#message-preview .btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #3b82f6;
+    color: white;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    margin: 1rem 0;
+}
+
+#message-preview .signature {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+#edit-preview-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+/* Search and filter styles */
+#search-messages {
+    transition: all 0.3s ease;
+}
+
+#search-messages:focus {
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
+
+#filter-type {
+    min-width: 120px;
+}
 </style>
+
 
 <div class="flex-1 flex flex-col overflow-hidden bg-gray-50 p-6">
     <!-- Header -->
@@ -80,7 +107,13 @@
             <div class="p-4 border-b border-base-200 bg-gray-50">
                 <div class="flex justify-between items-center">
                     <h3 class="font-semibold text-gray-900">Message Templates</h3>
-                    <span class="text-sm text-gray-500" id="message-count">3 messages</span>
+                    <span class="text-sm text-gray-500" id="message-count">
+                        {% if messages %}
+                            {{ messages|length }} message{{ messages|length|pluralize }}
+                        {% else %}
+                            No messages
+                        {% endif %}
+                    </span>
                 </div>
             </div>
 
@@ -92,134 +125,109 @@
                            class="input input-bordered input-sm flex-1 bg-white"
                            id="search-messages"
                            oninput="filterMessages()">
-                    <select class="select select-bordered select-sm bg-white" id="filter-type" onchange="filterMessages()">
-                        <option value="">All Types</option>
-                        <option value="welcome">Welcome</option>
-                        <option value="follow-up">Follow-up</option>
-                        <option value="promotional">Promotional</option>
-                        <option value="newsletter">Newsletter</option>
+                    <select class="select select-bordered select-sm bg-white" id="filter-product" onchange="filterMessages()">
+                        <option value="">All Products</option>
+                        {% for product in products %}
+                        <option value="{{ product.id }}">{{ product.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>
 
             <!-- Messages Table -->
-            <div class="flex-1 overflow-y-auto messages-table" id="messages-container">
-                <!-- Message Row 1 (Active by default) -->
-                <div class="message-row active-message p-4 border-b border-base-200" data-message="1" onclick="selectMessage(1)">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-medium text-gray-900 truncate">Welcome Email Template</h4>
-                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">Welcome to our platform! We're excited to have you on board...</p>
-                            <div class="flex items-center gap-4 mt-2">
-                                <span class="text-xs text-gray-400">Type: Welcome</span>
-                                <span class="text-xs text-gray-400">Updated: 2 days ago</span>
+            <div class="flex-1 overflow-y-auto" id="messages-container">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="message-row p-4 border-b border-base-200 {% if forloop.first %}active-message{% endif %}" 
+                         data-message="{{ message.id }}"
+                         data-product="{{ message.product.id }}"
+                         onclick="selectMessage({{ message.id }}, true)">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-medium text-gray-900 truncate">{{ message.subject }}</h4>
+                                <p class="text-sm text-gray-500 mt-1 line-clamp-2">
+                                    {{ message.intro|truncatechars:60 }}
+                                </p>
+                                <div class="flex items-center gap-4 mt-2">
+                                    <span class="text-xs text-gray-400">{{ message.product.name }}</span>
+                                    <span class="text-xs text-gray-400">Updated: {{ message.updated_at|timesince }} ago</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 ml-2">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage({{ message.id }})" title="Duplicate">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage({{ message.id }})" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2 ml-2">
-                            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(1)" title="Duplicate">
-                                <i class="fa-solid fa-copy"></i>
-                            </button>
-                            <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(1)" title="Delete">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
                     </div>
-                </div>
-
-                <!-- Message Row 2 -->
-                <div class="message-row p-4 border-b border-base-200" data-message="2" onclick="selectMessage(2)">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-medium text-gray-900 truncate">Follow-up Sequence #1</h4>
-                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">Thanks for signing up! Here's what you can expect next...</p>
-                            <div class="flex items-center gap-4 mt-2">
-                                <span class="text-xs text-gray-400">Type: Follow-up</span>
-                                <span class="text-xs text-gray-400">Updated: 1 week ago</span>
-                            </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="p-8 text-center">
+                        <div class="text-gray-400 mb-4">
+                            <i class="fas fa-envelope-open-text fa-3x"></i>
                         </div>
-                        <div class="flex items-center gap-2 ml-2">
-                            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(2)" title="Duplicate">
-                                <i class="fa-solid fa-copy"></i>
-                            </button>
-                            <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(2)" title="Delete">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
+                        <h3 class="text-lg font-medium mb-2">No messages found</h3>
+                        <p class="text-gray-500 mb-4">Create your first message template to get started</p>
+                        <button class="btn btn-primary" onclick="addNewMessage()">
+                            <i class="fa-solid fa-plus mr-2"></i> Create Message
+                        </button>
                     </div>
-                </div>
-
-                <!-- Message Row 3 -->
-                <div class="message-row p-4 border-b border-base-200" data-message="3" onclick="selectMessage(3)">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-medium text-gray-900 truncate">Product Launch Announcement</h4>
-                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">We're thrilled to announce our latest product feature...</p>
-                            <div class="flex items-center gap-4 mt-2">
-                                <span class="text-xs text-gray-400">Type: Promotional</span>
-                                <span class="text-xs text-gray-400">Updated: 3 days ago</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 ml-2">
-                            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(3)" title="Duplicate">
-                                <i class="fa-solid fa-copy"></i>
-                            </button>
-                            <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(3)" title="Delete">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                {% endif %}
             </div>
         </div>
 
-        <!-- Right Column: Message Editor -->
-        <div class="flex-1 flex flex-col bg-white border border-base-200 rounded-lg h-[calc(100vh-180px)]">
-            <!-- Header -->
-            <div class="flex justify-between items-center p-4 border-b border-base-200">
-                <div class="text-sm">
-                    <span class="font-bold text-gray-800">Subject</span>
-                    <span class="text-gray-500 ml-2" id="subject-display">Welcome Email Template</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button class="btn btn-sm bg-white border border-base-300" onclick="previewMessage()">
-                        <i class="fa-regular fa-eye mr-2"></i>Preview
+        <!-- Right Column: Message Editor/Preview -->
+        <div class="flex-1 flex flex-col bg-white border border-base-200 rounded-lg h-[calc(100vh-180px)] relative">
+            {% if messages %}
+                <!-- Show preview by default if messages exist -->
+                <div id="message-preview" class="flex-1 overflow-y-auto">
+                    <button id="edit-preview-btn" class="btn btn-sm btn-primary" onclick="showEditor()">
+                        <i class="fa-solid fa-edit mr-2"></i>Edit
                     </button>
-                    <button class="btn btn-sm btn-square bg-white border border-base-300" title="Variables">
-                        <i class="fa-solid fa-bolt text-blue-500"></i>
-                    </button>
+                    {% for message in messages %}
+                    <div id="preview-content-{{ message.id }}" class="message-preview-content" style="display: {% if forloop.first %}block{% else %}none{% endif %}">
+                        {{ message.full_content|safe }}
+                    </div>
+                    {% endfor %}
                 </div>
-            </div>
+            {% endif %}
 
             <!-- Message Form -->
-            <div class="flex-grow overflow-y-auto">
+            <div id="message-form-container" class="flex-grow overflow-y-auto" style="display: {% if messages %}none{% else %}block{% endif %}">
                 <form id="message-form" class="p-4 space-y-4">
-                    <!-- Message Type and Product -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="label">
-                                <span class="label-text font-medium">Message Type</span>
-                            </label>
-                            <select class="select select-bordered w-full bg-white" id="message-type" name="type">
-                                <option value="welcome">Welcome</option>
-                                <option value="follow-up">Follow-up</option>
-                                <option value="promotional">Promotional</option>
-                                <option value="newsletter">Newsletter</option>
-                                <option value="reminder">Reminder</option>
-                                <option value="thank-you">Thank You</option>
-                            </select>
+                    <!-- Header -->
+                    <div class="flex justify-between items-center pb-4 border-b border-base-200">
+                        <div class="text-sm">
+                            <span class="font-bold text-gray-800">Subject</span>
+                            <span class="text-gray-500 ml-2" id="subject-display">
+                                {% if messages %}{{ messages.0.subject }}{% else %}New Message{% endif %}
+                            </span>
                         </div>
-                        <div>
-                            <label class="label">
-                                <span class="label-text font-medium">Product</span>
-                            </label>
-                            <select class="select select-bordered w-full bg-white" id="message-product" name="product">
-                                <option value="crm-pro">CRM Pro</option>
-                                <option value="analytics-suite">Analytics Suite</option>
-                                <option value="marketing-tools">Marketing Tools</option>
-                                <option value="sales-automation">Sales Automation</option>
-                                <option value="general">General</option>
-                            </select>
+                        <div class="flex items-center gap-2">
+                            <button class="btn btn-sm bg-white border border-base-300" onclick="previewMessage()">
+                                <i class="fa-regular fa-eye mr-2"></i>Preview
+                            </button>
+                            <button class="btn btn-sm btn-square bg-white border border-base-300" title="Variables">
+                                <i class="fa-solid fa-bolt text-blue-500"></i>
+                            </button>
                         </div>
+                    </div>
+
+                    <!-- Product -->
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">Product</span>
+                        </label>
+                        <select class="select select-bordered w-full bg-white" id="message-product" name="product">
+                            {% for product in products %}
+                            <option value="{{ product.id }}" {% if messages and messages.0.product.id == product.id %}selected{% endif %}>
+                                {{ product.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <!-- Subject -->
@@ -228,10 +236,11 @@
                             <span class="label-text font-medium">Subject</span>
                         </label>
                         <input type="text"
-                               placeholder="Your email subject"
+                               placeholder="Your subject"
                                class="input input-bordered w-full bg-white"
                                id="message-subject"
-                               name="subject" />
+                               name="subject"
+                               value="{% if messages %}{{ messages.0.subject }}{% endif %}">
                     </div>
 
                     <!-- Intro -->
@@ -243,7 +252,7 @@
                                   rows="3"
                                   placeholder="Start typing here..."
                                   id="message-intro"
-                                  name="intro"></textarea>
+                                  name="intro">{% if messages %}{{ messages.0.intro }}{% endif %}</textarea>
                     </div>
 
                     <!-- Content -->
@@ -255,7 +264,7 @@
                                   rows="6"
                                   placeholder="Start typing here..."
                                   id="message-content"
-                                  name="content"></textarea>
+                                  name="content">{% if messages %}{{ messages.0.content }}{% endif %}</textarea>
                     </div>
 
                     <!-- CTA -->
@@ -267,7 +276,8 @@
                                placeholder="Your call to action"
                                class="input input-bordered w-full bg-white"
                                id="message-cta"
-                               name="cta" />
+                               name="cta"
+                               value="{% if messages %}{{ messages.0.cta }}{% endif %}">
                     </div>
 
                     <!-- P.S -->
@@ -279,7 +289,7 @@
                                   rows="2"
                                   placeholder="P.S. message..."
                                   id="message-ps"
-                                  name="ps"></textarea>
+                                  name="ps">{% if messages %}{{ messages.0.ps }}{% endif %}</textarea>
                     </div>
 
                     <!-- P.P.S -->
@@ -291,7 +301,7 @@
                                   rows="2"
                                   placeholder="P.P.S. message..."
                                   id="message-pps"
-                                  name="pps"></textarea>
+                                  name="pps">{% if messages %}{{ messages.0.pps }}{% endif %}</textarea>
                     </div>
 
                     <!-- End/Signature -->
@@ -303,7 +313,7 @@
                                   rows="3"
                                   placeholder="Best regards,&#10;Your name"
                                   id="message-end"
-                                  name="end"></textarea>
+                                  name="end">{% if messages %}{{ messages.0.end }}{% endif %}</textarea>
                     </div>
                 </form>
             </div>
@@ -340,73 +350,67 @@
 </div>
 
 <script>
-// Message Management System (same as original messages.html)
-let activeMessage = 1;
-let messageCounter = 3;
+// Message Management System
+let activeMessage = {% if messages %}{{ messages.0.id }}{% else %}null{% endif %};
 let messages = {};
 
-// Sample message data with products
-const sampleMessages = {
-    1: {
-        type: 'welcome',
-        product: 'crm-pro',
-        subject: 'Welcome Email Template',
-        intro: 'Welcome to our platform! We\'re excited to have you on board.',
-        content: 'Thank you for joining us. Here\'s everything you need to know to get started with your journey.',
-        cta: 'Get Started Now',
-        ps: 'If you have any questions, don\'t hesitate to reach out to our support team.',
-        pps: 'Follow us on social media for the latest updates and tips.',
-        end: 'Best regards,\nThe Team',
-        description: 'Welcome to our platform! We\'re excited to have you on board...',
-        updated: '2 days ago'
-    },
-    2: {
-        type: 'follow-up',
-        product: 'analytics-suite',
-        subject: 'Follow-up Sequence #1',
-        intro: 'Thanks for signing up! Here\'s what you can expect next.',
-        content: 'We wanted to follow up and make sure you\'re getting the most out of your experience.',
-        cta: 'Continue Your Journey',
-        ps: 'Remember, we\'re here to help every step of the way.',
-        pps: '',
-        end: 'Best regards,\nYour Success Team',
-        description: 'Thanks for signing up! Here\'s what you can expect next...',
-        updated: '1 week ago'
-    },
-    3: {
-        type: 'promotional',
-        product: 'marketing-tools',
-        subject: 'Product Launch Announcement',
-        intro: 'We\'re thrilled to announce our latest product feature.',
-        content: 'After months of development and testing, we\'re excited to share our newest feature with you.',
-        cta: 'Try It Now',
-        ps: 'Early adopters get exclusive benefits and priority support.',
-        pps: 'Limited time offer - don\'t miss out!',
-        end: 'Best regards,\nThe Product Team',
-        description: 'We\'re thrilled to announce our latest product feature...',
-        updated: '3 days ago'
-    }
-};
+// Initialize messages from Django template if they exist
+{% if messages %}
+    {% for message in messages %}
+    messages[{{ message.id }}] = {
+        id: {{ message.id }},
+        product_id: {{ message.product.id }},
+        product_name: "{{ message.product.name|escapejs }}",
+        subject: "{{ message.subject|escapejs }}",
+        intro: "{{ message.intro|escapejs }}",
+        content: "{{ message.content|escapejs }}",
+        cta: "{{ message.cta|escapejs }}",
+        ps: "{{ message.ps|escapejs }}",
+        pps: "{{ message.pps|escapejs }}",
+        end: "{{ message.end|escapejs }}",
+        full_content: `{{ message.full_content|safe|escapejs }}`,
+        updated_at: "{{ message.updated_at|date:'Y-m-d' }}"
+    };
+    {% endfor %}
+{% endif %}
 
-messages = { ...sampleMessages };
-
-function selectMessage(messageId) {
+function selectMessage(messageId, scrollIntoView = false) {
+    // Save current message before switching
     saveCurrentMessage();
+
+    // Remove active class from all messages
     document.querySelectorAll('.message-row').forEach(row => {
         row.classList.remove('active-message');
     });
+
+    // Add active class to selected message
     const selectedRow = document.querySelector(`[data-message="${messageId}"]`);
     if (selectedRow) {
         selectedRow.classList.add('active-message');
+        if (scrollIntoView) {
+            selectedRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
         activeMessage = messageId;
+
+        // Load message content
         loadMessageContent(messageId);
+        
+        // Show the corresponding preview content
+        document.querySelectorAll('.message-preview-content').forEach(preview => {
+            preview.style.display = 'none';
+        });
+        const previewContent = document.getElementById(`preview-content-${messageId}`);
+        if (previewContent) {
+            previewContent.style.display = 'block';
+        }
     }
 }
 
 function loadMessageContent(messageId) {
     const message = messages[messageId] || {};
-    document.getElementById('message-type').value = message.type || 'welcome';
-    document.getElementById('message-product').value = message.product || 'general';
+
+    // Load message data into form
+    document.getElementById('message-product').value = message.product_id || '';
     document.getElementById('message-subject').value = message.subject || '';
     document.getElementById('message-intro').value = message.intro || '';
     document.getElementById('message-content').value = message.content || '';
@@ -414,14 +418,19 @@ function loadMessageContent(messageId) {
     document.getElementById('message-ps').value = message.ps || '';
     document.getElementById('message-pps').value = message.pps || '';
     document.getElementById('message-end').value = message.end || '';
+
+    // Update subject display
     document.getElementById('subject-display').textContent = message.subject || 'New Message';
 }
 
 function saveCurrentMessage() {
     if (!activeMessage) return;
+
+    // Get form data
+    const productSelect = document.getElementById('message-product');
     const messageData = {
-        type: document.getElementById('message-type').value,
-        product: document.getElementById('message-product').value,
+        product_id: productSelect.value,
+        product_name: productSelect.options[productSelect.selectedIndex].text,
         subject: document.getElementById('message-subject').value,
         intro: document.getElementById('message-intro').value,
         content: document.getElementById('message-content').value,
@@ -429,65 +438,317 @@ function saveCurrentMessage() {
         ps: document.getElementById('message-ps').value,
         pps: document.getElementById('message-pps').value,
         end: document.getElementById('message-end').value,
-        description: document.getElementById('message-intro').value.substring(0, 60) + '...',
-        updated: 'Just now'
+        full_content: messages[activeMessage]?.full_content || '', // Preserve existing full_content
+        updated_at: new Date().toISOString().split('T')[0] // Today's date in YYYY-MM-DD format
     };
-    messages[activeMessage] = { ...messages[activeMessage], ...messageData };
+
+    // Store in messages object
+    messages[activeMessage] = messageData;
+
+    // Update the message row in the list
     updateMessageRow(activeMessage, messageData);
+
+    // Update subject display
     document.getElementById('subject-display').textContent = messageData.subject || 'New Message';
 }
 
 function updateMessageRow(messageId, messageData) {
     const messageRow = document.querySelector(`[data-message="${messageId}"]`);
     if (messageRow) {
+        // Update the data-product attribute
+        messageRow.setAttribute('data-product', messageData.product_id);
+        
+        // Update the visible content
         const titleElement = messageRow.querySelector('h4');
         const descElement = messageRow.querySelector('p');
-        const typeElement = messageRow.querySelector('.text-xs');
+        const productElement = messageRow.querySelector('.text-xs:first-child');
+        const dateElement = messageRow.querySelector('.text-xs:last-child');
+        
         if (titleElement) titleElement.textContent = messageData.subject || 'Untitled Message';
-        if (descElement) descElement.textContent = messageData.description || messageData.intro?.substring(0, 60) + '...' || '';
-        if (typeElement) typeElement.textContent = `Type: ${messageData.type?.charAt(0).toUpperCase() + messageData.type?.slice(1) || 'Welcome'}`;
+        if (descElement) descElement.textContent = messageData.intro?.substring(0, 60) + (messageData.intro?.length > 60 ? '...' : '') || 'No content';
+        if (productElement) productElement.textContent = messageData.product_name || 'No product';
+        if (dateElement) dateElement.textContent = `Updated: ${timeSince(new Date(messageData.updated_at))} ago`;
     }
 }
 
-function addNewMessage() {
-    saveCurrentMessage();
-    messageCounter++;
-    const newMessageId = messageCounter;
-    const newMessage = {
-        type: 'welcome', product: 'general', subject: 'New Message Template', intro: '', content: '', cta: '', ps: '', pps: '', end: '', description: 'New message template...', updated: 'Just now'
-    };
-    messages[newMessageId] = newMessage;
-    const newMessageHTML = `<div class="message-row p-4 border-b border-base-200" data-message="${newMessageId}" onclick="selectMessage(${newMessageId})"><div class="flex justify-between items-start"><div class="flex-1 min-w-0"><h4 class="font-medium text-gray-900 truncate">New Message Template</h4><p class="text-sm text-gray-500 mt-1 line-clamp-2">New message template...</p><div class="flex items-center gap-4 mt-2"><span class="text-xs text-gray-400">Type: Welcome</span><span class="text-xs text-gray-400">Updated: Just now</span></div></div><div class="flex items-center gap-2 ml-2"><button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(${newMessageId})" title="Duplicate"><i class="fa-solid fa-copy"></i></button><button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(${newMessageId})" title="Delete"><i class="fa-solid fa-trash"></i></button></div></div></div>`;
-    document.getElementById('messages-container').insertAdjacentHTML('afterbegin', newMessageHTML);
-    selectMessage(newMessageId);
-    updateMessageCount();
-    window.ModalSystem.toast('New message created successfully!');
+function timeSince(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    let interval = Math.floor(seconds / 31536000);
+    
+    if (interval >= 1) return interval + " year" + (interval === 1 ? "" : "s");
+    interval = Math.floor(seconds / 2592000);
+    if (interval >= 1) return interval + " month" + (interval === 1 ? "" : "s");
+    interval = Math.floor(seconds / 86400);
+    if (interval >= 1) return interval + " day" + (interval === 1 ? "" : "s");
+    interval = Math.floor(seconds / 3600);
+    if (interval >= 1) return interval + " hour" + (interval === 1 ? "" : "s");
+    interval = Math.floor(seconds / 60);
+    if (interval >= 1) return interval + " minute" + (interval === 1 ? "" : "s");
+    return Math.floor(seconds) + " second" + (seconds === 1 ? "" : "s");
 }
 
-function duplicateMessage(messageId) { window.ModalSystem.toast('Duplicate functionality coming soon!', 'info'); }
-function confirmDeleteMessage(messageId) { window.ModalSystem.toast('Delete functionality coming soon!', 'info'); }
-function filterMessages() { /* Filter logic */ }
-function updateMessageCount() { document.getElementById('message-count').textContent = `${Object.keys(messages).length} messages`; }
-function saveMessage() { saveCurrentMessage(); window.ModalSystem.toast('Message saved successfully!'); }
-function previewMessage() { window.ModalSystem.toast('Preview functionality coming soon!', 'info'); }
-function showTemplates() { window.ModalSystem.toast('Templates functionality coming soon!', 'info'); }
-function showVariables() { window.ModalSystem.toast('Variables functionality coming soon!', 'info'); }
-function showAI() { window.ModalSystem.toast('AI assistance coming soon!', 'info'); }
-function copyMessage() { window.ModalSystem.toast('Copy functionality coming soon!', 'info'); }
-function exportMessage() { window.ModalSystem.toast('Export functionality coming soon!', 'info'); }
+function showPreview() {
+    document.getElementById('message-form-container').style.display = 'none';
+    document.getElementById('message-preview').style.display = 'block';
+}
 
-document.addEventListener('DOMContentLoaded', function() {
-    loadMessageContent(1);
-    updateMessageCount();
-    document.addEventListener('input', function(e) {
-        if (e.target.closest('#message-form')) {
-            setTimeout(() => { saveCurrentMessage(); }, 500);
+function showEditor() {
+    document.getElementById('message-preview').style.display = 'none';
+    document.getElementById('message-form-container').style.display = 'block';
+}
+
+function previewMessage() {
+    // Save current message first
+    saveCurrentMessage();
+    
+    // Generate HTML preview (simplified version)
+    const message = messages[activeMessage];
+    const previewContent = `
+        <h1>${message.subject || 'No subject'}</h1>
+        ${message.intro ? `<p>${message.intro.replace(/\n/g, '<br>')}</p>` : ''}
+        ${message.content ? `<div>${message.content.replace(/\n/g, '<br>')}</div>` : ''}
+        ${message.cta ? `<a href="#" class="btn">${message.cta}</a>` : ''}
+        ${message.ps ? `<p><strong>P.S.</strong> ${message.ps.replace(/\n/g, '<br>')}</p>` : ''}
+        ${message.pps ? `<p><strong>P.P.S.</strong> ${message.pps.replace(/\n/g, '<br>')}</p>` : ''}
+        ${message.end ? `<div class="signature">${message.end.replace(/\n/g, '<br>')}</div>` : ''}
+    `;
+    
+    // Update the preview content
+    messages[activeMessage].full_content = previewContent;
+    
+    // Show the preview
+    showPreview();
+    
+    // Create or update the preview content div
+    let previewDiv = document.getElementById(`preview-content-${activeMessage}`);
+    if (!previewDiv) {
+        previewDiv = document.createElement('div');
+        previewDiv.id = `preview-content-${activeMessage}`;
+        previewDiv.className = 'message-preview-content';
+        document.getElementById('message-preview').appendChild(previewDiv);
+    }
+    previewDiv.innerHTML = previewContent;
+}
+
+function filterMessages() {
+    const searchTerm = document.getElementById('search-messages').value.toLowerCase();
+    const productFilter = document.getElementById('filter-product').value;
+    
+    document.querySelectorAll('.message-row').forEach(row => {
+        const messageId = row.getAttribute('data-message');
+        const message = messages[messageId];
+        const matchesSearch = searchTerm === '' || 
+            (message.subject && message.subject.toLowerCase().includes(searchTerm)) ||
+            (message.intro && message.intro.toLowerCase().includes(searchTerm)) ||
+            (message.content && message.content.toLowerCase().includes(searchTerm));
+        
+        const matchesProduct = productFilter === '' || 
+            (message.product_id && message.product_id.toString() === productFilter);
+        
+        if (matchesSearch && matchesProduct) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
         }
     });
+    
+    // Update message count display
+    const visibleCount = document.querySelectorAll('.message-row:not([style*="display: none"])').length;
+    document.getElementById('message-count').textContent = `${visibleCount} message${visibleCount !== 1 ? 's' : ''}`;
+}
+
+function addNewMessage() {
+    window.ModalSystem.confirm({
+        title: 'Create New Message',
+        message: 'Select a product for this new message template:',
+        confirmText: 'Create',
+        confirmClass: 'btn-primary',
+        customContent: `
+            <div class="py-4">
+                <select id="new-message-product" class="select select-bordered w-full">
+                    {% for product in products %}
+                    <option value="{{ product.id }}">{{ product.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        `,
+        action: function() {
+            const productId = document.getElementById('new-message-product').value;
+            const productName = document.getElementById('new-message-product').options[document.getElementById('new-message-product').selectedIndex].text;
+            
+            // In a real app, you would make an AJAX call to create the message
+            const newMessageId = Date.now(); // Temporary ID
+            messages[newMessageId] = {
+                id: newMessageId,
+                product_id: productId,
+                product_name: productName,
+                subject: 'New Message Template',
+                intro: '',
+                content: '',
+                cta: '',
+                ps: '',
+                pps: '',
+                end: '',
+                full_content: '',
+                updated_at: new Date().toISOString().split('T')[0]
+            };
+            
+            // Add to the UI
+            const newMessageHTML = `
+                <div class="message-row p-4 border-b border-base-200" 
+                     data-message="${newMessageId}" 
+                     data-product="${productId}"
+                     onclick="selectMessage(${newMessageId}, true)">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium text-gray-900 truncate">New Message Template</h4>
+                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">No content yet</p>
+                            <div class="flex items-center gap-4 mt-2">
+                                <span class="text-xs text-gray-400">${productName}</span>
+                                <span class="text-xs text-gray-400">Updated: Just now</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 ml-2">
+                            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(${newMessageId})" title="Duplicate">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(${newMessageId})" title="Delete">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const messagesContainer = document.getElementById('messages-container');
+            if (messagesContainer.querySelector('.message-row')) {
+                messagesContainer.insertAdjacentHTML('afterbegin', newMessageHTML);
+            } else {
+                messagesContainer.innerHTML = newMessageHTML;
+            }
+            
+            // Select the new message
+            selectMessage(newMessageId);
+            showEditor();
+            
+            window.ModalSystem.toast('New message template created!');
+        }
+    });
+}
+
+function duplicateMessage(messageId) {
+    const message = messages[messageId];
+    if (!message) return;
+    
+    // In a real app, you would make an AJAX call to duplicate the message
+    const newMessageId = Date.now(); // Temporary ID
+    messages[newMessageId] = {
+        ...message,
+        id: newMessageId,
+        subject: `Copy of ${message.subject}`,
+        updated_at: new Date().toISOString().split('T')[0]
+    };
+    
+    // Add to the UI
+    const newMessageHTML = `
+        <div class="message-row p-4 border-b border-base-200" 
+             data-message="${newMessageId}" 
+             data-product="${message.product_id}"
+             onclick="selectMessage(${newMessageId}, true)">
+            <div class="flex justify-between items-start">
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-medium text-gray-900 truncate">Copy of ${message.subject}</h4>
+                    <p class="text-sm text-gray-500 mt-1 line-clamp-2">${message.intro?.substring(0, 60) || 'No content'}${message.intro?.length > 60 ? '...' : ''}</p>
+                    <div class="flex items-center gap-4 mt-2">
+                        <span class="text-xs text-gray-400">${message.product_name}</span>
+                        <span class="text-xs text-gray-400">Updated: Just now</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 ml-2">
+                    <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(${newMessageId})" title="Duplicate">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                    <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(${newMessageId})" title="Delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const messagesContainer = document.getElementById('messages-container');
+    messagesContainer.insertAdjacentHTML('afterbegin', newMessageHTML);
+    
+    // Select the new message
+    selectMessage(newMessageId);
+    
+    window.ModalSystem.toast('Message duplicated successfully!');
+}
+
+function confirmDeleteMessage(messageId) {
+    window.ModalSystem.confirm({
+        title: 'Delete Message',
+        message: 'Are you sure you want to delete this message template? This action cannot be undone.',
+        confirmText: 'Delete',
+        confirmClass: 'btn-error',
+        action: function() {
+            // In a real app, you would make an AJAX call to delete the message
+            delete messages[messageId];
+            
+            // Remove from UI
+            const messageRow = document.querySelector(`[data-message="${messageId}"]`);
+            if (messageRow) {
+                messageRow.remove();
+                
+                // Update message count
+                const remainingCount = document.querySelectorAll('.message-row').length;
+                document.getElementById('message-count').textContent = `${remainingCount} message${remainingCount !== 1 ? 's' : ''}`;
+                
+                if (activeMessage === messageId) {
+                    // Select another message if available
+                    const firstMessageRow = document.querySelector('.message-row');
+                    if (firstMessageRow) {
+                        selectMessage(parseInt(firstMessageRow.getAttribute('data-message')));
+                    } else {
+                        // No messages left
+                        activeMessage = null;
+                        document.getElementById('message-form-container').style.display = 'block';
+                        document.getElementById('message-preview').style.display = 'none';
+                    }
+                }
+            }
+            
+            window.ModalSystem.toast('Message deleted successfully!');
+        }
+    });
+}
+
+function saveMessage() {
+    saveCurrentMessage();
+    window.ModalSystem.toast('Message saved successfully!');
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    {% if messages %}
+        // Show first message by default
+        selectMessage({{ messages.0.id }});
+        showPreview();
+    {% endif %}
+
+    // Auto-save on form changes
+    document.addEventListener('input', function(e) {
+        if (e.target.closest('#message-form')) {
+            setTimeout(() => {
+                saveCurrentMessage();
+            }, 500);
+        }
+    });
+
+    // Update subject display when typing in subject field
     document.getElementById('message-subject').addEventListener('input', function() {
         document.getElementById('subject-display').textContent = this.value || 'New Message';
     });
 });
 </script>
-
 {% endblock %}
