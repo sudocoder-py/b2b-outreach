@@ -207,7 +207,7 @@
                             </span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button class="btn btn-sm bg-white border border-base-300" onclick="previewMessage()">
+                            <button type="button" class="btn btn-sm bg-white border border-base-300" onclick="previewMessage()">
                                 <i class="fa-regular fa-eye mr-2"></i>Preview
                             </button>
                             <button class="btn btn-sm btn-square bg-white border border-base-300" title="Variables">
@@ -558,82 +558,58 @@ function filterMessages() {
 }
 
 function addNewMessage() {
-    window.ModalSystem.confirm({
-        title: 'Create New Message',
-        message: 'Select a product for this new message template:',
-        confirmText: 'Create',
-        confirmClass: 'btn-primary',
-        customContent: `
-            <div class="py-4">
-                <select id="new-message-product" class="select select-bordered w-full">
-                    {% for product in products %}
-                    <option value="{{ product.id }}">{{ product.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        `,
-        action: function() {
-            const productId = document.getElementById('new-message-product').value;
-            const productName = document.getElementById('new-message-product').options[document.getElementById('new-message-product').selectedIndex].text;
-            
-            // In a real app, you would make an AJAX call to create the message
-            const newMessageId = Date.now(); // Temporary ID
-            messages[newMessageId] = {
-                id: newMessageId,
-                product_id: productId,
-                product_name: productName,
-                subject: 'New Message Template',
-                intro: '',
-                content: '',
-                cta: '',
-                ps: '',
-                pps: '',
-                end: '',
-                full_content: '',
-                updated_at: new Date().toISOString().split('T')[0]
-            };
-            
-            // Add to the UI
-            const newMessageHTML = `
-                <div class="message-row p-4 border-b border-base-200" 
-                     data-message="${newMessageId}" 
-                     data-product="${productId}"
-                     onclick="selectMessage(${newMessageId}, true)">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-medium text-gray-900 truncate">New Message Template</h4>
-                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">No content yet</p>
-                            <div class="flex items-center gap-4 mt-2">
-                                <span class="text-xs text-gray-400">${productName}</span>
-                                <span class="text-xs text-gray-400">Updated: Just now</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 ml-2">
-                            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(${newMessageId})" title="Duplicate">
-                                <i class="fa-solid fa-copy"></i>
-                            </button>
-                            <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(${newMessageId})" title="Delete">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
+    const productSelect = document.getElementById('filter-product');
+    const productId = productSelect?.value || '';
+    const productName = productSelect?.options[productSelect.selectedIndex]?.text || 'Unknown Product';
+
+    const newMessageId = Date.now(); // Temporary ID
+    messages[newMessageId] = {
+        id: newMessageId,
+        product_id: productId,
+        product_name: productName,
+        subject: 'New Message Template',
+        intro: '',
+        content: '',
+        cta: '',
+        ps: '',
+        pps: '',
+        end: '',
+        full_content: '',
+        updated_at: new Date().toISOString().split('T')[0]
+    };
+
+    const newMessageHTML = `
+        <div class="message-row p-4 border-b border-base-200" 
+             data-message="${newMessageId}" 
+             data-product="${productId}"
+             onclick="selectMessage(${newMessageId}, true)">
+            <div class="flex justify-between items-start">
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-medium text-gray-900 truncate">New Message Template</h4>
+                    <p class="text-sm text-gray-500 mt-1 line-clamp-2">No content yet</p>
+                    <div class="flex items-center gap-4 mt-2">
+                        <span class="text-xs text-gray-400">${productName}</span>
+                        <span class="text-xs text-gray-400">Updated: Just now</span>
                     </div>
                 </div>
-            `;
-            
-            const messagesContainer = document.getElementById('messages-container');
-            if (messagesContainer.querySelector('.message-row')) {
-                messagesContainer.insertAdjacentHTML('afterbegin', newMessageHTML);
-            } else {
-                messagesContainer.innerHTML = newMessageHTML;
-            }
-            
-            // Select the new message
-            selectMessage(newMessageId);
-            showEditor();
-            
-            window.ModalSystem.toast('New message template created!');
-        }
-    });
+                <div class="flex items-center gap-2 ml-2">
+                    <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(${newMessageId})" title="Duplicate">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                    <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(${newMessageId})" title="Delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const messagesContainer = document.getElementById('messages-container');
+    messagesContainer.insertAdjacentHTML('afterbegin', newMessageHTML);
+
+    selectMessage(newMessageId);
+    showEditor();
+    window.ModalSystem?.toast?.('New message template created!');
 }
 
 function duplicateMessage(messageId) {

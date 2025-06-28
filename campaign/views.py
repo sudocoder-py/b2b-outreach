@@ -634,7 +634,15 @@ def messages_view(request):
 
 def messages_edit_view(request, pk):
     """Messages management page"""
-    return render(request, "app/messages-edit.html")
+
+    messages, products = get_messages_and_products(request)
+
+    context = {
+        'messages': messages,
+        'message_id': pk,
+        'products': products
+    }
+    return render(request, "app/messages-edit.html", context)
 
 
 def messages_add_view(request):
