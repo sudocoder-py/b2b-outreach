@@ -1,561 +1,335 @@
 {% extends "app/campaign/campaign-base.html" %}
 
-{% block title %}Campaign sequence{% endblock %}
+{% block title %}Campaign Sequence{% endblock %}
 
 {% block cmp-base-content %}
-
 <style>
-/* Custom styles for email sequence */
-.step-card {
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+    /* Message Grid Styles */
+    .message-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+    
+    .message-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1.25rem;
+        transition: all 0.2s;
+        cursor: pointer;
+        background-color: white;
+    }
+    
+    .message-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stats-bar {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+        font-size: 0.875rem;
+    }
 
-.step-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+    /* Table Styles */
+    .table-zebra tbody tr:nth-child(even) {
+        background-color: #f9fafb;
+    }
 
-.step-card.active-step {
-    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
-}
+    /* Stats Cards */
+    .stats {
+        border-radius: 0.5rem;
+        padding: 1rem;
+    }
 
-.delete-step-btn {
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.step-card:hover .delete-step-btn {
-    opacity: 1;
-}
-
-.delete-step-btn:hover {
-    color: #ef4444 !important;
-}
-
-.steps-list {
-    scrollbar-width: thin;
-    scrollbar-color: #e5e7eb #f9fafb;
-}
-
-.steps-list::-webkit-scrollbar {
-    width: 6px;
-}
-
-.steps-list::-webkit-scrollbar-track {
-    background: #f9fafb;
-}
-
-.steps-list::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
-    border-radius: 3px;
-}
-
-.steps-list::-webkit-scrollbar-thumb:hover {
-    background: #d1d5db;
-}
-
-#email-content {
-    min-height: 300px;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    line-height: 1.6;
-}
-
-.step-subject:focus,
-.step-delay:focus,
-#email-subject:focus,
-#email-content:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
 </style>
 
-        <!-- div two-column layout -->
-        <div class="flex-1 flex gap-6 mt-6 overflow-hidden">
-          <!-- Left Column: Steps -->
-          <div class="w-full max-w-sm flex-shrink-0 flex flex-col gap-4 overflow-y-auto pr-4 steps-list" id="steps-container">
-            <!-- Step 1 Card (Active by default) -->
-            <div class="card bg-white border-2 border-primary rounded-lg p-4 step-card active-step" data-step="1">
-              <div class="flex justify-between items-center">
-                <h3 class="font-bold text-gray-800">Step 1</h3>
-                <button class="btn btn-ghost btn-sm btn-square text-gray-400 delete-step-btn"
-                        onclick="confirmDeleteStep(1)"
-                        title="Delete step">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              </div>
-              <div class="mt-4 space-y-4">
-                <input type="text"
-                       placeholder="Your subject"
-                       class="input input-bordered w-full text-sm bg-white step-subject"
-                       data-step="1" />
-              </div>
-              <div class="flex items-center justify-between mt-4 text-sm text-gray-500">
-                <span>Send next message in</span>
-                <div class="flex items-center gap-2">
-                  <input type="number"
-                         value="1"
-                         min="1"
-                         class="input input-bordered input-sm w-16 text-center bg-white step-delay"
-                         data-step="1" />
-                  <span>Days</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Add Step Button -->
-            <button class="btn btn-ghost text-primary w-full" onclick="addStep()">
-              <i class="fa-solid fa-plus"></i> Add step
-            </button>
-          </div>
-
-          <!-- Right Column: Message Editor -->
-          <div class="flex-1 flex flex-col bg-white border border-base-200 rounded-lg h-[calc(100vh-180px)]">
-            <!-- Header -->
-            <div class="flex justify-between items-center p-4 border-b border-base-200">
-              <div class="text-sm">
-                <span class="font-bold text-gray-800">Subject</span>
-                <span class="text-gray-500 ml-2" id="subject-display">Your subject</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <button class="btn btn-sm bg-white border border-base-300" onclick="previewEmail()">
-                  <i class="fa-regular fa-eye mr-2"></i>Preview
-                </button>
-                <button class="btn btn-sm btn-square bg-white border border-base-300" title="Variables">
-                  <i class="fa-solid fa-bolt text-blue-500"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Message Form -->
-            <div class="flex-grow overflow-y-auto">
-              <form id="message-form" class="p-4 space-y-4">
-                <!-- Subject -->
-                <div>
-                  <label class="label">
-                    <span class="label-text font-medium">Subject</span>
-                  </label>
-                  <input type="text"
-                         placeholder="Your subject"
-                         class="input input-bordered w-full bg-white"
-                         id="message-subject"
-                         name="subject" />
-                </div>
-
-                <!-- Intro -->
-                <div>
-                  <label class="label">
-                    <span class="label-text font-medium">Intro</span>
-                  </label>
-                  <textarea class="textarea textarea-bordered w-full bg-white"
-                            rows="3"
-                            placeholder="Start typing here..."
-                            id="message-intro"
-                            name="intro"></textarea>
-                </div>
-
-                <!-- Content -->
-                <div>
-                  <label class="label">
-                    <span class="label-text font-medium">Content</span>
-                  </label>
-                  <textarea class="textarea textarea-bordered w-full bg-white"
-                            rows="6"
-                            placeholder="Start typing here..."
-                            id="message-content"
-                            name="content"></textarea>
-                </div>
-
-                <!-- CTA -->
-                <div>
-                  <label class="label">
-                    <span class="label-text font-medium">Call to Action</span>
-                  </label>
-                  <input type="text"
-                         placeholder="Your call to action"
-                         class="input input-bordered w-full bg-white"
-                         id="message-cta"
-                         name="cta" />
-                </div>
-
-                <!-- P.S -->
-                <div>
-                  <label class="label">
-                    <span class="label-text font-medium">P.S</span>
-                  </label>
-                  <textarea class="textarea textarea-bordered w-full bg-white"
-                            rows="2"
-                            placeholder="P.S. message..."
-                            id="message-ps"
-                            name="ps"></textarea>
-                </div>
-
-                <!-- P.P.S -->
-                <div>
-                  <label class="label">
-                    <span class="label-text font-medium">P.P.S</span>
-                  </label>
-                  <textarea class="textarea textarea-bordered w-full bg-white"
-                            rows="2"
-                            placeholder="P.P.S. message..."
-                            id="message-pps"
-                            name="pps"></textarea>
-                </div>
-
-                <!-- End/Signature -->
-                <div>
-                  <label class="label">
-                    <span class="label-text font-medium">Signature</span>
-                  </label>
-                  <textarea class="textarea textarea-bordered w-full bg-white"
-                            rows="3"
-                            placeholder="Best regards,&#10;Your name"
-                            id="message-end"
-                            name="end"></textarea>
-                </div>
-              </form>
-            </div>
-
-            <!-- Bottom Toolbar -->
-            <div class="p-4 border-t border-base-200">
-              <div class="flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                  <button class="btn btn-sm btn-primary" onclick="saveMessage()">
-                    Save
-                  </button>
-                  <button class="btn btn-sm btn-ghost" onclick="showTemplates()">
-                    <i class="fa-solid fa-file-text mr-2"></i>Templates
-                  </button>
-                  <button class="btn btn-sm btn-ghost" onclick="showVariables()">
-                    <i class="fa-solid fa-code mr-2"></i>Variables
-                  </button>
-                  <button class="btn btn-sm btn-ghost" onclick="showAI()">
-                    <i class="fa-solid fa-magic mr-2"></i>AI
-                  </button>
-                </div>
-                <div class="flex items-center gap-2">
-                  <button class="btn btn-sm btn-ghost" onclick="copyMessage()">
-                    <i class="fa-solid fa-copy mr-2"></i>Copy
-                  </button>
-                  <button class="btn btn-sm btn-ghost" onclick="exportMessage()">
-                    <i class="fa-solid fa-download mr-2"></i>Export
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+<div class="flex flex-col h-full">
+    <!-- Header -->
+    <div class="flex items-center justify-between mt-8">
+        <div class="flex items-center gap-4">
+            <h3 class="text-xl font-semibold">Message Sequences</h3>
         </div>
+        <div class="flex items-center gap-3">  
+            <button class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm" onclick="document.getElementById('add-modal').showModal()">
+                Add Message
+            </button>
+        </div>
+    </div>
+
+    <!-- Message Grid -->
+    <div class="message-grid">
+        {% for message in messages %}
+        <div class="message-card" onclick="openMessageModal({{ message.id }})">
+            <h3 class="font-medium text-gray-900">{{ message.subject }}</h3>
+            <p class="text-sm text-gray-500 mt-1">
+                {{ message.total_assignments }} leads
+            </p>
+            
+            <div class="stats-bar">
+                <span class="text-green-600">
+                    {{ message.sent_count }} sent
+                </span>
+                <span class="text-blue-600">
+                    {{ message.response_count }} responses
+                </span>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <div class="text-gray-400 mb-4">
+                <i class="fas fa-envelope-open-text fa-3x"></i>
+            </div>
+            <h3 class="text-lg font-medium">No messages assigned yet</h3>
+            <button class="btn btn-primary mt-4" onclick="document.getElementById('add-modal').showModal()">
+                Add First Message
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Add Message Modal -->
+<dialog id="add-modal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg">Add Message to Sequence</h3>
+        
+        <div class="py-4">
+            <label class="label">
+                <span class="label-text">Select Message</span>
+            </label>
+            <select class="select select-bordered w-full">
+                {% for msg in all_messages %}
+                <option value="{{ msg.id }}">{{ msg.subject }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="modal-action">
+            <button class="btn btn-primary">Assign</button>
+            <form method="dialog">
+                <button class="btn btn-ghost">Cancel</button>
+            </form>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Assignments Modal -->
+<dialog id="assignment-modal" class="modal">
+    <div class="modal-box w-11/12 max-w-5xl">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg">Message Assignments</h3>
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle">✕</button>
+            </form>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="stats bg-primary text-primary-content">
+                <div class="stat">
+                    <div class="stat-title">Total Assignments</div>
+                    <div class="stat-value" id="total-assignments">0</div>
+                </div>
+            </div>
+            <div class="stats bg-success text-success-content">
+                <div class="stat">
+                    <div class="stat-title">Sent</div>
+                    <div class="stat-value" id="sent-count">0</div>
+                </div>
+            </div>
+            <div class="stats bg-info text-info-content">
+                <div class="stat">
+                    <div class="stat-title">Responses</div>
+                    <div class="stat-value" id="response-count">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="table table-zebra w-full">
+                <thead>
+                    <tr>
+                        <th>Lead</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Sent At</th>
+                        <th>Response</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="assignments-table-body">
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="modal-action">
+            <button class="btn btn-primary" onclick="exportAssignments()">
+                <i class="fas fa-download mr-2"></i> Export
+            </button>
+            <form method="dialog">
+                <button class="btn btn-ghost">Close</button>
+            </form>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
 
 <script>
-// Simple Email Sequence Management
-let activeStep = 1; // Currently selected step
-let stepCounter = 1; // Counter for new steps
-let messages = {}; // Store messages data
+    // Assignments Modal
+    let currentMessageId = null;
 
-// Step Management Functions
-function selectStep(stepNumber) {
-    // Save current message before switching
-    saveCurrentMessage();
-
-    // Remove active class from all steps
-    document.querySelectorAll('.step-card').forEach(card => {
-        card.classList.remove('active-step', 'border-2', 'border-primary');
-        card.classList.add('border', 'border-base-200');
-    });
-
-    // Add active class to selected step
-    const selectedCard = document.querySelector(`[data-step="${stepNumber}"]`);
-    if (selectedCard) {
-        selectedCard.classList.add('active-step', 'border-2', 'border-primary');
-        selectedCard.classList.remove('border', 'border-base-200');
-        activeStep = stepNumber;
-
-        // Load step content into editor
-        loadMessageContent(stepNumber);
-    }
-}
-
-function loadMessageContent(stepNumber) {
-    const message = messages[stepNumber] || {};
-
-    // Load message data into form
-    document.getElementById('message-subject').value = message.subject || '';
-    document.getElementById('message-intro').value = message.intro || '';
-    document.getElementById('message-content').value = message.content || '';
-    document.getElementById('message-cta').value = message.cta || '';
-    document.getElementById('message-ps').value = message.ps || '';
-    document.getElementById('message-pps').value = message.pps || '';
-    document.getElementById('message-end').value = message.end || '';
-
-    // Update subject display
-    document.getElementById('subject-display').textContent = message.subject || 'Your subject';
-
-    // Update step card subject
-    const stepCard = document.querySelector(`[data-step="${stepNumber}"]`);
-    if (stepCard) {
-        const subjectInput = stepCard.querySelector('.step-subject');
-        if (subjectInput) {
-            subjectInput.value = message.subject || '';
-        }
-    }
-}
-
-function saveCurrentMessage() {
-    if (!activeStep) return;
-
-    // Get form data
-    const messageData = {
-        subject: document.getElementById('message-subject').value,
-        intro: document.getElementById('message-intro').value,
-        content: document.getElementById('message-content').value,
-        cta: document.getElementById('message-cta').value,
-        ps: document.getElementById('message-ps').value,
-        pps: document.getElementById('message-pps').value,
-        end: document.getElementById('message-end').value
-    };
-
-    // Store in messages object
-    messages[activeStep] = messageData;
-
-    // Update step card subject
-    const stepCard = document.querySelector(`[data-step="${activeStep}"]`);
-    if (stepCard) {
-        const subjectInput = stepCard.querySelector('.step-subject');
-        if (subjectInput) {
-            subjectInput.value = messageData.subject;
-        }
+    function openMessageModal(messageId) {
+        currentMessageId = messageId;
+        window.ModalSystem.loading('Loading assignments...');
+        
+        fetch("{% url 'campaign_sequence_message' 999 %}".replace('999', messageId))
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                renderAssignmentModal(data);
+                document.getElementById('assignment-modal').showModal();
+                window.ModalSystem.hideLoading();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                window.ModalSystem.hideLoading();
+                window.ModalSystem.error('Failed to load assignments: ' + error.message);
+            });
     }
 
-    // Update subject display
-    document.getElementById('subject-display').textContent = messageData.subject || 'Your subject';
-}
+    function renderAssignmentModal(assignments) {
+        // Update stats
+        document.getElementById('total-assignments').textContent = assignments.length;
+        document.getElementById('sent-count').textContent = 
+            assignments.filter(a => a.sent).length;
+        document.getElementById('response-count').textContent = 
+            assignments.filter(a => a.responded).length;
 
-function confirmDeleteStep(stepNumber) {
-    if (document.querySelectorAll('.step-card').length <= 1) {
-        window.ModalSystem.error('Cannot delete the last remaining step.');
-        return;
-    }
+        // Render table
+        const tableBody = document.getElementById('assignments-table-body');
+        tableBody.innerHTML = '';
 
-    window.ModalSystem.confirm({
-        title: 'Delete Step',
-        message: `Are you sure you want to delete Step ${stepNumber}? This action cannot be undone.`,
-        confirmText: 'Delete',
-        confirmClass: 'btn-error',
-        action: () => deleteStep(stepNumber)
-    });
-}
-
-function deleteStep(stepNumber) {
-    const stepCard = document.querySelector(`[data-step="${stepNumber}"]`);
-    if (stepCard) {
-        stepCard.remove();
-
-        // Remove from messages
-        delete messages[stepNumber];
-
-        // Renumber remaining steps
-        renumberSteps();
-
-        // Select first available step
-        const firstStep = document.querySelector('.step-card');
-        if (firstStep) {
-            const firstStepNumber = parseInt(firstStep.getAttribute('data-step'));
-            selectStep(firstStepNumber);
+        if (assignments.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-gray-500">
+                        No assignments found for this message
+                    </td>
+                </tr>
+            `;
+            return;
         }
 
-        window.ModalSystem.toast('Step deleted successfully');
-    }
-}
-
-function renumberSteps() {
-    const stepCards = document.querySelectorAll('.step-card');
-    const newMessages = {};
-
-    stepCards.forEach((card, index) => {
-        const oldStepNumber = parseInt(card.getAttribute('data-step'));
-        const newStepNumber = index + 1;
-
-        // Update card
-        card.setAttribute('data-step', newStepNumber);
-        card.querySelector('h3').textContent = `Step ${newStepNumber}`;
-
-        // Update form elements
-        const subject = card.querySelector('.step-subject');
-        const delay = card.querySelector('.step-delay');
-        const deleteBtn = card.querySelector('.delete-step-btn');
-
-        if (subject) subject.setAttribute('data-step', newStepNumber);
-        if (delay) delay.setAttribute('data-step', newStepNumber);
-        if (deleteBtn) deleteBtn.setAttribute('onclick', `confirmDeleteStep(${newStepNumber})`);
-
-        // Move message data
-        if (messages[oldStepNumber]) {
-            newMessages[newStepNumber] = messages[oldStepNumber];
-        }
-    });
-
-    messages = newMessages;
-    stepCounter = stepCards.length;
-}
-
-function addStep() {
-    // Save current message first
-    saveCurrentMessage();
-
-    stepCounter++;
-    const newStepNumber = stepCounter;
-
-    // Create new step HTML
-    const newStepHTML = `
-        <div class="card bg-white border border-base-200 rounded-lg p-4 step-card" data-step="${newStepNumber}">
-          <div class="flex justify-between items-center">
-            <h3 class="font-bold text-gray-800">Step ${newStepNumber}</h3>
-            <button class="btn btn-ghost btn-sm btn-square text-gray-400 delete-step-btn"
-                    onclick="confirmDeleteStep(${newStepNumber})"
-                    title="Delete step">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          </div>
-          <div class="mt-4 space-y-4">
-            <input type="text"
-                   placeholder="Your subject"
-                   class="input input-bordered w-full text-sm bg-white step-subject"
-                   data-step="${newStepNumber}" />
-          </div>
-          <div class="flex items-center justify-between mt-4 text-sm text-gray-500">
-            <span>Send next message in</span>
-            <div class="flex items-center gap-2">
-              <input type="number"
-                     value="1"
-                     min="1"
-                     class="input input-bordered input-sm w-16 text-center bg-white step-delay"
-                     data-step="${newStepNumber}" />
-              <span>Days</span>
-            </div>
-          </div>
-        </div>
-    `;
-
-    // Insert before the Add Step button
-    const addButton = document.querySelector('.btn.btn-ghost.text-primary');
-    addButton.insertAdjacentHTML('beforebegin', newStepHTML);
-
-    // Add click handler to new step
-    updateStepClickHandlers();
-
-    // Select the new step
-    selectStep(newStepNumber);
-
-    window.ModalSystem.toast('New step added successfully!');
-}
-
-// Message Functions
-function saveMessage() {
-    saveCurrentMessage();
-    window.ModalSystem.toast('Message saved successfully!');
-}
-
-function previewEmail() {
-    const subject = document.getElementById('message-subject').value;
-    const content = document.getElementById('message-content').value;
-
-    if (!subject && !content) {
-        window.ModalSystem.error('Please add some content to preview.');
-        return;
-    }
-
-    window.ModalSystem.toast('Preview functionality coming soon!', 'info');
-}
-
-function showTemplates() {
-    window.ModalSystem.toast('Templates functionality coming soon!', 'info');
-}
-
-function showVariables() {
-    window.ModalSystem.toast('Variables functionality coming soon!', 'info');
-}
-
-function showAI() {
-    window.ModalSystem.toast('AI assistance coming soon!', 'info');
-}
-
-function copyMessage() {
-    const content = document.getElementById('message-content').value;
-    if (content) {
-        navigator.clipboard.writeText(content).then(() => {
-            window.ModalSystem.toast('Content copied to clipboard!');
+        assignments.forEach(assignment => {
+            const row = document.createElement('tr');
+            
+            // Lead Name
+            const nameCell = document.createElement('td');
+            nameCell.textContent = `${assignment.campaign_lead__lead__first_name} ${assignment.campaign_lead__lead__last_name}`;
+            row.appendChild(nameCell);
+            
+            // Email
+            const emailCell = document.createElement('td');
+            emailCell.textContent = assignment.campaign_lead__lead__email;
+            row.appendChild(emailCell);
+            
+            // Status
+            const statusCell = document.createElement('td');
+            const statusBadge = document.createElement('span');
+            statusBadge.className = `badge ${assignment.sent ? 'badge-success' : 'badge-warning'}`;
+            statusBadge.textContent = assignment.sent ? 'Sent' : 'Pending';
+            statusCell.appendChild(statusBadge);
+            row.appendChild(statusCell);
+            
+            // Sent At
+            const sentAtCell = document.createElement('td');
+            sentAtCell.textContent = assignment.sent_at ? 
+                new Date(assignment.sent_at).toLocaleString() : 'Not sent';
+            row.appendChild(sentAtCell);
+            
+            // Response
+            const responseCell = document.createElement('td');
+            if (assignment.responded) {
+                responseCell.innerHTML = '<span class="badge badge-info">Responded</span>';
+            } else {
+                responseCell.innerHTML = '<span class="text-gray-400">-</span>';
+            }
+            row.appendChild(responseCell);
+            
+            // Actions
+            const actionsCell = document.createElement('td');
+            actionsCell.className = 'flex gap-2';
+            
+            const viewBtn = document.createElement('button');
+            viewBtn.className = 'btn btn-xs btn-ghost';
+            viewBtn.innerHTML = '<i class="fas fa-eye"></i>';
+            viewBtn.onclick = (e) => {
+                e.stopPropagation();
+                viewAssignmentDetails(assignment.id);
+            };
+            actionsCell.appendChild(viewBtn);
+            
+            const resendBtn = document.createElement('button');
+            resendBtn.className = 'btn btn-xs btn-ghost';
+            resendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            resendBtn.onclick = (e) => {
+                e.stopPropagation();
+                resendAssignment(assignment.id);
+            };
+            actionsCell.appendChild(resendBtn);
+            
+            row.appendChild(actionsCell);
+            tableBody.appendChild(row);
         });
-    } else {
-        window.ModalSystem.error('No content to copy.');
     }
-}
 
-function exportMessage() {
-    window.ModalSystem.toast('Export functionality coming soon!', 'info');
-}
+    // Action functions
+    function viewAssignmentDetails(assignmentId) {
+        console.log('View details for assignment:', assignmentId);
+        // Implement your detail view logic here
+    }
 
-// Utility Functions
-function updateStepClickHandlers() {
-    // Add click handlers to all step cards
-    document.querySelectorAll('.step-card').forEach(card => {
-        // Remove existing listeners to avoid duplicates
-        const newCard = card.cloneNode(true);
-        card.parentNode.replaceChild(newCard, card);
-    });
-
-    // Re-add listeners to the new elements
-    document.querySelectorAll('.step-card').forEach(card => {
-        card.addEventListener('click', function(e) {
-            // Don't trigger if clicking on delete button or input fields
-            if (!e.target.closest('.delete-step-btn') &&
-                !e.target.closest('input') &&
-                !e.target.closest('button')) {
-                const stepNumber = parseInt(this.getAttribute('data-step'));
-                selectStep(stepNumber);
+    function resendAssignment(assignmentId) {
+        window.ModalSystem.confirm({
+            title: 'Resend Message',
+            message: 'Are you sure you want to resend this message?',
+            confirmText: 'Resend',
+            confirmClass: 'btn-primary',
+            action: () => {
+                window.ModalSystem.loading('Resending message...');
+                // Implement your resend logic here
+                console.log('Resending assignment:', assignmentId);
+                setTimeout(() => {
+                    window.ModalSystem.hideLoading();
+                    window.ModalSystem.success('Message resent successfully!');
+                }, 1000);
             }
         });
-    });
-}
+    }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    updateStepClickHandlers();
-
-    // Initialize with empty message for step 1
-    messages[1] = {
-        subject: '',
-        intro: '',
-        content: '',
-        cta: '',
-        ps: '',
-        pps: '',
-        end: ''
-    };
-
-    // Load step 1 content
-    loadMessageContent(1);
-
-    // Auto-save on form changes
-    document.addEventListener('input', function(e) {
-        if (e.target.closest('#message-form')) {
-            // Auto-save current message when user types
-            setTimeout(() => {
-                saveCurrentMessage();
-            }, 500);
-        }
-    });
-
-    // Update step card subject when typing in subject field
-    document.getElementById('message-subject').addEventListener('input', function() {
-        const stepCard = document.querySelector(`[data-step="${activeStep}"]`);
-        if (stepCard) {
-            const subjectInput = stepCard.querySelector('.step-subject');
-            if (subjectInput) {
-                subjectInput.value = this.value;
-            }
-        }
-        document.getElementById('subject-display').textContent = this.value || 'Your subject';
-    });
-});
+    function exportAssignments() {
+        if (!currentMessageId) return;
+        window.ModalSystem.loading('Preparing export...');
+        console.log('Exporting assignments for message:', currentMessageId);
+        // Implement your export logic here
+        setTimeout(() => {
+            window.ModalSystem.hideLoading();
+            window.ModalSystem.success('Export completed successfully!');
+        }, 1500);
+    }
 </script>
-
 {% endblock %}

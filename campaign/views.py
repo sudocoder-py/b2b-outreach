@@ -2,9 +2,11 @@ from django.shortcuts import redirect, get_object_or_404, render
 from django.http import Http404, HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Count, Q
+
 
 from campaign.helpers import get_company_products
-from .models import Link, Message
+from .models import Link, Message, MessageAssignment
 import logging
 
 logger = logging.getLogger(__name__)
@@ -526,12 +528,38 @@ def campaign_leads_filter(request, pk):
 
 
 def campaign_sequence(request, pk):
+    # Get unique messages with their assignment counts
+    messages = Message.objects.filter(
+        messageassignment__campaign_id=pk
+    ).annotate(
+        total_assignments=Count('messageassignment'),
+        sent_count=Count('messageassignment', filter=Q(messageassignment__sent=True)),
+        response_count=Count('messageassignment', filter=Q(messageassignment__responded=True))
+    ).order_by('-messageassignment__sent_at')
+
     context = {
         'campaign_id': pk,
-        'current_tab': 'sequences'
+        'current_tab': 'sequences',
+        'messages': messages,  # Now contains aggregated data
+        'all_messages': Message.objects.all()  # For the "Add" dropdown
     }
     return render(request, "app/campaign/sequence.html", context)
 
+
+
+def campaign_sequence_message_assignments(request, message_id):
+    assignments = MessageAssignment.objects.filter(
+        message_id=message_id
+    ).values(
+        'id',
+        'sent',
+        'sent_at',
+        'responded',
+        'campaign_lead__lead__first_name',
+        'campaign_lead__lead__last_name',
+        'campaign_lead__lead__email'
+    )
+    return JsonResponse(list(assignments), safe=False)
 
 
 
