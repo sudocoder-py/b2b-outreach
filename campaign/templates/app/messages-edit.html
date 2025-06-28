@@ -351,7 +351,7 @@
     </div>
 </div>
 
-<script>
+<script>  
 // Message Management System
 let activeMessage = {% if message_id %}{{ message_id }}{% elif messages %}{{ messages.0.id }}{% else %}null{% endif %};
 
@@ -714,6 +714,16 @@ document.addEventListener('DOMContentLoaded', function() {
         showPreview();
     {% endif %}
 
+    // Check URL param to auto-add new message
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('add_new') === 'true') {
+        addNewMessage();
+        // Remove 'run' from URL so it doesn't keep triggering
+        urlParams.delete('run');
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+    }
+
     // Auto-save on form changes
     document.addEventListener('input', function(e) {
         if (e.target.closest('#message-form')) {
@@ -728,6 +738,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('subject-display').textContent = this.value || 'New Message';
     });
 });
+
+
+
 
 </script>
 {% endblock %}
