@@ -116,11 +116,14 @@
                                    id="select-all-checkbox"
                                    onchange="toggleSelectAll()" />
                         </th>
-                        <th class="w-16"></th> <!-- Index number column -->
+
                         <th class="text-left">Lead</th>
                         <th class="text-left">Company</th>
                         <th class="text-left">Status</th>
-                        <th class="text-left">Links</th>
+                        <th class="text-left">Messages Sent</th>
+                        <th class="text-left">Messages Remaining</th>
+                        <th class="text-left">Messages Opened</th>
+                        <th class="text-left">Clicked Links</th>
                         <th class="text-left">Converted at</th>
                         <th class="text-left">Created at</th>
                         <th class="w-12"></th> <!-- Actions column -->
@@ -135,7 +138,6 @@
                                    value="{{ lead.id }}"
                                    onchange="updateBulkActions()" />
                         </td>
-                        <td class="text-gray-500 text-center">{{ lead.id }}</td>
                         <td class="font-medium text-gray-700">
                             <div class="flex flex-col">
                                 <span>{{ lead.first_name }} {{ lead.last_name }}</span>
@@ -171,11 +173,14 @@
                             </div>
                             {% endif %}
                         </td>
+                        <td class="text-gray-500 text-center">3</td>
+                        <td class="text-gray-500 text-center">1</td>
+                        <td class="text-gray-500 text-center">2 out of 4</td>
                         <td class="text-gray-600">
                             {% if lead.links_count > 0 %}
-                                <span class="badge badge-outline">{{ lead.links_count }} links</span>
+                                <span class="badge badge-outline">{{ lead.links_count }} Clicked</span>
                             {% else %}
-                                <span class="text-gray-400">No links</span>
+                                <span class="text-gray-400">No links clicked</span>
                             {% endif %}
                         </td>
                         <td class="text-gray-600">
