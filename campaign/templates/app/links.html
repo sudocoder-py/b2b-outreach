@@ -167,10 +167,10 @@
                                 {% endif %}
                         </td>
                         <td>
-                            <span class="text-sm font-medium text-gray-900">{{ link.campaign_lead.lead.full_name }}</span>
+                            <span class="text-sm font-medium text-gray-900" title="{{ link.campaign_lead.lead.position }} | {{ link.campaign_lead.lead.company_name }}">{{ link.campaign_lead.lead.full_name }}</span>
                         </td>
                         <td>
-                            <span class="text-sm font-medium text-gray-900">{{ link.get_purpose_display }}</span>
+                            <span class="text-sm font-medium text-gray-900" title="{{ link.get_purpose_display }}">{{ link.purpose }}</span>
                         </td>
                         <td>
                             <span class="badge badge-ghost badge-sm">{{ link.get_redirect_url }}</span>
