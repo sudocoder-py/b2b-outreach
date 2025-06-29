@@ -143,7 +143,7 @@
                                     {% elif message.performance >= 40 %}Medium performing
                                     {% else %}Low performing{% endif %}">
                                 </div>
-                                <div>
+                                <div title="{{message.intro}}">
                                     <div class="font-medium text-gray-900">{{ message.subject }}</div>
                                     <div class="text-sm text-gray-500">{{ message.intro|truncatechars:40 }}</div>
                                 </div>
