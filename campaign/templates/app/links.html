@@ -3,75 +3,388 @@
 {% block title %}Links{% endblock %}
 
 {% block content %}
-<div class="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-8">
+<div class="flex-1 flex flex-col overflow-hidden bg-gray-50 p-6">
     <!-- Header -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Links</h1>
-        <p class="text-gray-600">Track and manage all your campaign links and redirects</p>
+    <div class="mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Links</h1>
+                <p class="text-gray-600">Track and manage all your campaign links and redirects</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="btn btn-primary" onclick="addNewLink()">
+                    <i class="fa-solid fa-plus mr-2"></i>
+                    New Link
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="flex-1 flex items-center justify-center">
-        <div class="text-center max-w-md">
-            <!-- Icon -->
-            <div class="mb-6">
-                <div class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-orange-100 text-orange-600">
-                    <i class="fa-solid fa-link text-3xl"></i>
+     <!-- Performance Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Best Performing Subject Line -->
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Best Subject Line</p>
+                    <p class="text-2xl font-bold text-gray-900">42.3%</p>
+                    <p class="text-xs text-gray-500 mt-1 truncate">Welcome to CRM Pro - Get Started!</p>
+                </div>
+                <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-envelope-open text-blue-600"></i>
                 </div>
             </div>
-            
-            <!-- Title -->
-            <h2 class="text-2xl font-semibold text-gray-900 mb-4">Links Management</h2>
-            
-            <!-- Description -->
-            <p class="text-gray-600 mb-8 leading-relaxed">
-                Monitor and analyze all your campaign links. Track click-through rates, manage redirects, 
-                and get detailed analytics on link performance across all campaigns.
-            </p>
-            
-            <!-- Features List -->
-            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 mb-8">
-                <h3 class="font-semibold text-gray-900 mb-4">Coming Features:</h3>
-                <ul class="text-left space-y-2 text-gray-600">
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Link tracking & analytics
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Custom short URLs
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        UTM parameter management
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Click heatmaps & timing
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Conversion tracking
-                    </li>
-                </ul>
+        </div>
+
+        <!-- Best Performing CTA -->
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Most Clicked</p>
+                    <p class="text-2xl font-bold text-gray-900">38.7%</p>
+                    <p class="text-xs text-gray-500 mt-1 truncate">Start Your Free Trial</p>
+                </div>
+                <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-mouse-pointer text-green-600"></i>
+                </div>
             </div>
-            
-            <!-- Action Button -->
-            <button class="btn btn-primary" onclick="showComingSoon()">
-                <i class="fa-solid fa-plus mr-2"></i>
-                Create Tracked Link
-            </button>
+        </div>
+
+        <!-- Best Performing P.S -->
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Best Engaged</p>
+                    <p class="text-2xl font-bold text-gray-900">28.9%</p>
+                    <p class="text-xs text-gray-500 mt-1 truncate">P.S. Limited time offer!</p>
+                </div>
+                <div class="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-star text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall Performance -->
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Avg. Converted</p>
+                    <p class="text-2xl font-bold text-gray-900">24.1%</p>
+                    <p class="text-xs text-green-500 mt-1">↑ 12% from last month</p>
+                </div>
+                <div class="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-chart-line text-orange-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Filters and Search -->
+    <div class="mb-6 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+        <div class="flex flex-wrap gap-4 items-center">
+            <div class="flex-1 min-w-64">
+                <input type="text"
+                       placeholder="Search links by campaign, purpose..." 
+                       class="input input-bordered w-full bg-white"
+                       id="search-links">
+            </div>
+            <button onclick="clearLinkFilters()" class="btn btn-ghost">Clear</button>
+            <select class="select select-bordered bg-white" id="filter-product">
+                <option value="">All Products</option>
+                {% for product in products %}
+                <option value="{{ product.name|lower }}">{{ product.name }}</option>
+                {% endfor %}
+            </select>
+            <select class="select select-bordered bg-white" id="filter-sort">
+                <option value="">Sort By</option>
+                <option value="campagin">Campaign</option>
+                <option value="visit-count">Visit Count</option>
+                <option value="visited-at">Visted At</option>
+            </select>
+            <div class="text-sm text-gray-500">
+                <span id="link-count">{{ links|length }} links</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- links Table -->
+    <div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="text-left font-semibold text-gray-900">URL</th>
+                        <th class="text-left font-semibold text-gray-900">Campaign</th>                      
+                        <th class="text-left font-semibold text-gray-900">Message</th>
+                        <th class="text-left font-semibold text-gray-900">Lead</th>
+                        <th class="text-left font-semibold text-gray-900">Purpose</th>
+                        <th class="text-left font-semibold text-gray-900">Tracking Url</th>
+                        <th class="text-left font-semibold text-gray-900">Visit Count</th>
+                        <th class="text-left font-semibold text-gray-900">Visited At</th>
+                        <th class="text-left font-semibold text-gray-900">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="links-table-body">
+                    {% for link in links %}
+                    <tr class="hover:bg-gray-50 cursor-pointer link-row" 
+                        onclick="editLink({{ link.id }})"
+                        data-product="{{ link.product|lower }}"
+                        data-performance="{{ link.performance }}"
+                        data-open-rate="{{ link.open_rate }}"
+                        data-click-rate="{{ link.click_rate }}"
+                        data-name="{{ link.subject|lower }}">
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 
+                                    {% if link.performance >= 70 %}bg-green-500
+                                    {% elif link.performance >= 40 %}bg-yellow-500
+                                    {% else %}bg-red-500{% endif %} 
+                                    rounded-full" 
+                                    title="{% if link.performance >= 70 %}High performing
+                                    {% elif link.performance >= 40 %}Medium performing
+                                    {% else %}Low performing{% endif %}">
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">{{ link.url }}</div>
+                                    <div class="text-sm text-gray-500">{{ link.campaign.product }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-ghost badge-sm">{{ link.campaign.name }}</span>
+                        </td>
+                        <td>
+                            
+                                {% if link.message_assignments.all %}
+                                <span class="text-sm font-medium text-gray-900" title="{{link.message_assignments.all.0.message.subject}}">
+                                    {{ link.message_assignments.all.0.message.subject|truncatechars:15 }}
+                                </span>    
+                                {% else %}
+                                <span class="text-sm font-medium text-gray-900" title="No message assigned">
+                                    None
+                                </span>    
+                                {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-sm font-medium text-gray-900">{{ link.campaign_lead.lead.full_name }}</span>
+                        </td>
+                        <td>
+                            <span class="text-sm font-medium text-gray-900">{{ link.get_purpose_display }}</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-ghost badge-sm">{{ link.get_redirect_url }}</span>
+                            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); copyLink('{{link.get_full_redirect_url}}')" title="Copy Tracking Link">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <span class="text-sm font-medium text-gray-900">{{ link.visit_count }}</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-ghost badge-sm">{{ link.visited_at|date:"M d, Y" }}</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <a class="btn btn-ghost btn-xs" href="{{ link.url }}" target="_blank" title="Open in new tab">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </a>
+                                <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteLink({{ link.id }})" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr id="no-links-row">
+                        <td colspan="9" class="text-center py-16">
+                            <div class="flex flex-col items-center justify-center">
+                                <img src="https://raw.githubusercontent.com/Othunderlight/static/refs/heads/main/no-links.svg"
+                                     alt="No links illustration"
+                                     class="w-64 h-auto mx-auto">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2 mt-4">
+                                    👋 Create your first link
+                                </h3>
+                                <p class="text-gray-500 mb-6">
+                                    Get started by creating a new tracking link
+                                </p>
+                                <button class="btn btn-primary" onclick="addNewLink()">
+                                    <i class="fa-solid fa-plus mr-2"></i>
+                                    New link
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 <script>
-function showComingSoon() {
-    if (window.ModalSystem) {
-        window.ModalSystem.toast('Links management coming soon!', 'info');
-    } else {
-        alert('Links management coming soon!');
+// link filtering and sorting functionality
+function filterLinks() {
+    const searchTerm = document.getElementById('search-links').value.toLowerCase();
+    const productFilter = document.getElementById('filter-product').value.toLowerCase();
+    const sortFilter = document.getElementById('filter-sort').value;
+    
+    const rows = document.querySelectorAll('.link-row');
+    let visibleCount = 0;
+
+    // First filter the rows
+    rows.forEach(row => {
+        const linkText = row.textContent.toLowerCase();
+        const product = row.getAttribute('data-product').toLowerCase();
+        const name = row.getAttribute('data-name').toLowerCase();
+        
+        const matchesSearch = searchTerm === '' || 
+                             linkText.includes(searchTerm) || 
+                             name.includes(searchTerm);
+        const matchesProduct = productFilter === '' || product === productFilter;
+
+        if (matchesSearch && matchesProduct) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    // Then sort if a sort option is selected
+    if (sortFilter) {
+        sortTable(sortFilter);
     }
+
+    // Update empty state
+    const nolinksRow = document.getElementById('no-links-row');
+    if (visibleCount === 0 && rows.length > 0) {
+        nolinksRow.style.display = '';
+    } else {
+        nolinksRow.style.display = 'none';
+    }
+
+    // Update counter
+    document.getElementById('link-count').textContent = `${visibleCount} links`;
 }
+
+function sortTable(sortBy) {
+    const tbody = document.getElementById('links-table-body');
+    const rows = Array.from(tbody.querySelectorAll('.link-row[style=""]'));
+    
+    rows.sort((a, b) => {
+        let aValue, bValue;
+        
+        switch(sortBy) {
+            case 'name':
+                aValue = a.getAttribute('data-name');
+                bValue = b.getAttribute('data-name');
+                return aValue.localeCompare(bValue);
+            case 'performance':
+                aValue = parseFloat(a.getAttribute('data-performance'));
+                bValue = parseFloat(b.getAttribute('data-performance'));
+                return bValue - aValue; // Descending order
+            case 'open-rate':
+                aValue = parseFloat(a.getAttribute('data-open-rate'));
+                bValue = parseFloat(b.getAttribute('data-open-rate'));
+                return bValue - aValue;
+            case 'click-rate':
+                aValue = parseFloat(a.getAttribute('data-click-rate'));
+                bValue = parseFloat(b.getAttribute('data-click-rate'));
+                return bValue - aValue;
+            default:
+                return 0;
+        }
+    });
+
+    // Re-append sorted rows
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+function clearLinkFilters() {
+    document.getElementById('search-links').value = '';
+    document.getElementById('filter-product').value = '';
+    document.getElementById('filter-sort').value = '';
+    filterLinks();
+}
+
+// Action functions
+function editLink(id) {
+    window.location.href = `/campaign/links/edit/${id}`;
+}
+
+function addNewLink() {
+    window.location.href = '/campaign/links/add/?add_new=true';
+}
+
+function copyLink(link) {
+    navigator.clipboard.writeText(link)
+    ModalSystem.toast('link copied successfully!', 'success');
+}
+
+function previewLink(id) {
+    ModalSystem.toast('Preview functionality coming soon!', 'info');
+    // In a real app, this would open a modal with link preview
+}
+
+function confirmDeleteLink(id) {
+    ModalSystem.confirm({
+        title: 'Delete link',
+        link: 'Are you sure you want to delete this link template? This action cannot be undone.',
+        confirmText: 'Delete',
+        confirmClass: 'btn-error',
+        action: function() {
+            // Find and remove the row
+            const row = document.querySelector(`tr[onclick="editlink(${id})"]`);
+            if (row) row.remove();
+            
+            // Update counts
+            filterLinks();
+            
+            // Show success link
+            ModalSystem.toast('link deleted successfully!');
+            
+            // // Optional: Send delete request to server
+            // fetch(`/links/${id}/delete/`, {
+            //     method: 'POST',
+            //     headers: {
+            //         'X-CSRFToken': getCookie('csrftoken'),
+            //     }
+            // });
+        }
+    });
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners for filters
+    document.getElementById('search-links').addEventListener('input', filterlinks);
+    document.getElementById('filter-product').addEventListener('change', filterlinks);
+    document.getElementById('filter-sort').addEventListener('change', function() {
+        filterLinks(); // This will trigger sorting too
+    });
+    
+    // Hide empty state if we have links
+    const nolinksRow = document.getElementById('no-links-row');
+    if (nolinksRow && document.querySelectorAll('.link-row').length > 0) {
+        nolinksRow.style.display = 'none';
+    }
+});
 </script>
 {% endblock %}

@@ -350,6 +350,11 @@ class Link(models.Model):
         """Get the Django redirect URL for tracking"""
         from django.urls import reverse
         return reverse('redirect_and_track_emails', kwargs={'ref_code': self.ref})
+    
+    def get_full_redirect_url(self):
+        redirect_url = self.get_redirect_url()
+        full_url = f"{settings.SITE_URL}{redirect_url}" if hasattr(settings, 'SITE_URL') else redirect_url
+        return full_url
 
     def full_url(self):
         """Get the full URL with all UTM parameters while preserving fragments"""
