@@ -114,10 +114,11 @@
         </li>
 
         <!-- Campaigns -->
-        <li>
+        <li class="mt-2 mb-2">
           <div class="tooltip tooltip-right" data-tip="Campaigns">
-            <a href="{% url 'campaign_view_list' %}" class="nav-link flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 text-blue-600 transition-all duration-200">
-              <i class="fa-solid fa-paper-plane text-xl"></i>
+            <a href="{% url 'campaign_view_list' %}" 
+              class="nav-link flex h-12 w-12 items-center justify-center rounded-full bg-base-200 text-blue-600 shadow-lg transition-all duration-200 ring-2 ring-blue-300 hover:scale-105"> 
+              <i class="fa-solid fa-paper-plane text-2xl"></i>
             </a>
           </div>
         </li>
@@ -182,3 +183,21 @@
   z-index: 1000;
 }
 </style>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const currentPath = window.location.pathname;
+
+    document.querySelectorAll(".nav-link").forEach(link => {
+      // Check if the link's href is part of the current URL
+      if (link.getAttribute("href") === currentPath) {
+        link.classList.add("active");
+        link.classList.remove("text-gray-500");
+      } else {
+        link.classList.remove("active");
+      }
+    });
+  });
+</script>
+
