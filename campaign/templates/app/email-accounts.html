@@ -130,24 +130,17 @@
     </div>
 </div>
 
-<!-- Add Account Modal (EXACTLY AS BEFORE) -->
-<div class="modal" id="add-account-modal">
+<!-- Add Account Modal -->
+<dialog id="add-account-modal" class="modal">
     <div class="modal-box max-w-md">
         <h3 class="font-bold text-lg mb-4">Connect existing accounts</h3>
-
         <div class="space-y-4 mb-6">
             <div class="flex items-center gap-3 text-sm text-gray-600">
                 <i class="fa-solid fa-check text-green-500"></i>
                 <span>Connect any IMAP or SMTP email provider</span>
             </div>
-            <!-- <div class="flex items-center gap-3 text-sm text-gray-600">
-                <i class="fa-solid fa-check text-green-500"></i>
-                <span>Sync up replies in the Unibox</span>
-            </div> -->
         </div>
-
         <div class="space-y-3">
-            <!-- Google Gmail -->
             <button class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
                     onclick="selectProvider('google')">
                 <div class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
@@ -158,8 +151,6 @@
                     <div class="text-sm text-gray-500">Gmail / G-Suite</div>
                 </div>
             </button>
-
-            <!-- Microsoft Outlook -->
             <button class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
                     onclick="selectProvider('microsoft')">
                 <div class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
@@ -170,8 +161,6 @@
                     <div class="text-sm text-gray-500">Office 365 / Outlook</div>
                 </div>
             </button>
-
-            <!-- Any Provider IMAP/SMTP -->
             <button class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
                     onclick="selectProvider('imap')">
                 <div class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
@@ -183,15 +172,17 @@
                 </div>
             </button>
         </div>
-
         <div class="modal-action">
-            <button class="btn btn-ghost" onclick="closeAddAccountModal()">Cancel</button>
+            <button class="btn btn-ghost" onclick="ModalSystem.close('add-account-modal')">Cancel</button>
         </div>
     </div>
-</div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
 
-<!-- Step 1: Basic Info Modal (EXACTLY AS BEFORE) -->
-<div class="modal" id="basic-info-modal">
+<!-- Basic Info Modal -->
+<dialog id="basic-info-modal" class="modal">
     <div class="modal-box max-w-md">
         <div class="flex items-center gap-2 mb-4">
             <button class="btn btn-ghost btn-sm" onclick="goBackToProviders()">
@@ -200,7 +191,6 @@
             </button>
             <span class="text-sm text-gray-500">Select another provider</span>
         </div>
-
         <div class="text-center mb-6">
             <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <i class="fa-solid fa-envelope text-gray-600 text-lg"></i>
@@ -208,7 +198,6 @@
             <h3 class="font-bold text-lg">Connect Any Provider Account</h3>
             <p class="text-sm text-gray-500">IMAP / SMTP</p>
         </div>
-
         <form id="basic-info-form" class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -224,7 +213,6 @@
                     <input type="text" placeholder="Last Name" class="input input-bordered w-full bg-white" id="last-name" required>
                 </div>
             </div>
-
             <div>
                 <label class="label">
                     <span class="label-text">Email *</span>
@@ -232,17 +220,19 @@
                 <input type="email" placeholder="Email address to connect" class="input input-bordered w-full bg-white" id="email-address" required>
             </div>
         </form>
-
         <div class="modal-action">
             <button class="btn btn-success w-full" onclick="proceedToImapSettings()">
                 Next >
             </button>
         </div>
     </div>
-</div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
 
-<!-- Step 2: IMAP Settings Modal (EXACTLY AS BEFORE) -->
-<div class="modal" id="imap-settings-modal">
+<!-- IMAP Settings Modal -->
+<dialog id="imap-settings-modal" class="modal">
     <div class="modal-box max-w-md">
         <div class="flex items-center gap-2 mb-4">
             <button class="btn btn-ghost btn-sm" onclick="goBackToBasicInfo()">
@@ -251,7 +241,6 @@
             </button>
             <span class="text-sm text-gray-500">Select another provider</span>
         </div>
-
         <div class="text-center mb-6">
             <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <i class="fa-solid fa-download text-blue-600 text-lg"></i>
@@ -259,7 +248,6 @@
             <h3 class="font-bold text-lg">IMAP</h3>
             <p class="text-sm text-gray-500">IMAP Setup</p>
         </div>
-
         <form id="imap-settings-form" class="space-y-4">
             <div>
                 <label class="label">
@@ -267,14 +255,12 @@
                 </label>
                 <input type="text" placeholder="IMAP Username" class="input input-bordered w-full bg-white" id="imap-username" required>
             </div>
-
             <div>
                 <label class="label">
                     <span class="label-text">IMAP Password *</span>
                 </label>
                 <input type="password" placeholder="IMAP Password" class="input input-bordered w-full bg-white" id="imap-password" required>
             </div>
-
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="label">
@@ -290,7 +276,6 @@
                 </div>
             </div>
         </form>
-
         <div class="modal-action flex gap-2">
             <button class="btn btn-ghost flex-1" onclick="goBackToBasicInfo()">
                 < Back
@@ -300,10 +285,13 @@
             </button>
         </div>
     </div>
-</div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
 
-<!-- Loading Modal (EXACTLY AS BEFORE) -->
-<div class="modal" id="loading-modal">
+<!-- Loading Modal -->
+<dialog id="loading-modal" class="modal">
     <div class="modal-box max-w-sm text-center">
         <div class="mb-6">
             <div class="loading loading-spinner loading-lg text-primary mx-auto"></div>
@@ -311,10 +299,10 @@
         <h3 class="font-bold text-lg mb-2">Testing IMAP Connection</h3>
         <p class="text-gray-600">Please wait while we verify your email settings...</p>
     </div>
-</div>
+</dialog>
 
-<!-- Success Modal (EXACTLY AS BEFORE) -->
-<div class="modal" id="success-modal">
+<!-- Success Modal -->
+<dialog id="success-modal" class="modal">
     <div class="modal-box max-w-sm text-center">
         <div class="mb-6">
             <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
@@ -323,80 +311,71 @@
         </div>
         <h3 class="font-bold text-lg mb-2">Connection Successful!</h3>
         <p class="text-gray-600 mb-6">Your email account has been connected successfully and is ready to use.</p>
-
         <div class="modal-action">
             <button class="btn btn-primary w-full" onclick="closeSuccessModal()">
                 Done
             </button>
         </div>
     </div>
-</div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
 
 <script>
-
-// Modal fun
-function showModal(id) {
-    const modal = document.getElementById(id);
-    modal.style.display = 'block';
-
-    // Modal Management
-    const showModal = (modal) => modal.classList.add('modal-open');
-    const closeModal = (modal) => modal.classList.remove('modal-open');
-
-    const showAddAccountModal = () => showModal(addAccountModal);
-    const closeAddAccountModal = () => closeModal(addAccountModal);
-
-    const selectProvider = (provider) => {
-        closeModal(addAccountModal);
-        if (provider === 'imap' || provider === 'google' || provider === 'microsoft') {
-            showModal(basicInfoModal);
-        }
-    };
-
-    const goBackToProviders = () => {
-        closeModal(basicInfoModal);
-        showModal(addAccountModal);
-    };
-    
-    const proceedToImapSettings = () => {
-        // Basic validation
-        if (document.getElementById('basic-info-form').checkValidity()) {
-            closeModal(basicInfoModal);
-            showModal(imapSettingsModal);
-        } else {
-            document.getElementById('basic-info-form').reportValidity();
-        }
-    };
-
-    const goBackToBasicInfo = () => {
-        closeModal(imapSettingsModal);
-        showModal(basicInfoModal);
-    };
-
-    const testImapConnection = () => {
-        if (document.getElementById('imap-settings-form').checkValidity()) {
-            closeModal(imapSettingsModal);
-            showModal(loadingModal);
-            // Simulate network delay
-            setTimeout(() => {
-                closeModal(loadingModal);
-                showModal(successModal);
-            }, 2000);
-        } else {
-            document.getElementById('imap-settings-form').reportValidity();
-        }
-    };
-    
-    const closeSuccessModal = () => {
-        closeModal(successModal);
-        // Here you would typically add the new account to the list and re-render
-    };
+// Modal Management Functions
+function showAddAccountModal() {
+    document.getElementById('add-account-modal').showModal();
 }
 
-function closeModal(id) {
-    const modal = document.getElementById(id);
-    modal.style.display = 'none';
-}   
+function selectProvider(provider) {
+    document.getElementById('add-account-modal').close();
+    if (provider === 'imap' || provider === 'google' || provider === 'microsoft') {
+        document.getElementById('basic-info-modal').showModal();
+    }
+}
+
+function goBackToProviders() {
+    document.getElementById('basic-info-modal').close();
+    document.getElementById('add-account-modal').showModal();
+}
+
+function proceedToImapSettings() {
+    if (document.getElementById('basic-info-form').checkValidity()) {
+        document.getElementById('basic-info-modal').close();
+        document.getElementById('imap-settings-modal').showModal();
+    } else {
+        document.getElementById('basic-info-form').reportValidity();
+    }
+}
+
+function goBackToBasicInfo() {
+    document.getElementById('imap-settings-modal').close();
+    document.getElementById('basic-info-modal').showModal();
+}
+
+function testImapConnection() {
+    if (document.getElementById('imap-settings-form').checkValidity()) {
+        document.getElementById('imap-settings-modal').close();
+        document.getElementById('loading-modal').showModal();
+        setTimeout(() => {
+            document.getElementById('loading-modal').close();
+            document.getElementById('success-modal').showModal();
+        }, 2000);
+    } else {
+        document.getElementById('imap-settings-form').reportValidity();
+    }
+}
+
+function closeSuccessModal() {
+    document.getElementById('success-modal').close();
+}
+
+// Initialize modals when needed
+document.addEventListener('DOMContentLoaded', function() {
+    // Example: Show add account modal when a button is clicked
+    document.querySelector('.btn-show-account-modal').addEventListener('click', showAddAccountModal);
+});
 
 
 
