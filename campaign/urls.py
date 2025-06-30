@@ -3,8 +3,6 @@ from . import views
 
 urlpatterns = [
     path('redirect/<str:ref_code>/', views.redirect_and_track, name='redirect_and_track_emails'),
-    path('dashboard-test-not-functional/', views.dashboard_non_functional, name='dashboard_non_functional'),
-    path('dashboard/', views.dashboard, name='dashboard'),
     path('leads/', views.leads_view, name='leads_view'),
     path('view-list/', views.campaign_view_list, name='campaign_view_list'),
     path('dashboard/<int:pk>', views.campaign_dashboard, name='campaign_dashboard'),
@@ -17,7 +15,6 @@ urlpatterns = [
 
     # New navigation pages
     path('products/', views.products_view, name='products'),
-    path('products/edit/<int:pk>/', views.products_edit_view, name='products_edit'),
     path('email-accounts/', views.email_accounts_view, name='email_accounts'),
     path('messages/', views.messages_view, name='messages'),
     path('messages/edit/<int:pk>/', views.messages_edit_view, name='messages_edit'),

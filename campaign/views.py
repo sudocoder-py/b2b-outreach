@@ -50,17 +50,6 @@ def redirect_and_track(request, ref_code):
 
 
 
-def dashboard_non_functional(request):
-    """
-    Render the overall dashboard page
-    """
-    return render(request, 'overall-dashboard.html')
-
-
-
-def dashboard(request):
-
-    return render(request, "base-app.html")
 
 
 def leads_view(request):
@@ -590,12 +579,9 @@ def products_view(request):
     context = {
         'products': products
     }
-    return render(request, "app/products.html", context)
+    return render(request, "app/products/products.html", context)
 
 
-def products_edit_view(request, pk):
-    """Products management page"""
-    return render(request, "app/products-edit.html")
 
 
 def email_accounts_view(request):
@@ -614,7 +600,7 @@ def email_accounts_view(request):
     context = {
         'emails': sampleAccounts
     }
-    return render(request, "app/email-accounts.html", context)
+    return render(request, "app/account/email-accounts.html", context)
 
 
 
@@ -628,7 +614,7 @@ def messages_view(request):
         'products': products
     }
 
-    return render(request, "app/messages.html", context)
+    return render(request, "app/msgs/messages.html", context)
 
 
 def messages_edit_view(request, pk):
@@ -641,7 +627,7 @@ def messages_edit_view(request, pk):
         'message_id': pk,
         'products': products
     }
-    return render(request, "app/messages-edit.html", context)
+    return render(request, "app/msgs/messages-edit.html", context)
 
 
 def messages_add_view(request):
@@ -654,7 +640,7 @@ def messages_add_view(request):
         'products': products
     }
 
-    return render(request, "app/messages-edit.html", context)
+    return render(request, "app/msgs/messages-edit.html", context)
 
 
 def links_view(request):
@@ -678,9 +664,9 @@ def overall_dashboard_view(request):
 
 def feedback_view(request):
     """Feedback and feature requests page"""
-    return render(request, "app/feedback.html")
+    return render(request, "app/account/feedback.html")
 
 
 def account_settings_view(request):
     """Account settings page"""
-    return render(request, "app/account-settings.html")
+    return render(request, "app/account/account-settings.html")
