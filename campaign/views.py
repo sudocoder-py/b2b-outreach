@@ -664,6 +664,7 @@ def links_view(request):
 
     context = {
         'products': products,
+        'campaigns': campaigns,
         'links': links
     }
 

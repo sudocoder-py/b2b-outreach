@@ -79,7 +79,6 @@
         </div>
     </div>
 
-
     <!-- Filters and Search -->
     <div class="mb-6 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
         <div class="flex flex-wrap gap-4 items-center">
@@ -98,9 +97,9 @@
             </select>
             <select class="select select-bordered bg-white" id="filter-sort">
                 <option value="">Sort By</option>
-                <option value="campagin">Campaign</option>
+                <option value="campaign">Campaign</option>
                 <option value="visit-count">Visit Count</option>
-                <option value="visited-at">Visted At</option>
+                <option value="visited-at">Visited At</option>
             </select>
             <div class="text-sm text-gray-500">
                 <span id="link-count">{{ links|length }} links</span>
@@ -108,7 +107,7 @@
         </div>
     </div>
 
-    <!-- links Table -->
+    <!-- Links Table -->
     <div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="table w-full">
@@ -222,8 +221,259 @@
     </div>
 </div>
 
+<!-- Add New Link Modal - Step 1 -->
+<dialog id="add-link-modal-step1" class="modal">
+    <div class="modal-box max-w-md">
+        <div class="flex items-center gap-2 mb-4">
+            <button class="btn btn-ghost btn-sm" onclick="ModalSystem.close('add-link-modal-step1')">
+                <i class="fa-solid fa-arrow-left"></i>
+                Cancel
+            </button>
+        </div>
+
+        <div class="text-center mb-6">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <i class="fa-solid fa-link text-blue-600 text-lg"></i>
+            </div>
+            <h3 class="font-bold text-lg">Create New Tracking Link</h3>
+            <p class="text-sm text-gray-500">Step 1: Basic Information</p>
+        </div>
+
+        <form id="link-step1-form" class="space-y-4">
+            <div>
+                <label class="label">
+                    <span class="label-text">Campaign *</span>
+                </label>
+                <select class="select select-bordered w-full bg-white" id="link-campaign" required>
+                    <option value="">Select a campaign</option>
+                    {% for campaign in campaigns %}
+                    <option value="{{ campaign.id }}" data-product="{{ campaign.product.name|lower }}">{{ campaign.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="label">
+                    <span class="label-text">Campaign Lead *</span>
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           placeholder="Search leads..." 
+                           class="input input-bordered w-full bg-white pr-10" 
+                           id="lead-search"
+                           oninput="filterLeads()">
+                    <div class="absolute right-3 top-3">
+                        <i class="fa-solid fa-search text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="mt-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg hidden" id="leads-dropdown">
+                    
+                    {% for campaign in campaigns %}
+                    <div class="campaign-leads hidden" data-campaign="{{ campaign.id }}">
+                        {% for lead in campaign.campaignlead_set.all %}
+                        <div class="p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 lead-option"
+                             data-lead-id="{{ lead.id }}"
+                             onclick="selectLead(this, {{ lead.id }}, '{{ lead.lead.full_name }}')">
+                            <div class="font-medium">{{ lead.lead.full_name }}</div>
+                            <div class="text-xs text-gray-500">{{ lead.lead.position }} | {{ lead.lead.company_name }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="selected-lead-id">
+                <div id="selected-lead-display" class="hidden mt-2 p-2 bg-gray-50 rounded-lg">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="font-medium" id="selected-lead-name"></span>
+                            <div class="text-xs text-gray-500" id="selected-lead-details"></div>
+                        </div>
+                        <button type="button" class="btn btn-xs btn-ghost" onclick="clearLeadSelection()">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="label">
+                    <span class="label-text">Purpose *</span>
+                </label>
+                <select class="select select-bordered w-full bg-white" id="link-purpose" required>
+                    <option value="">Select purpose</option>
+                    {% for purpose in links.first.PURPOSE_CHOICES %}
+                    <option value="{{ purpose.0 }}">{{ purpose.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="label">
+                    <span class="label-text">Description</span>
+                    <span class="label-text-alt">Optional</span>
+                </label>
+                <textarea class="textarea textarea-bordered w-full bg-white" 
+                          id="link-description" 
+                          placeholder="Brief description of this link's purpose"></textarea>
+            </div>
+        </form>
+
+        <div class="modal-action">
+            <button class="btn btn-success w-full" onclick="proceedToLinkStep2()">
+                Next >
+            </button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Add New Link Modal - Step 2 -->
+<dialog id="add-link-modal-step2" class="modal">
+    <div class="modal-box max-w-md">
+        <div class="flex items-center gap-2 mb-4">
+            <button class="btn btn-ghost btn-sm" onclick="backToLinkStep1()">
+                <i class="fa-solid fa-arrow-left"></i>
+                Back
+            </button>
+        </div>
+
+        <div class="text-center mb-6">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <i class="fa-solid fa-chart-line text-purple-600 text-lg"></i>
+            </div>
+            <h3 class="font-bold text-lg">Tracking Parameters</h3>
+            <p class="text-sm text-gray-500">Step 2: UTM Parameters</p>
+        </div>
+
+        <form id="link-step2-form" class="space-y-4">
+            <div>
+                <label class="label">
+                    <span class="label-text">Destination URL</span>
+                </label>
+                <input type="url" 
+                       placeholder="Will use campaign product landing page if empty" 
+                       class="input input-bordered w-full bg-white" 
+                       id="link-url">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="label" title="Identifies which site sent the traffic (e.g. email_outreach)">
+                        <span class="label-text">UTM Source</span>
+                    </label>
+                    <input type="text" 
+                           placeholder="email_outreach" 
+                           class="input input-bordered w-full bg-white" 
+                           id="utm-source"
+                           value="email_outreach">
+                </div>
+                <div>
+                    <label class="label" title="Identifies what type of link was used (e.g. email)">
+                        <span class="label-text">UTM Medium</span>
+                    </label>
+                    <input type="text" 
+                           placeholder="email" 
+                           class="input input-bordered w-full bg-white" 
+                           id="utm-medium"
+                           value="email">
+                </div>
+            </div>
+
+            <div>
+                <label class="label" title="Identifies the specific campaign (usually campaign short name)">
+                    <span class="label-text">UTM Campaign</span>
+                </label>
+                <input type="text" 
+                       placeholder="Will use campaign short name if empty" 
+                       class="input input-bordered w-full bg-white" 
+                       id="utm-campaign">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="label" title="Identifies search keywords (for paid search)">
+                        <span class="label-text">UTM Term</span>
+                    </label>
+                    <input type="text" 
+                           placeholder="Optional" 
+                           class="input input-bordered w-full bg-white" 
+                           id="utm-term">
+                </div>
+                <div>
+                    <label class="label" title="Identifies what specifically was clicked (e.g. button, banner)">
+                        <span class="label-text">UTM Content</span>
+                    </label>
+                    <input type="text" 
+                           placeholder="Optional" 
+                           class="input input-bordered w-full bg-white" 
+                           id="utm-content">
+                </div>
+            </div>
+        </form>
+
+        <div class="modal-action flex gap-2">
+            <button class="btn btn-ghost flex-1" onclick="backToLinkStep1()">
+                < Back
+            </button>
+            <button class="btn btn-success flex-1" onclick="submitNewLink()">
+                Create Link
+            </button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Loading Modal -->
+<dialog id="link-loading-modal" class="modal">
+    <div class="modal-box max-w-sm text-center">
+        <div class="mb-6">
+            <div class="loading loading-spinner loading-lg text-primary mx-auto"></div>
+        </div>
+        <h3 class="font-bold text-lg mb-2">Creating Tracking Link</h3>
+        <p class="text-gray-600">Please wait while we generate your tracking link...</p>
+    </div>
+</dialog>
+
+<!-- Success Modal -->
+<dialog id="link-success-modal" class="modal">
+    <div class="modal-box max-w-sm text-center">
+        <div class="mb-6">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                <i class="fa-solid fa-check text-green-600 text-2xl"></i>
+            </div>
+        </div>
+        <h3 class="font-bold text-lg mb-2">Link Created Successfully!</h3>
+        <p class="text-gray-600 mb-4" id="generated-link-display"></p>
+
+        <div class="flex gap-2 mb-6">
+            <button class="btn btn-ghost flex-1" onclick="copyGeneratedLink()">
+                <i class="fa-solid fa-copy mr-2"></i>
+                Copy
+            </button>
+            <a href="#" class="btn btn-primary flex-1" id="view-link-btn" target="_blank">
+                <i class="fa-solid fa-eye mr-2"></i>
+                View
+            </a>
+        </div>
+
+        <div class="modal-action">
+            <button class="btn btn-outline w-full" onclick="closeLinkSuccessModal()">
+                Done
+            </button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+
 <script>
-// link filtering and sorting functionality
+// Link filtering and sorting functionality
 function filterLinks() {
     const searchTerm = document.getElementById('search-links').value.toLowerCase();
     const productFilter = document.getElementById('filter-product').value.toLowerCase();
@@ -234,14 +484,11 @@ function filterLinks() {
 
     // First filter the rows
     rows.forEach(row => {
-        const linkText = row.textContent.toLowerCase();
-        const product = row.getAttribute('data-product').toLowerCase();
-        const name = row.getAttribute('data-name').toLowerCase();
-        
         const matchesSearch = searchTerm === '' || 
-                             linkText.includes(searchTerm) || 
-                             name.includes(searchTerm);
-        const matchesProduct = productFilter === '' || product === productFilter;
+                             row.getAttribute('data-search').includes(searchTerm);
+        
+        const matchesProduct = productFilter === '' || 
+                              row.getAttribute('data-product').includes(productFilter);
 
         if (matchesSearch && matchesProduct) {
             row.style.display = '';
@@ -257,15 +504,15 @@ function filterLinks() {
     }
 
     // Update empty state
-    const nolinksRow = document.getElementById('no-links-row');
+    const noLinksRow = document.getElementById('no-links-row');
     if (visibleCount === 0 && rows.length > 0) {
-        nolinksRow.style.display = '';
+        noLinksRow.style.display = '';
     } else {
-        nolinksRow.style.display = 'none';
+        noLinksRow.style.display = 'none';
     }
 
     // Update counter
-    document.getElementById('link-count').textContent = `${visibleCount} links`;
+    document.getElementById('link-count').textContent = `${visibleCount} link${visibleCount !== 1 ? 's' : ''}`;
 }
 
 function sortTable(sortBy) {
@@ -276,22 +523,18 @@ function sortTable(sortBy) {
         let aValue, bValue;
         
         switch(sortBy) {
-            case 'name':
-                aValue = a.getAttribute('data-name');
-                bValue = b.getAttribute('data-name');
+            case 'campaign':
+                aValue = a.getAttribute('data-campaign');
+                bValue = b.getAttribute('data-campaign');
                 return aValue.localeCompare(bValue);
-            case 'performance':
-                aValue = parseFloat(a.getAttribute('data-performance'));
-                bValue = parseFloat(b.getAttribute('data-performance'));
+            case 'visit-count':
+                aValue = parseInt(a.getAttribute('data-visit-count'));
+                bValue = parseInt(b.getAttribute('data-visit-count'));
                 return bValue - aValue; // Descending order
-            case 'open-rate':
-                aValue = parseFloat(a.getAttribute('data-open-rate'));
-                bValue = parseFloat(b.getAttribute('data-open-rate'));
-                return bValue - aValue;
-            case 'click-rate':
-                aValue = parseFloat(a.getAttribute('data-click-rate'));
-                bValue = parseFloat(b.getAttribute('data-click-rate'));
-                return bValue - aValue;
+            case 'visited-at':
+                aValue = parseInt(a.getAttribute('data-visited-at'));
+                bValue = parseInt(b.getAttribute('data-visited-at'));
+                return bValue - aValue; // Newest first
             default:
                 return 0;
         }
@@ -318,33 +561,28 @@ function addNewLink() {
 }
 
 function copyLink(link) {
-    navigator.clipboard.writeText(link)
-    ModalSystem.toast('link copied successfully!', 'success');
-}
-
-function previewLink(id) {
-    ModalSystem.toast('Preview functionality coming soon!', 'info');
-    // In a real app, this would open a modal with link preview
+    navigator.clipboard.writeText(link);
+    ModalSystem.toast('Link copied successfully!', 'success');
 }
 
 function confirmDeleteLink(id) {
     ModalSystem.confirm({
-        title: 'Delete link',
-        link: 'Are you sure you want to delete this link template? This action cannot be undone.',
+        title: 'Delete Link',
+        message: 'Are you sure you want to delete this link? This action cannot be undone.',
         confirmText: 'Delete',
         confirmClass: 'btn-error',
         action: function() {
             // Find and remove the row
-            const row = document.querySelector(`tr[onclick="editlink(${id})"]`);
+            const row = document.querySelector(`tr[onclick="editLink(${id})"]`);
             if (row) row.remove();
             
             // Update counts
             filterLinks();
             
-            // Show success link
-            ModalSystem.toast('link deleted successfully!');
+            // Show success message
+            ModalSystem.toast('Link deleted successfully!');
             
-            // // Optional: Send delete request to server
+            // In a real app, you would make an AJAX call to delete from server
             // fetch(`/links/${id}/delete/`, {
             //     method: 'POST',
             //     headers: {
@@ -355,36 +593,168 @@ function confirmDeleteLink(id) {
     });
 }
 
-// Helper function to get CSRF token
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     // Add event listeners for filters
-    document.getElementById('search-links').addEventListener('input', filterlinks);
-    document.getElementById('filter-product').addEventListener('change', filterlinks);
-    document.getElementById('filter-sort').addEventListener('change', function() {
-        filterLinks(); // This will trigger sorting too
-    });
+    document.getElementById('search-links').addEventListener('input', filterLinks);
+    document.getElementById('filter-product').addEventListener('change', filterLinks);
+    document.getElementById('filter-sort').addEventListener('change', filterLinks);
     
     // Hide empty state if we have links
-    const nolinksRow = document.getElementById('no-links-row');
-    if (nolinksRow && document.querySelectorAll('.link-row').length > 0) {
-        nolinksRow.style.display = 'none';
+    const noLinksRow = document.getElementById('no-links-row');
+    if (noLinksRow && document.querySelectorAll('.link-row').length > 0) {
+        noLinksRow.style.display = 'none';
     }
+});
+
+
+
+// Link creation modal functionality
+function showAddLinkModal() {
+    ModalSystem.open('add-link-modal-step1');
+}
+
+function proceedToLinkStep2() {
+    // Validate step 1
+    const campaign = document.getElementById('link-campaign').value;
+    const leadId = document.getElementById('selected-lead-id').value;
+    const purpose = document.getElementById('link-purpose').value;
+    
+    if (!campaign || !leadId || !purpose) {
+        ModalSystem.toast('Please fill all required fields', 'error');
+        return;
+    }
+    
+    // Auto-populate UTM campaign if empty
+    const selectedCampaign = document.querySelector(`#link-campaign option[value="${campaign}"]`);
+    if (selectedCampaign) {
+        const campaignName = selectedCampaign.textContent;
+        document.getElementById('utm-campaign').placeholder = campaignName;
+    }
+    
+    ModalSystem.close('add-link-modal-step1');
+    ModalSystem.open('add-link-modal-step2');
+}
+
+function backToLinkStep1() {
+    ModalSystem.close('add-link-modal-step2');
+    ModalSystem.open('add-link-modal-step1');
+}
+
+// Lead selection functionality
+function filterLeads() {
+    const searchTerm = document.getElementById('lead-search').value.toLowerCase();
+    const campaignSelect = document.getElementById('link-campaign');
+    const campaignId = campaignSelect.value;
+    
+    if (!campaignId) {
+        ModalSystem.toast('Please select a campaign first', 'error');
+        document.getElementById('lead-search').value = '';
+        return;
+    }
+    
+    // Show the dropdown
+    const dropdown = document.getElementById('leads-dropdown');
+    dropdown.classList.remove('hidden');
+    
+    // Hide all campaign leads first
+    document.querySelectorAll('.campaign-leads').forEach(el => el.classList.add('hidden'));
+    
+    // Show the selected campaign's leads
+    const campaignLeads = document.querySelector(`.campaign-leads[data-campaign="${campaignId}"]`);
+    if (campaignLeads) {
+        campaignLeads.classList.remove('hidden');
+        
+        // Filter within the campaign
+        const leadOptions = campaignLeads.querySelectorAll('.lead-option');
+        let hasVisible = false;
+        
+        leadOptions.forEach(option => {
+            const text = option.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                option.style.display = '';
+                hasVisible = true;
+            } else {
+                option.style.display = 'none';
+            }
+        });
+        
+        if (!hasVisible) {
+            campaignLeads.innerHTML = '<div class="p-2 text-gray-500">No matching leads found</div>';
+        }
+    } else {
+        campaignLeads.innerHTML = '<div class="p-2 text-gray-500">No leads available for this campaign</div>';
+    }
+}
+
+function selectLead(element, leadId, leadName) {
+    const leadDetails = element.querySelector('div:nth-child(2)').textContent;
+    
+    document.getElementById('selected-lead-id').value = leadId;
+    document.getElementById('selected-lead-name').textContent = leadName;
+    document.getElementById('selected-lead-details').textContent = leadDetails;
+    
+    document.getElementById('leads-dropdown').classList.add('hidden');
+    document.getElementById('selected-lead-display').classList.remove('hidden');
+    document.getElementById('lead-search').value = '';
+}
+
+function clearLeadSelection() {
+    document.getElementById('selected-lead-id').value = '';
+    document.getElementById('selected-lead-display').classList.add('hidden');
+}
+
+// Form submission
+function submitNewLink() {
+    // Validate form
+    const form1 = document.getElementById('link-step1-form');
+    const form2 = document.getElementById('link-step2-form');
+    
+    if (!form1.checkValidity() || !form2.checkValidity()) {
+        ModalSystem.toast('Please fill all required fields', 'error');
+        return;
+    }
+    
+    // Show loading modal
+    ModalSystem.close('add-link-modal-step2');
+    ModalSystem.open('link-loading-modal');
+    
+    // In a real app, you would make an AJAX call here
+    setTimeout(() => {
+        // Simulate API call delay
+        ModalSystem.close('link-loading-modal');
+        
+        // Show success with generated link (in a real app, this would come from the server)
+        const generatedLink = "https://track.yourdomain.com/r/abc123";
+        document.getElementById('generated-link-display').textContent = generatedLink;
+        document.getElementById('view-link-btn').href = generatedLink;
+        
+        ModalSystem.open('link-success-modal');
+    }, 1500);
+}
+
+function copyGeneratedLink() {
+    const link = document.getElementById('generated-link-display').textContent;
+    navigator.clipboard.writeText(link);
+    ModalSystem.toast('Link copied to clipboard!', 'success');
+}
+
+function closeLinkSuccessModal() {
+    ModalSystem.close('link-success-modal');
+    // Refresh the page or update the table in a real app
+    window.location.reload();
+}
+
+// Update the existing addNewLink function to use our modal
+function addNewLink() {
+    showAddLinkModal();
+}
+
+// Initialize campaign lead selection
+document.getElementById('link-campaign').addEventListener('change', function() {
+    document.getElementById('selected-lead-id').value = '';
+    document.getElementById('selected-lead-display').classList.add('hidden');
+    document.getElementById('leads-dropdown').classList.add('hidden');
 });
 </script>
 {% endblock %}
