@@ -185,7 +185,8 @@
                         </td>
                         <td>
                             <div class="flex items-center gap-2">
-                                <a class="btn btn-ghost btn-xs" href="{{ link.url }}" target="_blank" title="Open in new tab">
+                                <a class="btn btn-ghost btn-xs" href="{{ link.url }}" target="_blank" title="Open in new tab"
+                                        onclick="event.stopPropagation(); window.open('{{ link.url }}', '_blank'); return false;">
                                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                 </a>
                                 <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteLink({{ link.id }})" title="Delete">
