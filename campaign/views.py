@@ -52,7 +52,12 @@ def redirect_and_track(request, ref_code):
 
 
 
-def leads_view(request):
+
+def leads_lists(request):
+    return render(request, "app/leads/leads-lists.html")
+
+
+def leads_view(request, pk):
     # Simulate leads data with the exact structure you provided
     simulated_leads = [
         {

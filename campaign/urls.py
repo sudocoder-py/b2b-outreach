@@ -3,7 +3,8 @@ from . import views
 
 urlpatterns = [
     path('redirect/<str:ref_code>/', views.redirect_and_track, name='redirect_and_track_emails'),
-    path('leads/', views.leads_view, name='leads_view'),
+    path('leads/<int:pk>', views.leads_view, name='leads_view'),
+    path('leads/lists/', views.leads_lists, name='leads_lists'),
     path('view-list/', views.campaign_view_list, name='campaign_view_list'),
     path('campaigns/new/', views.create_campaign_view, name='create_campaign'),
     path('dashboard/<int:pk>', views.campaign_dashboard, name='campaign_dashboard'),
