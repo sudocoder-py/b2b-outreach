@@ -266,6 +266,16 @@ def leads_view(request):
 
 
 
+def create_campaign_view(request):
+    return render(request, "app/campaign/add-new.html")
+
+
+
+
+
+
+
+
 def campaign_view_list(request):
     simulated_campaigns =  [
         {

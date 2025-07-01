@@ -5,6 +5,7 @@ urlpatterns = [
     path('redirect/<str:ref_code>/', views.redirect_and_track, name='redirect_and_track_emails'),
     path('leads/', views.leads_view, name='leads_view'),
     path('view-list/', views.campaign_view_list, name='campaign_view_list'),
+    path('campaigns/new/', views.create_campaign_view, name='create_campaign'),
     path('dashboard/<int:pk>', views.campaign_dashboard, name='campaign_dashboard'),
     path('campaign-leads/<int:pk>', views.campaign_leads, name='campaign_leads'),
     path('campaign-leads/<int:pk>/filter', views.campaign_leads_filter, name='campaign_leads_filter'),

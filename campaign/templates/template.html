@@ -1,110 +1,82 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Custom Theme Example</title>
-
-  <!-- Tailwind & DaisyUI via JS (so config works) -->
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Product Sans', 'sans-serif'],
-            'product-sans': ['Product Sans', 'sans-serif'],
-          },
-          colors: {
-            slate: { dark: '#141413', medium: '#3d3d3a', light: '#5e5d59' },
-            cloud: { dark: '#87867f', medium: '#b0aea5', light: '#d1cfc5' },
-            ivory: { dark: '#e8e6dc', medium: '#f0eee6', light: '#faf9f5' },
-            book: { cloth: '#cc785c', clothLight: '#d2886f' },
-            kraft: { DEFAULT: '#d4a27f', light: '#daaf91' },
-            clay: '#d97757',
-            lilac: '#8989de',
-            lilypad: '#7ebf8e',
-            manilla: { DEFAULT: '#ebdbbc', light: '#f1e6d0' },
-            eggshell: '#f6f1eb',
-            focus: '#61aaf2',
-            error: '#bf4d43',
-            dark: '#0f0f0e',
-            light: '#fff'
-          },
-        }
-      }
-    }
-  </script>
-
-  <script>
-    window.daisyui = {
-      themes: [
-        {
-          custom: {
-            "primary": "#d97757",
-            "primary-focus": "#cc785c",
-            "primary-content": "#faf9f5",
-            "secondary": "#7ebf8e",
-            "secondary-focus": "#5e5d59",
-            "secondary-content": "#faf9f5",
-            "accent": "#8989de",
-            "accent-focus": "#5e5d59",
-            "accent-content": "#faf9f5",
-            "neutral": "#3d3d3a",
-            "neutral-focus": "#141413",
-            "neutral-content": "#f0eee6",
-            "base-100": "#faf9f5",
-            "base-200": "#f0eee6",
-            "base-300": "#e8e6dc",
-            "base-content": "#141413",
-            "info": "#61aaf2",
-            "success": "#7ebf8e",
-            "warning": "#d4a27f",
-            "error": "#bf4d43",
-            "book-cloth": "#cc785c",
-            "kraft": "#d4a27f",
-            "manilla": "#ebdbbc",
-            "--rounded-box": "0.5rem",
-            "--rounded-btn": "0.25rem",
-            "--rounded-badge": "1rem"
-          }
-        }
-      ]
-    };
-  </script>
-
-  <!-- Tailwind & DaisyUI via JS (important order) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/daisyui@4.12.2"></script>
-
-  <!-- Product Sans -->
-  <link href="https://fonts.googleapis.com/css2?family=Product+Sans&display=swap" rel="stylesheet" />
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="..." crossorigin="anonymous" />
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Campaign</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<body class="min-h-screen bg-base-100">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Back Button -->
+        <div class="mb-8">
+            <button class="btn btn-ghost btn-sm gap-2 text-base-content/70 hover:text-base-content">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+            </button>
+        </div>
 
-<body>
-  <!-- Hero Section -->
-  <section class="min-h-screen bg-base-100 flex flex-col items-center justify-center text-center px-4">
-    <h1 class="text-4xl font-bold text-base-content mb-4">Welcome to GataraAI</h1>
-    <p class="text-lg text-base-content mb-8 max-w-xl">
-      We help B2B SaaS companies automate marketing & sales with custom AI agents.
-    </p>
-    
-    <div class="flex space-x-4">
-      <button class="btn btn-outline btn-primary">
-        <i class="fas fa-save mr-2"></i> Save
-      </button>
-      <button class="btn btn-primary">
-        <i class="fas fa-rocket mr-2"></i> Launch
-      </button>
+        <!-- Main Content -->
+        <div class="flex flex-col items-center justify-center min-h-[60vh]">
+            <div class="w-full max-w-md space-y-8">
+                <!-- Header -->
+                <div class="text-center space-y-2">
+                    <h1 class="text-3xl font-semibold text-base-content">
+                        Let's create a new campaign
+                    </h1>
+                    <p class="text-base-content/60">
+                        What would you like to name it?
+                    </p>
+                </div>
 
+                <!-- Form -->
+                <div class="space-y-6">
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text font-medium">Campaign Name</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            placeholder="My Campaign" 
+                            class="input input-bordered w-full text-lg py-3 h-14" 
+                            value="My Campaign"
+                        />
+                    </div>
 
-
-      
+                    <!-- Action Buttons -->
+                    <div class="flex gap-4 justify-center pt-4">
+                        <button class="btn btn-ghost text-primary">
+                            Cancel
+                        </button>
+                        <button class="btn btn-primary px-8">
+                            Continue
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </section>
 
+    <script>
+        // Add some basic interactivity
+        document.querySelector('.btn-ghost').addEventListener('click', function() {
+            alert('Going back...');
+        });
+
+        document.querySelector('.btn-primary').addEventListener('click', function() {
+            const campaignName = document.querySelector('input').value;
+            if (campaignName.trim()) {
+                alert(`Creating campaign: ${campaignName}`);
+            } else {
+                alert('Please enter a campaign name');
+            }
+        });
+    </script>
 </body>
 </html>
