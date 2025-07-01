@@ -58,7 +58,7 @@
                 <tbody id="accounts-table-body">
                     {% for email in emails %}
                     <tr class="hover:bg-gray-50 account-row" 
-                        onclick="openSidebar('{{ email.id }}')"
+                        onclick="openSidebar('{{ email.email }}')"
                         data-status="{{ email.status|lower }}"
                         data-email="{{ email.email|lower }}"
                         data-connection="{{ email.connection_type|lower }}">
@@ -131,81 +131,93 @@
     </div>
 </div>
 
-
-
-
-
 <!-- Right Sidebar (Drawer) -->
-    <div id="sidebar" class="fixed top-0 right-0 h-full w-full sm:w-3/4 md:w-2/3 lg:w-[60%] xl:max-w-4xl bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col">
-        
-        <!-- Drawer Header -->
-        <div class="flex justify-between items-center p-6 border-b border-gray-200">
-            <h2 class="text-base font-semibold text-gray-800">fdudramo@gmail.com</h2>
-            <div class="flex items-center space-x-3">
-                <button class="btn btn-ghost btn-circle btn-sm" aria-label="Warmup status">
-                    <svg class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 01-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                         <!-- A more fitting fire icon: -->
-                         <path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM5.207 6.5a.75.75 0 00-1.06 1.06l1.06-1.06zM15.854 7.56a.75.75 0 00-1.06-1.06l1.06 1.06zM5.207 13.5a.75.75 0 001.06 1.06l-1.06-1.06zM15.854 12.44a.75.75 0 001.06-1.06l-1.06 1.06zM10 18a.75.75 0 01.75-.75h.01a.75.75 0 010 1.5H10a.75.75 0 01-.75-.75zM3.75 10a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM13.25 10a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM4.146 7.56a.75.75 0 001.06-1.06L4.146 7.56zM14.793 6.5a.75.75 0 001.06 1.06l-1.06-1.06zM4.146 12.44a.75.75 0 00-1.06 1.06l1.06-1.06zM14.793 13.5a.75.75 0 00-1.06-1.06l1.06 1.06z" />
-                         <path fill-rule="evenodd" d="M9.661 1.734a.75.75 0 01.678 0 11.953 11.953 0 014.288 3.033.75.75 0 01-1.06 1.06 10.453 10.453 0 00-3.758-2.618.75.75 0 01-.148 0 10.453 10.453 0 00-3.758 2.618.75.75 0 11-1.06-1.06A11.952 11.952 0 019.66 1.734zM11.75 8a.75.75 0 01.75.75v3.475c0 1.29-1.04 2.36-2.332 2.52a.75.75 0 01-.168-.01L10 14.75l-.25.01a.75.75 0 01-.168.01C8.29 14.835 7.25 13.766 7.25 12.475V8.75A.75.75 0 018.75 8v3.682c0 .482.343.874.79.962a.75.75 0 01.92-.962C10.907 11.556 11.25 11.164 11.25 10.68V8.75a.75.75 0 01.5-.75z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-                <button class="btn btn-sm bg-white border-gray-300 font-semibold text-gray-700 hover:bg-gray-50 normal-case">
-                    <span class="h-2 w-2 bg-green-500 rounded-full mr-1.5"></span>
-                    <svg class="h-4 w-4 mr-1" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M3.10386 1.48062C3.28355 1.38168 3.48615 1.33186 3.69124 1.3362C3.89632 1.34053 4.09664 1.39887 4.27199 1.50531L4.27388 1.50646L4.27388 1.50646L13.2762 7.01236C13.2768 7.01269 13.2773 7.01303 13.2779 7.01336C13.4472 7.11622 13.5872 7.26089 13.6845 7.43349C13.7821 7.60665 13.8334 7.80205 13.8334 8.00082C13.8334 8.19958 13.7821 8.39499 13.6845 8.56815C13.5872 8.74075 13.4472 8.88542 13.2779 8.98828C13.2773 8.98861 13.2768 8.98894 13.2762 8.98928L4.27388 14.4952L4.27199 14.4963C4.09664 14.6028 3.89632 14.6611 3.69124 14.6654C3.48615 14.6698 3.28355 14.62 3.10386 14.521C2.92416 14.4221 2.77374 14.2775 2.66774 14.1019C2.56174 13.9263 2.50392 13.7258 2.50011 13.5207L2.5 13.5083V2.49332L2.50011 2.48094C2.50392 2.27584 2.56174 2.07538 2.66774 1.89975C2.77374 1.72413 2.92416 1.57956 3.10386 1.48062ZM3.83333 2.79996L12.337 8.00082L3.83333 13.2017V2.79996Z"></path>
-                    </svg>
-                    Resume
-                </button>
-                <button onclick="closeSidebar()" class="btn btn-ghost btn-circle btn-sm -mr-2" aria-label="Close sidebar">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+<div id="sidebar" class="fixed top-0 right-0 h-full w-full sm:w-3/4 md:w-2/3 lg:w-[30%] xl:max-w-4xl bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col">
+    
+    <!-- Drawer Header -->
+    <div class="flex justify-between items-center p-6 border-b border-gray-200">
+        <h2 class="text-base font-semibold text-gray-800" id="sidebar-email">fdudramo@gmail.com</h2>
+        <button onclick="closeSidebar()" class="btn btn-ghost btn-circle btn-sm -mr-2" aria-label="Close sidebar">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Drawer Content -->
+    <div class="flex-grow overflow-y-auto">
+        <div class="p-6">
+            <!-- Tabs -->
+            <div role="tablist" class="tabs tabs-bordered">
+                <a role="tab" class="tab h-12 tab-active font-medium text-sm" onclick="switchTab('settings')">Settings</a>
+                <a role="tab" class="tab h-12 text-gray-500 font-medium text-sm" onclick="switchTab('campaigns')">Campaigns</a>
             </div>
-        </div>
 
-        <!-- Drawer Content -->
-        <div class="flex-grow overflow-y-auto">
-            <div class="p-6">
-                <!-- Tabs -->
-                <div role="tablist" class="tabs tabs-bordered">
-                    <a role="tab" class="tab h-12 tab-active font-medium text-sm">Warmup</a>
-                    <a role="tab" class="tab h-12 text-gray-500 font-medium text-sm">Settings</a>
-                    <a role="tab" class="tab h-12 text-gray-500 font-medium text-sm">Campaigns</a>
-                </div>
-
-                <!-- Empty state content for "Warmup" tab -->
-                <div class="flex flex-col items-center justify-center text-center pt-20 pb-10">
-                    <!-- Illustration -->
-                    <div class="max-w-[250px] mb-8">
-                         <img src="https://storage.googleapis.com/maker-logo/maker-logo.svg" alt="Data analysis illustration" />
+            <!-- Settings Tab Content -->
+            <div id="settings-tab" class="mt-6 space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">First Name</span>
+                        </label>
+                        <input type="text" id="first-name" class="input input-bordered w-full bg-white" placeholder="First Name">
                     </div>
-                    <p class="text-gray-600 mb-8 max-w-sm">Enable warmup for this account to check its performance</p>
-                    <div class="flex items-center space-x-3">
-                        <button class="btn normal-case bg-gray-600 hover:bg-gray-700 text-white font-semibold">Disable</button>
-                        <button class="btn normal-case btn-outline border-gray-300 text-gray-800 hover:bg-gray-100 hover:border-gray-400 font-semibold">Enable</button>
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-medium">Last Name</span>
+                        </label>
+                        <input type="text" id="last-name" class="input input-bordered w-full bg-white" placeholder="Last Name">
                     </div>
                 </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text font-medium">Signature</span>
+                    </label>
+                    <textarea id="signature" class="textarea textarea-bordered w-full bg-white h-24" placeholder="Your email signature"></textarea>
+                </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text font-medium">Daily campaign limit</span>
+                    </label>
+                    <div class="flex items-center">
+                        <input type="number" id="daily-campaign-limit" class="input input-bordered w-full bg-white" value="30">
+                        <span class="ml-2">emails</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text font-medium">Daily sending limit</span>
+                    </label>
+                    <div class="flex items-center">
+                        <input type="number" id="daily-sending-limit" class="input input-bordered w-full bg-white" value="30">
+                        <span class="ml-2">emails</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text font-medium">Minimum wait time</span>
+                    </label>
+                    <div class="flex items-center">
+                        <input type="number" id="min-wait-time" class="input input-bordered w-full bg-white" value="1">
+                        <span class="ml-2">minute(s)</span>
+                    </div>
+                    <label class="label">
+                        <span class="label-text-alt">When used with multiple campaigns</span>
+                    </label>
+                </div>
+                <button class="btn btn-primary w-full" onclick="saveSettings()">Save Settings</button>
+            </div>
+
+            <!-- Campaigns Tab Content -->
+            <div id="campaigns-tab" class="mt-6 hidden">
+                <p class="text-gray-600">Campaigns content goes here.</p>
             </div>
         </div>
     </div>
+</div>
 
 <!-- Overlay (hidden by default) -->
 <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <!-- Add Account Modal -->
 <dialog id="add-account-modal" class="modal">
@@ -402,10 +414,11 @@
 <script>
 
 // right side bar
-function openSidebar(EmailID) {
+function openSidebar(email) {
     document.getElementById('sidebar').classList.remove('translate-x-full');
     document.getElementById('overlay').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+    document.getElementById('sidebar-email').textContent = email;
 }
 
 function closeSidebar() {
@@ -416,7 +429,6 @@ function closeSidebar() {
 
 // Close sidebar when clicking on overlay
 document.getElementById('overlay').addEventListener('click', closeSidebar);
-
 
 // Modal Management Functions
 function showAddAccountModal() {
@@ -472,7 +484,41 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.btn-show-account-modal').addEventListener('click', showAddAccountModal);
 });
 
+// Tab switching function
+function switchTab(tabName) {
+    const settingsTab = document.getElementById('settings-tab');
+    const campaignsTab = document.getElementById('campaigns-tab');
+    const tabs = document.querySelectorAll('.tabs .tab');
 
+    if (tabName === 'settings') {
+        settingsTab.classList.remove('hidden');
+        campaignsTab.classList.add('hidden');
+        tabs[0].classList.add('tab-active');
+        tabs[1].classList.remove('tab-active');
+    } else {
+        settingsTab.classList.add('hidden');
+        campaignsTab.classList.remove('hidden');
+        tabs[0].classList.remove('tab-active');
+        tabs[1].classList.add('tab-active');
+    }
+}
+
+// Save settings function
+function saveSettings() {
+    // Collect data from form fields
+    const firstName = document.getElementById('first-name').value;
+    const lastName = document.getElementById('last-name').value;
+    const signature = document.getElementById('signature').value;
+    const dailyCampaignLimit = document.getElementById('daily-campaign-limit').value;
+    const dailySendingLimit = document.getElementById('daily-sending-limit').value;
+    const minWaitTime = document.getElementById('min-wait-time').value;
+
+    // Here you would typically send this data to your backend
+    console.log('Saving settings:', { firstName, lastName, signature, dailyCampaignLimit, dailySendingLimit, minWaitTime });
+
+    // Show a success message
+    alert('Settings saved successfully!');
+}
 
 // Account filtering functionality
 function filterAccounts() {
