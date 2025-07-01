@@ -58,7 +58,7 @@
                 <tbody id="accounts-table-body">
                     {% for email in emails %}
                     <tr class="hover:bg-gray-50 account-row" 
-                        onclick="openSidebar('{{ email.email }}')"
+                        onclick="openSidebar('{{ email.id }}')"
                         data-status="{{ email.status|lower }}"
                         data-email="{{ email.email|lower }}"
                         data-connection="{{ email.connection_type|lower }}">
@@ -180,8 +180,8 @@
                         <span class="label-text font-medium">Daily campaign limit</span>
                     </label>
                     <div class="flex items-center">
-                        <input type="number" id="daily-campaign-limit" class="input input-bordered w-full bg-white" value="30">
-                        <span class="ml-2">emails</span>
+                        <input type="number" id="daily-campaign-limit" class="input input-bordered bg-white" value="30">
+                        <span class="ml-4">emails</span>
                     </div>
                 </div>
                 <div>
@@ -189,8 +189,8 @@
                         <span class="label-text font-medium">Daily sending limit</span>
                     </label>
                     <div class="flex items-center">
-                        <input type="number" id="daily-sending-limit" class="input input-bordered w-full bg-white" value="30">
-                        <span class="ml-2">emails</span>
+                        <input type="number" id="daily-sending-limit" class="input input-bordered bg-white" value="30">
+                        <span class="ml-4">emails</span>
                     </div>
                 </div>
                 <div>
@@ -198,8 +198,8 @@
                         <span class="label-text font-medium">Minimum wait time</span>
                     </label>
                     <div class="flex items-center">
-                        <input type="number" id="min-wait-time" class="input input-bordered w-full bg-white" value="1">
-                        <span class="ml-2">minute(s)</span>
+                        <input type="number" id="min-wait-time" class="input input-bordered bg-white" value="1">
+                        <span class="ml-4">minute(s)</span>
                     </div>
                     <label class="label">
                         <span class="label-text-alt">When used with multiple campaigns</span>

@@ -55,7 +55,7 @@
                 <tbody id="products-table-body">
                     {% for product in products %}
                     <tr class="hover:bg-gray-50 cursor-pointer product-row" 
-                        onclick="editProduct({{ product.id }})"
+                        onclick="openSidebar('{{ product.id }}')"
                         data-name="{{ product.name|lower }}"
                         data-tagline="{{ product.tagline|lower }}"
                         data-description="{{ product.description|lower }}"
@@ -128,6 +128,70 @@
         </div>
     </div>
 </div>
+
+
+
+
+
+
+<!-- Right Sidebar (Drawer) -->
+<div id="sidebar" class="fixed top-0 right-0 h-full w-full sm:w-3/4 md:w-2/3 lg:w-[30%] xl:max-w-4xl bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col">
+    
+    <!-- Drawer Header -->
+    <div class="flex justify-between items-center p-6 border-b border-gray-200">
+        <h2 class="text-base font-semibold text-gray-800" id="sidebar-product">fdudramo@gmail.com</h2>
+        <button onclick="closeSidebar()" class="btn btn-ghost btn-circle btn-sm -mr-2" aria-label="Close sidebar">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Drawer Content -->
+    <div class="flex-grow overflow-y-auto">
+        <div class="p-6">
+
+            <!-- Settings Tab Content -->
+            <div id="settings-tab" class="mt-6 space-y-6">
+                <div>
+                    <label class="label">
+                        <span class="label-text font-medium">Product Name</span>
+                    </label>
+                    <input type="text" id="product-name" class="input input-bordered w-full bg-white" 
+                            placeholder="Product Name" value="Product Name">
+                </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text font-medium">Description</span>
+                    </label>
+                    <textarea id="Description" class="textarea textarea-bordered w-full bg-white h-24" 
+                            placeholder="Your product Description">product description</textarea>
+                </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text font-medium">Product Url</span>
+                    </label>
+                    <input type="text" id="product-url" class="input input-bordered w-full bg-white" 
+                            placeholder="Product URL" value="Product URL">
+                </div>
+                <button class="btn btn-primary w-full" onclick="saveSettings()">Save Settings</button>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<!-- Overlay (hidden by default) -->
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+
+
+
+
+
+
+
+
+
 
 
 <!-- Add Product Modal -->
@@ -230,6 +294,26 @@
 
 
 <script>
+// right side bar
+function openSidebar(product) {
+    document.getElementById('sidebar').classList.remove('translate-x-full');
+    document.getElementById('overlay').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('sidebar-product').textContent = product;
+}
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.add('translate-x-full');
+    document.getElementById('overlay').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Close sidebar when clicking on overlay
+document.getElementById('overlay').addEventListener('click', closeSidebar);
+
+
+
+
 // Product Modal Functions
 function addNewProduct() {
     // Reset form if needed
