@@ -1,76 +1,122 @@
 {% extends "base-app.html" %}
 
-{% block title %}Overall Dashboard{% endblock %}
+{% block title %}Email Marketing Dashboard{% endblock %}
 
 {% block content %}
-<!-- Note: This assumes Chart.js is loaded in your base-app.html. If not, uncomment the line below -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
-
 <div class="p-6 md:p-8">
     <!-- Header Section -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between mb-6">
-        <h1 class="text-3xl font-bold text-base-content mb-4 sm:mb-0">Analytics</h1>
-        <div class="flex items-center gap-4">
-            <button class="btn btn-ghost">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.186 2.25 2.25 0 0 0-3.933 2.186Z" />
-                </svg>
-                Share
-            </button>
+    <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between mb-6 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-base-content">Email Analytics</h1>
+            <p class="text-base-content/70">Monitor your email campaign performance</p>
+        </div>
+        <div class="flex items-center gap-4 flex-wrap">
             <div class="dropdown dropdown-end">
-                <div tabindex="0" role="button" class="btn btn-ghost">Filter <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></div>
+                <div tabindex="0" role="button" class="btn btn-ghost">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.186 2.25 2.25 0 0 0-3.933 2.186Z" />
+                    </svg>
+                    Share
+                </div>
+                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                    <li><a>Export as PDF</a></li>
+                    <li><a>Share via email</a></li>
+                    <li><a>Generate report</a></li>
+                </ul>
+            </div>
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    Last 30 days
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
                 <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
                     <li><a>Last 7 days</a></li>
-                    <li><a>Last 30 days</a></li>
-                    <li><a>This Quarter</a></li>
+                    <li><a class="active">Last 30 days</a></li>
+                    <li><a>This quarter</a></li>
+                    <li><a>Custom range...</a></li>
                 </ul>
             </div>
-            <div class="dropdown dropdown-end">
-                <div tabindex="0" role="button" class="btn">Last 4 weeks <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></div>
-                 <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                    <li><a>Last 4 weeks</a></li>
-                    <li><a>Last 3 months</a></li>
-                    <li><a>Last 12 months</a></li>
-                </ul>
-            </div>
+            <button class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                New Campaign
+            </button>
         </div>
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-        <div class="card bg-base-100 shadow rounded-lg border-t-4 border-orange-400">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div class="card bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm hover:shadow-md transition-shadow">
             <div class="card-body p-4">
-                <h2 class="text-sm text-base-content/70">Total sent</h2>
-                <p class="text-4xl font-semibold">1,284</p>
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-medium text-base-content/70">Total Sent</h2>
+                    <div class="badge badge-primary badge-sm">+12%</div>
+                </div>
+                <p class="text-3xl font-bold mt-1">1,284</p>
+                <div class="text-xs text-primary mt-2">
+                    <span class="font-medium">↑ 142</span> from last period
+                </div>
             </div>
         </div>
-        <div class="card bg-base-100 shadow rounded-lg border-t-4 border-blue-500">
+        
+        <div class="card bg-gradient-to-br from-info/10 to-info/5 shadow-sm hover:shadow-md transition-shadow">
             <div class="card-body p-4">
-                <h2 class="text-sm text-base-content/70">Open rate</h2>
-                <p class="text-4xl font-semibold">34.2%</p>
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-medium text-base-content/70">Open Rate</h2>
+                    <div class="badge badge-info badge-sm">+3.2%</div>
+                </div>
+                <p class="text-3xl font-bold mt-1">34.2%</p>
+                <div class="text-xs text-info mt-2">
+                    <span class="font-medium">↑ 2.1%</span> from last period
+                </div>
             </div>
         </div>
-        <div class="card bg-base-100 shadow rounded-lg border-t-4 border-black">
+        
+        <div class="card bg-gradient-to-br from-secondary/10 to-secondary/5 shadow-sm hover:shadow-md transition-shadow">
             <div class="card-body p-4">
-                <h2 class="text-sm text-base-content/70">Click rate</h2>
-                <p class="text-4xl font-semibold">8.1%</p>
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-medium text-base-content/70">Click Rate</h2>
+                    <div class="badge badge-secondary badge-sm">+1.5%</div>
+                </div>
+                <p class="text-3xl font-bold mt-1">8.1%</p>
+                <div class="text-xs text-secondary mt-2">
+                    <span class="font-medium">↑ 0.8%</span> from last period
+                </div>
             </div>
         </div>
-        <div class="card bg-base-100 shadow rounded-lg border-t-4 border-purple-500">
+        
+        <div class="card bg-gradient-to-br from-accent/10 to-accent/5 shadow-sm hover:shadow-md transition-shadow">
             <div class="card-body p-4">
-                <h2 class="text-sm text-base-content/70">Reply rate</h2>
-                <p class="text-4xl font-semibold">2.3%</p>
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-medium text-base-content/70">Reply Rate</h2>
+                    <div class="badge badge-accent badge-sm">+0.4%</div>
+                </div>
+                <p class="text-3xl font-bold mt-1">2.3%</p>
+                <div class="text-xs text-accent mt-2">
+                    <span class="font-medium">↑ 0.2%</span> from last period
+                </div>
             </div>
         </div>
-        <div class="card bg-base-100 shadow rounded-lg border-t-4 border-green-500">
+        
+        <div class="card bg-gradient-to-br from-success/10 to-success/5 shadow-sm hover:shadow-md transition-shadow">
             <div class="card-body p-4">
-                <h2 class="text-sm text-base-content/70">Opportunities</h2>
-                <p class="text-4xl font-semibold">$1,450</p>
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-medium text-base-content/70">Revenue</h2>
+                    <div class="badge badge-success badge-sm">+18%</div>
+                </div>
+                <p class="text-3xl font-bold mt-1">$1,450</p>
+                <div class="text-xs text-success mt-2">
+                    <span class="font-medium">↑ $220</span> from last period
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Main Analytics Chart -->
+  <!-- Main Analytics Chart -->
     <div class="card bg-base-100 shadow-lg mb-8">
         <div class="card-body">
             <!-- Custom Legend -->
@@ -87,72 +133,148 @@
         </div>
     </div>
 
-    <!-- Tabs and Table Section -->
-    <div role="tablist" class="tabs tabs-bordered">
-      <input type="radio" name="analytics_tabs" role="tab" class="tab" aria-label="Campaign Analytics" checked />
-      <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
-        
-        <div class="card bg-base-100">
-            <div class="card-body p-0">
-                <h2 class="card-title mb-4">Campaign analytics</h2>
-                <div class="overflow-x-auto">
-                    <table class="table w-full">
-                        <thead>
-                            <tr>
-                                <th>Campaign</th>
-                                <th>Sequence Started</th>
-                                <th>Opened</th>
-                                <th>Replied</th>
-                                <th>Opportunities</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Q2 Product Updates</td>
-                                <td>842</td>
-                                <td>291 (34.5%)</td>
-                                <td>18 (2.1%)</td>
-                                <td class="text-success">$850</td>
-                                <td><button class="btn btn-ghost btn-xs">View Details</button></td>
-                            </tr>
-                            <tr>
-                                <td>Summer Sale Promo</td>
-                                <td>442</td>
-                                <td>149 (33.7%)</td>
-                                <td>11 (2.5%)</td>
-                                <td class="text-success">$600</td>
-                                <td><button class="btn btn-ghost btn-xs">View Details</button></td>
-                            </tr>
-                            <tr>
-                                <td>New Feature Announcement</td>
-                                <td>1150</td>
-                                <td>412 (35.8%)</td>
-                                <td>29 (2.5%)</td>
-                                <td class="text-success">$1200</td>
-                                <td><button class="btn btn-ghost btn-xs">View Details</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+    <!-- Campaign Analytics Table -->
+    <div class="card bg-base-100 shadow-lg mb-8">
+        <div class="card-body p-0">
+            <div class="flex flex-wrap justify-between items-center p-6 pb-0">
+                <h2 class="text-xl font-semibold">Recent Campaigns</h2>
+                <div class="tabs tabs-boxed">
+                    <a class="tab tab-active">All</a> 
+                    <a class="tab">Active</a> 
+                    <a class="tab">Drafts</a>
                 </div>
             </div>
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Campaign</th>
+                            <th>Status</th>
+                            <th>Sent</th>
+                            <th>Opens</th>
+                            <th>Clicks</th>
+                            <th>Revenue</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    <div class="avatar">
+                                        <div class="w-10 rounded bg-primary/10 text-primary flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold">Summer Sale 2023</div>
+                                        <div class="text-sm opacity-50">Jun 28, 2023</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-success badge-sm">Completed</span></td>
+                            <td>12,487</td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    5,342
+                                    <span class="text-success text-sm">(42.8%)</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    1,061
+                                    <span class="text-success text-sm">(8.5%)</span>
+                                </div>
+                            </td>
+                            <td class="text-success font-medium">$850</td>
+                            <td>
+                                <button class="btn btn-ghost btn-xs">View</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    <div class="avatar">
+                                        <div class="w-10 rounded bg-info/10 text-info flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold">New Feature Launch</div>
+                                        <div class="text-sm opacity-50">Jun 20, 2023</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-success badge-sm">Completed</span></td>
+                            <td>10,245</td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    4,872
+                                    <span class="text-success text-sm">(39.0%)</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    873
+                                    <span class="text-success text-sm">(7.0%)</span>
+                                </div>
+                            </td>
+                            <td class="text-success font-medium">$600</td>
+                            <td>
+                                <button class="btn btn-ghost btn-xs">View</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    <div class="avatar">
+                                        <div class="w-10 rounded bg-warning/10 text-warning flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold">Abandoned Cart</div>
+                                        <div class="text-sm opacity-50">Sending now</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-warning badge-sm">Active</span></td>
+                            <td>3,452 / 8,921</td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    <span class="loading loading-spinner loading-xs"></span>
+                                    Tracking...
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    <span class="loading loading-spinner loading-xs"></span>
+                                    Tracking...
+                                </div>
+                            </td>
+                            <td>-</td>
+                            <td>
+                                <button class="btn btn-ghost btn-xs">Pause</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="p-4 flex justify-center">
+                <button class="btn btn-ghost">View All Campaigns</button>
+            </div>
         </div>
-
-      </div>
-
-      <input type="radio" name="analytics_tabs" role="tab" class="tab" aria-label="Account Analytics" />
-      <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
-          <div class="flex flex-col items-center justify-center h-48">
-            <h3 class="text-lg font-semibold">Account Analytics</h3>
-            <p>Account-level data will be displayed here.</p>
-          </div>
-      </div>
     </div>
 </div>
 
 <script>
-    // This script should be placed at the end of your body or within the block.
-    // It relies on a global HTML element with a `data-theme` attribute.
     document.addEventListener('DOMContentLoaded', function () {
         let mainAnalyticsChart;
 
@@ -243,6 +365,6 @@
         });
         observer.observe(document.documentElement, { attributes: true });
     });
-    
+
 </script>
 {% endblock %}

@@ -1,629 +1,119 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Marketing Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .stat-value {
-            font-size: 1.8rem;
-        }
-        .animate-pulse {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Email Marketing Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      plugins: [window.daisyui],
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/daisyui"></script>
 </head>
-<body class="bg-gray-50">
-    <div class="drawer lg:drawer-open">
-        <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-        
-        <!-- Sidebar -->
-        <div class="drawer-side z-20">
-            <label for="my-drawer" class="drawer-overlay"></label>
-            <div class="menu p-4 w-80 h-full bg-base-200 text-base-content">
-                <!-- Sidebar content here -->
-                <div class="flex items-center mb-8">
-                    <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xl">EM</div>
-                    <div class="ml-3">
-                        <h1 class="text-xl font-bold">EmailMarketer Pro</h1>
-                        <p class="text-sm opacity-70">Dashboard</p>
-                    </div>
-                </div>
-                
-                <ul class="space-y-2">
-                    <li><a class="active" onclick="switchTab('dashboard')"><i class="fas fa-tachometer-alt mr-3"></i> Dashboard</a></li>
-                    <li><a onclick="switchTab('campaigns')"><i class="fas fa-envelope mr-3"></i> Campaigns</a></li>
-                    <li><a onclick="switchTab('subscribers')"><i class="fas fa-users mr-3"></i> Subscribers</a></li>
-                    <li><a onclick="switchTab('templates')"><i class="fas fa-file-alt mr-3"></i> Templates</a></li>
-                    <li><a onclick="switchTab('analytics')"><i class="fas fa-chart-line mr-3"></i> Analytics</a></li>
-                    <li><a onclick="switchTab('settings')"><i class="fas fa-cog mr-3"></i> Settings</a></li>
-                </ul>
-                
-                <div class="mt-auto pt-4 border-t border-base-300">
-                    <div class="flex items-center">
-                        <div class="avatar">
-                            <div class="w-10 rounded-full">
-                                <img src="https://i.pravatar.cc/150?img=3" />
-                            </div>
-                        </div>
-                        <div class="ml-3">
-                            <p class="font-medium">Sarah Johnson</p>
-                            <p class="text-xs opacity-70">Admin</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-sm btn-ghost mt-4 w-full">Logout</button>
-                </div>
-            </div>
+<body class="flex h-screen bg-base-200">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-base-100 shadow-lg p-4 hidden md:block">
+    <h2 class="text-xl font-bold mb-6">VibeReach</h2>
+    <ul class="menu">
+      <li><a class="tab tab-lifted tab-active" onclick="showTab('dashboard')">📊 Dashboard</a></li>
+      <li><a class="tab tab-lifted" onclick="showTab('campaigns')">📬 Campaigns</a></li>
+      <li><a class="tab tab-lifted" onclick="showTab('settings')">⚙️ Settings</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-6 overflow-y-auto">
+    
+    <!-- Dashboard Tab -->
+    <div id="dashboard" class="tab-content">
+      <h1 class="text-2xl font-bold mb-4">Dashboard</h1>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="card bg-primary text-primary-content">
+          <div class="card-body">
+            <h2 class="card-title">Sent Emails</h2>
+            <p>12,400</p>
+          </div>
         </div>
-        
-        <!-- Main content -->
-        <div class="drawer-content flex flex-col">
-            <!-- Navbar -->
-            <div class="navbar bg-base-100 shadow-sm lg:hidden">
-                <div class="flex-none">
-                    <label for="my-drawer" class="btn btn-square btn-ghost">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </label>
-                </div>
-                <div class="flex-1">
-                    <a class="btn btn-ghost normal-case text-xl">EmailMarketer</a>
-                </div>
-            </div>
-            
-            <!-- Dashboard Content -->
-            <div class="flex-1 p-6" id="dashboard-content">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">Dashboard Overview</h2>
-                    <div class="flex space-x-2">
-                        <div class="form-control">
-                            <select class="select select-bordered select-sm">
-                                <option>Last 7 days</option>
-                                <option selected>Last 30 days</option>
-                                <option>Last 90 days</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-primary btn-sm" onclick="document.getElementById('new-campaign-modal').showModal()">
-                            <i class="fas fa-plus mr-2"></i> New Campaign
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                    <div class="stat bg-base-100 rounded-lg shadow">
-                        <div class="stat-figure text-primary">
-                            <i class="fas fa-envelope-open-text text-3xl"></i>
-                        </div>
-                        <div class="stat-title">Open Rate</div>
-                        <div class="stat-value text-primary">42.8%</div>
-                        <div class="stat-desc text-success">↑ 3.2% from last month</div>
-                    </div>
-                    
-                    <div class="stat bg-base-100 rounded-lg shadow">
-                        <div class="stat-figure text-secondary">
-                            <i class="fas fa-mouse-pointer text-3xl"></i>
-                        </div>
-                        <div class="stat-title">Click Rate</div>
-                        <div class="stat-value text-secondary">8.5%</div>
-                        <div class="stat-desc text-success">↑ 1.1% from last month</div>
-                    </div>
-                    
-                    <div class="stat bg-base-100 rounded-lg shadow">
-                        <div class="stat-figure text-accent">
-                            <i class="fas fa-users text-3xl"></i>
-                        </div>
-                        <div class="stat-title">Subscribers</div>
-                        <div class="stat-value text-accent">12,487</div>
-                        <div class="stat-desc text-success">↑ 324 this month</div>
-                    </div>
-                    
-                    <div class="stat bg-base-100 rounded-lg shadow">
-                        <div class="stat-figure text-info">
-                            <i class="fas fa-paper-plane text-3xl"></i>
-                        </div>
-                        <div class="stat-title">Campaigns</div>
-                        <div class="stat-value text-info">87</div>
-                        <div class="stat-desc">5 active now</div>
-                    </div>
-                </div>
-                
-                <!-- Charts Row -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                    <!-- Main Chart -->
-                    <div class="lg:col-span-2 bg-base-100 p-6 rounded-lg shadow">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-bold">Campaign Performance</h3>
-                            <div class="tabs tabs-boxed">
-                                <a class="tab tab-active">Opens</a> 
-                                <a class="tab">Clicks</a> 
-                                <a class="tab">Conversions</a>
-                            </div>
-                        </div>
-                        <div class="h-80">
-                            <canvas id="mainChart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <!-- Pie Chart -->
-                    <div class="bg-base-100 p-6 rounded-lg shadow">
-                        <h3 class="font-bold mb-4">List Distribution</h3>
-                        <div class="h-64 mb-4">
-                            <canvas id="pieChart"></canvas>
-                        </div>
-                        <div class="space-y-2">
-                            <div class="flex items-center">
-                                <div class="w-3 h-3 rounded-full bg-primary mr-2"></div>
-                                <span>Main List (62%)</span>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-3 h-3 rounded-full bg-secondary mr-2"></div>
-                                <span>VIP Customers (18%)</span>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-3 h-3 rounded-full bg-accent mr-2"></div>
-                                <span>Inactive (12%)</span>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-3 h-3 rounded-full bg-info mr-2"></div>
-                                <span>New Signups (8%)</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Recent Campaigns -->
-                <div class="bg-base-100 p-6 rounded-lg shadow mb-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold">Recent Campaigns</h3>
-                        <button class="btn btn-ghost btn-sm">View All</button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Campaign</th>
-                                    <th>Sent</th>
-                                    <th>Opens</th>
-                                    <th>Clicks</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <div class="flex items-center space-x-3">
-                                            <div class="avatar">
-                                                <div class="mask mask-squircle w-12 h-12 bg-primary text-white flex items-center justify-center">
-                                                    <i class="fas fa-envelope text-xl"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div class="font-bold">Summer Sale 2023</div>
-                                                <div class="text-sm opacity-50">Jun 28, 2023</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>12,487</td>
-                                    <td>
-                                        5,342
-                                        <span class="text-success text-sm">(42.8%)</span>
-                                    </td>
-                                    <td>
-                                        1,061
-                                        <span class="text-success text-sm">(8.5%)</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-success badge-sm">Completed</span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-ghost btn-xs">Details</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="flex items-center space-x-3">
-                                            <div class="avatar">
-                                                <div class="mask mask-squircle w-12 h-12 bg-secondary text-white flex items-center justify-center">
-                                                    <i class="fas fa-envelope text-xl"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div class="font-bold">New Product Launch</div>
-                                                <div class="text-sm opacity-50">Jun 20, 2023</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>12,487</td>
-                                    <td>
-                                        4,872
-                                        <span class="text-success text-sm">(39.0%)</span>
-                                    </td>
-                                    <td>
-                                        873
-                                        <span class="text-success text-sm">(7.0%)</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-success badge-sm">Completed</span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-ghost btn-xs">Details</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="flex items-center space-x-3">
-                                            <div class="avatar">
-                                                <div class="mask mask-squircle w-12 h-12 bg-accent text-white flex items-center justify-center">
-                                                    <i class="fas fa-envelope text-xl"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div class="font-bold">Weekly Newsletter</div>
-                                                <div class="text-sm opacity-50">Jun 14, 2023</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>12,487</td>
-                                    <td>
-                                        5,120
-                                        <span class="text-success text-sm">(41.0%)</span>
-                                    </td>
-                                    <td>
-                                        997
-                                        <span class="text-success text-sm">(8.0%)</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-success badge-sm">Completed</span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-ghost btn-xs">Details</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="flex items-center space-x-3">
-                                            <div class="avatar">
-                                                <div class="mask mask-squircle w-12 h-12 bg-info text-white flex items-center justify-center">
-                                                    <i class="fas fa-envelope text-xl"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div class="font-bold">Abandoned Cart</div>
-                                                <div class="text-sm opacity-50">Sending now</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>3,452 / 8,921</td>
-                                    <td>
-                                        <span class="animate-pulse">Tracking...</span>
-                                    </td>
-                                    <td>
-                                        <span class="animate-pulse">Tracking...</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-warning badge-sm">In Progress</span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-ghost btn-xs">Pause</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Quick Actions -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-base-100 p-6 rounded-lg shadow">
-                        <h3 class="font-bold mb-4">Quick Actions</h3>
-                        <div class="space-y-3">
-                            <button class="btn btn-block" onclick="document.getElementById('new-campaign-modal').showModal()">
-                                <i class="fas fa-plus mr-2"></i> Create Campaign
-                            </button>
-                            <button class="btn btn-block btn-outline">
-                                <i class="fas fa-user-plus mr-2"></i> Import Subscribers
-                            </button>
-                            <button class="btn btn-block btn-outline">
-                                <i class="fas fa-file-import mr-2"></i> Upload Template
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="md:col-span-2 bg-base-100 p-6 rounded-lg shadow">
-                        <h3 class="font-bold mb-4">Recent Activity</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-start">
-                                <div class="avatar mr-3">
-                                    <div class="w-10 rounded-full bg-primary text-white flex items-center justify-center">
-                                        <i class="fas fa-envelope"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p><strong>Summer Sale 2023</strong> campaign was sent to 12,487 subscribers</p>
-                                    <p class="text-sm opacity-70">2 hours ago</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="avatar mr-3">
-                                    <div class="w-10 rounded-full bg-secondary text-white flex items-center justify-center">
-                                        <i class="fas fa-users"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p><strong>324 new subscribers</strong> were added to your Main List</p>
-                                    <p class="text-sm opacity-70">Yesterday, 4:32 PM</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="avatar mr-3">
-                                    <div class="w-10 rounded-full bg-accent text-white flex items-center justify-center">
-                                        <i class="fas fa-chart-line"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p>Your <strong>Weekly Newsletter</strong> achieved a 41% open rate (5,120 opens)</p>
-                                    <p class="text-sm opacity-70">Jun 14, 2023, 10:15 AM</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Other Tab Contents (Hidden by default) -->
-            <div class="flex-1 p-6 hidden" id="campaigns-content">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">Campaign Management</h2>
-                    <button class="btn btn-primary" onclick="document.getElementById('new-campaign-modal').showModal()">
-                        <i class="fas fa-plus mr-2"></i> New Campaign
-                    </button>
-                </div>
-                <div class="bg-base-100 p-6 rounded-lg shadow">
-                    <p>This is the campaigns management section. Here you would see a list of all your email campaigns with options to edit, duplicate, or delete them.</p>
-                </div>
-            </div>
-            
-            <div class="flex-1 p-6 hidden" id="subscribers-content">
-                <h2 class="text-2xl font-bold mb-6">Subscriber Management</h2>
-                <div class="bg-base-100 p-6 rounded-lg shadow">
-                    <p>This is where you would manage your subscriber lists, segments, and import/export functionality.</p>
-                </div>
-            </div>
-            
-            <div class="flex-1 p-6 hidden" id="templates-content">
-                <h2 class="text-2xl font-bold mb-6">Email Templates</h2>
-                <div class="bg-base-100 p-6 rounded-lg shadow">
-                    <p>This section would display your saved email templates and allow you to create new ones.</p>
-                </div>
-            </div>
-            
-            <div class="flex-1 p-6 hidden" id="analytics-content">
-                <h2 class="text-2xl font-bold mb-6">Advanced Analytics</h2>
-                <div class="bg-base-100 p-6 rounded-lg shadow">
-                    <p>Detailed analytics and reporting would be available in this section.</p>
-                </div>
-            </div>
-            
-            <div class="flex-1 p-6 hidden" id="settings-content">
-                <h2 class="text-2xl font-bold mb-6">Account Settings</h2>
-                <div class="bg-base-100 p-6 rounded-lg shadow">
-                    <p>Account configuration and settings would be managed here.</p>
-                </div>
-            </div>
+        <div class="card bg-secondary text-secondary-content">
+          <div class="card-body">
+            <h2 class="card-title">Open Rate</h2>
+            <p>43.2%</p>
+          </div>
         </div>
+        <div class="card bg-accent text-accent-content">
+          <div class="card-body">
+            <h2 class="card-title">Reply Rate</h2>
+            <p>9.1%</p>
+          </div>
+        </div>
+      </div>
     </div>
-    
-    <!-- New Campaign Modal -->
-    <dialog id="new-campaign-modal" class="modal">
-        <div class="modal-box w-11/12 max-w-5xl">
-            <h3 class="font-bold text-lg">Create New Email Campaign</h3>
-            
-            <div class="tabs tabs-boxed mt-4">
-                <a class="tab tab-active">Details</a> 
-                <a class="tab">Content</a> 
-                <a class="tab">Recipients</a>
-                <a class="tab">Schedule</a>
-            </div>
-            
-            <div class="py-4">
-                <div class="form-control w-full mb-4">
-                    <label class="label">
-                        <span class="label-text">Campaign Name</span>
-                    </label>
-                    <input type="text" placeholder="e.g. Summer Sale 2023" class="input input-bordered w-full" />
-                </div>
-                
-                <div class="form-control w-full mb-4">
-                    <label class="label">
-                        <span class="label-text">Subject Line</span>
-                    </label>
-                    <input type="text" placeholder="e.g. Don't miss our biggest sale of the year!" class="input input-bordered w-full" />
-                </div>
-                
-                <div class="form-control w-full mb-4">
-                    <label class="label">
-                        <span class="label-text">Preview Text</span>
-                    </label>
-                    <input type="text" placeholder="e.g. Save up to 50% on all summer items..." class="input input-bordered w-full" />
-                </div>
-                
-                <div class="form-control w-full mb-4">
-                    <label class="label">
-                        <span class="label-text">From Name</span>
-                    </label>
-                    <input type="text" placeholder="e.g. Your Company Name" class="input input-bordered w-full" />
-                </div>
-                
-                <div class="form-control w-full mb-4">
-                    <label class="label">
-                        <span class="label-text">From Email</span>
-                    </label>
-                    <select class="select select-bordered w-full">
-                        <option>newsletter@yourcompany.com</option>
-                        <option>marketing@yourcompany.com</option>
-                        <option>no-reply@yourcompany.com</option>
-                    </select>
-                </div>
-                
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Template</span>
-                    </label>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="border rounded-lg p-4 hover:border-primary cursor-pointer">
-                            <div class="bg-gray-100 h-32 mb-2 flex items-center justify-center">
-                                <i class="fas fa-newspaper text-3xl text-gray-400"></i>
-                            </div>
-                            <p class="font-medium">Newsletter</p>
-                            <p class="text-sm opacity-70">Basic newsletter layout</p>
-                        </div>
-                        <div class="border rounded-lg p-4 hover:border-primary cursor-pointer">
-                            <div class="bg-gray-100 h-32 mb-2 flex items-center justify-center">
-                                <i class="fas fa-shopping-bag text-3xl text-gray-400"></i>
-                            </div>
-                            <p class="font-medium">Promotional</p>
-                            <p class="text-sm opacity-70">Product promotion layout</p>
-                        </div>
-                        <div class="border rounded-lg p-4 hover:border-primary cursor-pointer">
-                            <div class="bg-gray-100 h-32 mb-2 flex items-center justify-center">
-                                <i class="fas fa-bullhorn text-3xl text-gray-400"></i>
-                            </div>
-                            <p class="font-medium">Announcement</p>
-                            <p class="text-sm opacity-70">Important announcements</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="modal-action">
-                <form method="dialog">
-                    <button class="btn">Cancel</button>
-                </form>
-                <button class="btn btn-primary">Save Draft</button>
-                <button class="btn btn-accent">Next: Content</button>
-            </div>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-            <button>close</button>
-        </form>
-    </dialog>
-    
-    <script>
-        // Initialize charts
-        function initCharts() {
-            // Main line chart
-            const mainCtx = document.getElementById('mainChart').getContext('2d');
-            const mainChart = new Chart(mainCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                    datasets: [
-                        {
-                            label: 'Open Rate',
-                            data: [35, 38, 40, 42, 41, 43, 42.8],
-                            borderColor: '#570df8',
-                            backgroundColor: 'rgba(87, 13, 248, 0.1)',
-                            tension: 0.3,
-                            fill: true
-                        },
-                        {
-                            label: 'Click Rate',
-                            data: [6.5, 7.2, 7.8, 8.1, 8.3, 8.4, 8.5],
-                            borderColor: '#f000b8',
-                            backgroundColor: 'rgba(240, 0, 184, 0.1)',
-                            tension: 0.3,
-                            fill: true
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            ticks: {
-                                callback: function(value) {
-                                    return value + '%';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Pie chart
-            const pieCtx = document.getElementById('pieChart').getContext('2d');
-            const pieChart = new Chart(pieCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Main List', 'VIP Customers', 'Inactive', 'New Signups'],
-                    datasets: [{
-                        data: [62, 18, 12, 8],
-                        backgroundColor: [
-                            '#570df8',
-                            '#f000b8',
-                            '#1ce1ac',
-                            '#1fb2a6'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    cutout: '70%'
-                }
-            });
-        }
-        
-        // Tab switching functionality
-        function switchTab(tabName) {
-            // Hide all tab contents
-            document.querySelectorAll('[id$="-content"]').forEach(el => {
-                el.classList.add('hidden');
-            });
-            
-            // Show selected tab content
-            document.getElementById(`${tabName}-content`).classList.remove('hidden');
-            
-            // Update active state in sidebar
-            document.querySelectorAll('.menu a').forEach(link => {
-                link.classList.remove('active');
-            });
-            event.target.classList.add('active');
-        }
-        
-        // Initialize when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            initCharts();
-            
-            // Add Font Awesome (needed for icons)
-            const faScript = document.createElement('script');
-            faScript.src = 'https://kit.fontawesome.com/a076d05399.js';
-            faScript.crossOrigin = 'anonymous';
-            document.head.appendChild(faScript);
-        });
-    </script>
+
+    <!-- Campaigns Tab -->
+    <div id="campaigns" class="tab-content hidden">
+      <h1 class="text-2xl font-bold mb-4">Campaigns</h1>
+      <table class="table w-full bg-base-100 shadow-md rounded-lg">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Leads</th>
+            <th>Status</th>
+            <th>Replies</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Launch Week</td>
+            <td>1,000</td>
+            <td>
+              <input type="checkbox" class="toggle toggle-success" checked>
+            </td>
+            <td>124</td>
+            <td><button class="btn btn-sm btn-outline">Edit</button></td>
+          </tr>
+          <tr>
+            <td>Product Hunt</td>
+            <td>800</td>
+            <td>
+              <input type="checkbox" class="toggle toggle-success">
+            </td>
+            <td>87</td>
+            <td><button class="btn btn-sm btn-outline">Edit</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="settings" class="tab-content hidden">
+      <h1 class="text-2xl font-bold mb-4">Settings</h1>
+      <div class="form-control w-full max-w-sm">
+        <label class="label">
+          <span class="label-text">Sender Email</span>
+        </label>
+        <input type="email" placeholder="you@company.com" class="input input-bordered w-full" />
+      </div>
+      <div class="form-control w-full max-w-sm mt-4">
+        <label class="cursor-pointer label">
+          <span class="label-text">Track Opens</span> 
+          <input type="checkbox" class="toggle toggle-primary" checked />
+        </label>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function showTab(id) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('tab-active'));
+      event.target.classList.add('tab-active');
+    }
+  </script>
 </body>
 </html>
