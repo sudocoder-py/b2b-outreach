@@ -3,75 +3,246 @@
 {% block title %}Overall Dashboard{% endblock %}
 
 {% block content %}
-<div class="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-8">
-    <!-- Header -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Overall Dashboard</h1>
-        <p class="text-gray-600">Get a comprehensive view of all your campaigns and performance metrics</p>
-    </div>
+<!-- Note: This assumes Chart.js is loaded in your base-app.html. If not, uncomment the line below -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
 
-    <!-- Main Content -->
-    <div class="flex-1 flex items-center justify-center">
-        <div class="text-center max-w-md">
-            <!-- Icon -->
-            <div class="mb-6">
-                <div class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
-                    <i class="fa-solid fa-chart-line text-3xl"></i>
-                </div>
-            </div>
-            
-            <!-- Title -->
-            <h2 class="text-2xl font-semibold text-gray-900 mb-4">Overall Dashboard</h2>
-            
-            <!-- Description -->
-            <p class="text-gray-600 mb-8 leading-relaxed">
-                Your central hub for monitoring all campaign performance, revenue tracking, and business insights. 
-                Get a bird's-eye view of your entire email marketing operation.
-            </p>
-            
-            <!-- Features List -->
-            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 mb-8">
-                <h3 class="font-semibold text-gray-900 mb-4">Coming Features:</h3>
-                <ul class="text-left space-y-2 text-gray-600">
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Cross-campaign analytics
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Revenue & ROI tracking
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Performance comparisons
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Trend analysis & forecasting
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500 text-sm"></i>
-                        Custom reporting & exports
-                    </li>
+<div class="p-6 md:p-8">
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between mb-6">
+        <h1 class="text-3xl font-bold text-base-content mb-4 sm:mb-0">Analytics</h1>
+        <div class="flex items-center gap-4">
+            <button class="btn btn-ghost">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.186 2.25 2.25 0 0 0-3.933 2.186Z" />
+                </svg>
+                Share
+            </button>
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost">Filter <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></div>
+                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                    <li><a>Last 7 days</a></li>
+                    <li><a>Last 30 days</a></li>
+                    <li><a>This Quarter</a></li>
                 </ul>
             </div>
-            
-            <!-- Action Button -->
-            <button class="btn btn-primary" onclick="showComingSoon()">
-                <i class="fa-solid fa-chart-bar mr-2"></i>
-                View Analytics
-            </button>
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn">Last 4 weeks <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></div>
+                 <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                    <li><a>Last 4 weeks</a></li>
+                    <li><a>Last 3 months</a></li>
+                    <li><a>Last 12 months</a></li>
+                </ul>
+            </div>
         </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+        <div class="card bg-base-100 shadow rounded-lg border-t-4 border-orange-400">
+            <div class="card-body p-4">
+                <h2 class="text-sm text-base-content/70">Total sent</h2>
+                <p class="text-4xl font-semibold">1,284</p>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow rounded-lg border-t-4 border-blue-500">
+            <div class="card-body p-4">
+                <h2 class="text-sm text-base-content/70">Open rate</h2>
+                <p class="text-4xl font-semibold">34.2%</p>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow rounded-lg border-t-4 border-black">
+            <div class="card-body p-4">
+                <h2 class="text-sm text-base-content/70">Click rate</h2>
+                <p class="text-4xl font-semibold">8.1%</p>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow rounded-lg border-t-4 border-purple-500">
+            <div class="card-body p-4">
+                <h2 class="text-sm text-base-content/70">Reply rate</h2>
+                <p class="text-4xl font-semibold">2.3%</p>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow rounded-lg border-t-4 border-green-500">
+            <div class="card-body p-4">
+                <h2 class="text-sm text-base-content/70">Opportunities</h2>
+                <p class="text-4xl font-semibold">$1,450</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Analytics Chart -->
+    <div class="card bg-base-100 shadow-lg mb-8">
+        <div class="card-body">
+            <!-- Custom Legend -->
+            <div class="flex flex-wrap gap-x-4 gap-y-2 mb-4">
+                <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-blue-500"></div>Sent</div>
+                <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-sky-400"></div>Total opens</div>
+                <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-teal-400"></div>Unique opens</div>
+                <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-purple-400"></div>Total replies</div>
+                <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-amber-400"></div>Total clicks</div>
+            </div>
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="mainAnalyticsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs and Table Section -->
+    <div role="tablist" class="tabs tabs-bordered">
+      <input type="radio" name="analytics_tabs" role="tab" class="tab" aria-label="Campaign Analytics" checked />
+      <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
+        
+        <div class="card bg-base-100">
+            <div class="card-body p-0">
+                <h2 class="card-title mb-4">Campaign analytics</h2>
+                <div class="overflow-x-auto">
+                    <table class="table w-full">
+                        <thead>
+                            <tr>
+                                <th>Campaign</th>
+                                <th>Sequence Started</th>
+                                <th>Opened</th>
+                                <th>Replied</th>
+                                <th>Opportunities</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Q2 Product Updates</td>
+                                <td>842</td>
+                                <td>291 (34.5%)</td>
+                                <td>18 (2.1%)</td>
+                                <td class="text-success">$850</td>
+                                <td><button class="btn btn-ghost btn-xs">View Details</button></td>
+                            </tr>
+                            <tr>
+                                <td>Summer Sale Promo</td>
+                                <td>442</td>
+                                <td>149 (33.7%)</td>
+                                <td>11 (2.5%)</td>
+                                <td class="text-success">$600</td>
+                                <td><button class="btn btn-ghost btn-xs">View Details</button></td>
+                            </tr>
+                            <tr>
+                                <td>New Feature Announcement</td>
+                                <td>1150</td>
+                                <td>412 (35.8%)</td>
+                                <td>29 (2.5%)</td>
+                                <td class="text-success">$1200</td>
+                                <td><button class="btn btn-ghost btn-xs">View Details</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+      </div>
+
+      <input type="radio" name="analytics_tabs" role="tab" class="tab" aria-label="Account Analytics" />
+      <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
+          <div class="flex flex-col items-center justify-center h-48">
+            <h3 class="text-lg font-semibold">Account Analytics</h3>
+            <p>Account-level data will be displayed here.</p>
+          </div>
+      </div>
     </div>
 </div>
 
 <script>
-function showComingSoon() {
-    if (window.ModalSystem) {
-        window.ModalSystem.toast('Overall dashboard coming soon!', 'info');
-    } else {
-        alert('Overall dashboard coming soon!');
-    }
-}
+    // This script should be placed at the end of your body or within the block.
+    // It relies on a global HTML element with a `data-theme` attribute.
+    document.addEventListener('DOMContentLoaded', function () {
+        let mainAnalyticsChart;
+
+        const generateChartLabels = () => {
+            const labels = [];
+            const today = new Date();
+            for (let i = 15; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+            }
+            return labels;
+        };
+
+        const chartOptions = (theme) => {
+            const isDark = theme === 'dark';
+            return {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false // Using custom HTML legend
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: isDark ? '#A6ADBB' : '#4B5563' },
+                        grid: { color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: isDark ? '#A6ADBB' : '#4B5563' },
+                        grid: { display: false }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            };
+        };
+
+        const createOrUpdateChart = () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const ctx = document.getElementById('mainAnalyticsChart');
+            if (!ctx) return;
+
+            const chartData = {
+                labels: generateChartLabels(),
+                datasets: [
+                    { label: 'Sent', data: [50, 55, 60, 62, 65, 70, 72, 75, 80, 82, 85, 90, 95, 100, 110, 120], backgroundColor: '#3b82f6', barThickness: 10, borderRadius: 5 },
+                    { label: 'Total opens', data: [15, 18, 22, 25, 28, 30, 32, 35, 40, 42, 45, 50, 55, 60, 65, 70], backgroundColor: '#38bdf8', barThickness: 10, borderRadius: 5 },
+                    { label: 'Unique opens', data: [12, 15, 18, 20, 22, 25, 28, 30, 33, 35, 38, 42, 45, 48, 52, 55], backgroundColor: '#2dd4bf', barThickness: 10, borderRadius: 5 },
+                    { label: 'Total replies', data: [2, 3, 3, 4, 5, 5, 6, 7, 8, 8, 9, 10, 11, 12, 13, 15], backgroundColor: '#a78bfa', barThickness: 10, borderRadius: 5 },
+                    { label: 'Total clicks', data: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 25], backgroundColor: '#f59e0b', barThickness: 10, borderRadius: 5 }
+                ]
+            };
+
+            if (mainAnalyticsChart) {
+                mainAnalyticsChart.data = chartData;
+                mainAnalyticsChart.options = chartOptions(currentTheme);
+                mainAnalyticsChart.update();
+            } else {
+                mainAnalyticsChart = new Chart(ctx.getContext('2d'), {
+                    type: 'bar',
+                    data: chartData,
+                    options: chartOptions(currentTheme)
+                });
+            }
+        };
+
+        // Initial chart creation
+        createOrUpdateChart();
+
+        // Optional: If you have a theme switcher in your base template,
+        // this will listen for changes and update the chart.
+        const observer = new MutationObserver((mutationsList) => {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+                    createOrUpdateChart();
+                }
+            }
+        });
+        observer.observe(document.documentElement, { attributes: true });
+    });
+    
 </script>
 {% endblock %}
