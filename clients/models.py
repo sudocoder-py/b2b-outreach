@@ -176,3 +176,62 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+
+
+class EmailAccount(models.Model):
+    CONNECTION_TYPE_CHOICES = [
+        ('gmail', 'Gmail (OAuth2)'),
+        ('outlook', 'Outlook/Microsoft 365 (OAuth2)'),
+        ('yahoo', 'Yahoo (OAuth2)'),
+        ('imap/smtp', 'IMAP/SMTP'),
+    ]
+
+    STATUS_CHOICES = [
+        ('connected', 'Connected'),
+        ('error', 'Error'),
+        ('pending', 'Pending'),
+    ]
+
+    subscribed_company = models.ForeignKey(
+        SubscribedCompany,
+        on_delete=models.CASCADE,
+        related_name='email_accounts'
+    )
+
+    email = models.EmailField(unique=True)
+    connection_type = models.CharField(max_length=20, choices=CONNECTION_TYPE_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
+
+    # For SMTP accounts only
+    smtp_host = models.CharField(max_length=255, blank=True)
+    smtp_port = models.IntegerField(default=587)
+    smtp_use_tls = models.BooleanField(default=True)
+    smtp_use_ssl = models.BooleanField(default=False) 
+
+    smtp_username = models.CharField(max_length=255, blank=True)
+    smtp_password = models.CharField(max_length=255, blank=True)
+
+    # Optional sender profile settings
+    sender_name = models.CharField(max_length=255, blank=True)
+    sender_signature = models.TextField(blank=True)
+    default_from_email = models.EmailField(blank=True)
+
+    # For Gmail/Outlook/Yahoo OAuth2
+    access_token = models.TextField(blank=True)
+    refresh_token = models.TextField(blank=True)
+    token_expiry = models.DateTimeField(null=True, blank=True)
+
+    # Rate control
+    min_wait_time = models.IntegerField(default=1)  # seconds between emails
+    emails_sent = models.IntegerField(default=0)
+    daily_limit = models.IntegerField(default=30)
+
+    def __str__(self):
+        return f"{self.email} - {self.get_connection_type_display()}"
+
+    def requires_oauth(self):
+        return self.connection_type in ['gmail', 'outlook', 'yahoo']
+
+    def is_smtp(self):
+        return self.connection_type == 'imap/smtp'
+

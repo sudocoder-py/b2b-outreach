@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'clients',
     'api',
     'campaign',
-    'posts',
 ]
 
 
