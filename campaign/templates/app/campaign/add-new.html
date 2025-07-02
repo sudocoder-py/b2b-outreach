@@ -2,89 +2,158 @@
 {% block title %}Create New Campaign{% endblock %}
 
 {% block base-content %}
-
 <div class="flex h-full font-sans">
+  <div class="flex w-full flex-col">
+    <main class="flex-1 main-content-bg pl-[100px] pr-[100px] transition-all duration-500 ease-in-out">
+      <div class="container mx-auto px-4 py-12">
+        <!-- Back Button -->
+        <div class="mb-8">
+          <a href="/campaign/view-list/" class="btn btn-ghost btn-md gap-2 text-base-content/70 hover:text-base-content transition-all duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </a>
+        </div>
 
-    <!-- Main Content Area -->
-    <div class="flex w-full flex-col">
-        
-        
-        <!-- Content -->
-        <main class="flex-1 main-content-bg pl-[100px] pr-[100px]">
-
-                
-            <div class="container mx-auto px-4 py-8">
-                <!-- Back Button -->
-                <div class="mb-8">
-                    <a href="/campaign/view-list/" class="btn btn-ghost btn-sm gap-2 text-base-content/70 hover:text-base-content">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                        </svg>
-                        Back
-                    </a>
-                </div>
-
-                <!-- Main Content -->
-                <div class="flex flex-col items-center justify-center min-h-[60vh]">
-                    <div class="w-full max-w-md space-y-8">
-                        <!-- Header -->
-                        <div class="text-center space-y-2">
-                            <h1 class="text-3xl font-semibold text-base-content">
-                                Let's create a new campaign
-                            </h1>
-                            <p class="text-base-content/60">
-                                What would you like to name it?
-                            </p>
-                        </div>
-
-                        <!-- Form -->
-                        <div class="space-y-6">
-                            <div class="form-control w-full">
-                                <label class="label">
-                                    <span class="label-text font-medium">Campaign Name</span>
-                                </label>
-                                <input 
-                                    type="text" 
-                                    placeholder="My Campaign" 
-                                    class="input input-bordered w-full text-lg py-3 h-14" 
-                                    value="My Campaign"
-                                />
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="flex gap-4 justify-center pt-4">
-                                <button class="btn btn-ghost text-primary">
-                                    Cancel
-                                </button>
-                                <button class="btn btn-primary px-8">
-                                    Continue
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <!-- Centered Form -->
+        <div class="flex flex-col items-center justify-center min-h-[60vh]">
+          <div class="w-full max-w-xl space-y-10">
+            <!-- Header -->
+            <div class="text-center space-y-3 transition-opacity duration-300">
+              <h1 class="text-4xl font-bold text-base-content">Let's create a new campaign</h1>
+              <p id="descText" class="text-base-content/60 text-lg">What would you like to name it?</p>
             </div>
 
-            
-        </main>
-        
+            <!-- Form -->
+            <form id="campaignForm" class="space-y-6 transition-all duration-300">
+              <!-- Campaign Name -->
+              <div class="form-control w-full animate-fade-in">
+                <label class="label">
+                  <span class="label-text font-medium text-lg">Campaign Name</span>
+                </label>
+                <input type="text" id="campaignName" name="campaign_name" placeholder="My Campaign" class="input input-bordered w-full text-lg h-14" value="My Campaign" required />
+              </div>
 
-    </div>
+              <!-- Product Selection -->
+              <div id="productSelection" class="form-control w-full hidden opacity-0 transition-opacity duration-500">
+                <label class="label">
+                  <span class="label-text font-medium text-lg">Select a Product</span>
+                </label>
+                <select id="productSelect" class="select select-bordered w-full text-lg h-14" required>
+                  <option disabled selected value="">Pick a product</option>
+                  <option value="product1">Product 1</option>
+                  <option value="product2">Product 2</option>
+                  <option value="product3">Product 3</option>
+                </select>
+              </div>
 
-  
+              <!-- Loading Bar -->
+              <div id="loadingBar" class="hidden w-full pt-6">
+                <progress id="progressBar" class="progress progress-primary w-full h-4" value="0" max="100"></progress>
+              </div>
+
+              <!-- Buttons -->
+              <div id="actionButtons" class="flex gap-4 justify-center pt-4 transition-all duration-300">
+                <button type="button" class="btn btn-outline btn-md" id="cancelBtn">Cancel</button>
+                <button type="button" class="btn btn-primary btn-md px-8 gap-2" id="continueBtn">
+                  Continue
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 </div>
 
+<style>
+  /* Fade animation */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
+  .fade-in {
+    animation: fadeIn 0.3s ease-in-out forwards;
+  }
+</style>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const campaignName = document.getElementById('campaignName');
+    const productSelection = document.getElementById('productSelection');
+    const productSelect = document.getElementById('productSelect');
+    const continueBtn = document.getElementById('continueBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const loadingBar = document.getElementById('loadingBar');
+    const progressBar = document.getElementById('progressBar');
+    const descText = document.getElementById('descText');
+    const actionButtons = document.getElementById('actionButtons');
 
+    let step = 1;
 
+    continueBtn.addEventListener('click', () => {
+      if (step === 1) {
+        if (!campaignName.value.trim()) {
+          campaignName.focus();
+          return;
+        }
 
+        productSelection.classList.remove('hidden');
+        setTimeout(() => {
+          productSelection.classList.add('fade-in');
+          productSelection.classList.remove('opacity-0');
+        }, 50);
 
+        descText.textContent = 'Now select a product for your campaign';
+        continueBtn.innerHTML = 'Create Campaign >';
+        step = 2;
+      } else if (step === 2) {
+        if (!productSelect.value) {
+          productSelect.focus();
+          return;
+        }
 
+        // Hide buttons and show loading
+        actionButtons.classList.add('hidden');
+        loadingBar.classList.remove('hidden');
+        simulateLoading(() => {
+          const campaignId = Math.floor(Math.random() * 1000) + 100;
+          window.location.href = `{% url 'campaign_leads' 0 %}`.replace('0', campaignId);
+        });
+      }
+    });
 
+    cancelBtn.addEventListener('click', () => {
+      if (step === 1) {
+        window.location.href = '/campaign/view-list/';
+      } else {
+        productSelection.classList.add('opacity-0');
+        setTimeout(() => productSelection.classList.add('hidden'), 300);
+        descText.textContent = 'What would you like to name it?';
+        continueBtn.innerHTML = 'Continue >';
+        step = 1;
+      }
+    });
 
+    function simulateLoading(callback) {
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 10) + 5;
+        if (progress > 100) progress = 100;
+        progressBar.value = progress;
 
+        if (progress >= 100) {
+          clearInterval(interval);
+          callback();
+        }
+      }, 120);
+    }
+  });
+</script>
 {% endblock %}
