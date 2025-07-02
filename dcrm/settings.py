@@ -35,12 +35,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_celery_results', 
+    'rest_framework',
     'import_export',
     'django_htmx',
     'mathfilters',
+    'clients',
+    'api',
     'campaign',
     'posts',
-    'clients',
 ]
 
 
@@ -107,6 +109,15 @@ else:
 
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+}
 
 
 # Password validation
