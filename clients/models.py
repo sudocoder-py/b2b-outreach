@@ -220,9 +220,10 @@ class EmailAccount(models.Model):
     access_token = models.TextField(blank=True)
     refresh_token = models.TextField(blank=True)
     token_expiry = models.DateTimeField(null=True, blank=True)
+    last_auth_url = models.URLField(blank=True, null=True)
 
     # Rate control
-    min_wait_time = models.IntegerField(default=1)  # seconds between emails
+    min_wait_time = models.IntegerField(default=1)
     emails_sent = models.IntegerField(default=0)
     daily_limit = models.IntegerField(default=30)
 
@@ -234,4 +235,7 @@ class EmailAccount(models.Model):
 
     def is_smtp(self):
         return self.connection_type == 'imap/smtp'
+    
+    def test_connection(self):
+        pass 
 

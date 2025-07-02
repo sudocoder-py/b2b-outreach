@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Plan, Subscription, BillingHistory, CustomUser, SubscribedCompany, Product
+from .models import Plan, Subscription, BillingHistory, CustomUser, SubscribedCompany, Product, EmailAccount
 from django.utils.html import format_html
 
 
@@ -45,3 +45,13 @@ class ProductAdmin(admin.ModelAdmin):
             return format_html('<a href="{}" target="_blank">View Landing Page</a>', obj.landing_page_url)
         return "-"
     landing_page_link.short_description = 'Landing Page'
+
+
+
+@admin.register(EmailAccount)
+class EmailAccountAdmin(admin.ModelAdmin):
+    list_display = ('email', 'connection_type', 'status', 'is_smtp')
+    search_fields = ('email',)
+    list_filter = ('connection_type', 'status',)
+    
+    
