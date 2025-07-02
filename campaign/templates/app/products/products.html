@@ -139,50 +139,60 @@
     
     <!-- Drawer Header -->
     <div class="flex justify-between items-center p-6 border-b border-gray-200">
-        <h2 class="text-base font-semibold text-gray-800" id="sidebar-product">fdudramo@gmail.com</h2>
-        <button onclick="closeSidebar()" class="btn btn-ghost btn-circle btn-sm -mr-2" aria-label="Close sidebar">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
+        <h2 class="text-base font-semibold text-gray-800" id="sidebar-product">Loading...</h2>
+        <div class="flex gap-2">
+            <button id="toggle-edit-btn" class="btn btn-sm btn-outline" onclick="toggleEditMode()">Edit</button>
+            <button onclick="closeSidebar()" class="btn btn-ghost btn-circle btn-sm" aria-label="Close sidebar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
     </div>
 
     <!-- Drawer Content -->
     <div class="flex-grow overflow-y-auto">
         <div class="p-6">
-
-            <!-- Settings Tab Content -->
             <div id="settings-tab" class="mt-6 space-y-6">
+                <!-- Product Name -->
                 <div>
-                    <label class="label">
-                        <span class="label-text font-medium">Product Name</span>
-                    </label>
-                    <input type="text" id="product-name" class="input input-bordered w-full bg-white" 
-                            placeholder="Product Name" value="Product Name">
+                    <label class="label"><span class="label-text font-medium">Product Name</span></label>
+                    <input type="text" id="product-name" class="input input-bordered w-full bg-white hidden">
+                    <p id="product-name-view" class="text-gray-800"></p>
                 </div>
+
+                <!-- Description -->
                 <div>
-                    <label class="label">
-                        <span class="label-text font-medium">Description</span>
-                    </label>
-                    <textarea id="Description" class="textarea textarea-bordered w-full bg-white h-24" 
-                            placeholder="Your product Description">product description</textarea>
+                    <label class="label"><span class="label-text font-medium">Description</span></label>
+                    <textarea id="Description" class="textarea textarea-bordered w-full bg-white h-24 hidden"></textarea>
+                    <p id="Description-view" class="text-gray-800 whitespace-pre-line"></p>
                 </div>
+
+                <!-- Product URL -->
                 <div>
-                    <label class="label">
-                        <span class="label-text font-medium">Product Url</span>
-                    </label>
-                    <input type="text" id="product-url" class="input input-bordered w-full bg-white" 
-                            placeholder="Product URL" value="Product URL">
+                    <label class="label"><span class="label-text font-medium">Product URL</span></label>
+                    <input type="text" id="product-url" class="input input-bordered w-full bg-white hidden">
+                    <div id="product-url-view" class="flex items-center gap-2">
+                    <a href="#" id="product-url-link" target="_blank" class="text-blue-600 underline break-all">Visit</a>
+                    <button onclick="copyToClipboard()" class="btn btn-xs btn-ghost tooltip" data-tip="Copy URL">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16h8M8 12h8m-8-4h8M4 6h16v12H4z" />
+                        </svg>
+                    </button>
+                    </div>
                 </div>
-                <button class="btn btn-primary w-full" onclick="saveSettings()">Save Settings</button>
-            </div>
-            
+
+                <!-- Save -->
+                <button id="save-settings-btn" class="btn btn-primary w-full hidden" onclick="saveSettings()">Save Settings</button>
+                </div>
+
         </div>
     </div>
 </div>
 
 <!-- Overlay (hidden by default) -->
 <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+
 
 
 
@@ -294,13 +304,40 @@
 
 
 <script>
-// right side bar
-function openSidebar(product) {
-    document.getElementById('sidebar').classList.remove('translate-x-full');
-    document.getElementById('overlay').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    document.getElementById('sidebar-product').textContent = product;
+// side bar logic    
+let isEditMode = false;
+let originalProductData = {};
+let currentProductId = null;
+
+function openSidebar(productId) {
+    fetch(`/api/products/${productId}/`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('sidebar').classList.remove('translate-x-full');
+            document.getElementById('overlay').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Fill both view and input fields
+            document.getElementById('sidebar-product').textContent = data.name;
+
+            document.getElementById('product-name').value = data.name;
+            document.getElementById('product-name-view').textContent = data.name;
+
+            document.getElementById('Description').value = data.description;
+            document.getElementById('Description-view').textContent = data.description;
+
+            document.getElementById('product-url').value = data.landing_page_url;
+            document.getElementById('product-url-link').textContent = data.landing_page_url;
+            document.getElementById('product-url-link').href = data.landing_page_url;
+
+            originalProductData = data;
+            currentProductId = productId;
+            setEditMode(false);
+        });
 }
+
+
+
 
 function closeSidebar() {
     document.getElementById('sidebar').classList.add('translate-x-full');
@@ -308,8 +345,70 @@ function closeSidebar() {
     document.body.style.overflow = 'auto';
 }
 
-// Close sidebar when clicking on overlay
 document.getElementById('overlay').addEventListener('click', closeSidebar);
+
+function toggleEditMode() {
+    isEditMode = !isEditMode;
+    setEditMode(isEditMode);
+}
+
+function setEditMode(enable) {
+    const toggle = (id, show) => {
+        document.getElementById(id).classList.toggle('hidden', !show);
+    };
+
+    toggle('product-name', enable);
+    toggle('product-name-view', !enable);
+
+    toggle('Description', enable);
+    toggle('Description-view', !enable);
+
+    toggle('product-url', enable);
+    toggle('product-url-view', !enable);
+
+    document.getElementById('toggle-edit-btn').textContent = enable ? 'Cancel' : 'Edit';
+    document.getElementById('save-settings-btn').classList.toggle('hidden', !enable);
+}
+
+function saveSettings() {
+    const name = document.getElementById('product-name').value;
+    const description = document.getElementById('Description').value;
+    const url = document.getElementById('product-url').value;
+
+    const payload = {};
+    if (name !== originalProductData.name) payload.name = name;
+    if (description !== originalProductData.description) payload.description = description;
+    if (url !== originalProductData.landing_page_url) payload.landing_page_url = url;
+
+    const method = Object.keys(payload).length > 1 ? 'PUT' : 'PATCH';
+    const fullPayload = method === 'PUT' ? {
+        subscribed_company: originalProductData.subscribed_company,
+        name: name,
+        description: description,
+        landing_page_url: url
+    } : payload;
+
+    fetch(`/api/products/${currentProductId}/`, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(fullPayload)
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Failed to save");
+        return res.json();
+    })
+    .then(data => {
+        alert("Saved!");
+        openSidebar(currentProductId); // reload with latest
+    })
+    .catch(err => {
+        alert("Save failed");
+        console.error(err);
+    });
+}
+
 
 
 
