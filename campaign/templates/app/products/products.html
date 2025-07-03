@@ -35,7 +35,7 @@
                 <button onclick="clearProductFilters()" class="btn btn-ghost">Clear</button>
             </div>
             <div class="text-sm text-gray-500">
-                <span id="product-count">{{ products|length }} products</span>
+                <span id="product-count">{{ products|length }}</span> products
             </div>
         </div>
     </div>
@@ -55,7 +55,7 @@
                 </thead>
                 <tbody id="products-table-body">
                     {% for product in products %}
-                    <tr class="hover:bg-gray-50 cursor-pointer product-row" 
+                    <tr id= "{{ product.id }}" class="hover:bg-gray-100 cursor-pointer"
                         onclick="openSidebar('{{ product.id }}')"
                         data-name="{{ product.name|lower }}"
                         data-tagline="{{ product.tagline|lower }}"
@@ -561,28 +561,27 @@ function confirmDeleteProduct(productId) {
                 method: 'DELETE',
                 headers: {
                     'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
                 }
             })
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error("Failed to delete");
+            .then(response => {
+                if (!response.ok) {
                     ModalSystem.toast('Error deleting product', 'error');
+                    throw new Error('Failed to delete product');
                 }
-                return res.json();
-            })
-            .then(data => {
-                // Remove the row from the table
-                const row = document.querySelector(`tr[onclick="editProduct(${productId})"]`);
+                const row = document.querySelector(`tr[id="${productId}"]`);
                 if (row) row.remove();
+
+                counter= document.getElementById("product-count")
+                counter.innerHTML= counter.innerHTML - 1;
                 
-                // Update counts
-                filterProducts();
                 
                 ModalSystem.toast('Product deleted successfully!', 'success');
+                return response;
             })
             .catch(error => {
-                console.log(error);
-                ModalSystem.toast('Error deleting product', 'error');
+                console.error('Error deleting product:', error);
+                throw error;
             });
         }
     });
