@@ -3,6 +3,7 @@
 {% block title %}Products{% endblock %}
 
 {% block content %}
+
 <div class="flex-1 flex flex-col overflow-hidden bg-gray-50 p-6">
     <!-- Header -->
     <div class="mb-6">
@@ -230,7 +231,7 @@
                 <input type="text" 
                        placeholder="e.g. CRM Pro, Marketing Suite" 
                        class="input input-bordered w-full bg-white" 
-                       id="product-name" 
+                       id="product-name-add" 
                        required>
             </div>
 
@@ -239,7 +240,7 @@
                     <span class="label-text">Description *</span>
                 </label>
                 <textarea class="textarea textarea-bordered w-full bg-white h-32" 
-                          id="product-description" 
+                          id="product-description-add" 
                           placeholder="Detailed description of the product..." 
                           required></textarea>
             </div>
@@ -251,14 +252,14 @@
                 <input type="url" 
                        placeholder="https://yourdomain.com/product" 
                        class="input input-bordered w-full bg-white" 
-                       id="product-url" 
+                       id="product-url-add" 
                        required>
             </div>
 
         </form>
 
         <div class="modal-action">
-            <button class="btn btn-success w-full text-gray-100" onclick="submitProductForm()">
+            <button class="btn btn-success w-full text-gray-100" onclick="submitProductForm({{request.user.subscribed_company.id}})">
                 <i class="fa-solid fa-save mr-2"></i>
                 Save Product
             </button>
@@ -402,7 +403,7 @@ function saveSettings() {
     })
     .then(data => {
         alert("Saved!");
-        openSidebar(currentProductId); // reload with latest
+        openSidebar(currentProductId);
     })
     .catch(err => {
         alert("Save failed");
@@ -421,7 +422,7 @@ function addNewProduct() {
     ModalSystem.open('add-product-modal');
 }
 
-function submitProductForm() {
+function submitProductForm(CompanyID) {
     const form = document.getElementById('product-form');
     if (!form.checkValidity()) {
         form.reportValidity();
@@ -434,23 +435,33 @@ function submitProductForm() {
 
     // Collect form data
     const productData = {
-        name: document.getElementById('product-name').value,
-        tagline: document.getElementById('product-tagline').value,
-        description: document.getElementById('product-description').value,
-        landing_page_url: document.getElementById('product-url').value,
-        status: document.getElementById('product-status').value,
-        category: document.getElementById('product-category').value
+        name: document.getElementById('product-name-add').value,
+        description: document.getElementById('product-description-add').value,
+        landing_page_url: document.getElementById('product-url-add').value,
+        subscribed_company: CompanyID,
     };
 
-    // In a real app, you would make an AJAX call here
-    setTimeout(() => {
-        // Simulate API call delay
+    fetch(`/api/products/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(productData)
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Failed to save");
+        return res.json();
+    })
+    .then(data => {
         ModalSystem.close('product-loading-modal');
         ModalSystem.open('product-success-modal');
-        
-        // In a real app, you would update the table with the new product
-        // and handle any errors that might occur
-    }, 1500);
+    })
+    .catch(err => {
+        alert("Save failed");
+        console.error(err);
+    });
+ 
 }
 
 function closeProductSuccessModal() {
@@ -546,28 +557,31 @@ function confirmDeleteProduct(productId) {
         confirmText: 'Delete',
         confirmClass: 'btn-error',
         action: function() {
-            fetch(`/products/${productId}/delete/`, {
-                method: 'POST',
+            fetch(`/api/products/${productId}/`, {
+                method: 'DELETE',
                 headers: {
                     'X-CSRFToken': getCookie('csrftoken'),
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Remove the row from the table
-                    const row = document.querySelector(`tr[onclick="editProduct(${productId})"]`);
-                    if (row) row.remove();
-                    
-                    // Update counts
-                    filterProducts();
-                    
-                    ModalSystem.toast('Product deleted successfully!', 'success');
-                } else {
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("Failed to delete");
                     ModalSystem.toast('Error deleting product', 'error');
                 }
+                return res.json();
+            })
+            .then(data => {
+                // Remove the row from the table
+                const row = document.querySelector(`tr[onclick="editProduct(${productId})"]`);
+                if (row) row.remove();
+                
+                // Update counts
+                filterProducts();
+                
+                ModalSystem.toast('Product deleted successfully!', 'success');
             })
             .catch(error => {
+                console.log(error);
                 ModalSystem.toast('Error deleting product', 'error');
             });
         }

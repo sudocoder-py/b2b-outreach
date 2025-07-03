@@ -271,8 +271,14 @@ def leads_view(request, pk):
 
 
 
-def create_campaign_view(request):
-    return render(request, "app/campaign/add-new.html")
+def create_campaign_view(request): 
+    products= get_company_products(request)
+
+    context = {
+        'products': products,
+    }
+
+    return render(request, "app/campaign/add-new.html", context)
 
 
 

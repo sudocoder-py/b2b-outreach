@@ -42,9 +42,9 @@
                 </label>
                 <select id="productSelect" class="select select-bordered w-full text-lg h-14" required>
                   <option disabled selected value="">Pick a product</option>
-                  <option value="product1">Product 1</option>
-                  <option value="product2">Product 2</option>
-                  <option value="product3">Product 3</option>
+                  {% for product in products %}
+                    <option value="{{ product.id }}">{{ product.name }}</option>
+                  {% endfor %}
                 </select>
               </div>
 
@@ -81,6 +81,20 @@
   .fade-in {
     animation: fadeIn 0.3s ease-in-out forwards;
   }
+
+  /* Toast animations */
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  
+  @keyframes fade-out {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(20px); }
+  }
+  
+  .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+  .animate-fade-out { animation: fade-out 0.3s ease-in forwards; }
 </style>
 
 <script>
@@ -97,7 +111,7 @@
 
     let step = 1;
 
-    continueBtn.addEventListener('click', () => {
+    continueBtn.addEventListener('click', async () => {
       if (step === 1) {
         if (!campaignName.value.trim()) {
           campaignName.focus();
@@ -119,13 +133,8 @@
           return;
         }
 
-        // Hide buttons and show loading
-        actionButtons.classList.add('hidden');
-        loadingBar.classList.remove('hidden');
-        simulateLoading(() => {
-          const campaignId = Math.floor(Math.random() * 1000) + 100;
-          window.location.href = `{% url 'campaign_leads' 0 %}`.replace('0', campaignId);
-        });
+        // Call the create campaign function
+        await createCampaign({{request.user.subscribed_company.id}}); // Assuming you have access to the company ID
       }
     });
 
@@ -141,18 +150,100 @@
       }
     });
 
-    function simulateLoading(callback) {
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += Math.floor(Math.random() * 10) + 5;
-        if (progress > 100) progress = 100;
-        progressBar.value = progress;
+    async function createCampaign(CompanyID) {
+      const form = document.getElementById('campaignForm');
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return false;
+      }
 
-        if (progress >= 100) {
-          clearInterval(interval);
-          callback();
+      // Show loading state
+      continueBtn.innerHTML = `
+        <span class="loading loading-spinner"></span>
+        Creating...
+      `;
+      continueBtn.disabled = true;
+
+      // Collect form data
+      const campaignData = {
+        name: campaignName.value,
+        product: productSelect.value,
+        subscribed_company: CompanyID,
+      };
+
+      try {
+        const response = await fetch('/api/campaigns/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify(campaignData)
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create campaign");
         }
-      }, 120);
+
+        const data = await response.json();
+        
+        // Show success toast
+        showToast('success', 'Campaign created successfully!');
+        
+        // Redirect to campaign details page
+        window.location.href = `{% url 'campaign_leads' 0 %}`.replace('0', data.id);
+        
+        return true;
+      } catch (err) {
+        console.error(err);
+        
+        // Show error toast
+        showToast('error', 'Failed to create campaign');
+
+        // Reset button state
+        continueBtn.innerHTML = 'Create Campaign >';
+        continueBtn.disabled = false;
+        
+        return false;
+      }
+    }
+
+    function showToast(type, message) {
+      const toast = document.createElement('div');
+      toast.className = `alert alert-${type} mb-4 shadow-lg animate-fade-in`;
+      toast.innerHTML = `
+        <div>
+          <span>${message}</span>
+        </div>
+      `;
+      
+      const container = document.createElement('div');
+      container.className = 'toast toast-top toast-end z-50';
+      container.appendChild(toast);
+      document.body.appendChild(container);
+      
+      setTimeout(() => {
+        toast.classList.add('animate-fade-out');
+        setTimeout(() => {
+          toast.remove();
+          container.remove();
+        }, 300);
+      }, 3000);
+    }
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
     }
   });
 </script>

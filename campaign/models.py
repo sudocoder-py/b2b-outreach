@@ -59,8 +59,21 @@ class Campaign(models.Model):
 
 
 
+
+class LeadList(models.Model):
+    title= models.CharField(max_length=255)
+    tags= models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    count = models.IntegerField(default=0, null=True, blank=True)
+
+
+
+
+
+
 class Lead(models.Model):
     subscribed_company = models.ForeignKey(SubscribedCompany, on_delete=models.CASCADE)
+    lead_list = models.ForeignKey(LeadList, on_delete=models.CASCADE, null=True, blank=True, related_name="lead_lists")
 
     full_name = models.CharField(max_length=255)
     first_name = models.CharField(max_length=100, blank=True)

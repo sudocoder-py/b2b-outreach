@@ -13,3 +13,7 @@ class EmailAccountSerializer(serializers.ModelSerializer):
         model = EmailAccount
         fields = '__all__'
 
+class CampaignSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Campaign
+        fields = '__all__' 
