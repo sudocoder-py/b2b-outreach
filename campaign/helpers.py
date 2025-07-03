@@ -13,6 +13,16 @@ def get_company_products(request):
     return products
 
 
+def get_company_email_accounts(request):
+    subscribed_company= get_subscribed_company(request)
+    email_accounts = subscribed_company.email_accounts.all()
+
+    return email_accounts
+
+
+
+
+
 def get_messages_and_products(request):
     products = get_company_products(request)
     messages = Message.objects.filter(product__in=products)

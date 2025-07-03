@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count, Q
 
 
-from campaign.helpers import get_campaigns_and_products, get_company_products, get_messages_and_products
+from campaign.helpers import get_campaigns_and_products, get_company_email_accounts, get_company_products, get_messages_and_products
 from .models import Campaign, Link, Message, MessageAssignment
 import logging
 
@@ -607,19 +607,11 @@ def products_view(request):
 
 def email_accounts_view(request):
     """Email accounts management page"""
+    
+    email_accounts= get_company_email_accounts(request)
 
-    sampleAccounts = [
-        {
-            'id': 1,
-            'email': "fdudromo@gmail.com",
-            'connection_type': "IMAP/SMTP",
-            'emails_sent': 1,
-            'daily_limit': 30,
-            'status': "connected"
-        }
-    ]
     context = {
-        'emails': sampleAccounts
+        'emails': email_accounts
     }
     return render(request, "app/account/email-accounts.html", context)
 
