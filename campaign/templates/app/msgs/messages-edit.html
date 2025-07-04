@@ -671,33 +671,44 @@ function confirmDeleteMessage(messageId) {
         confirmText: 'Delete',
         confirmClass: 'btn-error',
         action: function() {
-            // In a real app, you would make an AJAX call to delete the message
-            delete messages[messageId];
+            fetch(`/api/messages/${messageId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    ModalSystem.toast('Error deleting message', 'error');
+                    throw new Error('Failed to delete message');
+                }
             
-            // Remove from UI
-            const messageRow = document.querySelector(`[data-message="${messageId}"]`);
-            if (messageRow) {
-                messageRow.remove();
-                
-                // Update message count
-                const remainingCount = document.querySelectorAll('.message-row').length;
-                document.getElementById('message-count').textContent = `${remainingCount} message${remainingCount !== 1 ? 's' : ''}`;
-                
-                if (activeMessage === messageId) {
-                    // Select another message if available
-                    const firstMessageRow = document.querySelector('.message-row');
-                    if (firstMessageRow) {
-                        selectMessage(parseInt(firstMessageRow.getAttribute('data-message')));
-                    } else {
-                        // No messages left
-                        activeMessage = null;
-                        document.getElementById('message-form-container').style.display = 'block';
-                        document.getElementById('message-preview').style.display = 'none';
+                // Remove from UI
+                const messageRow = document.querySelector(`[data-message="${messageId}"]`);
+                if (messageRow) {
+                    messageRow.remove();
+                    
+                    // Update message count
+                    const remainingCount = document.querySelectorAll('.message-row').length;
+                    document.getElementById('message-count').textContent = `${remainingCount} message${remainingCount !== 1 ? 's' : ''}`;
+                    
+                    if (activeMessage === messageId) {
+                        // Select another message if available
+                        const firstMessageRow = document.querySelector('.message-row');
+                        if (firstMessageRow) {
+                            selectMessage(parseInt(firstMessageRow.getAttribute('data-message')));
+                        } else {
+                            // No messages left
+                            activeMessage = null;
+                            document.getElementById('message-form-container').style.display = 'block';
+                            document.getElementById('message-preview').style.display = 'none';
+                        }
                     }
                 }
-            }
-            
-            window.ModalSystem.toast('Message deleted successfully!');
+                
+                ModalSystem.toast('Message deleted successfully!');
+            });
         }
     });
 }
