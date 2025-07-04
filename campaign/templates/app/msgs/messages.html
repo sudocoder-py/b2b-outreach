@@ -104,7 +104,7 @@
                 <option value="click-rate">Click Rate</option>
             </select>
             <div class="text-sm text-gray-500">
-                <span id="message-count">{{ messages|length }} messages</span>
+                <span id="message-count">{{ messages|length }}</span> messages
             </div>
         </div>
     </div>
@@ -344,23 +344,32 @@ function confirmDeleteMessage(id) {
         confirmText: 'Delete',
         confirmClass: 'btn-error',
         action: function() {
-            // Find and remove the row
-            const row = document.querySelector(`tr[onclick="editMessage(${id})"]`);
-            if (row) row.remove();
-            
-            // Update counts
-            filterMessages();
-            
-            // Show success message
-            ModalSystem.toast('Message deleted successfully!');
-            
-            // // Optional: Send delete request to server
-            // fetch(`/messages/${id}/delete/`, {
-            //     method: 'POST',
-            //     headers: {
-            //         'X-CSRFToken': getCookie('csrftoken'),
-            //     }
-            // });
+            fetch(`/api/messages/${id}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    ModalSystem.toast('Error deleting message', 'error');
+                    throw new Error('Failed to delete message');
+                }
+                const row = document.querySelector(`tr[onclick="editMessage(${id})"]`);
+                if (row) row.remove();
+
+                counter= document.getElementById("message-count")
+                counter.innerHTML= counter.innerHTML - 1;
+                
+                
+                ModalSystem.toast('Message deleted successfully!', 'success');
+                return response;
+            })
+            .catch(error => {
+                console.error('Error deleting message:', error);
+                throw error;
+            });
         }
     });
 }

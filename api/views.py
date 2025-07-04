@@ -1,7 +1,7 @@
 from rest_framework import generics
 from clients.models import Product, EmailAccount
-from campaign.models import Campaign
-from .serializers import ProductSerializer, EmailAccountSerializer, CampaignSerializer
+from campaign.models import Campaign, Message
+from .serializers import ProductSerializer, EmailAccountSerializer, CampaignSerializer, MessageSerializer
 
 
 class ProductListCreateView(generics.ListCreateAPIView):
@@ -29,3 +29,12 @@ class CampaignListCreateView(generics.ListCreateAPIView):
 class CampaignRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Campaign.objects.all()
     serializer_class = CampaignSerializer    
+
+
+class MessageListCreateView(generics.ListCreateAPIView):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+
+class MessageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer    
