@@ -17,7 +17,7 @@ urlpatterns = [
 
     # New navigation pages
     path('products/', views.products_view, name='products'),
-    path('email-accounts/', views.email_accounts_view, name='email_accounts'),
+    #path('email-accounts/', views.email_accounts_view, name='email_accounts'),
     path('messages/', views.messages_view, name='messages'),
     path('messages/edit/<int:pk>/', views.messages_edit_view, name='messages_edit'),
     path('messages/add/', views.messages_add_view, name='messages_add'),
