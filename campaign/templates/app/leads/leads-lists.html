@@ -6,7 +6,7 @@
 <div class="p-4">
   <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold">Lead Lists</h1>
-    <button class="btn btn-primary">
+    <button class="btn btn-primary" onclick="addNewLeadsList()">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
       </svg>
@@ -35,7 +35,7 @@
           {% endfor %}
         </div>
         <div class="card-actions justify-end">
-          <button class="btn btn-sm btn-ghost text-error" onclick="ConfirmDeleteList({{ list.id }})" title="Delete">
+          <button class="btn btn-sm btn-ghost text-error" onclick="event.preventDefault(); event.stopPropagation(); ConfirmDeleteList({{ list.id }})" title="Delete">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
@@ -47,6 +47,68 @@
 
   </div>
 </div>
+
+
+
+<!-- Add Leads List Modal -->
+<dialog id="add-leadslist-modal" class="modal">
+    <div class="modal-box max-w-xl">
+        <div class="flex items-center gap-2 mb-4">
+            <button class="btn btn-ghost btn-sm" onclick="ModalSystem.close('add-leadslist-modal')">
+                <i class="fa-solid fa-arrow-left"></i>
+                Cancel
+            </button>
+        </div>
+
+        <div class="text-center mb-6">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <i class="fa-solid fa-list text-blue-600 text-lg"></i>
+            </div>
+            <h3 class="font-bold text-lg">Add New Leads List</h3>
+            <p class="text-sm text-gray-500">Create a new lead list for your campaigns</p>
+        </div>
+
+        <form id="leadslist-form" class="space-y-4">
+            <div>
+                <label class="label">
+                    <span class="label-text">List Title *</span>
+                </label>
+                <input type="text" 
+                       placeholder="e.g. Hot Leads, Potential Clients" 
+                       class="input input-bordered w-full bg-white" 
+                       id="leadslist-title" 
+                       name="title"
+                       required>
+            </div>
+
+            <div>
+                <label class="label">
+                    <span class="label-text">Tags (space-separated)</span>
+                </label>
+                <input type="text" 
+                       placeholder="e.g. hot leads potential clients" 
+                       class="input input-bordered w-full bg-white" 
+                       id="leadslist-tags" 
+                       name="tags">
+                <div class="text-xs text-gray-500 mt-1">Separate multiple tags with spaces</div>
+            </div>
+        </form>
+
+        <div class="modal-action">
+            <button class="btn btn-success w-full text-gray-100" onclick="submitLeadsListForm({{ request.user.subscribed_company.id }})">
+                <i class="fa-solid fa-save mr-2"></i>
+                Create List
+            </button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+
+
+
 
 <script>
 function ConfirmDeleteList(listId) {
@@ -79,6 +141,55 @@ function ConfirmDeleteList(listId) {
                 throw error;
             });
         }
+    });
+}
+
+
+function addNewLeadsList() {
+    // Reset form if needed
+    document.getElementById('leadslist-form').reset();
+    ModalSystem.open('add-leadslist-modal');
+}
+
+
+function submitLeadsListForm(companyId) {
+    const form = document.getElementById('leadslist-form');
+    const title = document.getElementById('leadslist-title').value;
+    const tags = document.getElementById('leadslist-tags').value;
+
+    if (!title) {
+        ModalSystem.toast('List title is required', 'error');
+        return;
+    }
+
+    fetch('/api/leads/lists/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({
+            title: title,
+            tags: tags,
+            subscribed_company: companyId
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw err; });
+        }
+        return response.json();
+    })
+    .then(data => {
+        ModalSystem.close('add-leadslist-modal');
+        ModalSystem.toast('Leads list created successfully!', 'success');
+        // Redirect to the new list view
+        window.location.href = `/campaign/leads/${data.id}`;  // Or use Django's url template tag if available
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        const errorMsg = error.message || 'Failed to create leads list';
+        ModalSystem.toast(errorMsg, 'error');
     });
 }
 </script>

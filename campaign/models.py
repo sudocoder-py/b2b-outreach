@@ -60,7 +60,7 @@ class Campaign(models.Model):
 class LeadList(models.Model):
     subscribed_company = models.ForeignKey(SubscribedCompany, on_delete=models.CASCADE, null=True, blank=True)
     title= models.CharField(max_length=255)
-    tags= models.CharField(max_length=255)
+    tags= models.CharField(max_length=255, default='new list', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
