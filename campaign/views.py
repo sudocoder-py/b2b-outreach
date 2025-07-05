@@ -288,54 +288,11 @@ def create_campaign_view(request):
 
 
 def campaign_view_list(request):
-    simulated_campaigns =  [
-        {
-            'id': 1,
-            'name': 'Q3 Tech Outreach',
-            'product': 'SaaS Platform',
-            'status': 'active',
-            'leads': 500,
-            'sent': 450,
-            'clicked': 90,
-            'replied': 25,
-            'opportunities': 5
-        },
-        {
-            'id': 2,
-            'name': 'Summer Sale Promo',
-            'product': 'E-commerce Goods',
-            'status': 'completed',
-            'leads': 2000,
-            'sent': 1980,
-            'clicked': 450,
-            'replied': 120,
-            'opportunities': 40
-        },
-        {
-            'id': 3,
-            'name': 'New Feature Launch',
-            'product': 'Mobile App',
-            'status': 'paused',
-            'leads': 100,
-            'sent': 50,
-            'clicked': 10,
-            'replied': 1,
-            'opportunities': 0
-        },
-        {
-            'id': 4,
-            'name': 'MENA Expansion',
-            'product': 'Enterprise Software',
-            'status': 'draft',
-            'leads': 0,
-            'sent': 0,
-            'clicked': 0,
-            'replied': 0,
-            'opportunities': 0
-        }
-    ]
+    campaigns, products= get_campaigns_and_products(request)
+
     context = {
-        'campaigns': simulated_campaigns,
+        'campaigns': campaigns,
+        'products': products,
     }
 
     return render(request, "app/campaign/view-list.html", context)
