@@ -11,7 +11,7 @@ from urllib.parse import unquote
 
 from campaign.email_sender import send_campaign_email
 from .models import (
-    Product, Campaign, Lead, NewsletterSubscriber,
+    LeadList, Product, Campaign, Lead, NewsletterSubscriber,
     CampaignLead, Message, Link, MessageAssignment, CampaignStats
 )
  
@@ -88,7 +88,7 @@ class CampaignAdmin(admin.ModelAdmin):
 
 
 
-
+admin.site.register(LeadList)
 
 
 

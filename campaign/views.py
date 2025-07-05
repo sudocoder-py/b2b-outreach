@@ -5,8 +5,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count, Q
 
 
-from campaign.helpers import get_campaigns_and_products, get_company_email_accounts, get_company_products, get_messages_and_products
-from .models import Campaign, Link, Message, MessageAssignment
+from campaign.helpers import get_campaigns_and_products, get_company_email_accounts, get_company_products, get_lead_lists_or_both, get_messages_and_products, get_subscribed_company
+from .models import Campaign, LeadList, Link, Message, MessageAssignment
 import logging
 
 logger = logging.getLogger(__name__)
@@ -54,7 +54,13 @@ def redirect_and_track(request, ref_code):
 
 
 def leads_lists(request):
-    return render(request, "app/leads/leads-lists.html")
+    lead_lists= get_lead_lists_or_both(request, lead_lists_only=True)
+
+    context = {
+        'lead_lists': lead_lists
+    }
+
+    return render(request, "app/leads/leads-lists.html", context)
 
 
 def leads_view(request, pk):

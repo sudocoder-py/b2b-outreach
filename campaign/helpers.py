@@ -1,5 +1,7 @@
+from django.db.models import Count
 from clients.models import Product
-from campaign.models import Message, Campaign
+from campaign.models import Lead, LeadList, Message, Campaign
+from django.core.exceptions import ImproperlyConfigured
 
 def get_subscribed_company(request):
     subscribed_company = request.user.subscribed_company
@@ -32,3 +34,22 @@ def get_campaigns_and_products(request):
     products = get_company_products(request)
     campaigns = Campaign.objects.filter(product__in=products)
     return campaigns, products
+
+
+
+
+
+def get_lead_lists_or_both(request, *, lead_lists_only=None):
+    if lead_lists_only is None:
+        raise ImproperlyConfigured("You must explicitly pass 'lead_lists_only=True' or 'False'")
+
+    subscribed_company = get_subscribed_company(request)
+
+    lead_lists = LeadList.objects.filter(subscribed_company=subscribed_company) \
+                                 .annotate(count=Count('lead_lists'))
+
+    if lead_lists_only:
+        return lead_lists
+    else:
+        leads = Lead.objects.filter(subscribed_company=subscribed_company)
+        return lead_lists, leads
