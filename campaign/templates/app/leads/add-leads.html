@@ -7,7 +7,7 @@
     <main class="flex-1 main-content-bg pl-[100px] pr-[100px] transition-all duration-500 ease-in-out">
       <div class="container mx-auto px-4 py-12">
         <!-- Back Button -->
-        <div class="mb-20">
+        <div id="back-btn-container" class="mb-20">
           <a href="/campaign/leads/lists/" class="btn btn-ghost btn-md gap-2 text-base-content/70 hover:text-base-content transition-all duration-200"> 
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -268,6 +268,8 @@
     currentSection = 1;
     showSection(currentSection);
     updateNavigation();
+    document.getElementById('back-btn-container').classList.remove('mb-20');
+    document.getElementById('back-btn-container').classList.add('mb-6');
   }
   
   // Show bulk form (placeholder for future implementation)

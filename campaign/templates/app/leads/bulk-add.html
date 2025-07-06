@@ -1,0 +1,732 @@
+{% extends "base.html" %}
+{% block title %}Bulk Import Leads{% endblock %}
+{% block js %}
+  <link rel="preload" href="https://unpkg.com/papaparse@5.5.3/papaparse.min.js" as="script">
+  <script src="https://unpkg.com/papaparse@5.5.3/papaparse.min.js" defer></script>
+{% endblock %}
+
+
+{% block base-content %}
+  <style>
+        .custom-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+        
+        .sample-text {
+            color: #6366f1;
+            font-weight: 500;
+        }
+        
+        .upload-area {
+            border: 2px dashed #e5e7eb;
+            border-radius: 8px;
+            background: #fafafa;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+        }
+        
+        .upload-area.dragover {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .file-processed {
+            color: #10b981;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .detected-rows {
+            color: #10b981;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .upload-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .upload-btn:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+        
+        .upload-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .column-header {
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+            padding-bottom: 8px;
+        }
+        
+        .row-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .row-item:last-child {
+            border-bottom: none;
+        }
+        
+        .column-name {
+            font-weight: 500;
+            color: #374151;
+            width: 200px;
+            flex-shrink: 0;
+        }
+        
+        .select-wrapper {
+            width: 300px;
+            margin-right: 24px;
+            flex-shrink: 0;
+        }
+        
+        .samples-column {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .sample-item {
+            display: block;
+            margin-bottom: 2px;
+            font-size: 14px;
+            color: #6366f1;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .sample-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .checkbox-section {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #f3f4f6;
+        }
+        
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .checkbox-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .checkbox-label {
+            font-weight: 500;
+            color: #374151;
+            margin-right: 16px;
+        }
+        
+        .cost-badge {
+            background: #fbbf24;
+            color: #92400e;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .back-link {
+            color: #6366f1;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .close-button {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .close-button:hover {
+            background: #2563eb;
+        }
+
+        .required-indicator {
+            color: #ef4444;
+            font-weight: bold;
+            margin-left: 4px;
+        }
+
+        .file-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .success-message {
+            background: #10b981;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            display: none;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .error-message {
+            background: #ef4444;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            display: none;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .missing-fields {
+            color: #ef4444;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+    </style>
+
+<body class="bg-gray-50 overflow-y-auto" style="overflow: auto !important;">
+    <div class="max-w-5xl mx-auto p-6">
+        <!-- Back Navigation -->
+        <a href="#" class="back-link">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Choose another method
+        </a>
+        
+        <!-- Upload Section -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-6">Upload CSV File</h2>
+            
+            <div class="upload-area p-8 text-center mb-4 relative" id="uploadArea">
+                <input type="file" id="csvFileInput" accept=".csv" class="file-input">
+                <button class="close-button" id="closeButton" style="display: none;">×</button>
+                <div id="uploadPrompt">
+                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    <p class="text-gray-600 mb-2">Drop your CSV file here or click to browse</p>
+                    <p class="text-sm text-gray-500">Supported format: .csv</p>
+                </div>
+                <div id="fileInfo" style="display: none;">
+                    <div class="text-gray-500 text-sm mb-2" id="fileSize"></div>
+                    <div class="text-lg font-medium text-gray-800" id="fileName"></div>
+                </div>
+            </div>
+            
+            <div class="file-processed flex items-center justify-center" id="processedIndicator" style="display: none;">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                File processed
+            </div>
+        </div>
+        
+        <!-- Column Mapping Section -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6" id="mappingSection" style="display: none;">
+            <!-- Headers -->
+            <div class="flex items-center pb-4 border-b border-gray-200 mb-6">
+                <div class="column-header" style="width: 200px;">Column Name</div>
+                <div class="column-header" style="width: 300px; margin-right: 24px;">Select Type</div>
+                <div class="column-header flex-1">Samples</div>
+            </div>
+            
+            <!-- Column Rows -->
+            <div id="columnRows" class="space-y-0">
+                <!-- Rows will be dynamically generated -->
+            </div>
+            
+            <!-- Checkbox Section -->
+            <div class="checkbox-section">
+                <div class="checkbox-row">
+                    <span class="checkbox-label">Check for duplicates across all</span>
+                    <label class="flex items-center cursor-pointer mr-4">
+                        <input type="checkbox" class="checkbox checkbox-primary mr-2" id="checkCampaigns" checked>
+                        <span class="text-sm font-medium">Campaigns</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer mr-4">
+                        <input type="checkbox" class="checkbox checkbox-primary mr-2" id="checkLists" checked>
+                        <span class="text-sm font-medium">Lists</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="checkbox checkbox-primary mr-2" id="checkWorkspace" checked>
+                        <span class="text-sm font-medium">The Workspace</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Upload Button Section -->
+            <div class="mt-8 text-center">
+                <div class="detected-rows mb-4 flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span id="rowCount">Detected 0 data rows</span>
+                </div>
+                
+                <div id="missingFieldsMessage" class="missing-fields" style="display: none;"></div>
+                
+                <button class="upload-btn flex items-center justify-center mx-auto" id="uploadAllBtn" disabled>
+                    UPLOAD ALL
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div class="success-message" id="successMessage">
+            Successfully uploaded! Your data has been processed.
+        </div>
+        <div class="error-message" id="errorMessage">
+            Please ensure at least one required field is mapped before uploading.
+        </div>
+    </div>
+
+    <script>
+        // Available column types with their properties
+        const columnTypes = {
+            'do_not_import': { label: '🚫 Do not import', required: false },
+            'first_name': { label: '👤 First Name', required: false },
+            'last_name': { label: '👤 Last Name', required: false },
+            'full_name': { label: '👤 Full Name', required: true },
+            'position': { label: '💼 Position', required: false },
+            'email': { label: '📧 Email', required: true },
+            'phone': { label: '📱 Phone Number', required: false },
+            'linkedin_profile': { label: '🔗 LinkedIn Profile', required: false },
+            'company_name': { label: '🏢 Company Name', required: true },
+            'company_website': { label: '🌐 Company Website', required: false },
+            'industry': { label: '🏭 Industry', required: false },
+            'employee_count': { label: '👥 Employee Count', required: false },
+            'source': { label: '📊 Source', required: true },
+            'lead_type': { label: '🎯 Lead Type', required: true },
+            'created_date': { label: '📅 Created Date', required: false },
+            'updated_date': { label: '📅 Updated Date', required: false },
+            'notes': { label: '📝 Notes', required: false },
+            'location': { label: '📍 Location', required: false },
+            'tag': { label: '🏷️ Tag', required: false }
+        };
+
+        const requiredFields = ['full_name', 'email', 'company_name', 'source', 'lead_type'];
+
+        let csvData = null;
+        let columnMappings = {};
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('csvFileInput');
+            const uploadArea = document.getElementById('uploadArea');
+            const closeButton = document.getElementById('closeButton');
+            const uploadAllBtn = document.getElementById('uploadAllBtn');
+
+            // File input change event
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // Drag and drop events
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('dragleave', handleDragLeave);
+            uploadArea.addEventListener('drop', handleDrop);
+
+            // Close button event
+            closeButton.addEventListener('click', resetFileUpload);
+
+            // Upload all button event
+            uploadAllBtn.addEventListener('click', handleUploadAll);
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && (file.type === 'text/csv' || file.name.endsWith('.csv'))) {
+                processFile(file);
+            } else {
+                showError('Please select a valid CSV file.');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.currentTarget.classList.remove('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0 && (files[0].type === 'text/csv' || files[0].name.endsWith('.csv'))) {
+                processFile(files[0]);
+            } else {
+                showError('Please drop a valid CSV file.');
+            }
+        }
+
+        function processFile(file) {
+            // Show file info
+            document.getElementById('uploadPrompt').style.display = 'none';
+            document.getElementById('fileInfo').style.display = 'block';
+            document.getElementById('closeButton').style.display = 'block';
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+
+            // Parse CSV
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                dynamicTyping: true,
+                complete: function(results) {
+                    csvData = results.data;
+                    displayColumnMapping(results.meta.fields, csvData);
+                    document.getElementById('processedIndicator').style.display = 'flex';
+                    document.getElementById('mappingSection').style.display = 'block';
+                    document.getElementById('rowCount').textContent = `Detected ${csvData.length} data rows`;
+                },
+                error: function(error) {
+                    showError('Error parsing CSV file: ' + error.message);
+                }
+            });
+        }
+
+        function displayColumnMapping(headers, data) {
+            const columnRows = document.getElementById('columnRows');
+            columnRows.innerHTML = '';
+
+            headers.forEach(header => {
+                const predictedType = predictColumnType(header, data);
+                columnMappings[header] = predictedType;
+
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'row-item';
+
+                // Get sample values
+                const samples = data.slice(0, 4).map(row => row[header]).filter(val => val !== null && val !== undefined && val !== '');
+
+                rowDiv.innerHTML = `
+                    <div class="column-name">${header}</div>
+                    <div class="select-wrapper">
+                        <select class="select select-bordered w-full custom-select" data-column="${header}">
+                            ${Object.entries(columnTypes).map(([key, type]) => 
+                                `<option value="${key}" ${key === predictedType ? 'selected' : ''}>${type.label}${type.required ? '<span class="required-indicator">*</span>' : ''}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="samples-column">
+                        ${samples.map(sample => `<span class="sample-item">${sample}</span>`).join('')}
+                    </div>
+                `;
+
+                columnRows.appendChild(rowDiv);
+
+                // Add event listener to select
+                const select = rowDiv.querySelector('select');
+                select.addEventListener('change', function() {
+                    columnMappings[header] = this.value;
+                    updateUploadButton();
+                });
+            });
+
+            updateUploadButton();
+        }
+
+        function predictColumnType(header, data) {
+            const lowerHeader = header.toLowerCase();
+            const samples = data.slice(0, 10).map(row => row[header]).filter(val => val !== null && val !== undefined && val !== '');
+
+            // Email detection
+            if (lowerHeader.includes('email') || lowerHeader.includes('mail')) {
+                return 'email';
+            }
+
+            // Phone detection
+            if (lowerHeader.includes('phone') || lowerHeader.includes('mobile') || lowerHeader.includes('tel')) {
+                return 'phone';
+            }
+
+            // Name detection
+            if (lowerHeader.includes('first') && lowerHeader.includes('name')) {
+                return 'first_name';
+            }
+            if (lowerHeader.includes('last') && lowerHeader.includes('name')) {
+                return 'last_name';
+            }
+            if (lowerHeader.includes('full') && lowerHeader.includes('name')) {
+                return 'full_name';
+            }
+            if (lowerHeader.includes('name') && !lowerHeader.includes('company')) {
+                return 'full_name';
+            }
+
+            // Company detection
+            if (lowerHeader.includes('company') && !lowerHeader.includes('website')) {
+                return 'company_name';
+            }
+            if (lowerHeader.includes('organization') || lowerHeader.includes('org')) {
+                return 'company_name';
+            }
+
+            // Position/Title detection
+            if (lowerHeader.includes('position') || lowerHeader.includes('title') || lowerHeader.includes('job') || lowerHeader.includes('role')) {
+                return 'position';
+            }
+
+            // Location detection
+            if (lowerHeader.includes('location') || lowerHeader.includes('city') || lowerHeader.includes('country') || lowerHeader.includes('address')) {
+                return 'location';
+            }
+
+            // LinkedIn detection
+            if (lowerHeader.includes('linkedin') || lowerHeader.includes('profile')) {
+                return 'linkedin_profile';
+            }
+
+            // Website detection
+            if (lowerHeader.includes('website') || lowerHeader.includes('url')) {
+                return 'company_website';
+            }
+
+            // Industry detection
+            if (lowerHeader.includes('industry') || lowerHeader.includes('sector')) {
+                return 'industry';
+            }
+
+            // Employee count detection
+            if (lowerHeader.includes('employee') || lowerHeader.includes('size') || lowerHeader.includes('count')) {
+                return 'employee_count';
+            }
+
+            // Source detection
+            if (lowerHeader.includes('source') || lowerHeader.includes('channel')) {
+                return 'source';
+            }
+
+            // Lead type detection
+            if (lowerHeader.includes('lead') && (lowerHeader.includes('type') || lowerHeader.includes('status'))) {
+                return 'lead_type';
+            }
+
+            // Date detection
+            if (lowerHeader.includes('created') || lowerHeader.includes('date')) {
+                return 'created_date';
+            }
+
+            // Default to do not import
+            return 'do_not_import';
+        }
+
+        function updateUploadButton() {
+            const uploadBtn = document.getElementById('uploadAllBtn');
+            const missingFieldsMessage = document.getElementById('missingFieldsMessage');
+            
+            const missingFields = getMissingRequiredFields();
+            const hasAllRequiredFields = missingFields.length === 0;
+            
+            uploadBtn.disabled = !hasAllRequiredFields;
+            
+            if (hasAllRequiredFields) {
+                uploadBtn.classList.remove('opacity-50');
+                missingFieldsMessage.style.display = 'none';
+            } else {
+                uploadBtn.classList.add('opacity-50');
+                missingFieldsMessage.style.display = 'block';
+                missingFieldsMessage.innerHTML = `Missing required fields: <strong>${missingFields.join(', ')}</strong>`;
+            }
+        }
+
+        function getMissingRequiredFields() {
+            const mappedFields = Object.values(columnMappings);
+            return requiredFields.filter(field => !mappedFields.includes(field));
+        }
+
+        function handleUploadAll() {
+            const missingFields = getMissingRequiredFields();
+            if (missingFields.length > 0) {
+                showError(`Please map all required fields before uploading. Missing: ${missingFields.join(', ')}`);
+                return;
+            }
+
+            // Process the data according to mappings
+            const processedData = processDataWithMappings();
+
+            // Get settings
+            const settings = {
+                checkDuplicates: {
+                    campaigns: document.getElementById('checkCampaigns').checked,
+                    lists: document.getElementById('checkLists').checked,
+                    workspace: document.getElementById('checkWorkspace').checked
+                },
+                columnMappings: columnMappings,
+                totalRows: csvData.length,
+                processedRows: processedData.length
+            };
+
+            console.log('Upload Settings:', settings);
+            console.log('Processed Data:', processedData);
+
+            // Create downloadable CSV
+            downloadProcessedData(processedData);
+
+            // Show success message
+            showSuccess(`Successfully processed ${processedData.length} rows! Downloading processed file.`);
+        }
+
+        function processDataWithMappings() {
+            const processedData = [];
+            
+            // Create a reverse mapping of what CSV columns map to which fields
+            const fieldToColumnMap = {};
+            Object.entries(columnMappings).forEach(([column, field]) => {
+                if (field !== 'do_not_import') {
+                    fieldToColumnMap[field] = column;
+                }
+            });
+
+            // Process each row
+            for (const row of csvData) {
+                const processedRow = {};
+                let isValid = true;
+                
+                // Check required fields first
+                for (const field of requiredFields) {
+                    const column = fieldToColumnMap[field];
+                    if (!column || row[column] === undefined || row[column] === null || row[column] === '') {
+                        isValid = false;
+                        break;
+                    }
+                }
+                
+                if (!isValid) {
+                    continue; // Skip invalid rows
+                }
+                
+                // Process all mapped fields
+                Object.entries(columnMappings).forEach(([column, field]) => {
+                    if (field !== 'do_not_import' && row[column] !== undefined) {
+                        processedRow[field] = row[column];
+                    }
+                });
+                
+                processedData.push(processedRow);
+            }
+            
+            return processedData;
+        }
+
+        function downloadProcessedData(data) {
+            // Convert to CSV
+            const csv = Papa.unparse(data);
+            
+            // Create download link
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'processed_leads.csv');
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function resetFileUpload() {
+            document.getElementById('csvFileInput').value = '';
+            document.getElementById('uploadPrompt').style.display = 'block';
+            document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('closeButton').style.display = 'none';
+            document.getElementById('processedIndicator').style.display = 'none';
+            document.getElementById('mappingSection').style.display = 'none';
+            document.getElementById('missingFieldsMessage').style.display = 'none';
+            csvData = null;
+            columnMappings = {};
+            hideMessages();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showSuccess(message) {
+            hideMessages();
+            const successEl = document.getElementById('successMessage');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+            setTimeout(() => {
+                successEl.style.display = 'none';
+            }, 5000);
+        }
+
+        function showError(message) {
+            hideMessages();
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+            }, 5000);
+        }
+
+        function hideMessages() {
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+    </script>
+
+{% endblock %}
