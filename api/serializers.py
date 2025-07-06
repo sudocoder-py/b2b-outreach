@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from clients.models import Product, EmailAccount
-from campaign.models import Campaign, Message, LeadList
+from campaign.models import Campaign, Message, LeadList, Lead
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -27,3 +27,9 @@ class LeadListSerializer(serializers.ModelSerializer):
     class Meta:
         model = LeadList
         fields = '__all__'
+
+
+class LeadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lead
+        fields = '__all__'        

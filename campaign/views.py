@@ -84,8 +84,8 @@ def show_all_leads_view(request):
     return render(request, "app/leads/leads-view.html", context)
 
 
-def add_leads(request):
-    return render(request, "app/leads/add-leads.html")
+def add_leads(request, pk):
+    return render(request, "app/leads/add-leads.html", context={'lead_list': pk})
 
 
 

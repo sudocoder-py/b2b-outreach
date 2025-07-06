@@ -14,6 +14,9 @@ urlpatterns = [
     path('messages/', views.MessageListCreateView.as_view(), name='message-list-create'),
     path('messages/<int:pk>/', views.MessageRetrieveUpdateDestroyView.as_view(), name='message-detail'),    
     
-    path('leads/lists/', views.LeadListListCreateView.as_view(), name='lead-list-list-create'),
+    path('leads/lists/', views.LeadListCreateView.as_view(), name='lead-list-list-create'),
     path('leads/lists/<int:pk>/', views.LeadListRetrieveUpdateDestroyView.as_view(), name='lead-list-detail'),
+
+    path('leads/', views.LeadCreateView.as_view(), name='lead-create'),
+    path('leads/<int:pk>/', views.LeadRetrieveUpdateDestroyView.as_view(), name='lead-detail'),
 ]
