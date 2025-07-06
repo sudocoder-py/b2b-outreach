@@ -69,6 +69,7 @@ def leads_view(request, pk):
 
     context = {
         'leads': leads,
+        'lead_list_id': pk
     }
     return render(request, "app/leads/leads-view.html", context)
 
@@ -85,7 +86,7 @@ def show_all_leads_view(request):
 
 
 def add_leads(request, pk):
-    return render(request, "app/leads/add-leads.html", context={'lead_list': pk})
+    return render(request, "app/leads/add-leads.html", context={'lead_list_id': pk})
 
 
 

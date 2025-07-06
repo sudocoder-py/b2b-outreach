@@ -43,7 +43,7 @@
           {% endfor %}
         </div>
         <div class="card-actions justify-end">
-            <button class="btn btn-sm btn-ghost text-success" onclick="event.preventDefault(); event.stopPropagation(); window.location.href = `/campaign/leads/add/`;" title="Add Leads">
+            <button class="btn btn-sm btn-ghost text-success" onclick="event.preventDefault(); event.stopPropagation(); window.location.href = `/campaign/leads/add/{{ list.id }}/`;" title="Add Leads">
              <i class="fa-regular fa-add"></i>
           </button>
           <button class="btn btn-sm btn-ghost text-error" onclick="event.preventDefault(); event.stopPropagation(); ConfirmDeleteList({{ list.id }})" title="Delete">
