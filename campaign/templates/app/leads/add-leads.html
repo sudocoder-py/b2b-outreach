@@ -16,51 +16,234 @@
           </a>
         </div>
 
-        <!-- Centered Form -->
+        <!-- Centered Content -->
         <div class="flex flex-col items-center justify-center min-h-[60vh]">
-          <div class="w-full max-w-xl space-y-10">
-            <!-- Header -->
-            <div class="text-center space-y-3 transition-opacity duration-300">
-              <h1 class="text-4xl font-bold text-base-content">Let's add new leads</h1>
-              <p id="descText" class="text-base-content/60 text-lg">Wanna add leads individually or in bulk?</p>
-            </div>
+          <div class="w-full max-w-xl">
+            <!-- Initial Choice View -->
+            <div id="choiceView" class="space-y-10">
+              <!-- Header -->
+              <div class="text-center space-y-3 transition-opacity duration-300">
+                <h1 class="text-4xl font-bold text-base-content">Let's add new leads</h1>
+                <p id="descText" class="text-base-content/60 text-lg">Wanna add leads individually or in bulk?</p>
+              </div>
 
-            <!-- Form -->
-            <form id="AddLeadsForm" class="space-y-6 transition-all duration-300">
-                <div class="space-y-3">
-                    <button class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
-                            onclick="">
-                        <div class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
-                            <i class="fa-solid fa-user-plus text-red-600 text-lg"></i>
-                        </div>
-                        <div class="text-left">
-                            <div class="font-medium text-gray-900">Individually</div>
-                            <div class="text-sm text-gray-500">using a form</div>
-                        </div>
-                    </button>
-                    <button class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
-                            onclick="">
-                        <div class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
-                            <i class="fa-solid fa-file-csv text-success text-lg"></i>
-                        </div>
-                        <div class="text-left">
-                            <div class="font-medium text-gray-900">Bulk importing</div>
-                            <div class="text-sm text-gray-500">from a csv file</div>
-                        </div>
-                    </button>
-                </div>
-
-              <!-- Buttons -->
-              <div id="actionButtons" class="flex gap-4 justify-center pt-4 transition-all duration-300">
-                <a href="/campaign/leads/lists/" type="button" class="btn btn-ghost btn-md" id="cancelBtn">Cancel</a>
-                <button type="button" class="btn btn-primary btn-md px-8 gap-2 text-gray-100" id="continueBtn">
-                  Continue
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
+              <!-- Options -->
+              <div class="space-y-3">
+                <button class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
+                        onclick="showIndividualForm()">
+                  <div class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
+                    <i class="fa-solid fa-user-plus text-red-600 text-lg"></i>
+                  </div>
+                  <div class="text-left">
+                    <div class="font-medium text-gray-900">Individually</div>
+                    <div class="text-sm text-gray-500">using a form</div>
+                  </div>
+                </button>
+                <button class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
+                        onclick="showBulkForm()">
+                  <div class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
+                    <i class="fa-solid fa-file-csv text-success text-lg"></i>
+                  </div>
+                  <div class="text-left">
+                    <div class="font-medium text-gray-900">Bulk importing</div>
+                    <div class="text-sm text-gray-500">from a csv file</div>
+                  </div>
                 </button>
               </div>
-            </form>
+            </div>
+
+            <!-- Individual Form View (hidden initially) -->
+            <div id="individualFormView" class="hidden">
+              <div class="text-center space-y-3 mb-6">
+                <h1 class="text-4xl font-bold text-base-content">Add New Lead</h1>
+                <p class="text-base-content/60 text-lg">Fill in the lead details step by step</p>
+                
+                <!-- Progress Steps -->
+                <div class="steps steps-horizontal w-full my-6">
+                  <div id="step1" class="step step-primary">Personal</div>
+                  <div id="step2" class="step">Company</div>
+                  <div id="step3" class="step">Source</div>
+                </div>
+              </div>
+
+              <div class="max-h-[60vh] overflow-y-auto pr-4">
+                <form id="AddLeadsForm" class="space-y-6 pb-4" onsubmit="submitForm(); return false;">
+                  <!-- Section 1: Personal Information -->
+                  <div id="section1" class="form-section">
+                    <div class="space-y-4">
+                      <div class="form-control">
+                        <label class="label" for="full_name">
+                          <span class="label-text">Full Name <span class="text-error">*</span></span>
+                        </label>
+                        <input type="text" id="full_name" name="full_name" class="input input-bordered w-full" required 
+                          onchange="populateNames()" />
+                        <label class="label">
+                          <span class="label-text-alt text-info">Will be used to auto-fill first/last name if empty</span>
+                        </label>
+                      </div>
+                      
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-control">
+                          <label class="label" for="first_name">
+                            <span class="label-text">First Name</span>
+                          </label>
+                          <input type="text" id="first_name" name="first_name" class="input input-bordered w-full" />
+                        </div>
+                        
+                        <div class="form-control">
+                          <label class="label" for="last_name">
+                            <span class="label-text">Last Name</span>
+                          </label>
+                          <input type="text" id="last_name" name="last_name" class="input input-bordered w-full" />
+                        </div>
+                      </div>
+                      
+                      <div class="form-control">
+                        <label class="label" for="position">
+                          <span class="label-text">Position <span class="text-error">*</span></span>
+                        </label>
+                        <input type="text" id="position" name="position" class="input input-bordered w-full" required />
+                      </div>
+                      
+                      <div class="form-control">
+                        <label class="label" for="email">
+                          <span class="label-text">Email <span class="text-error">*</span></span>
+                        </label>
+                        <input type="email" id="email" name="email" class="input input-bordered w-full" required />
+                      </div>
+                      
+                      <div class="form-control">
+                        <label class="label" for="phone">
+                          <span class="label-text">Phone Number</span>
+                        </label>
+                        <input type="tel" id="phone" name="phone" class="input input-bordered w-full" />
+                      </div>
+                      
+                      <div class="form-control">
+                        <label class="label" for="linkedin">
+                          <span class="label-text">LinkedIn Profile</span>
+                        </label>
+                        <div class="relative">
+                          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fab fa-linkedin"></i>
+                          </span>
+                          <input type="url" id="linkedin" name="linkedin" class="input input-bordered w-full pl-10" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Section 2: Company Information -->
+                  <div id="section2" class="form-section hidden">
+                    <div class="space-y-4">
+                      <div class="form-control">
+                        <label class="label" for="company_name">
+                          <span class="label-text">Company Name <span class="text-error">*</span></span>
+                        </label>
+                        <input type="text" id="company_name" name="company_name" class="input input-bordered w-full" required />
+                      </div>
+                      
+                      <div class="form-control">
+                        <label class="label" for="company_website">
+                          <span class="label-text">Company Website</span>
+                        </label>
+                        <div class="relative">
+                          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-globe"></i>
+                          </span>
+                          <input type="url" id="company_website" name="company_website" class="input input-bordered w-full pl-10" />
+                        </div>
+                      </div>
+                      
+                      <div class="form-control">
+                        <label class="label" for="industry">
+                          <span class="label-text">Industry</span>
+                        </label>
+                        <input type="text" id="industry" name="industry" class="input input-bordered w-full" />
+                      </div>
+                      
+                      <div class="form-control">
+                        <label class="label" for="employee_count">
+                          <span class="label-text">Employee Count</span>
+                        </label>
+                        <select id="employee_count" name="employee_count" class="select select-bordered w-full">
+                          <option value="" selected disabled>Select employee count</option>
+                          <option value="1-10">1-10</option>
+                          <option value="11-50">11-50</option>
+                          <option value="51-200">51-200</option>
+                          <option value="201-500">201-500</option>
+                          <option value="501-1000">501-1000</option>
+                          <option value="1000+">1000+</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Section 3: Lead Source Details -->
+                  <div id="section3" class="form-section hidden">
+                    <div class="space-y-4">
+                      <div class="form-control">
+                        <label class="label" for="source">
+                          <span class="label-text">Source <span class="text-error">*</span></span>
+                        </label>
+                        <select id="source" name="source" class="select select-bordered w-full" required>
+                          <option value="" selected disabled>Select lead source</option>
+                          <option value="linkedin_scrape">LinkedIn Scrape</option>
+                          <option value="social">Social Media</option>
+                          <option value="newsletter">Newsletter Opt-in</option>
+                          <option value="form">Free Consultation Form</option>
+                        </select>
+                      </div>
+                      
+                      <div class="form-control">
+                        <label class="label" for="lead_type">
+                          <span class="label-text">Lead Type <span class="text-error">*</span></span>
+                        </label>
+                        <select id="lead_type" name="lead_type" class="select select-bordered w-full" required>
+                          <option value="" selected disabled>Select lead type</option>
+                          <option value="cold">Cold</option>
+                          <option value="warm">Warm</option>
+                          <option value="hot">Hot</option>
+                          <option value="customer">Customer</option>
+                        </select>
+                      </div>
+                      
+                      <div class="form-control">
+                        <label class="label" for="tags">
+                          <span class="label-text">Additional Tags</span>
+                        </label>
+                        <input type="text" id="tags" name="tages" class="input input-bordered w-full" />
+                        <label class="label">
+                          <span class="label-text-alt text-info">Seperate multiple tags with spaces</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Navigation Buttons -->
+                  <div id="actionButtons" class="flex gap-4 justify-between pt-4 sticky bottom-0 bg-base-100 pb-4">
+                    <button type="button" class="btn btn-ghost btn-md hidden" id="backBtn">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                      </svg>
+                      Back
+                    </button>
+                    
+                    <button type="button" class="btn btn-primary btn-md ml-auto gap-2 text-gray-100" id="nextBtn">
+                      Next
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                    
+                    <button type="submit" class="btn btn-success btn-md ml-auto gap-2 text-gray-100 hidden" id="submitBtn">
+                      <i class="fas fa-check"></i>
+                      Submit Lead
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -68,8 +251,164 @@
   </div>
 </div>
 
+<script>
+  let currentSection = 1;
+  const totalSections = 3;
+  
+  // Show initial choice view
+  function showChoiceView() {
+    document.getElementById('choiceView').classList.remove('hidden');
+    document.getElementById('individualFormView').classList.add('hidden');
+  }
+  
+  // Show individual form
+  function showIndividualForm() {
+    document.getElementById('choiceView').classList.add('hidden');
+    document.getElementById('individualFormView').classList.remove('hidden');
+    currentSection = 1;
+    showSection(currentSection);
+    updateNavigation();
+  }
+  
+  // Show bulk form (placeholder for future implementation)
+  function showBulkForm() {
+    alert('Bulk import feature will be implemented later');
+    // document.getElementById('choiceView').classList.add('hidden');
+    // document.getElementById('bulkFormView').classList.remove('hidden');
+  }
+  
+  // Initialize form
+  document.addEventListener('DOMContentLoaded', function() {
+    updateNavigation();
+  });
+  
+  // Next button click handler
+  document.getElementById('nextBtn').addEventListener('click', function() {
+    if (validateSection(currentSection)) {
+      currentSection++;
+      showSection(currentSection);
+      updateNavigation();
+    }
+  });
+  
+  // Back button click handler
+  document.getElementById('backBtn').addEventListener('click', function() {
+    currentSection--;
+    showSection(currentSection);
+    updateNavigation();
+  });
+  
+  // Show the current section and hide others
+  function showSection(sectionNumber) {
+    document.querySelectorAll('.form-section').forEach(section => {
+      section.classList.add('hidden');
+    });
+    document.getElementById(`section${sectionNumber}`).classList.remove('hidden');
+    
+    // Update progress steps
+    document.querySelectorAll('.step').forEach((step, index) => {
+      if (index + 1 <= sectionNumber) {
+        step.classList.add('step-primary');
+      } else {
+        step.classList.remove('step-primary');
+      }
+    });
+    
+    // Scroll to top of form
+    document.querySelector('#individualFormView .overflow-y-auto').scrollTo(0, 0);
+  }
+  
+  // Update navigation buttons based on current section
+  function updateNavigation() {
+    const backBtn = document.getElementById('backBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    backBtn.classList.toggle('hidden', currentSection === 1);
+    nextBtn.classList.toggle('hidden', currentSection === totalSections);
+    submitBtn.classList.toggle('hidden', currentSection !== totalSections);
+  }
+  
+  // Validate current section before proceeding
+  function validateSection(sectionNumber) {
+    const section = document.getElementById(`section${sectionNumber}`);
+    const requiredInputs = section.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredInputs.forEach(input => {
+      if (!input.value.trim()) {
+        input.classList.add('input-error');
+        isValid = false;
+      } else {
+        input.classList.remove('input-error');
+      }
+    });
+    
+    if (!isValid) {
+      alert('Please fill in all required fields before proceeding.');
+    }
+    
+    return isValid;
+  }
+  
+  // Auto-populate first and last names from full name
+  function populateNames() {
+    const fullName = document.getElementById('full_name').value.trim();
+    if (!fullName) return;
+    
+    const nameParts = fullName.split(' ');
+    const firstName = document.getElementById('first_name');
+    const lastName = document.getElementById('last_name');
+    
+    if (!firstName.value) {
+      firstName.value = nameParts[0];
+    }
+    
+    if (!lastName.value && nameParts.length > 1) {
+      lastName.value = nameParts.slice(1).join(' ');
+    }
+  }
+  
+  // Form submission handler
+  function submitForm() {
+    if (validateSection(currentSection)) {
+      // Here you would typically send the form data to the server
+      // For now, we'll just show a success message
+      alert('Lead submitted successfully!');
+      return true;
+    }
+    return false;
+  }
+</script>
+
+<style>
+  .form-section {
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .input-error {
+    border-color: #f87272;
+    background-color: #fee2e2;
+  }
+  
+  /* Custom scrollbar */
+  .overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .overflow-y-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+  }
+  
+  .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+</style>
+
 {% endblock %}
-
-
-
-

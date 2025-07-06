@@ -101,6 +101,7 @@ class Lead(models.Model):
     lead_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    tags = models.CharField(max_length=255, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         # Auto-populate first_name and last_name from full_name if not set
