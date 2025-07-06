@@ -7,7 +7,7 @@
     <main class="flex-1 main-content-bg pl-[100px] pr-[100px] transition-all duration-500 ease-in-out">
       <div class="container mx-auto px-4 py-12">
         <!-- Back Button -->
-        <div class="mb-8">
+        <div class="mb-20">
           <a href="/campaign/leads/lists/" class="btn btn-ghost btn-md gap-2 text-base-content/70 hover:text-base-content transition-all duration-200"> 
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -29,7 +29,7 @@
             <form id="AddLeadsForm" class="space-y-6 transition-all duration-300">
                 <div class="space-y-3">
                     <button class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
-                            onclick="selectProvider('google')">
+                            onclick="">
                         <div class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
                             <i class="fa-solid fa-user-plus text-red-600 text-lg"></i>
                         </div>
@@ -39,7 +39,7 @@
                         </div>
                     </button>
                     <button class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
-                            onclick="selectProvider('microsoft')">
+                            onclick="">
                         <div class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
                             <i class="fa-solid fa-file-csv text-success text-lg"></i>
                         </div>
@@ -49,11 +49,6 @@
                         </div>
                     </button>
                 </div>
-
-              <!-- Loading Bar -->
-              <div id="loadingBar" class="hidden w-full pt-6">
-                <progress id="progressBar" class="progress progress-primary w-full h-4" value="0" max="100"></progress>
-              </div>
 
               <!-- Buttons -->
               <div id="actionButtons" class="flex gap-4 justify-center pt-4 transition-all duration-300">
@@ -74,3 +69,7 @@
 </div>
 
 {% endblock %}
+
+
+
+
