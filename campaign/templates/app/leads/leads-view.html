@@ -31,10 +31,6 @@
                         <i class="fa-brands fa-linkedin"></i>
                         <span class="font-semibold">{{ stats.linkedin_source }}</span>
                     </div>
-                    <div class="flex items-center gap-1.5" title="IT Industry">
-                        <i class="fa-solid fa-laptop-code"></i>
-                        <span class="font-semibold">{{ stats.it_industry }}</span>
-                    </div>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -167,13 +163,31 @@
                             <td class="text-gray-600">{{ lead.position }}</td>
                             <td class="text-gray-600">{{ lead.location }}</td>
                             <td class="text-gray-600">
-                                <span class="badge {{ lead.lead_type_class }} gap-1 font-medium py-2">
-                                    <i class="{{ lead.lead_type_icon }}"></i> {{ lead.lead_type }}
-                                </span>
+                                {% if lead.lead_type == 'cold' %}
+                                    <span class="badge badge-ghost gap-1 font-medium py-2">
+                                        <i class="fa-solid fa-snowflake"></i> {{ lead.lead_type }}
+                                    </span>
+                                {% elif lead.lead_type == 'warm' %}
+                                    <span class="badge badge-warning gap-1 font-medium py-2">
+                                        <i class="fa-solid fa-fire"></i> {{ lead.lead_type }}
+                                    </span>
+                                {% elif lead.lead_type == 'hot' %}
+                                    <span class="badge badge-error gap-1 font-medium py-2">
+                                        <i class="fa-solid fa-fire"></i> {{ lead.lead_type }}
+                                    </span>   
+                                {% elif lead.lead_type == 'customer' %}
+                                    <span class="badge badge-success gap-1 font-medium py-2">
+                                        <i class="fa-solid fa-true"></i> {{ lead.lead_type }}
+                                    </span>   
+                                {% endif %}      
                             </td>
                             <td class="text-gray-600">
-                                <span class="badge {{ lead.source_class }} gap-1 font-medium py-2">
-                                    <i class="{{ lead.source_icon }}"></i> {{ lead.source }}
+                                <span class="badge badge-info gap-1 font-medium py-2">
+                                    {% if lead.source == 'linkedin_scrape' %}
+                                        <i class="fa-brands fa-linkedin"></i> {{ lead.source }}
+                                    {% else %}
+                                        <i class="fa-brands fa-google"></i> {{ lead.source }}    
+                                    {% endif %}
                                 </span>
                             </td>
                             <td class="text-gray-600">{{ lead.created_at }}</td>

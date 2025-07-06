@@ -54,7 +54,7 @@ def redirect_and_track(request, ref_code):
 
 
 def leads_lists(request):
-    lead_lists= get_lead_lists_or_both(request, lead_lists_only=True)
+    lead_lists= get_lead_lists_or_both(request, lead_lists_only=True, list_id=None)
 
     context = {
         'lead_lists': lead_lists
@@ -64,216 +64,28 @@ def leads_lists(request):
 
 
 def leads_view(request, pk):
-    # Simulate leads data with the exact structure you provided
-    simulated_leads = [
-        {
-            'id': 1,
-            'subscribed_company': 'fdudgames',
-            'full_name': 'fdud ramo',
-            'first_name': 'fdud',
-            'last_name': 'ramo',
-            'position': 'ceo',
-            'email': 'fdudramo@gmail.com',
-            'phone_number': None,
-            'linkedin_profile': None,
-            'company_name': 'fdudgames',
-            'company_website': None,
-            'industry': 'Gaming',
-            'employee_count': 'N/A',
-            'company_linkedin_page': None,
-            'location': 'N/A',
-            'source': 'LinkedIn',
-            'lead_type': 'Cold',
-            'lead_type_class': 'badge-ghost',
-            'lead_type_icon': 'fa-solid fa-snowflake',
-            'source_class': 'badge-info',
-            'source_icon': 'fa-brands fa-linkedin',
-            'created_at': 'Jun 04, 2025',
-        },
-        {
-            'id': 2,
-            'subscribed_company': 'Elkood',
-            'full_name': 'Yamen Alabsi',
-            'first_name': 'Yamen',
-            'last_name': 'Alabsi',
-            'position': 'CEO & Co-founder‎‏ at Elkood',
-            'email': 'yamenabsi@gmail.com',
-            'phone_number': None,
-            'linkedin_profile': 'https://www.linkedin.com/in/yamen-alabsi-669816164',
-            'company_name': 'Elkood',
-            'company_website': 'https://elkood.com/',
-            'industry': 'IT Services',
-            'employee_count': '11-50',
-            'company_linkedin_page': None,
-            'location': 'Riyadh, Saudi Arabia',
-            'source': 'LinkedIn',
-            'lead_type': 'Cold',
-            'lead_type_class': 'badge-ghost',
-            'lead_type_icon': 'fa-solid fa-snowflake',
-            'source_class': 'badge-info',
-            'source_icon': 'fa-brands fa-linkedin',
-            'created_at': 'Jun 04, 2025',
-        },
-        {
-            'id': 3,
-            'subscribed_company': 'Prootech Agency',
-            'full_name': 'Salem AL-najjar',
-            'first_name': 'Salem',
-            'last_name': 'AL-najjar',
-            'position': 'Ceo - founder at Prootech Agency',
-            'email': 'mhmadnajjer2004@gmail.com',
-            'phone_number': None,
-            'linkedin_profile': 'https://www.linkedin.com/in/mohamad-salem-alnajjar-9a4069219',
-            'company_name': 'Prootech Agency',
-            'company_website': None,
-            'industry': 'IT Services',
-            'employee_count': '2-10',
-            'company_linkedin_page': None,
-            'location': 'Dubai, UAE',
-            'source': 'LinkedIn',
-            'lead_type': 'Cold',
-            'lead_type_class': 'badge-ghost',
-            'lead_type_icon': 'fa-solid fa-snowflake',
-            'source_class': 'badge-info',
-            'source_icon': 'fa-brands fa-linkedin',
-            'created_at': 'Jun 04, 2025',
-        },
-        {
-            'id': 4,
-            'subscribed_company': 'Pancode',
-            'full_name': 'Ghassan Rizk',
-            'first_name': 'Ghassan',
-            'last_name': 'Rizk',
-            'position': 'Chief Executive Officer at Pancode',
-            'email': 'ghassanrizk@pan-code.com',
-            'phone_number': None,
-            'linkedin_profile': 'https://www.linkedin.com/in/ghassan-rizk-7a2266190',
-            'company_name': 'Pancode',
-            'company_website': 'http://www.pan-code.com',
-            'industry': 'IT Services',
-            'employee_count': '11-50',
-            'company_linkedin_page': None,
-            'location': 'Damascus, Syria',
-            'source': 'LinkedIn',
-            'lead_type': 'Cold',
-            'lead_type_class': 'badge-ghost',
-            'lead_type_icon': 'fa-solid fa-snowflake',
-            'source_class': 'badge-info',
-            'source_icon': 'fa-brands fa-linkedin',
-            'created_at': 'Jun 04, 2025',
-        },
-        {
-            'id': 5,
-            'subscribed_company': 'Florinz',
-            'full_name': 'Gheias A.',
-            'first_name': 'Gheias',
-            'last_name': 'A.',
-            'position': 'Co-founder - CEO at Florinz',
-            'email': 'gy.alamin@hotmail.com',
-            'phone_number': None,
-            'linkedin_profile': 'https://www.linkedin.com/in/gheias-a-5392b498',
-            'company_name': 'Florinz',
-            'company_website': 'http://florinz.com',
-            'industry': 'IT Services',
-            'employee_count': '11-50',
-            'company_linkedin_page': None,
-            'location': 'Riyadh, Saudi Arabia',
-            'source': 'LinkedIn',
-            'lead_type': 'Cold',
-            'lead_type_class': 'badge-ghost',
-            'lead_type_icon': 'fa-solid fa-snowflake',
-            'source_class': 'badge-info',
-            'source_icon': 'fa-brands fa-linkedin',
-            'created_at': 'Jun 04, 2025',
-        },
-        {
-            'id': 6,
-            'subscribed_company': 'CodeGuru.ae',
-            'full_name': 'Ashraf Altawashi',
-            'first_name': 'Ashraf',
-            'last_name': 'Altawashi',
-            'position': 'Chief Executive Officer at CodeGuru.ae',
-            'email': 'ashraf.altawashi@codeguru.ae',
-            'phone_number': None,
-            'linkedin_profile': 'https://www.linkedin.com/in/ashrafaltawashi',
-            'company_name': 'CodeGuru.ae',
-            'company_website': 'https://codeguru.ae',
-            'industry': 'IT Services',
-            'employee_count': '2-10',
-            'company_linkedin_page': None,
-            'location': 'Dubai, UAE',
-            'source': 'LinkedIn',
-            'lead_type': 'Cold',
-            'lead_type_class': 'badge-ghost',
-            'lead_type_icon': 'fa-solid fa-snowflake',
-            'source_class': 'badge-info',
-            'source_icon': 'fa-brands fa-linkedin',
-            'created_at': 'Jun 04, 2025',
-        },
-        {
-            'id': 7,
-            'subscribed_company': 'Zeolans Technologies',
-            'full_name': 'Shameer Mohammed',
-            'first_name': 'Shameer',
-            'last_name': 'Mohammed',
-            'position': 'Chief Executive Officer at Zeolans Technologies',
-            'email': 'shameerkummalil@gmail.com',
-            'phone_number': None,
-            'linkedin_profile': 'https://www.linkedin.com/in/shameer-mohammed-33051b59',
-            'company_name': 'Zeolans Technologies',
-            'company_website': 'https://www.zeolans.ae',
-            'industry': 'IT Services',
-            'employee_count': '11-50',
-            'company_linkedin_page': None,
-            'location': 'Dubai, UAE',
-            'source': 'LinkedIn',
-            'lead_type': 'Cold',
-            'lead_type_class': 'badge-ghost',
-            'lead_type_icon': 'fa-solid fa-snowflake',
-            'source_class': 'badge-info',
-            'source_icon': 'fa-brands fa-linkedin',
-            'created_at': 'Jun 04, 2025',
-        },
-        {
-            'id': 8,
-            'subscribed_company': 'Raizer',
-            'full_name': 'Razek Daoud',
-            'first_name': 'Razek',
-            'last_name': 'Daoud',
-            'position': 'CEO',
-            'email': 'razek.daoud@raizer.tech',
-            'phone_number': None,
-            'linkedin_profile': 'https://www.linkedin',
-            'company_name': 'Raizer',
-            'company_website': 'http://raizer.tech',
-            'industry': 'Software Development',
-            'employee_count': '11-50',
-            'company_linkedin_page': None,
-            'location': 'N/A',
-            'source': 'LinkedIn',
-            'lead_type': 'Warm',
-            'lead_type_class': 'badge-warning',
-            'lead_type_icon': 'fa-solid fa-fire',
-            'source_class': 'badge-info',
-            'source_icon': 'fa-brands fa-linkedin',
-            'created_at': 'Jun 03, 2025',
-        },
-    ]
 
-    # Calculate stats from the simulated data
-    stats = {
-        'total_leads': len(simulated_leads),
-        'cold': len([l for l in simulated_leads if l['lead_type'] == 'Cold']),
-        'warm': len([l for l in simulated_leads if l['lead_type'] == 'Warm']),
-        'linkedin_source': len([l for l in simulated_leads if l['source'] == 'LinkedIn']),
-        'it_industry': len([l for l in simulated_leads if 'IT' in l['industry']]),
-    }
+    lead_lists, leads, = get_lead_lists_or_both(request, lead_lists_only=False, list_id=pk)
 
     context = {
-        'leads': simulated_leads,
-        'stats': stats,
+        'leads': leads,
     }
     return render(request, "app/leads/leads-view.html", context)
+
+
+
+def show_all_leads_view(request):
+
+    lead_lists, leads, = get_lead_lists_or_both(request, lead_lists_only=False, list_id=None)
+
+    context = {
+        'leads': leads,
+    }
+    return render(request, "app/leads/leads-view.html", context)
+
+
+def add_leads(request):
+    return render(request, "app/leads/add-leads.html")
 
 
 

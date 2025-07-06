@@ -39,9 +39,7 @@ def get_campaigns_and_products(request):
 
 
 
-def get_lead_lists_or_both(request, *, lead_lists_only=None):
-    if lead_lists_only is None:
-        raise ImproperlyConfigured("You must explicitly pass 'lead_lists_only=True' or 'False'")
+def get_lead_lists_or_both(request, *, lead_lists_only=False, list_id=None):
 
     subscribed_company = get_subscribed_company(request)
 
@@ -50,6 +48,11 @@ def get_lead_lists_or_both(request, *, lead_lists_only=None):
 
     if lead_lists_only:
         return lead_lists
+    
+    if list_id:
+        leads = Lead.objects.filter(lead_list=list_id)
+        return lead_lists, leads
+    
     else:
         leads = Lead.objects.filter(subscribed_company=subscribed_company)
         return lead_lists, leads

@@ -100,7 +100,7 @@ class LeadAdmin(ImportExportModelAdmin):
     search_fields = ('full_name', 'email', 'company_name')
     fieldsets = (
         ('Owned By', {
-            'fields': ('subscribed_company',)
+            'fields': ('lead_list', 'subscribed_company')
         }),
         ('Personal Information', {
             'fields': ('full_name', 'first_name', 'last_name', 'position', 'email', 'phone_number', 'linkedin_profile')

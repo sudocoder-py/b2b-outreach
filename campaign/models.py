@@ -67,6 +67,7 @@ class LeadList(models.Model):
 
 class Lead(models.Model):
     lead_list = models.ForeignKey(LeadList, on_delete=models.CASCADE, null=True, blank=True, related_name="lead_lists")
+    subscribed_company = models.ForeignKey(SubscribedCompany, on_delete=models.CASCADE, null=True, blank=True)
 
     full_name = models.CharField(max_length=255)
     first_name = models.CharField(max_length=100, blank=True)
