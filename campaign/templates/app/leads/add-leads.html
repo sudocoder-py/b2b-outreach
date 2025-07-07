@@ -17,7 +17,7 @@
             </div>
 
             <!-- Centered Content -->
-            <div class="flex flex-col items-center justify-center min-h-[60vh]">
+            <div class="flex flex-col items-center justify-center min-h-[60vh]" id="mainContent">
             <div class="w-full max-w-xl">
                 <!-- Initial Choice View -->
                 <div id="choiceView" class="space-y-10">
@@ -247,102 +247,12 @@
 
             </div>
 
-            <div id="bulkFormView" class="hidden">                  
-                    <div class="card bg-base-100 shadow-xl" style="overflow: auto;">
-                        <div class="card-body">
-                            <h1 class="card-title text-2xl font-bold mb-4">Upload Leads CSV</h1>
-                            
-                            <div class="alert alert-info mb-6">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <div>
-                                    <h3 class="font-bold">Instructions:</h3>
-                                    <div class="text-xs">
-                                        <p>The accepted fields are:</p>
-                                        <ul class="list-disc pl-5 mt-1">
-                                            <li><strong>Full name:</strong> This field is required.</li>
-                                            <li>First name:</li>
-                                            <li>Last name:</li>
-                                            <li>Position:</li>
-                                            <li><strong>Email:</strong> This field is required.</li>
-                                            <li>Phone number:</li>
-                                            <li>Linkedin profile:</li>
-                                            <li><strong>Company name:</strong> This field is required.</li>
-                                            <li>Company website:</li>
-                                            <li>Industry:</li>
-                                            <li>employee_count:</li>
-                                            <li>campany_linkedin_page:</li>
-                                            <li>location:</li>
-                                            <li><strong>source:</strong> This is a choices field: linkedin_scrape, social, newsletter, form, other</li>
-                                            <li><strong>lead_type:</strong> Choices: cold, warm, hot, customer, other</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="alert alert-warning mb-6">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                                <div>
-                                    <h3 class="font-bold">Important notes:</h3>
-                                    <div class="text-xs">
-                                        <ol class="list-decimal pl-5">
-                                            <li>You must download the file and plug your leads info in it</li>
-                                            <li>The required fields are must, and for non required fields leave them empty and don't delete them from the fields</li>
-                                            <li>Don't change the order of the columns in the file</li>
-                                        </ol>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button id="downloadTemplate" class="btn btn-primary mb-6">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                                Download Sample File
-                            </button>
-
-                            <div class="form-control w-full">
-                                <label class="label">
-                                    <span class="label-text">Upload your CSV file</span>
-                                </label>
-                                <input type="file" id="csvFile" accept=".csv" class="file-input file-input-bordered w-full" />
-                            </div>
-
-                            <div id="validationResults" class="mt-6 hidden">
-                                <div class="alert hidden" id="validationAlert">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    <span id="validationMessage"></span>
-                                </div>
-
-                                <div id="successAlert" class="alert alert-success hidden">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    <span>CSV file is valid! You can now submit the form.</span>
-                                </div>
-
-                                <div class="overflow-x-auto mt-4 hidden" id="previewTableContainer">
-                                    <!-- Wrap table in a container with fixed width and horizontal scroll -->
-                                    <div class="mt-4 overflow-x-auto bg-base-100 rounded-lg border border-base-200">
-                                        <div style="max-width: 500px;">
-                                            <table class="table table-zebra">
-                                                <thead id="previewTableHead"></thead>
-                                                <tbody id="previewTableBody"></tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card-actions justify-end mt-6">
-                                <button id="submitBulkBtn" class="btn btn-primary hidden" disabled>Submit Leads</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div id="bulkFormView" class="hidden">   
-                <div class="card bg-base-100 shadow-xl w-full max-w-4xl mx-auto">
-                    <div class="card-body">
-                        <h1 class="card-title text-2xl font-bold mb-4">Upload Leads CSV</h1>
+
+
+                        <h1 class="text-2xl font-bold mb-4">Upload Leads CSV</h1>
                         
                         <div class="alert alert-info mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
@@ -427,10 +337,14 @@
                         </div>
 
                         <div class="card-actions justify-end mt-6">
-                            <button id="submitBulkBtn" class="btn btn-primary hidden" disabled>Submit Leads</button>
+                            <button class="upload-btn flex items-center justify-center mx-auto btn btn-success text-gray-100" id="submitBulkBtn" disabled>
+                                UPLOAD ALL
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                </svg>
+                            </button>
                         </div>
-                    </div>
-                </div>
+
             </div>
         </div>  
     </main>
@@ -461,7 +375,8 @@
   
   // Show bulk form (placeholder for future implementation)
   function showBulkForm() {
-    document.getElementById('choiceView').classList.add('hidden');
+    document.getElementById('mainContent').style.display = 'none';
+    document.getElementById('choiceView').classList.remove('hidden');
     document.getElementById('bulkFormView').classList.remove('hidden');
     document.getElementById('back-btn-container').classList.remove('mb-20');
     document.getElementById('back-btn-container').classList.add('mb-2');
