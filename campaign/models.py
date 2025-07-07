@@ -89,13 +89,15 @@ class Lead(models.Model):
         ("linkedin_scrape", "LinkedIn Scrape"),
         ("social", "Social Media"),
         ("newsletter", "Newsletter Opt-in"),
-        ("form", "Free Consultation Form"),
+        ("form", "Form"),
+        ("other", "Other"),
     ]
     TYPE_CHOICES = [
         ("cold", "Cold"),
         ("warm", "Warm"),
         ("hot", "Hot"),
         ("customer", "Customer"),
+        ("other", "Other"),
     ]
     source = models.CharField(max_length=50, choices=SOURCE_CHOICES)
     lead_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
