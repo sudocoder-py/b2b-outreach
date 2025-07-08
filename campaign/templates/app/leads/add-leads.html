@@ -252,11 +252,21 @@
             <div id="bulkFormView" class="hidden">   
 
                       <div class="flex-1 flex flex-col bg-gray-50 p-8">
-                        <!-- Header -->
-                        <div class="mb-8">
+
+                        <div class="flex justify-between items-center">
+                          <div class="mb-8">
                             <h1 class="text-3xl font-bold text-gray-900 mb-2">Upload Leads CSV</h1>
                             <p class="text-gray-600">Upload your leads in bulk using a CSV file</p>
-                        </div>
+                          </div>
+                          <div class="flex gap-2">
+                              <!-- Download Template Button -->
+                            <div class="text-center">
+                                <button id="downloadTemplate" class="btn bg-primary/90 text-gray-100 border border-base-200 rounded-lg px-4 text-l hover:bg-success transition-all duration-300"> 
+                                    Download Sample File to fill in
+                                </button>
+                            </div>
+                          </div>
+                      </div>
 
                         <!-- Main Content -->
                         <div class="flex flex-col gap-8">
@@ -362,13 +372,6 @@
                                 </div>
                             </div>
 
-                            <!-- Download Template Button -->
-                            <div class="text-center">
-                                <button id="downloadTemplate" class="btn btn-primary">
-                                    Download Sample File
-                                </button>
-                            </div>
-
                             <!-- Upload Section -->
                             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                                 <h2 class="text-xl font-semibold mb-6">Upload CSV File</h2>
@@ -403,9 +406,9 @@
                             <!-- Upload Button -->
                             <div class="text-center hidden" id="bulkActionsContainer">
                                 <div class="mb-4">
-                                    <span class="text-gray-600">Detected</span>
-                                    <span id="rowCount" class="font-bold text-success ml-1">0</span>
-                                    <span class="text-gray-600 ml-1">leads</span>
+                                    <span class="text-gray-600">Detected </span>
+                                    <span id="rowCount" class="font-bold text-success">0</span>
+                                    <span class="text-gray-600"> leads</span>
                                 </div>
                                 <button class="upload-btn flex items-center justify-center mx-auto btn btn-success text-gray-100 hidden" id="submitBulkBtn" disabled>
                                     UPLOAD ALL
@@ -416,7 +419,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
             </div>
         </div>  
     </main>
