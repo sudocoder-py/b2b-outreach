@@ -2,6 +2,9 @@ from rest_framework import generics
 from clients.models import Product, EmailAccount
 from campaign.models import Campaign, Lead, LeadList, Message
 from .serializers import LeadSerializer, ProductSerializer, EmailAccountSerializer, CampaignSerializer, MessageSerializer, LeadListSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class ProductListCreateView(generics.ListCreateAPIView):
@@ -57,3 +60,26 @@ class LeadCreateView(generics.ListCreateAPIView):
 class LeadRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Lead.objects.all()
     serializer_class = LeadSerializer
+
+
+
+class BulkLeadCreateView(APIView):
+    def post(self, request, *args, **kwargs):
+        data = request.data
+
+        if not isinstance(data, list):
+            return Response({'error': 'Expected a list of leads'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate all objects
+        serializer = LeadSerializer(data=data, many=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Build Lead instances manually
+        validated_data = serializer.validated_data
+        leads = [Lead(**item) for item in validated_data]
+
+        # Bulk create leads
+        Lead.objects.bulk_create(leads)
+
+        return Response({'message': f'{len(leads)} leads created successfully'}, status=status.HTTP_201_CREATED)

@@ -19,4 +19,5 @@ urlpatterns = [
 
     path('leads/', views.LeadCreateView.as_view(), name='lead-create'),
     path('leads/<int:pk>/', views.LeadRetrieveUpdateDestroyView.as_view(), name='lead-detail'),
+    path('leads/bulk-create/', views.BulkLeadCreateView.as_view(), name='bulk-lead-create'),
 ]
