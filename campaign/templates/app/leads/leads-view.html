@@ -435,30 +435,50 @@ function deleteSelected() {
 
     if (leadIds.length === 0) return;
 
-    // Use the modal system
     ModalSystem.confirm({
         title: 'Delete Selected Leads',
         message: `Are you sure you want to delete ${leadIds.length} selected lead(s)? This action cannot be undone.`,
         confirmText: 'Delete',
         confirmClass: 'btn-error',
         action: function() {
-            // Simulate deletion by removing rows
-            checkedBoxes.forEach(checkbox => {
-                const row = checkbox.closest('tr');
-                row.remove();
+            ModalSystem.toast('Deleting leads...', 'info');
+
+            fetch('/api/leads/bulk-delete/', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ ids: leadIds })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Remove rows from UI
+                checkedBoxes.forEach(checkbox => {
+                    const row = checkbox.closest('tr');
+                    row.remove();
+                });
+
+                clearSelection();
+
+                ModalSystem.toast(data.message || `${leadIds.length} lead(s) deleted successfully!`, 'success');
+
+                // Refresh UI/stats
+                htmx.trigger('#search-input', 'keyup');
+            })
+            .catch(error => {
+                ModalSystem.toast('Failed to delete lead(s). Try again.', 'error');
+                console.error('Delete error:', error);
             });
-
-            // Clear selection
-            clearSelection();
-
-            // Show success toast
-            ModalSystem.toast(`${leadIds.length} lead(s) deleted successfully!`);
-
-            // Trigger HTMX refresh to update stats
-            htmx.trigger('#search-input', 'keyup');
         }
     });
 }
+
 
 function deleteLead(leadId) {
     // Use the modal system

@@ -83,3 +83,18 @@ class BulkLeadCreateView(APIView):
         Lead.objects.bulk_create(leads)
 
         return Response({'message': f'{len(leads)} leads created successfully'}, status=status.HTTP_201_CREATED)
+
+
+class BulkLeadDeleteView(APIView):
+    def delete(self, request, *args, **kwargs):
+        ids = request.data.get('ids', None)
+
+        if not ids or not isinstance(ids, list):
+            return Response({'error': 'Expected a list of lead IDs under "ids".'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Filter leads by IDs and delete
+        leads_to_delete = Lead.objects.filter(id__in=ids)
+        count = leads_to_delete.count()
+        leads_to_delete.delete()
+
+        return Response({'message': f'{count} leads deleted successfully.'}, status=status.HTTP_200_OK)
