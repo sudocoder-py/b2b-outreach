@@ -67,7 +67,7 @@
                 </div>
 
                 <div class="max-h-[60vh] overflow-y-auto pr-4">
-                    <form id="AddLeadsForm" class="space-y-6 pb-4" onsubmit="submitForm(); return false;">
+                    <div id="AddLeadsForm" class="space-y-6 pb-4" action="event.preventDefault();" onsubmit="event.preventDefault();">
                     <!-- Section 1: Personal Information -->
                     <div id="section1" class="form-section">
                         <div class="space-y-4">
@@ -136,46 +136,61 @@
                     <!-- Section 2: Company Information -->
                     <div id="section2" class="form-section hidden">
                         <div class="space-y-4">
-                        <div class="form-control">
-                            <label class="label" for="company_name">
-                            <span class="label-text">Company Name <span class="text-error">*</span></span>
+                          <div class="form-control">
+                              <label class="label" for="company_name">
+                              <span class="label-text">Company Name <span class="text-error">*</span></span>
+                              </label>
+                              <input type="text" id="company_name" name="company_name" class="input input-bordered w-full" required />
+                          </div>
+                          
+                          <div class="form-control">
+                              <label class="label" for="company_website">
+                              <span class="label-text">Company Website</span>
+                              </label>
+                              <div class="relative">
+                              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                  <i class="fas fa-globe"></i>
+                              </span>
+                              <input type="url" id="company_website" name="company_website" class="input input-bordered w-full pl-10" />
+                              </div>
+                          </div>
+                          
+                          <div class="form-control">
+                              <label class="label" for="industry">
+                              <span class="label-text">Industry</span>
+                              </label>
+                              <input type="text" id="industry" name="industry" class="input input-bordered w-full" />
+                          </div>
+                          
+                          <div class="form-control">
+                              <label class="label" for="employee_count">
+                              <span class="label-text">Employee Count</span>
+                              </label>
+                              <select id="employee_count" name="employee_count" class="select select-bordered w-full">
+                              <option value="" selected disabled>Select employee count</option>
+                              <option value="1-10">1-10</option>
+                              <option value="11-50">11-50</option>
+                              <option value="51-200">51-200</option>
+                              <option value="201-500">201-500</option>
+                              <option value="501-1000">501-1000</option>
+                              <option value="1000+">1000+</option>
+                              </select>
+                          </div>
+
+                          <div class="form-control">
+                            <label class="label" for="campany_linkedin_page">
+                            <span class="label-text">campany linkedin page</span>
                             </label>
-                            <input type="text" id="company_name" name="company_name" class="input input-bordered w-full" required />
-                        </div>
-                        
-                        <div class="form-control">
-                            <label class="label" for="company_website">
-                            <span class="label-text">Company Website</span>
+                            <input type="url" id="campany_linkedin_page" name="campany_linkedin_page" class="input input-bordered w-full" />
+                          </div>
+
+                          <div class="form-control">
+                            <label class="label" for="location">
+                            <span class="label-text">Location</span>
                             </label>
-                            <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                <i class="fas fa-globe"></i>
-                            </span>
-                            <input type="url" id="company_website" name="company_website" class="input input-bordered w-full pl-10" />
-                            </div>
-                        </div>
-                        
-                        <div class="form-control">
-                            <label class="label" for="industry">
-                            <span class="label-text">Industry</span>
-                            </label>
-                            <input type="text" id="industry" name="industry" class="input input-bordered w-full" />
-                        </div>
-                        
-                        <div class="form-control">
-                            <label class="label" for="employee_count">
-                            <span class="label-text">Employee Count</span>
-                            </label>
-                            <select id="employee_count" name="employee_count" class="select select-bordered w-full">
-                            <option value="" selected disabled>Select employee count</option>
-                            <option value="1-10">1-10</option>
-                            <option value="11-50">11-50</option>
-                            <option value="51-200">51-200</option>
-                            <option value="201-500">201-500</option>
-                            <option value="501-1000">501-1000</option>
-                            <option value="1000+">1000+</option>
-                            </select>
-                        </div>
+                            <input type="text" id="location" name="location" class="input input-bordered w-full" />
+                          </div>
+
                         </div>
                     </div>
                     
@@ -236,12 +251,12 @@
                         </svg>
                         </button>
                         
-                        <button type="submit" class="btn btn-success btn-md ml-auto gap-2 text-gray-100 hidden" id="submitBtn">
+                        <button class="btn btn-success btn-md ml-auto gap-2 text-gray-100 hidden" id="submitIndividualBtn" onclick="event.preventDefault(); submitIndividualForm({{request.user.subscribed_company.id}}, {{lead_list_id}})">
                         <i class="fas fa-check"></i>
-                        Submit Lead
+                          Submit Lead
                         </button>
                     </div>
-                    </form>
+                  </div>
                 </div>
                 </div>
 
@@ -505,11 +520,11 @@
   function updateNavigation() {
     const backBtn = document.getElementById('backBtn');
     const nextBtn = document.getElementById('nextBtn');
-    const submitBtn = document.getElementById('submitBtn');
+    const submitIndividualBtn = document.getElementById('submitIndividualBtn');
     
     backBtn.classList.toggle('hidden', currentSection === 1);
     nextBtn.classList.toggle('hidden', currentSection === totalSections);
-    submitBtn.classList.toggle('hidden', currentSection !== totalSections);
+    submitIndividualBtn.classList.toggle('hidden', currentSection !== totalSections);
   }
   
   // Validate current section before proceeding
@@ -553,14 +568,73 @@
   }
   
   // Form submission handler
-  function submitForm() {
-    if (validateSection(currentSection)) {
-      // Here you would typically send the form data to the server
-      // For now, we'll just show a success message
-      alert('Lead submitted successfully!');
-      return true;
-    }
-    return false;
+  // Form submission handler
+  function submitIndividualForm(CompanyID, ListID) {
+      if (validateSection(currentSection)) {
+          // Show loading state (using toast instead of modal)
+          
+          // Collect form data
+          const leadData = {
+              full_name: document.getElementById('full_name').value,
+              first_name: document.getElementById('first_name').value,
+              last_name: document.getElementById('last_name').value,
+              position: document.getElementById('position').value,
+              email: document.getElementById('email').value,
+              phone_number: document.getElementById('phone').value,
+              linkedin_profile: document.getElementById('linkedin').value,
+              company_name: document.getElementById('company_name').value,
+              company_website: document.getElementById('company_website').value,
+              industry: document.getElementById('industry').value,
+              employee_count: document.getElementById('employee_count').value,
+              campany_linkedin_page: document.getElementById('campany_linkedin_page').value,
+              location: document.getElementById('location').value,
+              source: document.getElementById('source').value,
+              lead_type: document.getElementById('lead_type').value,
+              tags: document.getElementById('tags').value,
+              lead_list: ListID,
+              subscribed_company: CompanyID
+          };
+
+          // Make API call
+          fetch('/api/leads/', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': getCookie('csrftoken')
+              },
+              body: JSON.stringify(leadData)
+          })
+          .then(response => {
+              if (!response.ok) {
+                  return response.json().then(err => { throw err; });
+              }
+              return response.json();
+          })
+          .then(data => {
+              // Hide loading state
+              ModalSystem.toast('Lead submitted successfully!', 'success'); 
+               // Wait 3 seconds before redirecting
+              setTimeout(() => {
+                  window.location.href = `/campaign/leads/${ListID}/`;
+              }, 3000);
+          })
+          .catch(error => {
+              // ModalSystem.hideLoading();
+              let errorMessage = 'Failed to submit lead';
+              
+              if (error.detail) {
+                  errorMessage = error.detail;
+              } else if (error.email) {
+                  errorMessage = error.email[0]; // Assuming email validation error
+              }
+              
+              ModalSystem.toast(errorMessage, 'error');
+              console.error('Error:', error);
+          });
+
+          return true;
+      }
+      return false;
   }
 
 
@@ -813,6 +887,22 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 });
+
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 </script>
 
 <style>
