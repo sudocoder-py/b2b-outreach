@@ -69,7 +69,8 @@ def leads_view(request, pk):
 
     context = {
         'leads': leads,
-        'lead_list_id': pk
+        'lead_list_id': pk,
+        'lead_lists': lead_lists
     }
     return render(request, "app/leads/leads-view.html", context)
 

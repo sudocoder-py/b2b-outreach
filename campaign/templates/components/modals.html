@@ -5,6 +5,8 @@
     <div class="modal-box">
         <h3 class="font-bold text-lg" id="confirm-modal-title">Confirm Action</h3>
         <p class="py-4" id="confirm-modal-message">Are you sure you want to proceed?</p>
+        <div id="confirm-modal-custom-content"></div>
+
         <div class="modal-action">
             <button class="btn" id="confirm-modal-btn" onclick="executeConfirmAction()">
                 Confirm
@@ -91,6 +93,7 @@ window.ModalSystem = {
         const {
             title = 'Confirm Action',
             message = 'Are you sure you want to proceed?',
+            customContent= null,
             confirmText = 'Confirm',
             confirmClass = 'btn-primary',
             action = null
@@ -99,6 +102,7 @@ window.ModalSystem = {
         // Set modal content
         document.getElementById('confirm-modal-title').textContent = title;
         document.getElementById('confirm-modal-message').textContent = message;
+        document.getElementById('confirm-modal-custom-content').innerHTML = customContent;
         
         const confirmBtn = document.getElementById('confirm-modal-btn');
         confirmBtn.textContent = confirmText;

@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from clients.models import Product, EmailAccount
 from campaign.models import Campaign, Lead, LeadList, Message
@@ -98,3 +99,27 @@ class BulkLeadDeleteView(APIView):
         leads_to_delete.delete()
 
         return Response({'message': f'{count} leads deleted successfully.'}, status=status.HTTP_200_OK)
+    
+
+
+class MoveLeadsToListView(APIView):
+    def post(self, request):
+        lead_ids = request.data.get('lead_ids')
+        target_list_id = request.data.get('target_list_id')
+
+        if not lead_ids or not target_list_id:
+            return Response({'error': 'lead_ids and target_list_id are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        target_list = get_object_or_404(LeadList, id=target_list_id)
+
+        # Only update leads not already in the target list
+        leads_to_move = Lead.objects.filter(id__in=lead_ids).exclude(lead_list=target_list)
+        updated_count = leads_to_move.update(lead_list=target_list)
+
+        skipped_count = len(lead_ids) - updated_count
+
+        return Response({
+            'status': 'success',
+            'moved_count': updated_count,
+            'skipped_count': skipped_count
+        }, status=status.HTTP_200_OK)  
