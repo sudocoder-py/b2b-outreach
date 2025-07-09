@@ -81,7 +81,6 @@
 }
 </style>
 
-
 <div class="flex-1 flex flex-col overflow-hidden bg-gray-50 p-6">
     <!-- Header -->
     <div class="mb-6">
@@ -324,7 +323,7 @@
             <div class="p-4 border-t border-base-200">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                        <button class="btn btn-sm btn-primary" onclick="saveMessage({% if messages %}{{ messages.0.id }}{% endif %})">
+                        <button class="btn btn-sm btn-primary" onclick="saveMessage(activeMessage)">
                             Save
                         </button>
                         <button class="btn btn-sm btn-ghost" onclick="showTemplates()">
@@ -378,9 +377,6 @@ let messages = {};
 {% endif %}
 
 function selectMessage(messageId, scrollIntoView = false) {
-    // Save current message before switching
-    // saveCurrentMessage();
-
     // Remove active class from all messages
     document.querySelectorAll('.message-row').forEach(row => {
         row.classList.remove('active-message');
@@ -426,12 +422,12 @@ function loadMessageContent(messageId) {
     document.getElementById('subject-display').textContent = message.subject || 'New Message';
 }
 
-function saveCurrentMessage(MessageID) {
-    if (!activeMessage) return;
+function saveCurrentMessage(messageId) {
+    if (!messageId) return saveNewMessage();
 
-    // Get current values from the DOM
+    // Get current values from the form
     const currentValues = {
-        product_id: document.getElementById('message-product').value,
+        product: document.getElementById('message-product').value,
         subject: document.getElementById('message-subject').value,
         intro: document.getElementById('message-intro').value,
         content: document.getElementById('message-content').value,
@@ -457,25 +453,17 @@ function saveCurrentMessage(MessageID) {
 
     // If nothing changed, return early
     if (changedCount === 0) {
-        ModalSystem.toast("No changes detected", "warning");
-        return;
+        console.log("No changes detected");
+        return ModalSystem.toast("No changes detected", "warning")
     }
-
-    // Store in messages object
-    messages[activeMessage] = currentValues;
-
-    // Update the message row in the list
-    updateMessageRow(activeMessage, currentValues);
-
-    // Update subject display
-    document.getElementById('subject-display').textContent = currentValues.subject || 'New Message';
 
     // Determine which HTTP method to use
     const method = changedCount > 1 ? 'PUT' : 'PATCH';
     const dataToSend = changedCount > 1 ? currentValues : changedFields;
 
-    // Make the API request
-    fetch(`/api/messages/${MessageID}/`, {
+
+    // Make the API request to update existing message
+    fetch(`/api/messages/${messageId}/`, {
         method: method,
         headers: {
             'Content-Type': 'application/json',
@@ -484,22 +472,116 @@ function saveCurrentMessage(MessageID) {
         body: JSON.stringify(dataToSend),
     })
     .then(response => {
-        if (!response.ok) {
-            ModalSystem.toast('Error saving message', 'error');
-            throw new Error('Network response was not ok');
-        }
+        if (!response.ok) throw new Error('Failed to save message');
         return response.json();
     })
     .then(data => {
-        ModalSystem.toast(`Message saved successfully!`, 'success');
-        console.log(`${method} request successful:`, data);
+        // Update local messages object
+        messages[messageId] = {
+            ...messages[messageId],
+            ...currentValues,
+            product_id: currentValues.product,
+            product_name: document.getElementById('message-product').options[document.getElementById('message-product').selectedIndex].text,
+            updated_at: new Date().toISOString()
+        };
+        
+        // Update the UI
+        updateMessageRow(messageId, messages[messageId]);
+        ModalSystem.toast('Message saved successfully!', 'success');
     })
     .catch(error => {
-        ModalSystem.toast(`Error with ${method} request: ${error}`, 'error')
-        console.error(`Error with ${method} request:`, error);
+        console.error('Error saving message:', error);
+        ModalSystem.toast('Error saving message', 'error');
     });
 }
 
+function saveNewMessage() {
+    // Get values from the form
+    const newMessage = {
+        product: document.getElementById('message-product').value,
+        subject: document.getElementById('message-subject').value,
+        intro: document.getElementById('message-intro').value,
+        content: document.getElementById('message-content').value,
+        cta: document.getElementById('message-cta').value,
+        ps: document.getElementById('message-ps').value,
+        pps: document.getElementById('message-pps').value,
+        end: document.getElementById('message-end').value,
+    };
+
+    // Make the API request to create new message
+    fetch('/api/messages/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify(newMessage),
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Failed to create message');
+        return response.json();
+    })
+    .then(data => {
+        // Add the new message to local storage
+        messages[data.id] = {
+            id: data.id,
+            product_id: data.product.id,
+            product_name: data.product.name,
+            subject: data.subject,
+            intro: data.intro,
+            content: data.content,
+            cta: data.cta,
+            ps: data.ps,
+            pps: data.pps,
+            end: data.end,
+            full_content: data.full_content,
+            updated_at: data.updated_at
+        };
+
+        // Create the new message row in the UI
+        const newMessageHTML = `
+            <div class="message-row p-4 border-b border-base-200 active-message" 
+                 data-message="${data.id}" 
+                 data-product="${data.product.id}"
+                 onclick="selectMessage(${data.id}, true)">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-medium text-gray-900 truncate">${data.subject}</h4>
+                        <p class="text-sm text-gray-500 mt-1 line-clamp-2">${data.intro.substring(0, 60)}${data.intro.length > 60 ? '...' : ''}</p>
+                        <div class="flex items-center gap-4 mt-2">
+                            <span class="text-xs text-gray-400">${data.product.name}</span>
+                            <span class="text-xs text-gray-400">Updated: Just now</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 ml-2">
+                        <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(${data.id})" title="Duplicate">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                        <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(${data.id})" title="Delete">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Add to the UI and select it
+        const messagesContainer = document.getElementById('messages-container');
+        messagesContainer.insertAdjacentHTML('afterbegin', newMessageHTML);
+        
+        // Update message count
+        const messageCount = Object.keys(messages).length;
+        document.getElementById('message-count').textContent = `${messageCount} message${messageCount !== 1 ? 's' : ''}`;
+        
+        // Select the new message
+        selectMessage(data.id);
+        ModalSystem.toast('New message created successfully!', 'success');
+    })
+    .catch(error => {
+        console.error('Error creating message:', error);
+        ModalSystem.toast('Error creating message', 'error');
+    });
+}
 
 function updateMessageRow(messageId, messageData) {
     const messageRow = document.querySelector(`[data-message="${messageId}"]`);
@@ -547,11 +629,17 @@ function showEditor() {
 }
 
 function previewMessage() {
-    // Save current message first
-    // saveCurrentMessage();
-    
     // Generate HTML preview (simplified version)
-    const message = messages[activeMessage];
+    const message = messages[activeMessage] || {
+        subject: document.getElementById('message-subject').value,
+        intro: document.getElementById('message-intro').value,
+        content: document.getElementById('message-content').value,
+        cta: document.getElementById('message-cta').value,
+        ps: document.getElementById('message-ps').value,
+        pps: document.getElementById('message-pps').value,
+        end: document.getElementById('message-end').value
+    };
+    
     const previewContent = `
         <h1>${message.subject || 'No subject'}</h1>
         ${message.intro ? `<p>${message.intro.replace(/\n/g, '<br>')}</p>` : ''}
@@ -563,16 +651,18 @@ function previewMessage() {
     `;
     
     // Update the preview content
-    messages[activeMessage].full_content = previewContent;
+    if (activeMessage) {
+        messages[activeMessage].full_content = previewContent;
+    }
     
     // Show the preview
     showPreview();
     
     // Create or update the preview content div
-    let previewDiv = document.getElementById(`preview-content-${activeMessage}`);
+    let previewDiv = document.getElementById(`preview-content-${activeMessage || 'new'}`);
     if (!previewDiv) {
         previewDiv = document.createElement('div');
-        previewDiv.id = `preview-content-${activeMessage}`;
+        previewDiv.id = `preview-content-${activeMessage || 'new'}`;
         previewDiv.className = 'message-preview-content';
         document.getElementById('message-preview').appendChild(previewDiv);
     }
@@ -611,54 +701,28 @@ function addNewMessage() {
     const productId = productSelect?.value || '';
     const productName = productSelect?.options[productSelect.selectedIndex]?.text || 'Unknown Product';
 
-    const newMessageId = Date.now(); // Temporary ID
-    messages[newMessageId] = {
-        id: newMessageId,
-        product_id: productId,
-        product_name: productName,
-        subject: 'New Message Template',
-        intro: '',
-        content: '',
-        cta: '',
-        ps: '',
-        pps: '',
-        end: '',
-        full_content: '',
-        updated_at: new Date().toISOString().split('T')[0]
-    };
+    // Clear the form
+    document.getElementById('message-subject').value = 'New Message Template';
+    document.getElementById('message-intro').value = '';
+    document.getElementById('message-content').value = '';
+    document.getElementById('message-cta').value = '';
+    document.getElementById('message-ps').value = '';
+    document.getElementById('message-pps').value = '';
+    document.getElementById('message-end').value = '';
+    document.getElementById('subject-display').textContent = 'New Message Template';
 
-    const newMessageHTML = `
-        <div class="message-row p-4 border-b border-base-200" 
-             data-message="${newMessageId}" 
-             data-product="${productId}"
-             onclick="selectMessage(${newMessageId}, true)">
-            <div class="flex justify-between items-start">
-                <div class="flex-1 min-w-0">
-                    <h4 class="font-medium text-gray-900 truncate">New Message Template</h4>
-                    <p class="text-sm text-gray-500 mt-1 line-clamp-2">No content yet</p>
-                    <div class="flex items-center gap-4 mt-2">
-                        <span class="text-xs text-gray-400">${productName}</span>
-                        <span class="text-xs text-gray-400">Updated: Just now</span>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 ml-2">
-                    <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(${newMessageId})" title="Duplicate">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(${newMessageId})" title="Delete">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-
-    const messagesContainer = document.getElementById('messages-container');
-    messagesContainer.insertAdjacentHTML('afterbegin', newMessageHTML);
-
-    selectMessage(newMessageId);
+    // Show the editor
     showEditor();
-    window.ModalSystem?.toast?.('New message template created!');
+
+    // Set activeMessage to null for new message
+    activeMessage = null;
+
+    // Remove active class from all messages
+    document.querySelectorAll('.message-row').forEach(row => {
+        row.classList.remove('active-message');
+    });
+
+    window.ModalSystem?.toast?.('New message template created! Fill in the details and click Save.');
 }
 
 function duplicateMessage(messageId) {
@@ -759,13 +823,14 @@ function confirmDeleteMessage(messageId) {
     });
 }
 
-function saveMessage(MessageID) {
-    if (MessageID) {
-        saveCurrentMessage(MessageID);
+function saveMessage(messageId) {
+    if (messageId) {
+        saveCurrentMessage(messageId);
     } else {
         saveNewMessage();
-    }    
+    }
 }
+
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
@@ -781,9 +846,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Remove 'run' from URL so it doesn't keep triggering
         urlParams.delete('run');
         window.history.replaceState({}, document.title, window.location.pathname);
-
     }
-
 
     // Update subject display when typing in subject field
     document.getElementById('message-subject').addEventListener('input', function() {
@@ -791,8 +854,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Placeholder functions for unimplemented features
+function showTemplates() {
+    ModalSystem.toast('Templates feature coming soon!', 'info');
+}
 
+function showVariables() {
+    ModalSystem.toast('Variables feature coming soon!', 'info');
+}
 
+function showAI() {
+    ModalSystem.toast('AI feature coming soon!', 'info');
+}
 
+function copyMessage() {
+    ModalSystem.toast('Copy feature coming soon!', 'info');
+}
+
+function exportMessage() {
+    ModalSystem.toast('Export feature coming soon!', 'info');
+}
 </script>
 {% endblock %}

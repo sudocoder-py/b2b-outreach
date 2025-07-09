@@ -127,74 +127,8 @@ def campaign_dashboard(request, pk):
 
 
 def campaign_leads(request, pk):
-    # Simulate campaign leads data
-    simulated_leads = [
-        {
-            'id': 1,
-            'email': 'john.doe@techcorp.com',
-            'first_name': 'John',
-            'last_name': 'Doe',
-            'company': 'TechCorp Inc.',
-            'status': 'Not contacted',
-            'status_class': 'badge-ghost',
-            'status_icon': 'fa-regular fa-clock',
-            'links_count': 3,
-            'converted_at': None,
-            'created_at': '2024-01-15',
-        },
-        {
-            'id': 2,
-            'email': 'sarah.wilson@innovate.io',
-            'first_name': 'Sarah',
-            'last_name': 'Wilson',
-            'company': 'Innovate Solutions',
-            'status': 'Contacted',
-            'status_class': 'badge-info',
-            'status_icon': 'fa-solid fa-paper-plane',
-            'links_count': 2,
-            'converted_at': None,
-            'created_at': '2024-01-14',
-        },
-        {
-            'id': 3,
-            'email': 'mike.chen@startup.co',
-            'first_name': 'Mike',
-            'last_name': 'Chen',
-            'company': 'Startup Co.',
-            'status': 'Replied',
-            'status_class': 'badge-success',
-            'status_icon': 'fa-solid fa-reply',
-            'links_count': 1,
-            'converted_at': None,
-            'created_at': '2024-01-13',
-        },
-        {
-            'id': 4,
-            'email': 'lisa.brown@enterprise.com',
-            'first_name': 'Lisa',
-            'last_name': 'Brown',
-            'company': 'Enterprise Corp',
-            'status': 'Converted',
-            'status_class': 'badge-primary',
-            'status_icon': 'fa-solid fa-circle-check',
-            'links_count': 4,
-            'converted_at': '2024-01-20',
-            'created_at': '2024-01-12',
-        },
-        {
-            'id': 5,
-            'email': 'alex.garcia@digital.net',
-            'first_name': 'Alex',
-            'last_name': 'Garcia',
-            'company': 'Digital Networks',
-            'status': 'Bounced',
-            'status_class': 'badge-error',
-            'status_icon': 'fa-solid fa-exclamation-triangle',
-            'links_count': 0,
-            'converted_at': None,
-            'created_at': '2024-01-11',
-        },
-    ]
+    
+    simulated_leads= []
 
     # Calculate stats from the simulated data
     stats = {
@@ -209,7 +143,7 @@ def campaign_leads(request, pk):
     context = {
         'campaign_id': pk,
         'current_tab': 'leads',
-        'leads': simulated_leads,
+        'lead_lists': simulated_leads,
         'stats': stats,
     }
     return render(request, "app/campaign/campaign-leads.html", context)
