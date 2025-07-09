@@ -324,7 +324,7 @@
             <div class="p-4 border-t border-base-200">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                        <button class="btn btn-sm btn-primary" onclick="saveMessage()">
+                        <button class="btn btn-sm btn-primary" onclick="saveMessage({% if messages %}{{ messages.0.id }}{% endif %})">
                             Save
                         </button>
                         <button class="btn btn-sm btn-ghost" onclick="showTemplates()">
@@ -379,7 +379,7 @@ let messages = {};
 
 function selectMessage(messageId, scrollIntoView = false) {
     // Save current message before switching
-    saveCurrentMessage();
+    // saveCurrentMessage();
 
     // Remove active class from all messages
     document.querySelectorAll('.message-row').forEach(row => {
@@ -426,14 +426,12 @@ function loadMessageContent(messageId) {
     document.getElementById('subject-display').textContent = message.subject || 'New Message';
 }
 
-function saveCurrentMessage() {
+function saveCurrentMessage(MessageID) {
     if (!activeMessage) return;
 
-    // Get form data
-    const productSelect = document.getElementById('message-product');
-    const messageData = {
-        product_id: productSelect.value,
-        product_name: productSelect.options[productSelect.selectedIndex].text,
+    // Get current values from the DOM
+    const currentValues = {
+        product_id: document.getElementById('message-product').value,
         subject: document.getElementById('message-subject').value,
         intro: document.getElementById('message-intro').value,
         content: document.getElementById('message-content').value,
@@ -441,19 +439,67 @@ function saveCurrentMessage() {
         ps: document.getElementById('message-ps').value,
         pps: document.getElementById('message-pps').value,
         end: document.getElementById('message-end').value,
-        full_content: messages[activeMessage]?.full_content || '', // Preserve existing full_content
-        updated_at: new Date().toISOString().split('T')[0] // Today's date in YYYY-MM-DD format
     };
 
+    // Get original values from your messages object
+    const originalValues = messages[activeMessage] || {};
+
+    // Determine which fields have changed
+    const changedFields = {};
+    let changedCount = 0;
+
+    for (const key in currentValues) {
+        if (currentValues[key] !== originalValues[key]) {
+            changedFields[key] = currentValues[key];
+            changedCount++;
+        }
+    }
+
+    // If nothing changed, return early
+    if (changedCount === 0) {
+        ModalSystem.toast("No changes detected", "warning");
+        return;
+    }
+
     // Store in messages object
-    messages[activeMessage] = messageData;
+    messages[activeMessage] = currentValues;
 
     // Update the message row in the list
-    updateMessageRow(activeMessage, messageData);
+    updateMessageRow(activeMessage, currentValues);
 
     // Update subject display
-    document.getElementById('subject-display').textContent = messageData.subject || 'New Message';
+    document.getElementById('subject-display').textContent = currentValues.subject || 'New Message';
+
+    // Determine which HTTP method to use
+    const method = changedCount > 1 ? 'PUT' : 'PATCH';
+    const dataToSend = changedCount > 1 ? currentValues : changedFields;
+
+    // Make the API request
+    fetch(`/api/messages/${MessageID}/`, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify(dataToSend),
+    })
+    .then(response => {
+        if (!response.ok) {
+            ModalSystem.toast('Error saving message', 'error');
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        ModalSystem.toast(`Message saved successfully!`, 'success');
+        console.log(`${method} request successful:`, data);
+    })
+    .catch(error => {
+        ModalSystem.toast(`Error with ${method} request: ${error}`, 'error')
+        console.error(`Error with ${method} request:`, error);
+    });
 }
+
 
 function updateMessageRow(messageId, messageData) {
     const messageRow = document.querySelector(`[data-message="${messageId}"]`);
@@ -502,7 +548,7 @@ function showEditor() {
 
 function previewMessage() {
     // Save current message first
-    saveCurrentMessage();
+    // saveCurrentMessage();
     
     // Generate HTML preview (simplified version)
     const message = messages[activeMessage];
@@ -713,9 +759,12 @@ function confirmDeleteMessage(messageId) {
     });
 }
 
-function saveMessage() {
-    saveCurrentMessage();
-    window.ModalSystem.toast('Message saved successfully!');
+function saveMessage(MessageID) {
+    if (MessageID) {
+        saveCurrentMessage(MessageID);
+    } else {
+        saveNewMessage();
+    }    
 }
 
 // Initialize
@@ -735,14 +784,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     }
 
-    // Auto-save on form changes
-    document.addEventListener('input', function(e) {
-        if (e.target.closest('#message-form')) {
-            setTimeout(() => {
-                saveCurrentMessage();
-            }, 500);
-        }
-    });
 
     // Update subject display when typing in subject field
     document.getElementById('message-subject').addEventListener('input', function() {
