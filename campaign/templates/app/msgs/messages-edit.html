@@ -437,10 +437,10 @@ function saveCurrentMessage(messageId) {
         end: document.getElementById('message-end').value,
     };
 
-    // Get original values from your messages object
+    // Get original values
     const originalValues = messages[activeMessage] || {};
 
-    // Determine which fields have changed
+    // Determine changed fields
     const changedFields = {};
     let changedCount = 0;
 
@@ -451,18 +451,15 @@ function saveCurrentMessage(messageId) {
         }
     }
 
-    // If nothing changed, return early
     if (changedCount === 0) {
-        console.log("No changes detected");
-        return ModalSystem.toast("No changes detected", "warning")
+        return ModalSystem.toast("No changes detected", "warning");
     }
 
-    // Determine which HTTP method to use
-    const method = changedCount > 1 ? 'PUT' : 'PATCH';
-    const dataToSend = changedCount > 1 ? currentValues : changedFields;
+    // BEST PRACTICE IMPLEMENTATION:
+    const isCompleteUpdate = changedCount === Object.keys(currentValues).length;
+    const method = isCompleteUpdate ? 'PUT' : 'PATCH';
+    const dataToSend = isCompleteUpdate ? currentValues : changedFields;
 
-
-    // Make the API request to update existing message
     fetch(`/api/messages/${messageId}/`, {
         method: method,
         headers: {
@@ -476,7 +473,7 @@ function saveCurrentMessage(messageId) {
         return response.json();
     })
     .then(data => {
-        // Update local messages object
+        // Update local state
         messages[messageId] = {
             ...messages[messageId],
             ...currentValues,
@@ -485,15 +482,15 @@ function saveCurrentMessage(messageId) {
             updated_at: new Date().toISOString()
         };
         
-        // Update the UI
         updateMessageRow(messageId, messages[messageId]);
-        ModalSystem.toast('Message saved successfully!', 'success');
+        ModalSystem.toast(`Message saved (via ${method})`, 'success');
     })
     .catch(error => {
         console.error('Error saving message:', error);
         ModalSystem.toast('Error saving message', 'error');
     });
 }
+
 
 function saveNewMessage() {
     // Get values from the form
