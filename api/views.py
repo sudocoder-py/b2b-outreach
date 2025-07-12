@@ -6,6 +6,8 @@ from .serializers import LeadSerializer, ProductSerializer, EmailAccountSerializ
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework import viewsets
 
 
 class ProductListCreateView(generics.ListCreateAPIView):
@@ -52,6 +54,36 @@ class LeadListRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = LeadList.objects.all()
     serializer_class = LeadListSerializer
 
+
+
+class LeadListViewSet(viewsets.ModelViewSet):
+    queryset = LeadList.objects.all()
+    serializer_class = LeadListSerializer
+
+    @action(detail=True, methods=["PATCH"])
+    def assign_campaign(self, request, pk=None):
+        lead_list = get_object_or_404(self.queryset, pk=pk)
+
+        campaign_id = request.data.get("campaign_id")
+
+        try:
+            campaign = Campaign.objects.get(id=campaign_id)
+            lead_list.campaigns.add(campaign)  # Add to ManyToMany
+            return Response({"status": "success"})
+        except Campaign.DoesNotExist:
+            return Response({"error": "Campaign not found"}, status=400)
+
+    @action(detail=True, methods=["PATCH"])
+    def unassign_campaign(self, request, pk=None):
+        lead_list = get_object_or_404(self.queryset, pk=pk)
+        campaign_id = request.data.get("campaign_id")
+
+        try:
+            campaign = Campaign.objects.get(id=campaign_id)
+            lead_list.campaigns.remove(campaign)  # Remove from ManyToMany
+            return Response({"status": "success"})
+        except Campaign.DoesNotExist:
+            return Response({"error": "Campaign not found"}, status=400)
 
 
 class LeadCreateView(generics.ListCreateAPIView):

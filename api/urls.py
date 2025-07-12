@@ -16,6 +16,8 @@ urlpatterns = [
     
     path('leads/lists/', views.LeadListCreateView.as_view(), name='lead-list-list-create'),
     path('leads/lists/<int:pk>/', views.LeadListRetrieveUpdateDestroyView.as_view(), name='lead-list-detail'),
+    path('leads/lists/<int:pk>/assign/', views.LeadListViewSet.as_view({'patch': 'assign_campaign'}), name='lead-list-assign-campaign'),
+    path('leads/lists/<int:pk>/unassign/', views.LeadListViewSet.as_view({'patch': 'unassign_campaign'}), name='lead-list-unassign-campaign'),
 
     path('leads/', views.LeadCreateView.as_view(), name='lead-create'),
     path('leads/<int:pk>/', views.LeadRetrieveUpdateDestroyView.as_view(), name='lead-detail'),

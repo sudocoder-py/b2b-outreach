@@ -128,13 +128,15 @@ def campaign_dashboard(request, pk):
 
 def campaign_leads(request, pk):
     
-    lead_lists= get_lead_lists_or_both(request, lead_lists_only=True, list_id=None)
-    lead_lists= lead_lists.filter(campaigns=pk)
+    all_lead_lists= get_lead_lists_or_both(request, lead_lists_only=True, list_id=None)
+    lead_lists= all_lead_lists.filter(campaigns=pk)
+    lead_lists_assign= all_lead_lists.exclude(campaigns__id=pk)
 
     context = {
         'campaign_id': pk,
         'current_tab': 'leads',
         'lead_lists': lead_lists,
+        'lead_lists_assign': lead_lists_assign,
     }
     return render(request, "app/campaign/campaign-leads.html", context)
 
