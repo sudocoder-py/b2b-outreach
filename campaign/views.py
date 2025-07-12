@@ -128,23 +128,13 @@ def campaign_dashboard(request, pk):
 
 def campaign_leads(request, pk):
     
-    simulated_leads= []
-
-    # Calculate stats from the simulated data
-    stats = {
-        'total_leads': len(simulated_leads),
-        'viewed': len([l for l in simulated_leads if l['status'] in ['Contacted', 'Replied', 'Converted']]),
-        'contacted': len([l for l in simulated_leads if l['status'] in ['Contacted', 'Replied', 'Converted']]),
-        'replied': len([l for l in simulated_leads if l['status'] in ['Replied', 'Converted']]),
-        'interested': 0,  # None in our simulated data
-        'converted': len([l for l in simulated_leads if l['status'] == 'Converted']),
-    }
+    lead_lists= get_lead_lists_or_both(request, lead_lists_only=True, list_id=None)
+    lead_lists= lead_lists.filter(campaigns=pk)
 
     context = {
         'campaign_id': pk,
         'current_tab': 'leads',
-        'lead_lists': simulated_leads,
-        'stats': stats,
+        'lead_lists': lead_lists,
     }
     return render(request, "app/campaign/campaign-leads.html", context)
 
