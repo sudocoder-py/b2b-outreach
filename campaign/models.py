@@ -10,7 +10,14 @@ from clients.models import SubscribedCompany, Product
 import markdown
 
 
-
+class Schedule(models.Model):
+    name= models.CharField(max_length=255)
+    start_date = models.DateTimeField(default=timezone.now)
+    end_date = models.DateTimeField(null=True, blank=True)
+    timing_from= models.CharField(max_length=255, blank=True)
+    timing_to= models.CharField(max_length=255, blank=True)
+    time_zone= models.CharField(max_length=255, blank=True)
+    days= models.CharField(max_length=255, blank=True)
 
 
 class Campaign(models.Model):

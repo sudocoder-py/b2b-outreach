@@ -3,6 +3,7 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count, Q
+import pytz
 
 
 from campaign.helpers import get_campaigns_and_products, get_company_email_accounts, get_company_products, get_lead_lists_or_both, get_messages_and_products, get_subscribed_company
@@ -277,9 +278,12 @@ def campaign_sequence_message_assignments(request, message_id):
 
 
 def campaign_scheduele(request, pk):
+    timezones = list(pytz.common_timezones)
+    
     context = {
         'campaign_id': pk,
-        'current_tab': 'schedule'
+        'current_tab': 'schedule',
+        'timezones': timezones,
     }
     return render(request, "app/campaign/scheduele.html", context)
 
