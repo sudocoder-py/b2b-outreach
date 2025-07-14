@@ -1,12 +1,12 @@
 {% extends "base-app.html" %}
+{% load static %}
 
 {% block title %}Email Marketing Dashboard{% endblock %}
 
 
 {% block js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'cdn/chart.js' %}"></script>
 {% endblock %}
-
 
 
 {% block content %}

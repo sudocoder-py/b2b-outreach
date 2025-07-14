@@ -11,7 +11,6 @@ urlpatterns = [
     path('campaigns/new/', views.create_campaign_view, name='create_campaign'),
     path('dashboard/<int:pk>/', views.campaign_dashboard, name='campaign_dashboard'),
     path('campaign-leads/<int:pk>/', views.campaign_leads, name='campaign_leads'),
-    path('campaign-leads/<int:pk>/filter', views.campaign_leads_filter, name='campaign_leads_filter'),
     path('campaign-sequence/<int:pk>/', views.campaign_sequence, name='campaign_sequence'),
     path('message/assignments/<int:message_id>/', views.campaign_sequence_message_assignments, name='campaign_sequence_message'),
     path('campaign-scheduele/<int:pk>/', views.campaign_scheduele, name='campaign_scheduele'),

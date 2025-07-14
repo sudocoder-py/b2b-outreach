@@ -1,9 +1,10 @@
 {% extends "app/campaign/campaign-base.html" %}
+{% load static %}
 
 {% block title %}Campaign Dashboard{% endblock %}
 
 {% block js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'cdn/chart.js' %}"></script>
 {% endblock %}
 
 
