@@ -355,6 +355,44 @@
         });
     }
 
+    function AssignMessage2Sequence(campaignId) {
+        const messageId = document.getElementById('message-select').value;
+
+        if (!messageId) {
+            alert("Please select a message first.");
+            return;
+        }
+
+        fetch("/api/message-assignments/bulk-create/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": '{{ csrf_token }}',
+            },
+            body: JSON.stringify({
+                campaign_id: campaignId,
+                message_id: messageId
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.created !== undefined) {
+                alert(`✅ Assigned to ${data.created} leads.`);
+                document.getElementById('add-modal').close(); // Close modal
+                location.reload(); // Or update the DOM dynamically
+            } else {
+                alert("❌ Failed to assign message.");
+                console.error(data);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("❌ Error assigning message.");
+        });
+    }
+
+
+
     // Action functions
     function viewAssignmentDetails(assignmentId) {
         console.log('View details for assignment:', assignmentId);
