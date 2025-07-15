@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import redirect, get_object_or_404, render
 from django.http import Http404, HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
@@ -144,8 +145,9 @@ def campaign_leads(request, pk):
 
 
 def campaign_sequence(request, pk):
+    all_messages, products= get_messages_and_products(request)
     # Get unique messages with their assignment counts
-    messages = Message.objects.filter(
+    messages = all_messages.filter(
         messageassignment__campaign_id=pk
     ).annotate(
         total_assignments=Count('messageassignment'),
@@ -157,25 +159,44 @@ def campaign_sequence(request, pk):
         'campaign_id': pk,
         'current_tab': 'sequences',
         'messages': messages,  # Now contains aggregated data
-        'all_messages': Message.objects.all()  # For the "Add" dropdown
+        'all_messages': all_messages  # For the "Add" dropdown
     }
     return render(request, "app/campaign/sequence.html", context)
 
 
 
 def campaign_sequence_message_assignments(request, message_id):
-    assignments = MessageAssignment.objects.filter(
-        message_id=message_id
-    ).values(
-        'id',
-        'sent',
-        'sent_at',
-        'responded',
-        'campaign_lead__lead__first_name',
-        'campaign_lead__lead__last_name',
-        'campaign_lead__lead__email'
-    )
-    return JsonResponse(list(assignments), safe=False)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    try:
+        data = json.loads(request.body)
+        campaign_id = data.get('campaign_id')
+        
+        if not campaign_id:
+            return JsonResponse({'error': 'campaign_id is required'}, status=400)
+            
+        assignments = MessageAssignment.objects.filter(
+            message_id=message_id,
+            campaign_id=campaign_id
+        ).values(
+            'id',
+            'sent',
+            'sent_at',
+            'responded',
+            'campaign_lead__lead__first_name',
+            'campaign_lead__lead__last_name',
+            'campaign_lead__lead__email'
+        )
+        return JsonResponse(list(assignments), safe=False)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 

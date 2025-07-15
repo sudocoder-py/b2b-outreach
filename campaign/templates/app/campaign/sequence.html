@@ -88,7 +88,7 @@
             </div>
             <h3 class="text-lg font-medium">No messages assigned yet</h3>
             <button class="btn btn-primary mt-4" onclick="document.getElementById('add-modal').showModal()">
-                Add First Message
+                Assign Message
             </button>
         </div>
         {% endfor %}
@@ -98,7 +98,7 @@
 <!-- Add Message Modal -->
 <dialog id="add-modal" class="modal">
     <div class="modal-box">
-        <h3 class="font-bold text-lg">Add Message to Sequence</h3>
+        <h3 class="font-bold text-lg">Assign Message to Sequence</h3>
         
         <div class="py-4">
             <label class="label">
@@ -192,23 +192,35 @@
 
     function openMessageModal(messageId) {
         currentMessageId = messageId;
+        const campaign_id = {{ campaign_id }};
         window.ModalSystem.loading('Loading assignments...');
-        
-        fetch("{% url 'campaign_sequence_message' 999 %}".replace('999', messageId))
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
+
+        const url = "{% url 'campaign_sequence_message' 999 %}".replace('999', messageId);
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: JSON.stringify({
+                campaign_id: campaign_id
             })
-            .then(data => {
-                renderAssignmentModal(data);
-                document.getElementById('assignment-modal').showModal();
-                window.ModalSystem.hideLoading();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                window.ModalSystem.hideLoading();
-                window.ModalSystem.error('Failed to load assignments: ' + error.message);
-            });
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            renderAssignmentModal(data);
+            document.getElementById('assignment-modal').showModal();
+            window.ModalSystem.hideLoading();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            window.ModalSystem.hideLoading();
+            window.ModalSystem.error('Failed to load assignments: ' + error.message);
+        });
     }
 
     function renderAssignmentModal(assignments) {

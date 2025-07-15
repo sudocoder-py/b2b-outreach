@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from clients.models import Product, EmailAccount
-from campaign.models import Campaign, Lead, LeadList, Message
-from .serializers import LeadSerializer, ProductSerializer, EmailAccountSerializer, CampaignSerializer, MessageSerializer, LeadListSerializer
+from campaign.models import Campaign, Lead, LeadList, Message, MessageAssignment
+from .serializers import LeadSerializer, MessageAssignmentSerializer, ProductSerializer, EmailAccountSerializer, CampaignSerializer, MessageSerializer, LeadListSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -44,6 +44,15 @@ class MessageListCreateView(generics.ListCreateAPIView):
 class MessageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer    
+
+
+class MessageAssignmentListCreateView(generics.ListCreateAPIView):
+    queryset = MessageAssignment.objects.all()
+    serializer_class = MessageAssignmentSerializer
+
+class MessageAssignmentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MessageAssignment.objects.all()
+    serializer_class = MessageAssignmentSerializer
 
 
 class LeadListCreateView(generics.ListCreateAPIView):
