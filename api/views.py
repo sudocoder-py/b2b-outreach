@@ -2,6 +2,7 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
+from api.utils import auto_unassign_if_list_empty
 from clients.models import Product, EmailAccount
 from campaign.models import Campaign, CampaignLead, Lead, LeadList, Message, MessageAssignment
 from .serializers import LeadSerializer, MessageAssignmentSerializer, ProductSerializer, EmailAccountSerializer, CampaignSerializer, MessageSerializer, LeadListSerializer
@@ -125,6 +126,9 @@ class LeadListViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["PATCH"])
     def assign_campaign(self, request, pk=None):
         lead_list = get_object_or_404(self.queryset, pk=pk)
+
+        if not lead_list.lead_lists.all():
+            return Response({'error': 'Cannot assign list to campaign if the list doesnot have any leads'}, status=status.HTTP_400_BAD_REQUEST)
 
         campaign_id = request.data.get("campaign_id")
 
@@ -260,6 +264,12 @@ class MoveLeadsToListView(APIView):
 
         # Update lead_list on the leads
         updated_count = leads_to_move.update(lead_list=target_list)
+        
+        # Unassign the original list if it's empty
+        original_list = LeadList.objects.get(id=source_list_id)
+        if original_list.campaigns:
+            auto_unassign_if_list_empty(original_list)
+
         skipped_count = len(lead_ids) - updated_count
 
         return Response({

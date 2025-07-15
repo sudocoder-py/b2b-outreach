@@ -93,7 +93,7 @@
                                 onclick="addToList()"
                                 id="add-to-list-btn">
                             <i class="fa-solid fa-plus mr-1"></i>
-                            Add to List
+                            Move to List
                         </button>
                         <button class="btn btn-sm btn-error"
                                 onclick="deleteSelected()"
@@ -605,7 +605,7 @@ function addToList() {
         customContent: `
             <select id="list-select" class="select select-bordered w-full mt-2">
                 <option value="">Select a list</option>
-                {% for list in lead_lists %}
+                {% for list in lead_lists_assign %}
                     <option value="{{ list.id }}">{{ list.title }}</option>
                 {% endfor %}
             </select>

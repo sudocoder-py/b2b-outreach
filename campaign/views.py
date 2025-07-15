@@ -68,11 +68,13 @@ def leads_lists(request):
 def leads_view(request, pk):
 
     lead_lists, leads, = get_lead_lists_or_both(request, lead_lists_only=False, list_id=pk)
+    lead_lists_assign= lead_lists.exclude(id=pk)
 
     context = {
         'leads': leads,
         'lead_list_id': pk,
-        'lead_lists': lead_lists
+        'lead_lists': lead_lists,
+        'lead_lists_assign': lead_lists_assign
     }
     return render(request, "app/leads/leads-view.html", context)
 
