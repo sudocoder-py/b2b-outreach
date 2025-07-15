@@ -66,19 +66,34 @@
     <!-- Message Grid -->
     <div class="message-grid">
         {% for message in messages %}
-        <div class="message-card" onclick="openMessageModal({{ message.id }})">
-            <h3 class="font-medium text-gray-900">{{ message.subject }}</h3>
+        <div class="message-card" style="min-height: 230px; max-width: 250px; padding-bottom: 10px;" onclick="openMessageModal({{ message.id }})">
+            <div class="flex justify-between items-start">
+                <h3 class="font-medium text-gray-900">{{ message.subject }}</h3>
+                <div class="text-right">
+                    <span class="text-2xl font-bold">{{ message.total_assignments }}</span>
+                </div>
+            </div>
+
             <p class="text-sm text-gray-500 mt-1">
-                {{ message.total_assignments }} leads
+                this message will be send in {{ message.total_assignments }} days, after the last one.
             </p>
             
-            <div class="stats-bar">
-                <span class="text-green-600">
-                    {{ message.sent_count }} sent
-                </span>
-                <span class="text-blue-600">
-                    {{ message.response_count }} responses
-                </span>
+            <div class="card-actions justify-between">
+                <div class="stats-bar mb-4 flex-col">
+                    <span class="text-blue-600">
+                        {{ message.sent_count }} sent
+                    </span>
+                    <span class="text-green-600">
+                        {{ message.response_count }} responses
+                    </span>
+                </div>
+                <div class="stats-bar flex-col">
+                    <button class="btn btn-sm btn-ghost text-error" onclick="event.preventDefault(); event.stopPropagation(); ConfirmBulkDelete({{message.id}}, {{campaign_id}})" title="Delete">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
         {% empty %}
@@ -306,6 +321,37 @@
             
             row.appendChild(actionsCell);
             tableBody.appendChild(row);
+        });
+    }
+
+
+    function ConfirmBulkDelete(messageId, campaignId) {
+        if (!confirm("Are you sure you want to delete all assignments for this message?")) return;
+
+        fetch("/api/message-assignments/bulk-delete-by-message/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": '{{ csrf_token }}',
+            },
+            body: JSON.stringify({
+                message_id: messageId,
+                campaign_id: campaignId
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => { throw data; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert(`✅ Deleted ${data.deleted} assignments for this message.`);
+            location.reload();
+        })
+        .catch(error => {
+            console.error(error);
+            alert("❌ Error deleting assignments for this message.");
         });
     }
 

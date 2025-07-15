@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework import viewsets
+from rest_framework.decorators import api_view
 
 
 class ProductListCreateView(generics.ListCreateAPIView):
@@ -89,6 +90,22 @@ def campaign_sequence_message_assignments(request, message_id):
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+
+@api_view(['POST'])
+def delete_assignments_by_message(request):
+    message_id = request.data.get('message_id')
+    campaign_id = request.data.get('campaign_id')
+
+    if not message_id or not campaign_id:
+        return Response({'error': 'message_id and campaign_id required'}, status=400)
+
+    count, _ = MessageAssignment.objects.filter(
+        message_id=message_id,
+        campaign_id=campaign_id
+    ).delete()
+
+    return Response({'deleted': count}, status=200)   
 
 
 class LeadListCreateView(generics.ListCreateAPIView):
