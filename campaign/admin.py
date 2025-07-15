@@ -87,8 +87,17 @@ class CampaignAdmin(admin.ModelAdmin):
 
 
 
-
-admin.site.register(LeadList)
+@admin.register(LeadList)
+class LeadListAdmin(admin.ModelAdmin):
+    list_display = ('title', 'display_tags', 'display_campaigns')
+    
+    def display_tags(self, obj):
+        return obj.tags if obj.tags else "-"
+    display_tags.short_description = 'Tags'
+    
+    def display_campaigns(self, obj):
+        return ", ".join([str(campaign) for campaign in obj.campaigns.all()]) or "-"
+    display_campaigns.short_description = 'Campaigns'
 
 
 
@@ -222,7 +231,7 @@ class CampaignLeadForm(forms.ModelForm):
 @admin.register(CampaignLead)
 class CampaignLeadAdmin(admin.ModelAdmin):
     form = CampaignLeadForm
-    list_display = ('lead', 'campaign', 'is_converted', 'link_count', 'converted_at', 'created_at')
+    list_display = ('lead', 'lead__lead_list', 'campaign', 'is_converted', 'link_count', 'converted_at', 'created_at')
     list_filter = ('is_converted', 'campaign', 'created_at')
     search_fields = ('lead__full_name', 'lead__email', 'campaign__name')
     inlines = [MessageAssignmentInline]

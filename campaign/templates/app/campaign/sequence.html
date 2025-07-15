@@ -58,7 +58,7 @@
         </div>
         <div class="flex items-center gap-3">  
             <button class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm" onclick="document.getElementById('add-modal').showModal()">
-                Add Message
+                Assign Message
             </button>
         </div>
     </div>
@@ -110,7 +110,7 @@
     </div>
 </div>
 
-<!-- Add Message Modal -->
+<!-- Assign Message Modal -->
 <dialog id="add-modal" class="modal">
     <div class="modal-box">
         <h3 class="font-bold text-lg">Assign Message to Sequence</h3>
@@ -119,7 +119,7 @@
             <label class="label">
                 <span class="label-text">Select Message</span>
             </label>
-            <select class="select select-bordered w-full">
+            <select class="select select-bordered w-full" id="message-select">
                 {% for msg in all_messages %}
                 <option value="{{ msg.id }}">{{ msg.subject }}</option>
                 {% endfor %}
@@ -127,7 +127,7 @@
         </div>
         
         <div class="modal-action">
-            <button class="btn btn-primary">Assign</button>
+            <button class="btn btn-primary" onclick="AssignMessage2Sequence({{campaign_id}})">Assign</button>
             <form method="dialog">
                 <button class="btn btn-ghost">Cancel</button>
             </form>

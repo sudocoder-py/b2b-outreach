@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from clients.models import Product, EmailAccount
-from campaign.models import Campaign, Lead, LeadList, Message, MessageAssignment
+from campaign.models import Campaign, CampaignLead, Lead, LeadList, Message, MessageAssignment
 from .serializers import LeadSerializer, MessageAssignmentSerializer, ProductSerializer, EmailAccountSerializer, CampaignSerializer, MessageSerializer, LeadListSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -131,6 +131,16 @@ class LeadListViewSet(viewsets.ModelViewSet):
         try:
             campaign = Campaign.objects.get(id=campaign_id)
             lead_list.campaigns.add(campaign)  # Add to ManyToMany
+
+            leads = lead_list.lead_lists.all()  # Get all leads in the list
+            campaign_leads = [
+                CampaignLead(campaign=campaign, lead=lead)
+                for lead in leads
+            ]
+
+            CampaignLead.objects.bulk_create(campaign_leads, ignore_conflicts=True)  # avoid duplicate
+
+
             return Response({"status": "success"})
         except Campaign.DoesNotExist:
             return Response({"error": "Campaign not found"}, status=400)
@@ -143,6 +153,11 @@ class LeadListViewSet(viewsets.ModelViewSet):
         try:
             campaign = Campaign.objects.get(id=campaign_id)
             lead_list.campaigns.remove(campaign)  # Remove from ManyToMany
+
+            leads = lead_list.lead_lists.all()
+
+            CampaignLead.objects.filter(campaign=campaign, lead__in=leads).delete()
+
             return Response({"status": "success"})
         except Campaign.DoesNotExist:
             return Response({"error": "Campaign not found"}, status=400)
@@ -206,14 +221,49 @@ class MoveLeadsToListView(APIView):
 
         target_list = get_object_or_404(LeadList, id=target_list_id)
 
-        # Only update leads not already in the target list
         leads_to_move = Lead.objects.filter(id__in=lead_ids).exclude(lead_list=target_list)
-        updated_count = leads_to_move.update(lead_list=target_list)
+        source_list_ids = leads_to_move.values_list("lead_list", flat=True).distinct()
 
+        if not leads_to_move.exists():
+            return Response({'status': 'no leads to move'}, status=status.HTTP_200_OK)
+
+        # Handle campaign lead updates
+        target_campaigns = set(target_list.campaigns.all())
+
+        for source_list_id in source_list_ids:
+            if not source_list_id:
+                continue  # skip leads not in a list
+
+            source_list = LeadList.objects.get(id=source_list_id)
+            source_campaigns = set(source_list.campaigns.all())
+
+            leads_from_this_source = leads_to_move.filter(lead_list=source_list)
+
+            campaigns_to_add = target_campaigns - source_campaigns
+            campaigns_to_remove = source_campaigns - target_campaigns
+
+            # Delete old CampaignLeads (campaigns no longer assigned)
+            if campaigns_to_remove:
+                CampaignLead.objects.filter(
+                    campaign__in=campaigns_to_remove,
+                    lead__in=leads_from_this_source
+                ).delete()
+
+            # Create new CampaignLeads (campaigns newly assigned)
+            campaign_leads_to_create = [
+                CampaignLead(campaign=campaign, lead=lead)
+                for campaign in campaigns_to_add
+                for lead in leads_from_this_source
+            ]
+            if campaign_leads_to_create:
+                CampaignLead.objects.bulk_create(campaign_leads_to_create, ignore_conflicts=True)
+
+        # Update lead_list on the leads
+        updated_count = leads_to_move.update(lead_list=target_list)
         skipped_count = len(lead_ids) - updated_count
 
         return Response({
             'status': 'success',
             'moved_count': updated_count,
             'skipped_count': skipped_count
-        }, status=status.HTTP_200_OK)  
+        }, status=status.HTTP_200_OK)

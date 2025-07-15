@@ -72,6 +72,9 @@ class LeadList(models.Model):
 
     campaigns= models.ManyToManyField(Campaign, null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.title}"
+
 
 
 class Lead(models.Model):
