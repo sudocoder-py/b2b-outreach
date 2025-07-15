@@ -16,6 +16,7 @@ urlpatterns = [
 
     path('message-assignments/', views.MessageAssignmentListCreateView.as_view(), name='message-assignment-list-create'),
     path('message-assignments/<int:pk>/', views.MessageAssignmentRetrieveUpdateDestroyView.as_view(), name='message-assignment-detail'),
+    path('message/assignments/<int:message_id>/', views.campaign_sequence_message_assignments, name='campaign_sequence_message'),
     
     path('leads/lists/', views.LeadListCreateView.as_view(), name='lead-list-list-create'),
     path('leads/lists/<int:pk>/', views.LeadListRetrieveUpdateDestroyView.as_view(), name='lead-list-detail'),

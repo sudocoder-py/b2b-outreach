@@ -1,3 +1,5 @@
+import json
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from clients.models import Product, EmailAccount
@@ -53,6 +55,40 @@ class MessageAssignmentListCreateView(generics.ListCreateAPIView):
 class MessageAssignmentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MessageAssignment.objects.all()
     serializer_class = MessageAssignmentSerializer
+
+
+def campaign_sequence_message_assignments(request, message_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    try:
+        data = json.loads(request.body)
+        campaign_id = data.get('campaign_id')
+        
+        if not campaign_id:
+            return JsonResponse({'error': 'campaign_id is required'}, status=400)
+            
+        assignments = MessageAssignment.objects.filter(
+            message_id=message_id,
+            campaign_id=campaign_id
+        ).values(
+            'id',
+            'sent',
+            'sent_at',
+            'responded',
+            'campaign_lead__lead__first_name',
+            'campaign_lead__lead__last_name',
+            'campaign_lead__lead__email'
+        )
+        return JsonResponse(list(assignments), safe=False)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 class LeadListCreateView(generics.ListCreateAPIView):
