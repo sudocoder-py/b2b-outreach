@@ -92,6 +92,62 @@
 
           </div>
 
+          {% if not schedule %}
+
+          <!-- Right Column: Schedule Editor -->
+          <div class="flex-1 flex flex-col gap-6 overflow-y-auto">
+            <form id="schedule-form" class="space-y-6" onsubmit="saveSchedule(event)">
+                <!-- Schedule Name Card -->
+                <div class="card bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="font-bold text-gray-800 text-xl mb-4">Schedule Name</h3>
+                    <h3 class="text-neutral text-lg mb-4 ml-4">Default Schedule</h3>
+                </div>
+
+                <!-- Timing Card -->
+                <div class="card bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="font-bold text-gray-800 text-lg mb-4">Timing</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">From</span></label>
+                            <h3 class="text-neutral text-lg mb-4 ml-4">Midnight | 12:00 AM</h3>
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">To</span></label>
+                            <h3 class="text-neutral text-lg mb-4 ml-4">11:00 PM</h3>
+                        </div>
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">Timezone</span></label>
+                        <h3 class="text-neutral text-lg mb-4 ml-4">Europe/London | (UTC±00:00) Greenwich Mean Time</h3>
+                    </div>
+                </div>
+
+
+
+                <!-- Days Card -->
+                <div class="card bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="font-bold text-gray-800 text-lg mb-4">Days</h3>
+                    <div class="flex flex-wrap gap-x-6 gap-y-3">
+                        <h3 class="text-neutral text-lg mb-4 ml-4">Monday</h3>
+                        <h3 class="text-neutral text-lg mb-4 ml-4">Tuesday</h3>
+                        <h3 class="text-neutral text-lg mb-4 ml-4">Wednesday</h3>
+                        <h3 class="text-neutral text-lg mb-4 ml-4">Thursday</h3>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-edit mr-2"></i>Edit Default Schedule
+                    </button>
+                </div>
+            </form>
+          </div>
+        </div>
+
+
+          {% else %}
+
           <!-- Right Column: Schedule Editor -->
           <div class="flex-1 flex flex-col gap-6 overflow-y-auto">
             <form id="schedule-form" class="space-y-6" onsubmit="saveSchedule(event)">
@@ -142,7 +198,7 @@
                     </div>
                 </div>
 
-{{schedule}}
+
 
                 <!-- Days Card -->
                 <div class="card bg-white p-6 rounded-lg shadow-sm">
@@ -169,6 +225,8 @@
             </form>
           </div>
         </div>
+
+        {% endif %}
 
 <script>
 function updateToTimes() {

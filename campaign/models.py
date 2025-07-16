@@ -17,10 +17,10 @@ class Schedule(models.Model):
     DAYES_CHOICES = days_options
     TIME_CHOICES= time_options
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, default="Default Schedule")
     start_date = models.DateTimeField(default=timezone.now)
-    timing_from = models.CharField(max_length=255, choices=TIME_CHOICES, blank=True)
-    timing_to = models.CharField(max_length=255, choices=TIME_CHOICES, blank=True)
+    timing_from = models.CharField(max_length=255, choices=TIME_CHOICES, default="00:00", blank=True)
+    timing_to = models.CharField(max_length=255, choices=TIME_CHOICES, default="23:00", blank=True)
     time_zone = models.CharField(max_length=255, choices=TIME_ZONES, default="Europe/London", blank=True)
     days = ArrayField(
         models.CharField(max_length=3, choices=days_options),
