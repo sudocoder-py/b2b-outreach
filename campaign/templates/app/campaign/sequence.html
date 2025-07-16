@@ -66,7 +66,7 @@
     <!-- Message Grid -->
     <div class="message-grid">
         {% for message in messages %}
-        <div class="message-card" style="padding-bottom: 10px;" onclick="openMessageModal({{ message.id }})">
+        <div class="message-card" style="padding-bottom: 10px; min-width: 350px;" onclick="openMessageModal({{ message.id }})">
             <div class="flex justify-between items-start">
                 <h3 class="font-medium text-gray-900">{{ message.subject }}</h3>
                 <div class="text-right">
@@ -74,9 +74,15 @@
                 </div>
             </div>
 
-            <p class="text-sm text-gray-500 mt-1">
-                this message will be send in {{ message.total_assignments }} days, after the last one.
+            <p class="text-sm text-gray-500 mt-5">
+                {% if message.delayed_by_days == 0 %}
+                    this is the first message in this sequence.
+                {% else %}
+                    this message will be send in {{ message.delayed_by_days }} days, after the last one.
+                {% endif %}        
             </p>
+
+            <div class="divider mt-2 mb-2"></div>
             
             <div class="card-actions justify-between">
                 <div class="stats-bar mb-4 flex-col">
@@ -112,32 +118,59 @@
 
 <!-- Assign Message Modal -->
 <dialog id="add-modal" class="modal">
-    <div class="modal-box">
-        <h3 class="font-bold text-lg">Assign Message to Sequence</h3>
-        
-        <div class="py-4">
-            <label class="label">
-                <span class="label-text">Select Message</span>
-            </label>
-            <select class="select select-bordered w-full" id="message-select">
-                {% for msg in all_messages %}
-                <option value="{{ msg.id }}">{{ msg.subject }}</option>
-                {% endfor %}
-            </select>
-            <div class="divider"></div>
-            <label class="label">
-                <span class="label-text">Delayed by Days from the last message assigned</span>
-            </label>
-            <input name="number" id="delayed-from-last-message" type="number" class="input input-bordered join-item w-24 text-center" min="0" value="0" required style="width: 72px; margin: 0px 12px;">
-        </div>
-        
-        <div class="modal-action">
-            <button class="btn btn-primary" onclick="AssignMessage2Sequence({{campaign_id}})">Assign</button>
-            <form method="dialog">
-                <button class="btn btn-ghost">Cancel</button>
-            </form>
+    <div class="modal-box max-w-md">
+        <div class="flex flex-col gap-4">
+            <!-- Header -->
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-900">Assign Message to Sequence</h3>
+            </div>
+            
+            <!-- Message Selection -->
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-medium">Select Message</span>
+                </label>
+                <select class="select select-bordered w-full focus:ring-2 focus:ring-primary" id="message-select">
+                    {% for msg in all_messages %}
+                        <option value="{{ msg.id }}">{{ msg.subject }}</option>
+                    {% empty %}
+                        <option>no message found</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="divider my-0"></div>
+            
+            <!-- Delay Input -->
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-medium">Days After Previous Message</span>
+                </label>
+                <div class="flex items-center gap-2">
+                    <input name="number" id="delayed-from-last-message" 
+                           type="number" 
+                           class="input input-bordered w-24 text-center focus:ring-2 focus:ring-primary" 
+                           min="0" 
+                           value="0" 
+                           required>
+                    <span class="text-sm text-gray-500">days</span>
+                </div>
+                <label class="label">
+                    <span class="label-text-alt text-gray-500">Number of days after the previous message in sequence</span>
+                </label>
+            </div>
+            
+            <!-- Actions -->
+            <div class="modal-action mt-2">
+                <button class="btn btn-primary" onclick="AssignMessage2Sequence({{campaign_id}})">Assign</button>
+                <form method="dialog">
+                    <button class="btn btn-ghost">Cancel</button>
+                </form>
+            </div>
         </div>
     </div>
+    
+    <!-- Backdrop -->
     <form method="dialog" class="modal-backdrop">
         <button>close</button>
     </form>
@@ -331,33 +364,40 @@
 
 
     function ConfirmBulkDelete(messageId, campaignId) {
-        if (!confirm("Are you sure you want to delete all assignments for this message?")) return;
-
-        fetch("/api/message-assignments/bulk-delete-by-message/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": '{{ csrf_token }}',
-            },
-            body: JSON.stringify({
-                message_id: messageId,
-                campaign_id: campaignId
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => { throw data; });
+        ModalSystem.confirm({
+            title: 'Delete Assigned Message',
+            message: 'Are you sure you want to delete this Assigned Message? This action cannot be undone.',
+            confirmText: 'Delete',
+            confirmClass: 'btn-error',
+            action: function() {
+                fetch("/api/message-assignments/bulk-delete-by-message/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": '{{ csrf_token }}',
+                    },
+                    body: JSON.stringify({
+                        message_id: messageId,
+                        campaign_id: campaignId
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        ModalSystem.toast('Error deleting  assigned message', 'error');
+                        return response.json().then(data => { throw data; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    ModalSystem.toast(`✅ Deleted ${data.deleted} assignments for this message.`, 'success');
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error(error);
+                    ModalSystem.toast('❌ Error deleting assignments for this message.', 'error');
+                });
             }
-            return response.json();
-        })
-        .then(data => {
-            alert(`✅ Deleted ${data.deleted} assignments for this message.`);
-            location.reload();
-        })
-        .catch(error => {
-            console.error(error);
-            alert("❌ Error deleting assignments for this message.");
-        });
+        }); 
     }
 
     function AssignMessage2Sequence(campaignId) {
@@ -365,7 +405,7 @@
         const DelayedFromLastMsg= document.getElementById('delayed-from-last-message').value;
 
         if (!messageId) {
-            alert("Please select a message first.");
+            ModalSystem.toast('Please select a message first.', 'info');
             return;
         }
 
@@ -384,17 +424,17 @@
         .then(res => res.json())
         .then(data => {
             if (data.created !== undefined) {
-                alert(`✅ Assigned to ${data.created} leads.`);
+                ModalSystem.toast(`✅ Assigned to ${data.created} leads.`, 'success');
                 document.getElementById('add-modal').close(); // Close modal
                 location.reload(); // Or update the DOM dynamically
             } else {
-                alert("❌ Failed to assign message.");
+                ModalSystem.toast("❌ Failed to assign message.", 'error');
                 console.error(data);
             }
         })
         .catch(err => {
             console.error(err);
-            alert("❌ Error assigning message.");
+            ModalSystem.toast("❌ Error assigning message.", 'error');
         });
     }
 

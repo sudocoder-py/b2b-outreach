@@ -3,7 +3,7 @@ from django.shortcuts import redirect, get_object_or_404, render
 from django.http import Http404, HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Min
 import pytz
 from .dicts import timezone_options, days_options
 
@@ -156,7 +156,8 @@ def campaign_sequence(request, pk):
     ).annotate(
         total_assignments=Count('messageassignment'),
         sent_count=Count('messageassignment', filter=Q(messageassignment__sent=True)),
-        response_count=Count('messageassignment', filter=Q(messageassignment__responded=True))
+        response_count=Count('messageassignment', filter=Q(messageassignment__responded=True)),
+        delayed_by_days=Min('messageassignment__delayed_by_days')
     ).order_by('-messageassignment__sent_at')
 
     products= products.filter(campaign__id=pk)
