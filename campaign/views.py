@@ -5,7 +5,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count, Q, Min
 import pytz
-from .dicts import timezone_options, days_options
+from .dicts import timezone_options, days_options, time_options
 
 
 from campaign.helpers import get_campaigns_and_products, get_company_email_accounts, get_company_products, get_lead_lists_or_both, get_messages_and_products, get_subscribed_company
@@ -177,7 +177,7 @@ def campaign_sequence(request, pk):
 
 
 def campaign_scheduele(request, pk):
-    timezones, days = timezone_options, days_options
+    timezones, days, times = timezone_options, days_options, time_options
     campaign = Campaign.objects.get(id=pk)
     campaign_Schedule = campaign.schedule
     
@@ -186,6 +186,7 @@ def campaign_scheduele(request, pk):
         'current_tab': 'schedule',
         'timezones': timezones,
         'days': days,
+        'times': times,
         'schedule': campaign_Schedule
     }
     return render(request, "app/campaign/scheduele.html", context)

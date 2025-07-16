@@ -8,23 +8,24 @@ from django.conf import settings
 import re
 from clients.models import SubscribedCompany, Product
 import markdown
-from .dicts import timezone_options, days_options
+from .dicts import timezone_options, days_options, time_options, get_default_days
 from django.contrib.postgres.fields import ArrayField
 
 
 class Schedule(models.Model):
     TIME_ZONES = timezone_options
     DAYES_CHOICES = days_options
+    TIME_CHOICES= time_options
 
     name = models.CharField(max_length=255)
     start_date = models.DateTimeField(default=timezone.now)
-    timing_from = models.CharField(max_length=255, blank=True)
-    timing_to = models.CharField(max_length=255, blank=True)
-    time_zone = models.CharField(max_length=255, choices=TIME_ZONES, blank=True)
+    timing_from = models.CharField(max_length=255, choices=TIME_CHOICES, blank=True)
+    timing_to = models.CharField(max_length=255, choices=TIME_CHOICES, blank=True)
+    time_zone = models.CharField(max_length=255, choices=TIME_ZONES, default="Europe/London", blank=True)
     days = ArrayField(
         models.CharField(max_length=3, choices=days_options),
         blank=True,
-        default=list(['mon', 'tue', 'wed', 'thu'])
+        default=get_default_days,
     )
 
     def __str__(self):

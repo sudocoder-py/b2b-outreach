@@ -40,6 +40,11 @@
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
+
+.time-select:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
 </style>
 
         <!-- div two-column layout -->
@@ -107,35 +112,23 @@
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
                         <div class="form-control">
                             <label class="label"><span class="label-text">From</span></label>
-                            <select id="time-from" name="timeFrom" class="select select-bordered bg-white time-select">
-                                <option value="06:00">6:00 AM</option>
-                                <option value="07:00">7:00 AM</option>
-                                <option value="08:00">8:00 AM</option>
-                                <option value="09:00" selected>9:00 AM</option>
-                                <option value="10:00">10:00 AM</option>
-                                <option value="11:00">11:00 AM</option>
-                                <option value="12:00">12:00 PM</option>
-                                <option value="13:00">1:00 PM</option>
-                                <option value="14:00">2:00 PM</option>
-                                <option value="15:00">3:00 PM</option>
-                                <option value="16:00">4:00 PM</option>
-                                <option value="17:00">5:00 PM</option>
+                            <select id="time-from" name="timeFrom" class="select select-bordered bg-white time-select" onchange="updateToTimes()">
+                                {% for time in times %}
+                                    <option value="{{time.0}}" {% if schedule.timing_from == time.0 %}selected{% endif %}>{{time.1}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="form-control">
                             <label class="label"><span class="label-text">To</span></label>
                             <select id="time-to" name="timeTo" class="select select-bordered bg-white time-select">
-                                <option value="12:00">12:00 PM</option>
-                                <option value="13:00">1:00 PM</option>
-                                <option value="14:00">2:00 PM</option>
-                                <option value="15:00">3:00 PM</option>
-                                <option value="16:00">4:00 PM</option>
-                                <option value="17:00">5:00 PM</option>
-                                <option value="18:00" selected>6:00 PM</option>
-                                <option value="19:00">7:00 PM</option>
-                                <option value="20:00">8:00 PM</option>
-                                <option value="21:00">9:00 PM</option>
-                                <option value="22:00">10:00 PM</option>
+                                {% if not schedule.timing_from %}
+                                    <option value="10:00" selected>10:00 AM</option>
+                                 {% endif %}    
+                                {% for time in times %}
+                                    {% if schedule.timing_from and time.0 > schedule.timing_from %}
+                                        <option value="{{time.0}}" {% if schedule.timing_to == time.0 %}selected{% endif %}>{{time.1}}</option>
+                                    {% endif %}
+                                {% endfor %}
                             </select>
                         </div>
                     </div>
@@ -143,46 +136,18 @@
                         <label class="label"><span class="label-text">Timezone</span></label>
                         <select id="timezone" name="timezone" class="select select-bordered bg-white timezone-select">
                             {% for tz in timezones %}
-                                <option value="{{ tz.0 }}" {% if tz.0 == timezone %}selected{% endif %}>{{ tz.1 }}</option>
+                                <option value="{{ tz.0 }}" {% if tz.0 == schedule.time_zone %}selected{% endif %}>{{ tz.1 }}</option>
                             {% endfor %}
                         </select>
                     </div>
                 </div>
 
+{{schedule}}
+
                 <!-- Days Card -->
                 <div class="card bg-white p-6 rounded-lg shadow-sm">
                     <h3 class="font-bold text-gray-800 text-lg mb-4">Days</h3>
                     <div class="flex flex-wrap gap-x-6 gap-y-3">
-                        <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="days" value="mon" checked class="checkbox checkbox-primary" />
-                            <span class="label-text">Monday</span>
-                        </label>
-                        <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="days" value="tue" checked class="checkbox checkbox-primary" />
-                            <span class="label-text">Tuesday</span>
-                        </label>
-                        <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="days" value="wed" checked class="checkbox checkbox-primary" />
-                            <span class="label-text">Wednesday</span>
-                        </label>
-                        <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="days" value="thu" checked class="checkbox checkbox-primary" />
-                            <span class="label-text">Thursday</span>
-                        </label>
-                        <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="days" value="fri" class="checkbox checkbox-primary" />
-                            <span class="label-text">Friday</span>
-                        </label>
-                        <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="days" value="sat" class="checkbox checkbox-primary" />
-                            <span class="label-text">Saturday</span>
-                        </label>
-                        <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="days" value="sun" class="checkbox checkbox-primary" />
-                            <span class="label-text">Sunday</span>
-                        </label>
-
-
                         {% for day in days %}
                             <label class="label cursor-pointer justify-start gap-2">
                                 <input type="checkbox" name="days" value="{{ day.0 }}" {% if day.0 in schedule.days %}checked{% endif %} class="checkbox checkbox-primary" />
@@ -206,6 +171,45 @@
         </div>
 
 <script>
+function updateToTimes() {
+    const fromSelect = document.getElementById('time-from');
+    const toSelect = document.getElementById('time-to');
+    const selectedFromTime = fromSelect.value;
+    
+    // Enable To select
+    toSelect.disabled = false;
+    
+    // Clear existing options
+    toSelect.innerHTML = '';
+    
+    // Add only times after the selected From time
+    const times = [
+        {% for time in times %}
+            {value: "{{ time.0 }}", label: "{{ time.1 }}"},
+        {% endfor %}
+    ];
+    
+    times.forEach(time => {
+        if (time.value > selectedFromTime) {
+            const option = document.createElement('option');
+            option.value = time.value;
+            option.textContent = time.label;
+            toSelect.appendChild(option);
+        }
+    });
+    
+    // If no valid options, disable the select
+    if (toSelect.options.length === 0) {
+        toSelect.disabled = true;
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    {% if schedule.timing_from %}
+        updateToTimes();
+    {% endif %}
+});
 // Schedule Management System
 let activeScheduleId = 1;
 let scheduleCounter = 1;
