@@ -142,13 +142,9 @@
                     <div class="form-control">
                         <label class="label"><span class="label-text">Timezone</span></label>
                         <select id="timezone" name="timezone" class="select select-bordered bg-white timezone-select">
-                            <option value="America/New_York" selected>Eastern Time (US & Canada) (UTC-05:00)</option>
-                            <option value="America/Chicago">Central Time (US & Canada) (UTC-06:00)</option>
-                            <option value="America/Denver">Mountain Time (US & Canada) (UTC-07:00)</option>
-                            <option value="America/Los_Angeles">Pacific Time (US & Canada) (UTC-08:00)</option>
-                            <option value="Europe/London">London (UTC+00:00)</option>
-                            <option value="Europe/Paris">Paris (UTC+01:00)</option>
-                            <option value="Asia/Tokyo">Tokyo (UTC+09:00)</option>
+                            {% for tz in timezones %}
+                                <option value="{{ tz.0 }}" {% if tz.0 == timezone %}selected{% endif %}>{{ tz.1 }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -158,33 +154,41 @@
                     <h3 class="font-bold text-gray-800 text-lg mb-4">Days</h3>
                     <div class="flex flex-wrap gap-x-6 gap-y-3">
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="days" value="monday" checked class="checkbox checkbox-primary" />
+                            <input type="checkbox" name="days" value="mon" checked class="checkbox checkbox-primary" />
                             <span class="label-text">Monday</span>
                         </label>
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="days" value="tuesday" checked class="checkbox checkbox-primary" />
+                            <input type="checkbox" name="days" value="tue" checked class="checkbox checkbox-primary" />
                             <span class="label-text">Tuesday</span>
                         </label>
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="days" value="wednesday" checked class="checkbox checkbox-primary" />
+                            <input type="checkbox" name="days" value="wed" checked class="checkbox checkbox-primary" />
                             <span class="label-text">Wednesday</span>
                         </label>
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="days" value="thursday" checked class="checkbox checkbox-primary" />
+                            <input type="checkbox" name="days" value="thu" checked class="checkbox checkbox-primary" />
                             <span class="label-text">Thursday</span>
                         </label>
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="days" value="friday" checked class="checkbox checkbox-primary" />
+                            <input type="checkbox" name="days" value="fri" class="checkbox checkbox-primary" />
                             <span class="label-text">Friday</span>
                         </label>
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="days" value="saturday" class="checkbox checkbox-primary" />
+                            <input type="checkbox" name="days" value="sat" class="checkbox checkbox-primary" />
                             <span class="label-text">Saturday</span>
                         </label>
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="days" value="sunday" class="checkbox checkbox-primary" />
+                            <input type="checkbox" name="days" value="sun" class="checkbox checkbox-primary" />
                             <span class="label-text">Sunday</span>
                         </label>
+
+
+                        {% for day in days %}
+                            <label class="label cursor-pointer justify-start gap-2">
+                                <input type="checkbox" name="days" value="{{ day.0 }}" {% if day.0 in schedule.days %}checked{% endif %} class="checkbox checkbox-primary" />
+                                <span class="label-text">{{ day.1 }}</span>
+                            </label>
+                        {% endfor %}
                     </div>
                 </div>
 

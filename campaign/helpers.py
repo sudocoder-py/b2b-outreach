@@ -56,3 +56,4 @@ def get_lead_lists_or_both(request, *, lead_lists_only=False, list_id=None):
     else:
         leads = Lead.objects.filter(subscribed_company=subscribed_company)
         return lead_lists, leads
+

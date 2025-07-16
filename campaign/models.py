@@ -8,19 +8,28 @@ from django.conf import settings
 import re
 from clients.models import SubscribedCompany, Product
 import markdown
+from .dicts import timezone_options, days_options
 
 
 class Schedule(models.Model):
+    TIME_ZONES= timezone_options
+    DAYES_CHOICES = days_options
+
     name= models.CharField(max_length=255)
     start_date = models.DateTimeField(default=timezone.now)
-    end_date = models.DateTimeField(null=True, blank=True)
     timing_from= models.CharField(max_length=255, blank=True)
     timing_to= models.CharField(max_length=255, blank=True)
-    time_zone= models.CharField(max_length=255, blank=True)
-    days= models.CharField(max_length=255, blank=True)
+    time_zone= models.CharField(max_length=255, choices=TIME_ZONES, blank=True)
+    days= models.ArrayField(models.CharField(max_length=10), default=['mon', 'tue', 'wed', 'thu'])
 
 
 class Campaign(models.Model):
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('paused', 'Paused'),
+        ('draft', 'Draft'),
+        ('ended', 'Ended')
+    ]
     subscribed_company = models.ForeignKey(SubscribedCompany, on_delete=models.CASCADE)
 
     name = models.CharField(max_length=255)
@@ -29,6 +38,9 @@ class Campaign(models.Model):
     start_date = models.DateTimeField(default=timezone.now)
     end_date = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    status= models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+
+    schedule= models.ForeignKey(Schedule, null=True, blank=True, on_delete=models.SET_NULL, related_name='campaign_schedule')
 
     def save(self, *args, **kwargs):
         # Generate short_name if not provided
@@ -446,7 +458,7 @@ class MessageAssignment(models.Model):
     personlized_msg_tmp = models.TextField(blank=True)
     personlized_msg_to_send = models.TextField(blank=True)
     
-    scheduled_at = models.DateTimeField(null=True, blank=True)
+    delayed_by_days = models.IntegerField(null=True, blank=True)
 
     sent = models.BooleanField(default=False)
     sent_at = models.DateTimeField(null=True, blank=True)
