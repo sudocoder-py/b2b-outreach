@@ -9,18 +9,26 @@ import re
 from clients.models import SubscribedCompany, Product
 import markdown
 from .dicts import timezone_options, days_options
+from django.contrib.postgres.fields import ArrayField
 
 
 class Schedule(models.Model):
-    TIME_ZONES= timezone_options
+    TIME_ZONES = timezone_options
     DAYES_CHOICES = days_options
 
-    name= models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     start_date = models.DateTimeField(default=timezone.now)
-    timing_from= models.CharField(max_length=255, blank=True)
-    timing_to= models.CharField(max_length=255, blank=True)
-    time_zone= models.CharField(max_length=255, choices=TIME_ZONES, blank=True)
-    days= models.ArrayField(models.CharField(max_length=10), default=['mon', 'tue', 'wed', 'thu'])
+    timing_from = models.CharField(max_length=255, blank=True)
+    timing_to = models.CharField(max_length=255, blank=True)
+    time_zone = models.CharField(max_length=255, choices=TIME_ZONES, blank=True)
+    days = ArrayField(
+        models.CharField(max_length=3, choices=days_options),
+        blank=True,
+        default=list(['mon', 'tue', 'wed', 'thu'])
+    )
+
+    def __str__(self):
+        return self.name
 
 
 class Campaign(models.Model):
@@ -165,18 +173,6 @@ class Lead(models.Model):
 
 
 
-class NewsletterSubscriber(models.Model):
-    lead = models.ForeignKey(Lead, null=True, blank=True, on_delete=models.SET_NULL)
-    joined_at = models.DateTimeField(auto_now_add=True)
-    unsubscribed = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.lead.full_name} - {self.lead.email} - {self.joined_at}"
-
-
-
-
-
 class CampaignLead(models.Model):
 
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
@@ -207,6 +203,18 @@ class CampaignLead(models.Model):
             return True
         return False
 
+
+
+
+
+
+class NewsletterSubscriber(models.Model):
+    lead = models.ForeignKey(Lead, null=True, blank=True, on_delete=models.SET_NULL)
+    joined_at = models.DateTimeField(auto_now_add=True)
+    unsubscribed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.lead.full_name} - {self.lead.email} - {self.joined_at}"
 
 
 

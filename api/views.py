@@ -142,7 +142,7 @@ class MessageAssignmentBulkCreateView(APIView):
                     campaign_lead=lead,
                     message=message,
                     url=link,
-                    scheduled_at=request.data.get("scheduled_at"),
+                    delayed_by_days=request.data.get("delayed_by_days", 0),
                     personlized_msg_tmp=message.full_content or ""
                 ))
             

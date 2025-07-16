@@ -44,7 +44,7 @@ class CampaignLeadInline(admin.TabularInline):
 class MessageAssignmentInline(admin.TabularInline):
     model = MessageAssignment
     extra = 0
-    fields = ('message', 'scheduled_at', 'responded')
+    fields = ('message', 'delayed_by_days', 'responded')
 
 # Custom filter for Campaign selection
 class CampaignFilter(SimpleListFilter):
@@ -679,8 +679,8 @@ class MessageAssignmentAdminForm(forms.ModelForm):
 @admin.register(MessageAssignment)
 class MessageAssignmentAdmin(admin.ModelAdmin):
     form = MessageAssignmentAdminForm
-    list_display = ('id', 'campaign_lead', 'message', 'link_info', 'scheduled_at', 'sent_at', 'responded', 'sent')
-    list_filter = ('campaign', 'responded', 'scheduled_at', 'sent_at', 'sent')
+    list_display = ('id', 'campaign_lead', 'message', 'link_info', 'delayed_by_days', 'sent_at', 'responded', 'sent')
+    list_filter = ('campaign', 'responded', 'delayed_by_days', 'sent_at', 'sent')
     search_fields = ('campaign_lead__lead__full_name', 'message__subject')
     
     # Add a template for the add form
@@ -689,7 +689,7 @@ class MessageAssignmentAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Message Assignment', {
-            'fields': ('campaign', 'campaign_lead', 'message', 'create_for_all_leads', 'personlized_msg_tmp', 'personlized_msg_to_send', 'scheduled_at', 'sent', 'sent_at', 'responded', 'responded_content')
+            'fields': ('campaign', 'campaign_lead', 'message', 'create_for_all_leads', 'personlized_msg_tmp', 'personlized_msg_to_send', 'delayed_by_days', 'sent', 'sent_at', 'responded', 'responded_content')
         }),
         ('Tracking Link Parameters', {
             'classes': ('collapse',),
@@ -1124,7 +1124,7 @@ class MessageAssignmentAdmin(admin.ModelAdmin):
                         campaign_lead=campaign_lead,
                         message=message,
                         personlized_msg_tmp=obj.personlized_msg_tmp,
-                        scheduled_at=obj.scheduled_at,
+                        delayed_by_days=obj.delayed_by_days,
                         url=link  # Set the link here to prevent auto-creation
                     )
                     
