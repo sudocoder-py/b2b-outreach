@@ -66,7 +66,7 @@
     <!-- lead-lists Grid -->
     <div class="lead-lists-grid">
         {% for list in lead_lists %}
-        <a  href="{% url 'leads_view' list.id  %}" class="lead-lists-card" style="padding-bottom: 10px; min-width: 330px;">
+        <a  href="{% url 'leads_view' list.id  %}" class="lead-lists-card" style="padding-bottom: 10px; padding-right: 15px; min-width: 330px;"> 
             <h3 class="font-medium text-gray-900">{{list.title}}</h3>
             
             <div class="stats-bar mb-4">
@@ -80,7 +80,7 @@
             {% endfor %}
             </div>
             <div class="card-actions justify-end">
-            <button class="btn btn-sm btn-ghost text-error" onclick="event.preventDefault(); event.stopPropagation(); unAssignListFromCampaign({{ list.id }})" title="unassign list from this campaign">
+            <button class="btn btn-sm btn-ghost text-error pr-0 pl-0" onclick="event.preventDefault(); event.stopPropagation(); unAssignListFromCampaign({{ list.id }})" title="unassign list from this campaign">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>

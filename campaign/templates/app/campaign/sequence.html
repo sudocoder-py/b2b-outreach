@@ -66,11 +66,11 @@
     <!-- Message Grid -->
     <div class="message-grid">
         {% for message in messages %}
-        <div class="message-card" style="padding-bottom: 10px; min-width: 350px;" onclick="openMessageModal({{ message.id }})">
+        <div class="message-card" style="padding-bottom: 10px;  padding-right: 15px; min-width: 350px;" onclick="openMessageModal({{ message.id }})">
             <div class="flex justify-between items-start">
                 <h3 class="font-medium text-gray-900">{{ message.subject }}</h3>
                 <div class="text-right">
-                    <span class="text-2xl font-bold">{{ message.total_assignments }}</span>
+                    <span class="text-2xl font-bold pr-3 pl-3">{{ message.total_assignments }}</span>
                 </div>
             </div>
 
