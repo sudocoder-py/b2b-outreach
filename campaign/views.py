@@ -148,6 +148,7 @@ def campaign_leads(request, pk):
 
 def campaign_sequence(request, pk):
     all_messages, products= get_messages_and_products(request)
+    
     # Get unique messages with their assignment counts
     messages = all_messages.filter(
         messageassignment__campaign_id=pk
@@ -156,6 +157,11 @@ def campaign_sequence(request, pk):
         sent_count=Count('messageassignment', filter=Q(messageassignment__sent=True)),
         response_count=Count('messageassignment', filter=Q(messageassignment__responded=True))
     ).order_by('-messageassignment__sent_at')
+
+    products= products.filter(campaign__id=pk)
+    all_messages= all_messages.filter(product__in=products)
+    # here i wanna make all_messages.exclude the ones that are not in the campaign
+    all_messages= all_messages.exclude(id__in=messages.values_list('id', flat=True))
 
     context = {
         'campaign_id': pk,
