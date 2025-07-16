@@ -124,6 +124,11 @@
                 <option value="{{ msg.id }}">{{ msg.subject }}</option>
                 {% endfor %}
             </select>
+            <div class="divider"></div>
+            <label class="label">
+                <span class="label-text">Delayed by Days from the last message assigned</span>
+            </label>
+            <input name="number" id="delayed-from-last-message" type="number" class="input input-bordered join-item w-24 text-center" min="0" value="0" required style="width: 72px; margin: 0px 12px;">
         </div>
         
         <div class="modal-action">
@@ -357,6 +362,7 @@
 
     function AssignMessage2Sequence(campaignId) {
         const messageId = document.getElementById('message-select').value;
+        const DelayedFromLastMsg= document.getElementById('delayed-from-last-message').value;
 
         if (!messageId) {
             alert("Please select a message first.");
@@ -371,7 +377,8 @@
             },
             body: JSON.stringify({
                 campaign_id: campaignId,
-                message_id: messageId
+                message_id: messageId,
+                delayed_by_days: DelayedFromLastMsg
             })
         })
         .then(res => res.json())
