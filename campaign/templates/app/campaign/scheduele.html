@@ -47,8 +47,11 @@
 }
 </style>
 
-        <!-- div two-column layout -->
-        <div class="flex-1 flex gap-8 mt-6 overflow-hidden">
+        
+
+        {% if not schedule %}
+          <!-- div two-column layout -->
+        <div id="deafault-view-form" class="flex-1 flex gap-8 mt-6 overflow-hidden">
           <!-- Left Column: Schedule List -->
           <div class="w-full max-w-xs flex-shrink-0 flex flex-col gap-4">
             <!-- Campaign Dates -->
@@ -92,11 +95,9 @@
 
           </div>
 
-          {% if not schedule %}
-
           <!-- Right Column: Schedule Editor -->
           <div class="flex-1 flex flex-col gap-6 overflow-y-auto">
-            <form id="schedule-form" class="space-y-6" onsubmit="saveSchedule(event)">
+            <form id="schedule-form" class="space-y-6" onsubmit="event.preventDefault()">
                 <!-- Schedule Name Card -->
                 <div class="card bg-white p-6 rounded-lg shadow-sm">
                     <h3 class="font-bold text-gray-800 text-xl mb-4">Schedule Name</h3>
@@ -137,7 +138,7 @@
 
                 <!-- Action Buttons -->
                 <div class="flex gap-3">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" onclick="editDeafaultForm()">
                         <i class="fa-solid fa-edit mr-2"></i>Edit Default Schedule
                     </button>
                 </div>
@@ -145,8 +146,53 @@
           </div>
         </div>
 
+        {% endif %}
 
-          {% else %}
+
+          <!-- div two-column layout -->
+        <div id=editable-form class="flex-1 flex gap-8 mt-6 overflow-hidden hidden">
+          <!-- Left Column: Schedule List -->
+          <div class="w-full max-w-xs flex-shrink-0 flex flex-col gap-4">
+            <!-- Campaign Dates -->
+            <div class="space-y-3 text-sm">
+                <div class="flex items-center gap-3">
+                    <i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i>
+                    <span class="font-semibold text-gray-600">Start</span>
+                    <div class="w-full border-b border-dashed"></div>
+                    <button class="font-semibold text-primary" onclick="editCampaignStart()" id="campaign-start">Now</button>
+                </div>
+                <div class="flex items-center gap-3">
+                    <i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i>
+                    <span class="font-semibold text-gray-600">End</span>
+                    <div class="w-full border-b border-dashed"></div>
+                    <button class="font-semibold text-primary whitespace-nowrap" onclick="editCampaignEnd()" id="campaign-end">No end date</button>
+                </div>
+            </div>
+
+            <div class="divider my-1"></div>
+
+            <!-- Schedules List -->
+            <div class="space-y-3" id="schedules-container">
+                <!-- Default Schedule -->
+                <div class="bg-white border-2 border-primary rounded-lg p-3 flex items-center justify-between cursor-pointer schedule-item active"
+                     data-schedule-id="1" onclick="selectSchedule(1)">
+                    <div class="flex items-center gap-2 text-gray-800 font-semibold">
+                        <i class="fa-regular fa-calendar-days"></i>
+                        <span class="schedule-name">Business Hours</span>
+                    </div>
+                    <button class="btn btn-ghost btn-sm btn-square text-gray-400 delete-schedule-btn"
+                            onclick="confirmDeleteSchedule(1)" title="Delete schedule">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn btn-ghost bg-white border border-gray-200 mt-2 text-primary font-semibold"
+                    onclick="addSchedule()">
+                <i class="fa-solid fa-plus mr-2"></i>Add schedule
+            </button>
+
+          </div>
 
           <!-- Right Column: Schedule Editor -->
           <div class="flex-1 flex flex-col gap-6 overflow-y-auto">
@@ -226,9 +272,18 @@
           </div>
         </div>
 
-        {% endif %}
 
 <script>
+function editDeafaultForm() {
+    editForm= document.getElementById('editable-form');
+    deafaultForm= document.getElementById('deafault-view-form');
+
+    // display none for the default form
+    deafaultForm.style.display = "none";
+    
+    editForm.classList.remove('hidden');
+
+}
 function updateToTimes() {
     const fromSelect = document.getElementById('time-from');
     const toSelect = document.getElementById('time-to');
