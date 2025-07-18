@@ -150,12 +150,29 @@
           <div class="w-full max-w-xs flex-shrink-0 flex flex-col gap-4">
             <!-- Campaign Dates -->
             <div class="space-y-3 text-sm">
-                <div class="flex items-center gap-3">
+               <div class="flex items-center gap-3">
                     <i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i>
                     <span class="font-semibold text-gray-600">Start</span>
                     <div class="w-full border-b border-dashed"></div>
-                    <button class="font-semibold text-primary" id="campaign-start">Now</button>
+                    
+                    <!-- Hidden date input -->
+                    <input type="date" 
+                        id="date-picker" 
+                        class="hidden"
+                        {% if schedule.0.start_date %}
+                            value="{{ schedule.0.start_date|date:'Y-m-d' }}"
+                        {% else %}
+                            value="{% now 'Y-m-d' %}"
+                        {% endif %}>
+                    
+                    <!-- Visible button that triggers the date picker -->
+                    <button type="button" class="font-semibold text-primary" id="campaign-start">
+                        {% if schedule %}{{ schedule.0.start_date|date:"d/m/Y" }}{% else %}Now{% endif %}
+                    </button>
                 </div>
+
+                <!-- This will display the selected date (optional) -->
+                <div id="selected-date" class="text-sm text-gray-500 mt-1"></div>
                 <div class="flex items-center gap-3">
                     <i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i>
                     <span class="font-semibold text-gray-600">End</span>
@@ -328,11 +345,39 @@ document.addEventListener('DOMContentLoaded', function() {
     {% endif %}
 });
 
-
 function syncWithRightSide(CurrentTxt) {
     rightSide= document.getElementById('right-schedule-name')
     rightSide.innerHTML= CurrentTxt;
 } 
+
+document.getElementById('campaign-start').addEventListener('click', function() {
+    const dateInput = document.getElementById('date-picker');
+    
+    // Set min date to today (disable past dates)
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.setAttribute('min', today);
+
+    // Pre-select existing date if available
+    {% if schedule.0.start_date %}
+        dateInput.value = dateInput.value;
+    {% else %}
+        dateInput.value = today; // Default to today
+    {% endif %}
+    
+    // Show picker
+    dateInput.showPicker();
+    
+    dateInput.addEventListener('change', function() {
+        const selectedDate = new Date(this.value);
+        const isoDate = selectedDate.toISOString();
+        
+        // Update button text in dd/mm/yyyy format
+        document.getElementById('campaign-start').textContent = 
+            selectedDate.toLocaleDateString('en-GB'); 
+        window.selectedStartDate = isoDate;
+    });
+});
+
 
 function saveSchedule() {
     // Validate at least one day is checked
@@ -343,7 +388,7 @@ function saveSchedule() {
     }
 
     // Collect all form values
-    const startDate = new Date().toISOString();
+    const startDate = window.selectedStartDate || new Date().toISOString();
     const form = document.getElementById('schedule-form');
     const formData = {
         name: form.querySelector('#schedule-name').value,
