@@ -177,7 +177,7 @@
                     <i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i>
                     <span class="font-semibold text-gray-600">End</span>
                     <div class="w-full border-b border-dashed"></div>
-                    <button class="font-semibold text-primary whitespace-nowrap" id="campaign-end">No end date</button>
+                    <button class="font-semibold text-primary whitespace-nowrap" id="campaign-end">When Finished</button>
                 </div>
             </div>
 
@@ -193,7 +193,7 @@
                     </div>
                     {% if schedule %}
                     <button class="btn btn-ghost btn-sm btn-square text-gray-400 delete-schedule-btn"
-                            onclick="confirmDeleteSchedule()" title="Delete schedule">
+                            onclick="confirmResetSchedule2Default()" title="Delete schedule">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                     {% endif %}
@@ -201,7 +201,7 @@
             </div>
             {% if schedule %}
             <button class="btn btn-ghost bg-white border border-gray-200 mt-2 text-primary font-semibold"
-                    onclick="back2DeafaultScheduel()">
+                    onclick="confirmResetSchedule2Default()">
                 <i class="fa-solid fa-undo mr-2"></i>Back to default schedule
             </button>
             {% else %}
@@ -423,6 +423,99 @@ function saveSchedule() {
     .catch(error => {
         console.error('Error:', error);
         ModalSystem.toast('Failed to {% if not schedule %}created{% else %}updated{% endif %} schedule, please try again!', 'error');
+    });
+}
+
+
+
+function resetForm() {
+    // Reset text input
+    document.getElementById('schedule-name').value = '';
+    
+    // Reset date picker
+    const today = new Date();
+    const datePicker = document.getElementById('date-picker');
+    datePicker.value = today.toISOString().split('T')[0];
+    document.getElementById('campaign-start').textContent = 'Now';
+    
+    // Reset time selects to default values
+    document.getElementById('time-from').selectedIndex = 0;
+    document.getElementById('time-to').selectedIndex = 0;
+    
+    // Reset timezone
+    document.getElementById('timezone').selectedIndex = 0;
+    
+    // Uncheck all day checkboxes
+    document.querySelectorAll('input[name="days"]').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+}
+
+
+function confirmResetSchedule2Default() {
+    const startDate = new Date().toISOString();
+    const defaultData = {
+        name: 'Default Schedule',
+        start_date: startDate,
+        timing_from: '00:00',
+        timing_to: '23:00',
+        time_zone: 'Europe/London',
+        days: ['mon', 'tue', 'wed', 'thu'],
+    };
+
+    // Create a nicely formatted HTML message
+    const daysMap = {
+        mon: 'Monday',
+        tue: 'Tuesday',
+        wed: 'Wednesday',
+        thu: 'Thursday',
+        fri: 'Friday'
+    };
+    
+    const formattedDate = new Date(defaultData.start_date).toLocaleDateString('en-GB');
+    const formattedDays = defaultData.days.map(day => daysMap[day]).join(', ');
+    
+    const htmlMessage = `
+        <div class="space-y-2">
+            <p>Are you sure you want to reset to default values?</p>
+            <div class="bg-base-200 p-4 rounded-lg">
+                <h4 class="font-bold mb-2">Default values will be:</h4>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li><strong>Name:</strong> ${defaultData.name}</li>
+                    <li><strong>Start Date:</strong> ${formattedDate}</li>
+                    <li><strong>Timing:</strong> ${defaultData.timing_from} to ${defaultData.timing_to}</li>
+                    <li><strong>Timezone:</strong> ${defaultData.time_zone.replace('_', ' ')}</li>
+                    <li><strong>Days:</strong> ${formattedDays}</li>
+                </ul>
+            </div>
+        </div>
+    `;
+
+    ModalSystem.confirm({
+        title: 'Reset to Default Schedule',
+        message: htmlMessage,
+        confirmText: 'Reset to Default',
+        confirmClass: 'btn-error',
+        html: true, // This enables HTML rendering
+        action: function() {
+            fetch(`/api/schedule/{{ schedule.0.id }}/`, {
+                method: 'PUT',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(defaultData)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to reset');
+                ModalSystem.toast('Schedule reset successfully!', 'success');
+                window.location.reload();
+            })
+            .catch(error => {
+                ModalSystem.toast('Error resetting schedule', 'error');
+                console.error('Error:', error);
+            });
+        }
     });
 }
 </script>

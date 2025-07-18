@@ -1,12 +1,14 @@
 <!-- Shared Modal Components for the entire app -->
 
 <!-- Generic Confirmation Modal -->
+<!-- Update the confirmation modal section -->
 <dialog id="confirm-modal" class="modal">
     <div class="modal-box">
         <h3 class="font-bold text-lg" id="confirm-modal-title">Confirm Action</h3>
-        <p class="py-4" id="confirm-modal-message">Are you sure you want to proceed?</p>
-        <div id="confirm-modal-custom-content"></div>
-
+        <div class="py-4">
+            <p id="confirm-modal-message"></p> <!-- Changed to empty element -->
+            <div id="confirm-modal-custom-content" class="mt-3"></div>
+        </div>
         <div class="modal-action">
             <button class="btn" id="confirm-modal-btn" onclick="executeConfirmAction()">
                 Confirm
@@ -67,6 +69,7 @@
 </dialog>
 
 <script>
+    
 // Global Modal System for the entire app
 window.ModalSystem = {
     // Current action to execute on confirmation
@@ -93,17 +96,39 @@ window.ModalSystem = {
         const {
             title = 'Confirm Action',
             message = 'Are you sure you want to proceed?',
-            customContent= null,
+            customContent = null,
             confirmText = 'Confirm',
             confirmClass = 'btn-primary',
-            action = null
+            action = null,
+            html = false // Add html flag option
         } = options;
         
-        // Set modal content
+        // Set modal title
         document.getElementById('confirm-modal-title').textContent = title;
-        document.getElementById('confirm-modal-message').textContent = message;
-        document.getElementById('confirm-modal-custom-content').innerHTML = customContent;
         
+        // Handle message (text or HTML)
+        const messageEl = document.getElementById('confirm-modal-message');
+        if (html) {
+            messageEl.innerHTML = message;
+        } else {
+            messageEl.textContent = message;
+        }
+        
+        // Handle custom content
+        const customContentEl = document.getElementById('confirm-modal-custom-content');
+        if (customContent) {
+            if (html) {
+                customContentEl.innerHTML = customContent;
+            } else {
+                customContentEl.textContent = customContent;
+            }
+            customContentEl.classList.remove('hidden');
+        } else {
+            customContentEl.innerHTML = '';
+            customContentEl.classList.add('hidden');
+        }
+        
+        // Update confirm button
         const confirmBtn = document.getElementById('confirm-modal-btn');
         confirmBtn.textContent = confirmText;
         confirmBtn.className = `btn ${confirmClass}`;
