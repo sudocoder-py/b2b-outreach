@@ -12,25 +12,6 @@ from .dicts import timezone_options, days_options, time_options, get_default_day
 from django.contrib.postgres.fields import ArrayField
 
 
-class Schedule(models.Model):
-    TIME_ZONES = timezone_options
-    DAYES_CHOICES = days_options
-    TIME_CHOICES= time_options
-
-    name = models.CharField(max_length=255, default="Default Schedule")
-    start_date = models.DateTimeField(default=timezone.now)
-    timing_from = models.CharField(max_length=255, choices=TIME_CHOICES, default="00:00", blank=True)
-    timing_to = models.CharField(max_length=255, choices=TIME_CHOICES, default="23:00", blank=True)
-    time_zone = models.CharField(max_length=255, choices=TIME_ZONES, default="Europe/London", blank=True)
-    days = ArrayField(
-        models.CharField(max_length=3, choices=days_options),
-        blank=True,
-        default=get_default_days,
-    )
-
-    def __str__(self):
-        return self.name
-
 
 class Campaign(models.Model):
     STATUS_CHOICES = [
@@ -48,8 +29,6 @@ class Campaign(models.Model):
     end_date = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     status= models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
-
-    schedule= models.ForeignKey(Schedule, null=True, blank=True, on_delete=models.SET_NULL, related_name='campaign_schedule')
 
     def save(self, *args, **kwargs):
         # Generate short_name if not provided
@@ -83,6 +62,28 @@ class Campaign(models.Model):
             'end_date': self.end_date.isoformat() if self.end_date else None
         }
 
+
+class Schedule(models.Model):
+    subscribed_company = models.ForeignKey(SubscribedCompany, on_delete=models.CASCADE, null=True, blank=True)
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, null=True, blank=True)
+
+    TIME_ZONES = timezone_options
+    DAYES_CHOICES = days_options
+    TIME_CHOICES= time_options
+
+    name = models.CharField(max_length=255, default="Default Schedule")
+    start_date = models.DateTimeField(default=timezone.now)
+    timing_from = models.CharField(max_length=255, choices=TIME_CHOICES, default="00:00", blank=True)
+    timing_to = models.CharField(max_length=255, choices=TIME_CHOICES, default="23:00", blank=True)
+    time_zone = models.CharField(max_length=255, choices=TIME_ZONES, default="Europe/London", blank=True)
+    days = ArrayField(
+        models.CharField(max_length=3, choices=days_options),
+        blank=True,
+        default=get_default_days,
+    )
+
+    def __str__(self):
+        return self.name
 
 
 class LeadList(models.Model):

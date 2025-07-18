@@ -9,7 +9,7 @@ from .dicts import timezone_options, days_options, time_options
 
 
 from campaign.helpers import get_campaigns_and_products, get_company_email_accounts, get_company_products, get_lead_lists_or_both, get_messages_and_products, get_subscribed_company
-from .models import Campaign, LeadList, Link, Message, MessageAssignment
+from .models import Campaign, LeadList, Link, Message, MessageAssignment, Schedule
 import logging
 
 logger = logging.getLogger(__name__)
@@ -179,7 +179,7 @@ def campaign_sequence(request, pk):
 def campaign_scheduele(request, pk):
     timezones, days, times = timezone_options, days_options, time_options
     campaign = Campaign.objects.get(id=pk)
-    campaign_Schedule = campaign.schedule
+    campaign_Schedule = Schedule.objects.filter(campaign=campaign)
     
     context = {
         'campaign_id': pk,

@@ -31,4 +31,8 @@ urlpatterns = [
     path('leads/bulk-create/', views.BulkLeadCreateView.as_view(), name='bulk-lead-create'),
     path('leads/bulk-delete/', views.BulkLeadDeleteView.as_view(), name='bulk-lead-delete'),
     path('leads/move-to-list/', views.MoveLeadsToListView.as_view(), name='move-leads-to-list'),
+
+    path('schedule/', views.ScheduleListCreateView.as_view(), name='schedule-list-create'),
+    path('schedule/<int:pk>/', views.ScheduleRetrieveUpdateDestroyView.as_view(), name='schedule-detail'),
+
 ]

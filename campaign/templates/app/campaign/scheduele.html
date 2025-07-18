@@ -1,6 +1,10 @@
 {% extends "app/campaign/campaign-base.html" %}
 
 {% block title %}Campaign schedule{% endblock %}
+ 
+{% block js %}
+<script type="module" src="https://unpkg.com/cally"></script>
+{% endblock %}
 
 {% block cmp-base-content %}
 
@@ -60,44 +64,35 @@
                     <i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i>
                     <span class="font-semibold text-gray-600">Start</span>
                     <div class="w-full border-b border-dashed"></div>
-                    <button class="font-semibold text-primary" onclick="editCampaignStart()" id="campaign-start">Now</button>
+                    <button class="font-semibold text-primary">Now</button>
                 </div>
                 <div class="flex items-center gap-3">
                     <i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i>
                     <span class="font-semibold text-gray-600">End</span>
                     <div class="w-full border-b border-dashed"></div>
-                    <button class="font-semibold text-primary whitespace-nowrap" onclick="editCampaignEnd()" id="campaign-end">No end date</button>
+                    <button class="font-semibold text-primary whitespace-nowrap">When Finished</button>
                 </div>
             </div>
 
             <div class="divider my-1"></div>
 
             <!-- Schedules List -->
-            <div class="space-y-3" id="schedules-container">
+            <div class="space-y-3">
                 <!-- Default Schedule -->
                 <div class="bg-white border-2 border-primary rounded-lg p-3 flex items-center justify-between cursor-pointer schedule-item active"
-                     data-schedule-id="1" onclick="selectSchedule(1)">
+                     data-schedule-id="1">
                     <div class="flex items-center gap-2 text-gray-800 font-semibold">
                         <i class="fa-regular fa-calendar-days"></i>
-                        <span class="schedule-name">Business Hours</span>
+                        <span class="schedule-name">Default Schedule</span>
                     </div>
-                    <button class="btn btn-ghost btn-sm btn-square text-gray-400 delete-schedule-btn"
-                            onclick="confirmDeleteSchedule(1)" title="Delete schedule">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
                 </div>
             </div>
-
-            <button class="btn btn-ghost bg-white border border-gray-200 mt-2 text-primary font-semibold"
-                    onclick="addSchedule()">
-                <i class="fa-solid fa-plus mr-2"></i>Add schedule
-            </button>
 
           </div>
 
           <!-- Right Column: Schedule Editor -->
           <div class="flex-1 flex flex-col gap-6 overflow-y-auto">
-            <form id="schedule-form" class="space-y-6" onsubmit="event.preventDefault()">
+            <form class="space-y-6" onsubmit="event.preventDefault()">
                 <!-- Schedule Name Card -->
                 <div class="card bg-white p-6 rounded-lg shadow-sm">
                     <h3 class="font-bold text-gray-800 text-xl mb-4">Schedule Name</h3>
@@ -150,7 +145,7 @@
 
 
           <!-- div two-column layout -->
-        <div id=editable-form class="flex-1 flex gap-8 mt-6 overflow-hidden hidden">
+        <div id=editable-form class="flex-1 flex gap-8 mt-6 overflow-hidden {% if not schedule %}hidden{% endif %}">
           <!-- Left Column: Schedule List -->
           <div class="w-full max-w-xs flex-shrink-0 flex flex-col gap-4">
             <!-- Campaign Dates -->
@@ -159,13 +154,13 @@
                     <i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i>
                     <span class="font-semibold text-gray-600">Start</span>
                     <div class="w-full border-b border-dashed"></div>
-                    <button class="font-semibold text-primary" onclick="editCampaignStart()" id="campaign-start">Now</button>
+                    <button class="font-semibold text-primary" id="campaign-start">Now</button>
                 </div>
                 <div class="flex items-center gap-3">
                     <i class="fa-regular fa-calendar-days w-4 text-center text-gray-500"></i>
                     <span class="font-semibold text-gray-600">End</span>
                     <div class="w-full border-b border-dashed"></div>
-                    <button class="font-semibold text-primary whitespace-nowrap" onclick="editCampaignEnd()" id="campaign-end">No end date</button>
+                    <button class="font-semibold text-primary whitespace-nowrap" id="campaign-end">No end date</button>
                 </div>
             </div>
 
@@ -174,38 +169,47 @@
             <!-- Schedules List -->
             <div class="space-y-3" id="schedules-container">
                 <!-- Default Schedule -->
-                <div class="bg-white border-2 border-primary rounded-lg p-3 flex items-center justify-between cursor-pointer schedule-item active"
-                     data-schedule-id="1" onclick="selectSchedule(1)">
+                <div class="bg-white border-2 border-primary rounded-lg p-3 flex items-center justify-between cursor-pointer schedule-item active">
                     <div class="flex items-center gap-2 text-gray-800 font-semibold">
                         <i class="fa-regular fa-calendar-days"></i>
-                        <span class="schedule-name">Business Hours</span>
+                        <span id="right-schedule-name" class="schedule-name">{% if schedule %}{{ schedule.0.name }}{% else %}Default Schedule{% endif %}</span>
                     </div>
+                    {% if schedule %}
                     <button class="btn btn-ghost btn-sm btn-square text-gray-400 delete-schedule-btn"
-                            onclick="confirmDeleteSchedule(1)" title="Delete schedule">
+                            onclick="confirmDeleteSchedule()" title="Delete schedule">
                         <i class="fa-solid fa-trash"></i>
                     </button>
+                    {% endif %}
                 </div>
             </div>
-
+            {% if schedule %}
             <button class="btn btn-ghost bg-white border border-gray-200 mt-2 text-primary font-semibold"
-                    onclick="addSchedule()">
-                <i class="fa-solid fa-plus mr-2"></i>Add schedule
+                    onclick="back2DeafaultScheduel()">
+                <i class="fa-solid fa-undo mr-2"></i>Back to default schedule
             </button>
+            {% else %}
+            <button class="btn btn-ghost bg-white border border-gray-200 mt-2 text-primary font-semibold"
+                    onclick="saveSchedule()">
+                <i class="fa-solid fa-save mr-2"></i>save Schedule
+            </button>
+            {% endif %}
 
           </div>
 
           <!-- Right Column: Schedule Editor -->
           <div class="flex-1 flex flex-col gap-6 overflow-y-auto">
-            <form id="schedule-form" class="space-y-6" onsubmit="saveSchedule(event)">
+            <form id="schedule-form" class="space-y-6" onsubmit="event.preventDefault()">
                 <!-- Schedule Name Card -->
                 <div class="card bg-white p-6 rounded-lg shadow-sm">
                     <h3 class="font-bold text-gray-800 text-lg mb-4">Schedule Name</h3>
                     <input type="text"
                            id="schedule-name"
                            name="name"
-                           value="Business Hours"
+                           value="{% if schedule %}{{ schedule.0.name }}{% else %}Default Schedule{% endif %}"
                            class="input input-bordered w-full bg-white"
-                           placeholder="Enter schedule name" />
+                           placeholder="Enter schedule name" 
+                           required
+                           onchange="syncWithRightSide(value)"/>
                 </div>
 
                 <!-- Timing Card -->
@@ -214,21 +218,21 @@
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
                         <div class="form-control">
                             <label class="label"><span class="label-text">From</span></label>
-                            <select id="time-from" name="timeFrom" class="select select-bordered bg-white time-select" onchange="updateToTimes()">
+                            <select id="time-from" name="timeFrom" class="select select-bordered bg-white time-select" required onchange="updateToTimes()">
                                 {% for time in times %}
-                                    <option value="{{time.0}}" {% if schedule.timing_from == time.0 %}selected{% endif %}>{{time.1}}</option>
+                                    <option value="{{time.0}}" {% if schedule.0.timing_from == time.0 %}selected{% endif %}>{{time.1}}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="form-control">
                             <label class="label"><span class="label-text">To</span></label>
-                            <select id="time-to" name="timeTo" class="select select-bordered bg-white time-select">
-                                {% if not schedule.timing_from %}
+                            <select id="time-to" name="timeTo" class="select select-bordered bg-white time-select" required>
+                                {% if not schedule.0.timing_from %}
                                     <option value="10:00" selected>10:00 AM</option>
                                  {% endif %}    
                                 {% for time in times %}
-                                    {% if schedule.timing_from and time.0 > schedule.timing_from %}
-                                        <option value="{{time.0}}" {% if schedule.timing_to == time.0 %}selected{% endif %}>{{time.1}}</option>
+                                    {% if schedule.0.timing_from and time.0 > schedule.0.timing_from %}
+                                        <option value="{{time.0}}" {% if schedule.0.timing_to == time.0 %}selected{% endif %}>{{time.1}}</option>
                                     {% endif %}
                                 {% endfor %}
                             </select>
@@ -236,9 +240,9 @@
                     </div>
                     <div class="form-control">
                         <label class="label"><span class="label-text">Timezone</span></label>
-                        <select id="timezone" name="timezone" class="select select-bordered bg-white timezone-select">
+                        <select id="timezone" name="timezone" class="select select-bordered bg-white timezone-select" required>
                             {% for tz in timezones %}
-                                <option value="{{ tz.0 }}" {% if tz.0 == schedule.time_zone %}selected{% endif %}>{{ tz.1 }}</option>
+                                <option value="{{ tz.0 }}" {% if tz.0 == schedule.0.time_zone %}selected{% endif %}>{{ tz.1 }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -252,7 +256,7 @@
                     <div class="flex flex-wrap gap-x-6 gap-y-3">
                         {% for day in days %}
                             <label class="label cursor-pointer justify-start gap-2">
-                                <input type="checkbox" name="days" value="{{ day.0 }}" {% if day.0 in schedule.days %}checked{% endif %} class="checkbox checkbox-primary" />
+                                <input type="checkbox" name="days" value="{{ day.0 }}" {% if day.0 in schedule.0.days %}checked{% endif %} class="checkbox checkbox-primary" />
                                 <span class="label-text">{{ day.1 }}</span>
                             </label>
                         {% endfor %}
@@ -261,11 +265,11 @@
 
                 <!-- Action Buttons -->
                 <div class="flex gap-3">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" onclick="saveSchedule()">
                         <i class="fa-solid fa-save mr-2"></i>Save Schedule
                     </button>
                     <button type="button" class="btn btn-ghost" onclick="resetForm()">
-                        <i class="fa-solid fa-undo mr-2"></i>Reset
+                        <i class="fa-solid fa-undo mr-2"></i>Reset Form
                     </button>
                 </div>
             </form>
@@ -323,217 +327,59 @@ document.addEventListener('DOMContentLoaded', function() {
         updateToTimes();
     {% endif %}
 });
-// Schedule Management System
-let activeScheduleId = 1;
-let scheduleCounter = 1;
-let schedules = {};
 
-// Initialize with default schedule
-schedules[1] = {
-    id: 1,
-    name: 'Business Hours',
-    timeFrom: '09:00',
-    timeTo: '18:00',
-    timezone: 'America/New_York',
-    days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
-};
 
-// Schedule Management Functions
-function selectSchedule(scheduleId) {
-    // Save current schedule before switching
-    saveCurrentSchedule();
+function syncWithRightSide(CurrentTxt) {
+    rightSide= document.getElementById('right-schedule-name')
+    rightSide.innerHTML= CurrentTxt;
+} 
 
-    // Remove active class from all schedules
-    document.querySelectorAll('.schedule-item').forEach(item => {
-        item.classList.remove('active', 'border-2', 'border-primary');
-        item.classList.add('border', 'border-gray-200');
-        item.querySelector('.schedule-name').parentElement.classList.remove('text-gray-800', 'font-semibold');
-        item.querySelector('.schedule-name').parentElement.classList.add('text-gray-600');
-    });
-
-    // Add active class to selected schedule
-    const selectedItem = document.querySelector(`[data-schedule-id="${scheduleId}"]`);
-    if (selectedItem) {
-        selectedItem.classList.add('active', 'border-2', 'border-primary');
-        selectedItem.classList.remove('border', 'border-gray-200');
-        selectedItem.querySelector('.schedule-name').parentElement.classList.add('text-gray-800', 'font-semibold');
-        selectedItem.querySelector('.schedule-name').parentElement.classList.remove('text-gray-600');
-        activeScheduleId = scheduleId;
-
-        // Load schedule data into form
-        loadScheduleData(scheduleId);
-    }
-}
-
-function loadScheduleData(scheduleId) {
-    const schedule = schedules[scheduleId];
-    if (!schedule) return;
-
-    // Load form data
-    document.getElementById('schedule-name').value = schedule.name;
-    document.getElementById('time-from').value = schedule.timeFrom;
-    document.getElementById('time-to').value = schedule.timeTo;
-    document.getElementById('timezone').value = schedule.timezone;
-
-    // Clear all day checkboxes
-    document.querySelectorAll('input[name="days"]').forEach(checkbox => {
-        checkbox.checked = false;
-    });
-
-    // Check selected days
-    schedule.days.forEach(day => {
-        const checkbox = document.querySelector(`input[name="days"][value="${day}"]`);
-        if (checkbox) checkbox.checked = true;
-    });
-}
-
-function saveCurrentSchedule() {
-    if (!activeScheduleId) return;
-
-    // Get form data
-    const formData = new FormData(document.getElementById('schedule-form'));
-    const scheduleData = {
-        id: activeScheduleId,
-        name: formData.get('name'),
-        timeFrom: formData.get('timeFrom'),
-        timeTo: formData.get('timeTo'),
-        timezone: formData.get('timezone'),
-        days: formData.getAll('days')
-    };
-
-    // Store in schedules object
-    schedules[activeScheduleId] = scheduleData;
-
-    // Update schedule name in list
-    const scheduleItem = document.querySelector(`[data-schedule-id="${activeScheduleId}"]`);
-    if (scheduleItem) {
-        scheduleItem.querySelector('.schedule-name').textContent = scheduleData.name;
-    }
-}
-
-function saveSchedule(event) {
-    event.preventDefault();
-    saveCurrentSchedule();
-    window.ModalSystem.toast('Schedule saved successfully!');
-}
-
-function addSchedule() {
-    // Save current schedule first
-    saveCurrentSchedule();
-
-    scheduleCounter++;
-    const newScheduleId = scheduleCounter;
-
-    // Create new schedule data
-    const newSchedule = {
-        id: newScheduleId,
-        name: `New Schedule ${newScheduleId}`,
-        timeFrom: '09:00',
-        timeTo: '17:00',
-        timezone: 'America/New_York',
-        days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
-    };
-
-    schedules[newScheduleId] = newSchedule;
-
-    // Create new schedule HTML
-    const newScheduleHTML = `
-        <div class="bg-white border border-gray-200 rounded-lg p-3 flex items-center justify-between cursor-pointer schedule-item"
-             data-schedule-id="${newScheduleId}" onclick="selectSchedule(${newScheduleId})">
-            <div class="flex items-center gap-2 text-gray-600">
-                <i class="fa-regular fa-calendar-days"></i>
-                <span class="schedule-name">${newSchedule.name}</span>
-            </div>
-            <button class="btn btn-ghost btn-sm btn-square text-gray-400 delete-schedule-btn"
-                    onclick="confirmDeleteSchedule(${newScheduleId})" title="Delete schedule">
-                <i class="fa-solid fa-trash"></i>
-            </button>
-        </div>
-    `;
-
-    // Insert before the Add Schedule button
-    const addButton = document.querySelector('.btn.btn-ghost.bg-white.border.border-gray-200');
-    addButton.insertAdjacentHTML('beforebegin', newScheduleHTML);
-
-    // Select the new schedule
-    selectSchedule(newScheduleId);
-
-    window.ModalSystem.toast('New schedule added successfully!');
-}
-
-function confirmDeleteSchedule(scheduleId) {
-    if (Object.keys(schedules).length <= 1) {
-        window.ModalSystem.error('Cannot delete the last remaining schedule.');
+function saveSchedule() {
+    // Validate at least one day is checked
+    const checkboxes = document.querySelectorAll('input[name="days"]:checked');
+    if (checkboxes.length === 0) {
+        ModalSystem.toast("Please select at least one day!", 'error');
         return;
     }
 
-    const schedule = schedules[scheduleId];
-    window.ModalSystem.confirm({
-        title: 'Delete Schedule',
-        message: `Are you sure you want to delete "${schedule.name}"? This action cannot be undone.`,
-        confirmText: 'Delete',
-        confirmClass: 'btn-error',
-        action: () => deleteSchedule(scheduleId)
+    // Collect all form values
+    const startDate = new Date().toISOString();
+    const form = document.getElementById('schedule-form');
+    const formData = {
+        name: form.querySelector('#schedule-name').value,
+        start_date: startDate,
+        timing_from: form.querySelector('#time-from').value,
+        timing_to: form.querySelector('#time-to').value,
+        time_zone: form.querySelector('#timezone').value,
+        days: Array.from(checkboxes).map(checkbox => checkbox.value),
+        campaign: {{ campaign_id }},
+        subscribed_company: {{ request.user.subscribed_company.id }}
+    };
+
+    // Send POST request
+    fetch('/api/schedule/{% if not schedule %}/{% else %}{{ schedule.0.id }}/{% endif %}', {
+        method: {% if not schedule %}'POST'{% else %}'PUT'{% endif %},
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw err; });
+        }
+        return response.json();
+    })
+    .then(data => {
+        ModalSystem.toast('Schedule {% if not schedule %}created{% else %}updated{% endif %} successfully!', 'success');
+        // window.location.href = `/campaign/campaign-options/{{campaign_id}}`;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        ModalSystem.toast('Failed to {% if not schedule %}created{% else %}updated{% endif %} schedule, please try again!', 'error');
     });
 }
-
-function deleteSchedule(scheduleId) {
-    const scheduleItem = document.querySelector(`[data-schedule-id="${scheduleId}"]`);
-    if (scheduleItem) {
-        scheduleItem.remove();
-
-        // Remove from schedules
-        delete schedules[scheduleId];
-
-        // Select first available schedule
-        const firstSchedule = document.querySelector('.schedule-item');
-        if (firstSchedule) {
-            const firstScheduleId = parseInt(firstSchedule.getAttribute('data-schedule-id'));
-            selectSchedule(firstScheduleId);
-        }
-
-        window.ModalSystem.toast('Schedule deleted successfully');
-    }
-}
-
-function resetForm() {
-    if (activeScheduleId && schedules[activeScheduleId]) {
-        loadScheduleData(activeScheduleId);
-        window.ModalSystem.toast('Form reset to saved values');
-    }
-}
-
-function editCampaignStart() {
-    window.ModalSystem.toast('Campaign start date editing coming soon!', 'info');
-}
-
-function editCampaignEnd() {
-    window.ModalSystem.toast('Campaign end date editing coming soon!', 'info');
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    // Load initial schedule data
-    loadScheduleData(1);
-
-    // Auto-save on form changes
-    document.addEventListener('input', function(e) {
-        if (e.target.closest('#schedule-form')) {
-            // Auto-save current schedule when user makes changes
-            setTimeout(() => {
-                saveCurrentSchedule();
-            }, 500);
-        }
-    });
-
-    // Update schedule name in real-time
-    document.getElementById('schedule-name').addEventListener('input', function() {
-        const scheduleItem = document.querySelector(`[data-schedule-id="${activeScheduleId}"]`);
-        if (scheduleItem) {
-            scheduleItem.querySelector('.schedule-name').textContent = this.value;
-        }
-    });
-});
 </script>
 
 {% endblock %}
