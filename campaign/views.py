@@ -1,4 +1,4 @@
-import json
+
 from django.shortcuts import redirect, get_object_or_404, render
 from django.http import Http404, HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
@@ -6,10 +6,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count, Q, Min
 import pytz
 from .dicts import timezone_options, days_options, time_options
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 
 
 from campaign.helpers import get_campaigns_and_products, get_company_email_accounts, get_company_products, get_lead_lists_or_both, get_messages_and_products, get_subscribed_company
-from .models import Campaign, LeadList, Link, Message, MessageAssignment, Schedule
+from .models import Campaign, CampaignOptions, LeadList, Link, Message, MessageAssignment, Schedule
 import logging
 
 logger = logging.getLogger(__name__)
@@ -193,13 +195,45 @@ def campaign_scheduele(request, pk):
 
 
 
-
 def campaign_options(request, pk):
+    # Get all email accounts for the company
+    company_email_accounts = get_company_email_accounts(request)
+    
+    # Get all campaigns for the company (excluding current campaign if needed)
+    campaigns, products = get_campaigns_and_products(request)
+    
+    # Get all email accounts used in any campaign options
+    used_email_ids = set()
+    for campaign in campaigns:
+        # Skip current campaign if you don't want to mark emails used in current campaign as "used"
+        if campaign.id == pk:
+            continue
+            
+        campaign_options = CampaignOptions.objects.filter(campaign=campaign).first()
+        if campaign_options:
+            used_email_ids.update(campaign_options.email_accounts.values_list('id', flat=True))
+    
+    # Get selected emails for current campaign
+    current_campaign_options = CampaignOptions.objects.filter(campaign_id=pk).first()
+    
+    # Prepare the email list in required format
+    formatted_emails = []
+    for email_account in company_email_accounts:
+        formatted_emails.append({
+            'email_id': email_account.id,
+            'email': email_account.email,
+            'active': email_account.status == 'active',
+            'used': email_account.id in used_email_ids,
+        })
+    
     context = {
         'campaign_id': pk,
-        'current_tab': 'options'
+        'current_tab': 'options',
+        'emails': formatted_emails,
+        'campaign_options': current_campaign_options
     }
     return render(request, "app/campaign/options.html", context)
+
 
 
 # New navigation views

@@ -187,7 +187,8 @@ class EmailAccount(models.Model):
     ]
 
     STATUS_CHOICES = [
-        ('connected', 'Connected'),
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
         ('error', 'Error'),
         ('pending', 'Pending'),
     ]

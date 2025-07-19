@@ -12,7 +12,7 @@ from urllib.parse import unquote
 from campaign.email_sender import send_campaign_email
 from .models import (
     LeadList, Product, Campaign, Lead, NewsletterSubscriber,
-    CampaignLead, Message, Link, MessageAssignment, CampaignStats, Schedule
+    CampaignLead, Message, Link, MessageAssignment, CampaignStats, Schedule, CampaignOptions
 )
  
 import logging
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 admin.site.register(Schedule)
-
+admin.site.register(CampaignOptions)
 
 
 

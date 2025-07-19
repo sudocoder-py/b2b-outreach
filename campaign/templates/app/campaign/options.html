@@ -53,24 +53,28 @@
                         <p class="text-sm text-gray-500 mt-1">Select one or more accounts to send emails from</p>
                     </div>
                     <div class="flex flex-col items-end gap-2">
-                        <!-- <select id="email-accounts" name="emailAccounts" class="select select-bordered bg-white w-64" onchange="updateAccountSelection()">
-                            <option value="">Select...</option>
-                            <option value="john@company.com">john@company.com</option>
-                            <option value="sales@company.com">sales@company.com</option>
-                            <option value="support@company.com">support@company.com</option>
-                        </select> -->
-                        <div class="max-w-lg w-full mx-auto relative"> <!-- Added relative class here -->
+                        <div class="max-w-lg w-full mx-auto relative">
                             <label class="block text-sm font-medium mb-1">Select Sending Emails</label>
 
                             <!-- Selected Email Tags -->
-                            <div id="selectedEmails" class="flex flex-wrap gap-2 mb-2"></div>
+                            <div id="selectedEmails" class="flex flex-wrap gap-2 mb-2">
+                                {% if campaign_options %}
+                                    {% for email in campaign_options.email_accounts.all %}
+                                        <div class="badge badge-success badge-outline text-xs font-semibold">
+                                            {{ email.email }}
+                                            <button class="ml-2 text-error" onclick="removeEmail('{{ email.email }}')">×</button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
 
                             <!-- Search Input -->
                             <input type="text" id="searchInput" placeholder="Search email..."
                                 class="input input-bordered w-full mb-2" oninput="filterEmails()" onclick="showDropdown()" />
 
                             <!-- Dropdown List - Updated classes -->
-                            <ul id="dropdownList" class="menu bg-white border rounded-box max-h-60 overflow-y-auto hidden shadow-md absolute top-full left-0 right-0 z-10 mt-1"></ul>
+                            <ul id="dropdownList" class="menu bg-white border rounded-box max-h-70 hidden shadow-md absolute top-full left-0 right-0 z-10 mt-1 w-full" 
+                                style="overflow-y: auto;overflow-x: none;max-width: calc(100% - 2px);"></ul>
                         </div>
 
                         <button type="button" class="text-sm text-primary font-semibold hover:underline" onclick="connectNewAccount()">
@@ -85,9 +89,9 @@
                         <p class="text-sm text-gray-500 mt-1">Stop sending emails to a lead if a response has been received</p>
                     </div>
                     <div class="join rounded-lg toggle-group" data-option="stopOnReply">
-                        <button type="button" class="join-item btn btn-sm bg-gray-100 border-gray-300 text-gray-500"
+                        <button type="button" class="join-item btn btn-sm {% if not campaign_options or not campaign_options.stop_on_reply %}bg-gray-100 border-gray-300 text-gray-500{% else %}btn-neutral text-white{% endif %}"
                                 onclick="toggleOption('stopOnReply', false)" data-value="false">Disable</button>
-                        <button type="button" class="join-item btn btn-sm btn-success text-white active"
+                        <button type="button" class="join-item btn btn-sm {% if campaign_options and campaign_options.stop_on_reply %}btn-success text-white active{% else %}bg-gray-100 border-gray-300 text-gray-500{% endif %}"
                                 onclick="toggleOption('stopOnReply', true)" data-value="true">Enable</button>
                     </div>
                 </div>
@@ -100,13 +104,13 @@
                     </div>
                     <div class="flex items-center gap-4">
                         <label class="label cursor-pointer gap-2">
-                            <input type="checkbox" name="linkTracking" class="checkbox checkbox-primary" onchange="updateOption('linkTracking', this.checked)" checked/>
+                            <input type="checkbox" name="linkTracking" class="checkbox checkbox-primary" onchange="updateOption('linkTracking', this.checked)" {% if campaign_options and campaign_options.link_tracking_enabled %}checked{% endif %}/>
                             <span class="label-text">Link tracking</span>
                         </label>
                         <div class="join rounded-lg toggle-group" data-option="openTracking">
-                            <button type="button" class="join-item btn btn-sm bg-gray-100 border-gray-300 text-gray-500" 
+                            <button type="button" class="join-item btn btn-sm {% if not campaign_options or not campaign_options.open_tracking_enabled %}bg-gray-100 border-gray-300 text-gray-500{% else %}btn-neutral text-white{% endif %}" 
                                     onclick="toggleOption('openTracking', false)" data-value="false">Disable</button>
-                            <button type="button" class="join-item btn btn-sm btn-success text-white active" 
+                            <button type="button" class="join-item btn btn-sm {% if campaign_options and campaign_options.open_tracking_enabled %}btn-success text-white active{% else %}bg-gray-100 border-gray-300 text-gray-500{% endif %}" 
                                     onclick="toggleOption('openTracking', true)" data-value="true">Enable</button>
                         </div>
                     </div>
@@ -122,11 +126,11 @@
                     </div>
                     <div class="flex flex-col items-start gap-2">
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="textOnly" class="checkbox checkbox-primary" onchange="updateOption('textOnly', this.checked)" />
+                            <input type="checkbox" name="textOnly" class="checkbox checkbox-primary" onchange="updateOption('textOnly', this.checked)" {% if campaign_options and campaign_options.send_as_text_only %}checked{% endif %}/>
                             <span class="label-text text-sm">Send emails as text-only (no HTML)</span>
                         </label>
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="firstEmailTextOnly" class="checkbox checkbox-primary" onchange="updateOption('firstEmailTextOnly', this.checked)" checked/>
+                            <input type="checkbox" name="firstEmailTextOnly" class="checkbox checkbox-primary" onchange="updateOption('firstEmailTextOnly', this.checked)" {% if not campaign_options or campaign_options.send_first_email_as_text_only %}checked{% endif %}/>
                             <span class="label-text text-sm flex items-center gap-2">
                                 Send first email as text-only
                                 <!-- <div class="badge badge-warning text-yellow-800 font-bold text-xs">Pro</div> -->
@@ -146,7 +150,7 @@
                         <input type="number"
                                id="daily-limit"
                                name="dailyLimit"
-                               value="30"
+                               value="{% if campaign_options %}{{ campaign_options.daily_limit }}{% else %}30{% endif %}"
                                min="1"
                                max="1000"
                                class="input input-bordered bg-white w-24 text-center"
@@ -170,18 +174,35 @@
         </div>
 
 <script>
-     const allEmails = [
-      { email: "fdudramo@gmail.com", active: false },
-      { email: "sales@vibereach.com", active: true },
-      { email: "team@vibereach.com", active: true },
-      { email: "support@vibereach.com", active: true },
+    const allEmails = [
+    {% for email in emails %}
+        { email_id: {{email.email_id}}, email: "{{email.email}}", active: {% if email.active %}true{% else %}false{% endif %}, used: {% if email.used %}true{% else %}false{% endif %} },
+    {% endfor %}
     ];
 
-    let selectedEmails = [];
+    // Initialize selected emails with current campaign options
+    let selectedEmails = [
+        {% if campaign_options %}
+            {% for email in campaign_options.email_accounts.all %}
+                "{{ email.email }}",
+            {% endfor %}
+        {% endif %}
+    ];
 
     const dropdown = document.getElementById("dropdownList");
     const searchInput = document.getElementById("searchInput");
     const selectedContainer = document.getElementById("selectedEmails");
+
+    // Initialize campaign options with current values
+    let campaignOptions = {
+        emailAccounts: selectedEmails,
+        stopOnReply: {% if campaign_options %}{{ campaign_options.stop_on_reply|lower }}{% else %}true{% endif %},
+        openTracking: {% if campaign_options %}{{ campaign_options.open_tracking_enabled|lower }}{% else %}true{% endif %},
+        linkTracking: {% if campaign_options %}{{ campaign_options.link_tracking_enabled|lower }}{% else %}false{% endif %},
+        textOnly: {% if campaign_options %}{{ campaign_options.send_as_text_only|lower }}{% else %}false{% endif %},
+        firstEmailTextOnly: {% if not campaign_options or campaign_options.send_first_email_as_text_only %}true{% else %}false{% endif %},
+        dailyLimit: {% if campaign_options %}{{ campaign_options.daily_limit }}{% else %}30{% endif %}
+    };
 
     function showDropdown() {
       dropdown.classList.remove("hidden");
@@ -214,9 +235,10 @@
         li.innerHTML = `
           <span>${email.email}</span>
           ${!email.active ? '<span class="text-red-500 text-xs ml-2">Account not active</span>' : ''}
+          ${email.used ? '<span class="text-red-400 text-xs ml-2">Account already used</span>' : ''}
         `;
 
-        if (email.active) {
+        if (email.active && !email.used) {
           li.onclick = () => selectEmail(email.email);
         } else {
           li.classList.add("opacity-50", "cursor-not-allowed");
@@ -227,14 +249,18 @@
     }
 
     function selectEmail(email) {
-      selectedEmails.push(email);
-      renderSelected();
-      searchInput.value = "";
-      filterEmails();
+      if (!selectedEmails.includes(email)) {
+        selectedEmails.push(email);
+        campaignOptions.emailAccounts = selectedEmails;
+        renderSelected();
+        searchInput.value = "";
+        filterEmails();
+      }
     }
 
     function removeEmail(email) {
       selectedEmails = selectedEmails.filter(e => e !== email);
+      campaignOptions.emailAccounts = selectedEmails;
       renderSelected();
       filterEmails();
     }
@@ -252,157 +278,142 @@
       });
     }
 
+    // Toggle button functionality
+    function toggleOption(optionName, value) {
+        const toggleGroup = document.querySelector(`[data-option="${optionName}"]`);
+        const buttons = toggleGroup.querySelectorAll('button');
 
-// Campaign Options Management
-let campaignOptions = {
-    emailAccounts: '',
-    stopOnReply: true,
-    openTracking: true,
-    linkTracking: false,
-    textOnly: false,
-    firstEmailTextOnly: false,
-    dailyLimit: 30
-};
-
-// Toggle button functionality
-function toggleOption(optionName, value) {
-    const toggleGroup = document.querySelector(`[data-option="${optionName}"]`);
-    const buttons = toggleGroup.querySelectorAll('button');
-
-    // Update button states
-    buttons.forEach(btn => {
-        const btnValue = btn.getAttribute('data-value') === 'true';
-        if (btnValue === value) {
-            btn.classList.add('active');
-            if (value) {
-                btn.classList.add('btn-success', 'text-white');
-                btn.classList.remove('bg-gray-100', 'border-gray-300', 'text-gray-500', 'btn-neutral');
+        // Update button states
+        buttons.forEach(btn => {
+            const btnValue = btn.getAttribute('data-value') === 'true';
+            if (btnValue === value) {
+                btn.classList.add('active');
+                if (value) {
+                    btn.classList.add('btn-success', 'text-white');
+                    btn.classList.remove('bg-gray-100', 'border-gray-300', 'text-gray-500', 'btn-neutral');
+                } else {
+                    btn.classList.add('btn-neutral', 'text-white');
+                    btn.classList.remove('bg-gray-100', 'border-gray-300', 'text-gray-500', 'btn-success');
+                }
             } else {
-                btn.classList.add('btn-neutral', 'text-white');
-                btn.classList.remove('bg-gray-100', 'border-gray-300', 'text-gray-500', 'btn-success');
+                btn.classList.remove('active', 'btn-success', 'btn-neutral', 'text-white');
+                btn.classList.add('bg-gray-100', 'border-gray-300', 'text-gray-500');
             }
-        } else {
-            btn.classList.remove('active', 'btn-success', 'btn-neutral', 'text-white');
-            btn.classList.add('bg-gray-100', 'border-gray-300', 'text-gray-500');
+        });
+
+        // Update option value
+        campaignOptions[optionName] = value;
+    }
+
+    // Update checkbox options
+    function updateOption(optionName, value) {
+        campaignOptions[optionName] = value;
+        
+        // Show save indicator for daily limit changes
+        if (optionName === 'dailyLimit') {
+            const indicator = document.getElementById('daily-limit-saved');
+            indicator.classList.add('show');
+            setTimeout(() => indicator.classList.remove('show'), 2000);
         }
-    });
-
-    // Update option value
-    updateOption(optionName, value);
-}
-
-// Update option value
-function updateOption(optionName, value) {
-    campaignOptions[optionName] = value;
-
-    // Show save indicator for daily limit
-    if (optionName === 'dailyLimit') {
-        showSaveIndicator('daily-limit-saved');
     }
 
-    // Auto-save after short delay
-    setTimeout(() => {
-        autoSave();
-    }, 500);
-}
-
-// Show save indicator
-function showSaveIndicator(elementId) {
-    const indicator = document.getElementById(elementId);
-    if (indicator) {
-        indicator.classList.add('show');
-        setTimeout(() => {
-            indicator.classList.remove('show');
-        }, 2000);
-    }
-}
-
-// Auto-save functionality
-function autoSave() {
-    // Simulate auto-save
-    console.log('Auto-saving options:', campaignOptions);
-}
-
-// Account selection
-function updateAccountSelection() {
-    const select = document.getElementById('email-accounts');
-    updateOption('emailAccounts', select.value);
-
-    if (select.value) {
-        window.ModalSystem.toast(`Selected account: ${select.value}`, 'success');
-    }
-}
-
-// Connect new account
-function connectNewAccount() {
-    window.ModalSystem.confirm({
-        title: 'Connect Email Account',
-        message: 'This will redirect you to connect a new email account. Continue?',
-        confirmText: 'Continue',
-        confirmClass: 'btn-primary',
-        action: () => {
-            window.ModalSystem.toast('Email account connection coming soon!', 'info');
-        }
-    });
-}
-
-// Save options
-function saveOptions() {
-    window.ModalSystem.loading('Saving campaign options...');
-
-    // Simulate save
-    setTimeout(() => {
-        window.ModalSystem.hideLoading();
+    // Save options - TODO: Implement actual save functionality
+    function saveOptions() {
+        // Simulate save
+        console.log('Saving options:', campaignOptions);
         window.ModalSystem.toast('Campaign options saved successfully!');
-    }, 1500);
-}
-
-// Launch campaign
-function launchCampaign() {
-    // Validate required fields
-    if (!campaignOptions.emailAccounts) {
-        window.ModalSystem.error('Please select an email account before launching the campaign.');
-        return;
+        
+        // TODO: Implement AJAX call to save options
+        /*
+        fetch('/api/campaign/{{ campaign_id }}/options/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(campaignOptions)
+        })
+        .then(response => response.json())
+        .then(data => {
+            window.ModalSystem.toast('Campaign options saved successfully!');
+        })
+        .catch(error => {
+            window.ModalSystem.error('Failed to save options');
+        });
+        */
     }
 
-    window.ModalSystem.confirm({
-        title: 'Launch Campaign',
-        message: 'Are you sure you want to launch this campaign? This action cannot be undone.',
-        confirmText: 'Launch',
-        confirmClass: 'btn-primary',
-        action: () => {
-            window.ModalSystem.loading('Launching campaign...');
+    // Launch campaign - TODO: Implement actual launch functionality
+    function launchCampaign() {
+        // Validate required fields
+        if (campaignOptions.emailAccounts.length === 0) {
+            window.ModalSystem.error('Please select at least one email account before launching the campaign.');
+            return;
+        }
 
-            setTimeout(() => {
-                window.ModalSystem.hideLoading();
-                window.ModalSystem.success({
-                    title: 'Campaign Launched!',
-                    message: 'Your campaign has been successfully launched and is now active.',
-                    action: () => {
-                        // Redirect to dashboard
-                        window.location.href = '/campaign/dashboard/';
+        window.ModalSystem.confirm({
+            title: 'Launch Campaign',
+            message: 'Are you sure you want to launch this campaign? ',
+            confirmText: 'Launch',
+            confirmClass: 'btn-primary',
+            action: () => {
+                window.ModalSystem.loading('Launching campaign...');
+
+                setTimeout(() => {
+                    window.ModalSystem.hideLoading();
+                    window.ModalSystem.success({
+                        title: 'Campaign Launched!',
+                        message: 'Your campaign has been successfully launched and is now active.',
+                        action: () => {
+                            // Redirect to dashboard
+                            window.location.href = '/campaign/dashboard/{{campaign_id}}';
+                        }
+                    });
+                }, 2000);
+                
+                // TODO: Implement actual launch API call
+                /*
+                fetch('/api/campaign/{{ campaign_id }}/launch/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify(campaignOptions)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    window.ModalSystem.hideLoading();
+                    if (data.success) {
+                        window.ModalSystem.success({
+                            title: 'Campaign Launched!',
+                            message: 'Your campaign has been successfully launched and is now active.',
+                            action: () => {
+                                window.location.href = '/campaign/dashboard/{{campaign_id}}';
+                            }
+                        });
+                    } else {
+                        window.ModalSystem.error(data.message || 'Failed to launch campaign');
                     }
+                })
+                .catch(error => {
+                    window.ModalSystem.hideLoading();
+                    window.ModalSystem.error('Failed to launch campaign');
                 });
-            }, 2000);
-        }
-    });
-}
+                */
+            }
+        });
+    }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    // Set initial toggle states
-    toggleOption('stopOnReply', true);
-    toggleOption('openTracking', true);
-
-    // Auto-save on form changes
-    document.addEventListener('input', function(e) {
-        if (e.target.closest('#options-form')) {
-            setTimeout(() => {
-                autoSave();
-            }, 500);
-        }
+    // Initialize the UI with current values
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set initial toggle states
+        toggleOption('stopOnReply', campaignOptions.stopOnReply);
+        toggleOption('openTracking', campaignOptions.openTracking);
+        
+        // Render selected emails
+        renderSelected();
     });
-});
 </script>
 
 {% endblock %}

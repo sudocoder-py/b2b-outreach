@@ -117,18 +117,11 @@ class CampaignOptions(models.Model):
             validators.MinValueValidator(1, "Daily limit must be at least 1."),
             validators.MaxValueValidator(1000, "Daily limit cannot exceed 1000.")
         ],
+        default=30
     )
     
     def __str__(self):
         return f"Options for Campaign: {self.campaign.name}"
-
-
-    def save(self, *args, **kwargs):
-        if not self.pk or 'daily_limit' not in kwargs:
-            if hasattr(self, 'email_accounts'):
-                count = self.email_accounts.count()
-                self.daily_limit = 30 * count if count > 0 else 30
-        super().save(*args, **kwargs)    
      
     class Meta:
         verbose_name = "Campaign Option"
