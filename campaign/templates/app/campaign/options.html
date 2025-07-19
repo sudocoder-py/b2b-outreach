@@ -36,6 +36,11 @@
 .save-indicator.show {
     opacity: 1;
 }
+
+/* Add this to your styles */
+#dropdownList {
+    max-width: calc(100% - 2px); /* Adjust as needed */
+}
 </style>
 
         <!-- Options Container -->
@@ -48,12 +53,26 @@
                         <p class="text-sm text-gray-500 mt-1">Select one or more accounts to send emails from</p>
                     </div>
                     <div class="flex flex-col items-end gap-2">
-                        <select id="email-accounts" name="emailAccounts" class="select select-bordered bg-white w-64" onchange="updateAccountSelection()">
+                        <!-- <select id="email-accounts" name="emailAccounts" class="select select-bordered bg-white w-64" onchange="updateAccountSelection()">
                             <option value="">Select...</option>
                             <option value="john@company.com">john@company.com</option>
                             <option value="sales@company.com">sales@company.com</option>
                             <option value="support@company.com">support@company.com</option>
-                        </select>
+                        </select> -->
+                        <div class="max-w-lg w-full mx-auto relative"> <!-- Added relative class here -->
+                            <label class="block text-sm font-medium mb-1">Select Sending Emails</label>
+
+                            <!-- Selected Email Tags -->
+                            <div id="selectedEmails" class="flex flex-wrap gap-2 mb-2"></div>
+
+                            <!-- Search Input -->
+                            <input type="text" id="searchInput" placeholder="Search email..."
+                                class="input input-bordered w-full mb-2" oninput="filterEmails()" onclick="showDropdown()" />
+
+                            <!-- Dropdown List - Updated classes -->
+                            <ul id="dropdownList" class="menu bg-white border rounded-box max-h-60 overflow-y-auto hidden shadow-md absolute top-full left-0 right-0 z-10 mt-1"></ul>
+                        </div>
+
                         <button type="button" class="text-sm text-primary font-semibold hover:underline" onclick="connectNewAccount()">
                             Connect new email account
                         </button>
@@ -81,13 +100,13 @@
                     </div>
                     <div class="flex items-center gap-4">
                         <label class="label cursor-pointer gap-2">
-                            <input type="checkbox" name="linkTracking" class="checkbox checkbox-primary" onchange="updateOption('linkTracking', this.checked)" />
+                            <input type="checkbox" name="linkTracking" class="checkbox checkbox-primary" onchange="updateOption('linkTracking', this.checked)" checked/>
                             <span class="label-text">Link tracking</span>
                         </label>
                         <div class="join rounded-lg toggle-group" data-option="openTracking">
-                            <button type="button" class="join-item btn btn-sm btn-neutral text-white active"
+                            <button type="button" class="join-item btn btn-sm bg-gray-100 border-gray-300 text-gray-500" 
                                     onclick="toggleOption('openTracking', false)" data-value="false">Disable</button>
-                            <button type="button" class="join-item btn btn-sm bg-gray-100 border-gray-300 text-gray-500"
+                            <button type="button" class="join-item btn btn-sm btn-success text-white active" 
                                     onclick="toggleOption('openTracking', true)" data-value="true">Enable</button>
                         </div>
                     </div>
@@ -107,10 +126,10 @@
                             <span class="label-text text-sm">Send emails as text-only (no HTML)</span>
                         </label>
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="firstEmailTextOnly" class="checkbox checkbox-primary" onchange="updateOption('firstEmailTextOnly', this.checked)" />
+                            <input type="checkbox" name="firstEmailTextOnly" class="checkbox checkbox-primary" onchange="updateOption('firstEmailTextOnly', this.checked)" checked/>
                             <span class="label-text text-sm flex items-center gap-2">
                                 Send first email as text-only
-                                <div class="badge badge-warning text-yellow-800 font-bold text-xs">Pro</div>
+                                <!-- <div class="badge badge-warning text-yellow-800 font-bold text-xs">Pro</div> -->
                             </span>
                         </label>
                     </div>
@@ -120,7 +139,8 @@
                 <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between option-card">
                     <div>
                         <h3 class="font-bold text-gray-800 text-base">Daily Limit</h3>
-                        <p class="text-sm text-gray-500 mt-1">Max number of emails to send per day for this campaign</p>
+                        <p class="text-sm text-gray-500 mt-1">Max number of emails to send per day for this campaign.</p>
+                        <p class="text-sm text-gray-500 mt-1">Each email can send 30-40 emails per day, without landing in spam/promotion folders</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <input type="number"
@@ -150,11 +170,94 @@
         </div>
 
 <script>
+     const allEmails = [
+      { email: "fdudramo@gmail.com", active: false },
+      { email: "sales@vibereach.com", active: true },
+      { email: "team@vibereach.com", active: true },
+      { email: "support@vibereach.com", active: true },
+    ];
+
+    let selectedEmails = [];
+
+    const dropdown = document.getElementById("dropdownList");
+    const searchInput = document.getElementById("searchInput");
+    const selectedContainer = document.getElementById("selectedEmails");
+
+    function showDropdown() {
+      dropdown.classList.remove("hidden");
+      filterEmails();
+    }
+
+    document.addEventListener("click", function (e) {
+      if (!dropdown.contains(e.target) && e.target !== searchInput) {
+        dropdown.classList.add("hidden");
+      }
+    });
+
+    function filterEmails() {
+      const query = searchInput.value.toLowerCase();
+      dropdown.innerHTML = "";
+
+      const filtered = allEmails.filter(e =>
+        e.email.toLowerCase().includes(query) &&
+        !selectedEmails.includes(e.email)
+      );
+
+      if (filtered.length === 0) {
+        dropdown.innerHTML = `<li class="text-sm text-gray-500 px-4 py-2">No options</li>`;
+        return;
+      }
+
+      filtered.forEach(email => {
+        const li = document.createElement("li");
+        li.className = "px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex justify-between items-center";
+        li.innerHTML = `
+          <span>${email.email}</span>
+          ${!email.active ? '<span class="text-red-500 text-xs ml-2">Account not active</span>' : ''}
+        `;
+
+        if (email.active) {
+          li.onclick = () => selectEmail(email.email);
+        } else {
+          li.classList.add("opacity-50", "cursor-not-allowed");
+        }
+
+        dropdown.appendChild(li);
+      });
+    }
+
+    function selectEmail(email) {
+      selectedEmails.push(email);
+      renderSelected();
+      searchInput.value = "";
+      filterEmails();
+    }
+
+    function removeEmail(email) {
+      selectedEmails = selectedEmails.filter(e => e !== email);
+      renderSelected();
+      filterEmails();
+    }
+
+    function renderSelected() {
+      selectedContainer.innerHTML = "";
+      selectedEmails.forEach(email => {
+        const badge = document.createElement("div");
+        badge.className = "badge badge-success badge-outline text-xs font-semibold";
+        badge.innerHTML = `
+          ${email}
+          <button class="ml-2 text-error" onclick="removeEmail('${email}')">×</button>
+        `;
+        selectedContainer.appendChild(badge);
+      });
+    }
+
+
 // Campaign Options Management
 let campaignOptions = {
     emailAccounts: '',
     stopOnReply: true,
-    openTracking: false,
+    openTracking: true,
     linkTracking: false,
     textOnly: false,
     firstEmailTextOnly: false,
@@ -289,7 +392,7 @@ function launchCampaign() {
 document.addEventListener('DOMContentLoaded', function() {
     // Set initial toggle states
     toggleOption('stopOnReply', true);
-    toggleOption('openTracking', false);
+    toggleOption('openTracking', true);
 
     // Auto-save on form changes
     document.addEventListener('input', function(e) {

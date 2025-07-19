@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from api.utils import auto_unassign_if_list_empty
 from clients.models import Product, EmailAccount
-from campaign.models import Campaign, CampaignLead, Lead, LeadList, Link, Message, MessageAssignment, Schedule
-from .serializers import LeadSerializer, MessageAssignmentSerializer, ProductSerializer, EmailAccountSerializer, CampaignSerializer, MessageSerializer, LeadListSerializer, ScheduleSerializer
+from campaign.models import Campaign, CampaignLead, CampaignOptions, Lead, LeadList, Link, Message, MessageAssignment, Schedule
+from .serializers import CampaignOptionsSerializer, LeadSerializer, MessageAssignmentSerializer, ProductSerializer, EmailAccountSerializer, CampaignSerializer, MessageSerializer, LeadListSerializer, ScheduleSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -402,3 +402,14 @@ class ScheduleListCreateView(generics.ListCreateAPIView):
 class ScheduleRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Schedule.objects.all()
     serializer_class = ScheduleSerializer
+
+
+
+class CampaignOptionsListCreateView(generics.ListCreateAPIView):    
+    queryset = CampaignOptions.objects.all()
+    serializer_class = CampaignOptionsSerializer
+    
+        
+class CampaignOptionsRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CampaignOptions.objects.all()
+    serializer_class = CampaignOptionsSerializer    

@@ -35,4 +35,7 @@ urlpatterns = [
     path('schedule/', views.ScheduleListCreateView.as_view(), name='schedule-list-create'),
     path('schedule/<int:pk>/', views.ScheduleRetrieveUpdateDestroyView.as_view(), name='schedule-detail'),
 
+    path('campaign-options/', views.CampaignOptionsListCreateView.as_view(), name='campaign-options-list-create'),
+    path('campaign-options/<int:pk>/', views.CampaignOptionsRetrieveUpdateDestroyView.as_view(), name='campaign-options-detail'),
+
 ]

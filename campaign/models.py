@@ -6,11 +6,11 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
 import re
-from clients.models import SubscribedCompany, Product
+from clients.models import EmailAccount, SubscribedCompany, Product
 import markdown
 from .dicts import timezone_options, days_options, time_options, get_default_days
 from django.contrib.postgres.fields import ArrayField
-
+from django.core import validators
 
 
 class Campaign(models.Model):
@@ -84,6 +84,58 @@ class Schedule(models.Model):
 
     def __str__(self):
         return self.name
+
+
+
+
+
+class CampaignOptions(models.Model):
+    """
+    Model to store various options and settings for a marketing campaign,
+    as derived from the VibeReach UI screenshot.
+    """
+
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='campaign_options')
+    
+    # Accounts to use
+    email_accounts = models.ManyToManyField(EmailAccount, related_name='email_accounts_campaign_options')
+    
+    # Stop sending emails on reply
+    stop_on_reply = models.BooleanField(default=True)
+    
+    # Open Tracking
+    open_tracking_enabled = models.BooleanField(default=True)
+    link_tracking_enabled = models.BooleanField(default=True)
+    
+    # Delivery Optimization
+    send_as_text_only = models.BooleanField(default=False)
+    send_first_email_as_text_only = models.BooleanField(default=True)
+    
+    # Daily Limit
+    daily_limit = models.IntegerField(
+        validators=[
+            validators.MinValueValidator(1, "Daily limit must be at least 1."),
+            validators.MaxValueValidator(1000, "Daily limit cannot exceed 1000.")
+        ],
+    )
+    
+    def __str__(self):
+        return f"Options for Campaign: {self.campaign.name}"
+
+
+    def save(self, *args, **kwargs):
+        if not self.pk or 'daily_limit' not in kwargs:
+            if hasattr(self, 'email_accounts'):
+                count = self.email_accounts.count()
+                self.daily_limit = 30 * count if count > 0 else 30
+        super().save(*args, **kwargs)    
+     
+    class Meta:
+        verbose_name = "Campaign Option"
+        verbose_name_plural = "Campaign Options" 
+   
+
+
 
 
 class LeadList(models.Model):
