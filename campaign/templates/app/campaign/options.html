@@ -225,7 +225,7 @@
       );
 
       if (filtered.length === 0) {
-        dropdown.innerHTML = `<li class="text-sm text-gray-500 px-4 py-2">No options</li>`;
+        dropdown.innerHTML = `<li clascampaign_optionss="text-sm text-gray-500 px-4 py-2">No options</li>`;
         return;
       }
 
@@ -317,51 +317,56 @@
         }
     }
 
-    // Save options - TODO: Implement actual save functionality
     function saveOptions() {
-        // Simulate save
         console.log('Saving options:', campaignOptions);
-        window.ModalSystem.toast('Campaign options saved successfully!');
+
+        campaignOptionsToSave = {
+            campaign: {{ campaign_id }},
+            email_accounts: campaignOptions.emailAccounts, //this should be an array of email account ids not email accounts emails
+            stop_on_reply: campaignOptions.stopOnReply, //this should a biolen but as python (like TRUE/FALSE not true/false like js) 
+            open_tracking_enabled: campaignOptions.openTracking,  //this should a biolen but as python (like TRUE/FALSE not true/false like js)
+            link_tracking_enabled: campaignOptions.linkTracking, //this should a biolen but as python (like TRUE/FALSE not true/false like js)
+            send_as_text_only: campaignOptions.textOnly, //this should a biolen but as python (like TRUE/FALSE not true/false like js)
+            send_first_email_as_text_only: campaignOptions.firstEmailTextOnly, //this should a biolen but as python (like TRUE/FALSE not true/false like js)
+            daily_limit: campaignOptions.dailyLimit // this is integer
+        }
         
-        // TODO: Implement AJAX call to save options
-        /*
-        fetch('/api/campaign/{{ campaign_id }}/options/', {
-            method: 'POST',
+        fetch('/api/campaign-options/{% if campaign_options %}{{ campaign_options.id }}{% else %}0{% endif %}/', {
+            method: {% if campaign_options %}'PUT'{% else %}'POST'{% endif %},
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': '{{ csrf_token }}'
             },
-            body: JSON.stringify(campaignOptions)
+            body: JSON.stringify(campaignOptionsToSave)
         })
         .then(response => response.json())
         .then(data => {
-            window.ModalSystem.toast('Campaign options saved successfully!');
+            ModalSystem.toast('Campaign options saved successfully!');
         })
         .catch(error => {
-            window.ModalSystem.error('Failed to save options');
+            ModalSystem.error('Failed to save options');
         });
-        */
     }
 
     // Launch campaign - TODO: Implement actual launch functionality
     function launchCampaign() {
         // Validate required fields
         if (campaignOptions.emailAccounts.length === 0) {
-            window.ModalSystem.error('Please select at least one email account before launching the campaign.');
+            ModalSystem.error('Please select at least one email account before launching the campaign.');
             return;
         }
 
-        window.ModalSystem.confirm({
+        ModalSystem.confirm({
             title: 'Launch Campaign',
             message: 'Are you sure you want to launch this campaign? ',
             confirmText: 'Launch',
             confirmClass: 'btn-primary',
             action: () => {
-                window.ModalSystem.loading('Launching campaign...');
+                ModalSystem.loading('Launching campaign...');
 
                 setTimeout(() => {
-                    window.ModalSystem.hideLoading();
-                    window.ModalSystem.success({
+                    ModalSystem.hideLoading();
+                    ModalSystem.success({
                         title: 'Campaign Launched!',
                         message: 'Your campaign has been successfully launched and is now active.',
                         action: () => {
