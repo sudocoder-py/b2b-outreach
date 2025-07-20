@@ -144,7 +144,7 @@
                     <div>
                         <h3 class="font-bold text-gray-800 text-base">Daily Limit</h3>
                         <p class="text-sm text-gray-500 mt-1">Max number of emails to send per day for this campaign.</p>
-                        <p class="text-sm text-gray-500 mt-1">Each email can send 30-40 emails per day, without landing in spam/promotion folders</p>
+                        <p class="text-sm text-gray-500 mt-1">Each email can send arround 30 emails per day, without landing in spam/promotion folders</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <input type="number"
@@ -155,9 +155,6 @@
                                max="1000"
                                class="input input-bordered bg-white w-24 text-center"
                                onchange="updateOption('dailyLimit', this.value)" />
-                        <span class="text-sm text-gray-500 save-indicator" id="daily-limit-saved">
-                            <i class="fa-solid fa-check text-green-500"></i>
-                        </span>
                     </div>
                 </div>
             </form>
@@ -256,6 +253,7 @@
           selectedEmails.push({ email_id: emailObj.email_id, email: email });
           campaignOptions.emailAccounts = selectedEmails;
           renderSelected();
+          updateDailyLimit();
           searchInput.value = "";
           filterEmails();
         }
@@ -266,6 +264,7 @@
       selectedEmails = selectedEmails.filter(e => e.email !== email);
       campaignOptions.emailAccounts = selectedEmails;
       renderSelected();
+      updateDailyLimit();
       filterEmails();
     }
 
@@ -311,14 +310,41 @@
 
     // Update checkbox options
     function updateOption(optionName, value) {
-        campaignOptions[optionName] = value;
-        
-        // Show save indicator for daily limit changes
         if (optionName === 'dailyLimit') {
-            const indicator = document.getElementById('daily-limit-saved');
-            indicator.classList.add('show');
-            setTimeout(() => indicator.classList.remove('show'), 2000);
+            const input = document.getElementById('daily-limit');
+            // Ensure minimum of 2
+            if (value < 2) {
+                value = 2;
+            }
+            
+            // Round to nearest even number
+            if (value % 2 !== 0) {
+                value = Math.round(value / 2) * 2;
+                ModalSystem.toast('Adjusted to nearest even number: ' + value, 'info');
+            }
+            
+            input.value = value;
+            campaignOptions.dailyLimit = value;
+            campaignOptions[optionName] = value;
+        } else {
+            campaignOptions[optionName] = value;
         }
+
+        // Show save indicator for daily limit changes
+        // if (optionName === 'dailyLimit') {
+        //     const indicator = document.getElementById('daily-limit-saved');
+        //     indicator.classList.add('show');
+        //     setTimeout(() => indicator.classList.remove('show'), 2000);
+        // }
+    }
+
+    function updateDailyLimit() {
+        const accountCount = selectedEmails.length;
+        const newLimit = accountCount * 30; // 30 emails per account
+        document.getElementById('daily-limit').value = newLimit;
+        document.getElementById('daily-limit').max = newLimit+accountCount*5;
+        document.getElementById('daily-limit').min = newLimit-accountCount*20;
+        campaignOptions.dailyLimit = newLimit;
     }
 
     function saveOptions() {
@@ -430,6 +456,7 @@
         
         // Render selected emails
         renderSelected();
+        updateDailyLimit();
     });
 </script>
 
