@@ -55,7 +55,7 @@
         <div class="flex items-center justify-between mt-8">
             <div class="flex items-center gap-3">
                 <span class="text-sm font-medium text-gray-500">Status:</span>
-                <div class="badge text-white font-semibold text-xs py-3" id="campaign-status-badge">Draft</div>
+                <div class="badge badge-warning font-semibold text-xs py-3" id="campaign-status-badge">{{status}}</div>
                 <span class="text-sm font-bold text-gray-800" id="campaign-progress-text">0%</span>
                 <progress class="progress progress-primary w-40 h-1.5" value="0" max="100" id="campaign-progress-bar"></progress>
             </div>
@@ -85,16 +85,6 @@
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6" id="stats-container">
-            <!-- Card 1: Sequence Started -->
-            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer">
-                <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
-                    <span>Sequence started</span>
-                    <div class="tooltip tooltip-left" data-tip="Number of leads who started the sequence">
-                        <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
-                    </div>
-                </div>
-                <div class="mt-4 text-4xl font-bold text-gray-800" id="sequence-started">232</div>
-            </div>
 
             <!-- Card 2: Open Rate -->
             <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer">
@@ -105,9 +95,9 @@
                     </div>
                 </div>
                 <div class="mt-4 text-4xl font-bold text-gray-800">
-                    <span id="opens-count">0</span>
+                    <span id="opens-count">{{stats.opened_count}}</span>
                     <span class="text-gray-300 font-light mx-1">|</span>
-                    <span class="text-2xl font-semibold" id="open-rate">32%</span>
+                    <span class="text-2xl font-semibold" id="open-rate">{{stats.open_rate_percentage}}%</span>
                 </div>
             </div>
 
@@ -120,9 +110,24 @@
                     </div>
                 </div>
                 <div class="mt-4 text-4xl font-bold text-gray-800">
-                    <span id="clicks-count">0</span>
+                    <span id="clicks-count">{{stats.clicked_count}}</span>
                     <span class="text-gray-300 font-light mx-1">|</span>
-                    <span class="text-2xl font-semibold" id="click-rate">23%</span>
+                    <span class="text-2xl font-semibold" id="click-rate">{{stats.click_rate_percentage}}%</span>
+                </div>
+            </div>
+
+            <!-- Card : reply rate -->
+            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer">
+                <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
+                    <span>Reply rate</span>
+                    <div class="tooltip tooltip-left" data-tip="Number of leads who started the sequence">
+                        <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-4xl font-bold text-gray-800">
+                    <span id="sequence-started">{{stats.replied_count}}</span>
+                    <span class="text-gray-300 font-light mx-1">|</span>
+                    <span class="text-2xl font-semibold">{{stats.reply_rate_percentage}}%</span>
                 </div>
             </div>
 
@@ -135,9 +140,9 @@
                     </div>
                 </div>
                 <div class="mt-4 text-4xl font-bold text-gray-800">
-                    <span id="opportunities-count">0</span>
+                    <span id="opportunities-count">{{stats.opportunities_count}}</span>
                     <span class="text-gray-300 font-light mx-1">|</span>
-                    <span class="text-2xl font-semibold text-gray-500" id="opportunities-value">$0</span>
+                    <span class="text-2xl font-semibold text-gray-500" id="opportunities-value">${{stats.opportunities_total}}</span>
                 </div>
             </div>
 
@@ -150,9 +155,9 @@
                     </div>
                 </div>
                 <div class="mt-4 text-4xl font-bold text-gray-800">
-                    <span id="conversions-count">0</span>
+                    <span id="conversions-count">{{stats.conversions_count}}</span>
                     <span class="text-gray-300 font-light mx-1">|</span>
-                    <span class="text-2xl font-semibold text-gray-500" id="conversions-value">$0</span>
+                    <span class="text-2xl font-semibold text-gray-500" id="conversions-value">${{stats.conversion_total}}</span>
                 </div>
             </div>
         </div>

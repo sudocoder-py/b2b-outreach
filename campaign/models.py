@@ -242,13 +242,7 @@ class CampaignLead(models.Model):
         default='none',
         help_text="Current opportunity status for this lead"
     )
-    opportunity_value = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        help_text="Expected value of this opportunity"
-    )
+
     opportunity_marked_at = models.DateTimeField(null=True, blank=True)
 
     # Conversion tracking (when opportunity becomes won)
@@ -802,38 +796,38 @@ class CampaignStats(models.Model):
 
     # 5. Opportunities: leads marked as positive opportunities
     opportunities_count = models.IntegerField(default=0)
-    opportunities_total_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    opportunity_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     # 6. Conversions: leads that won (converted)
     conversions_count = models.IntegerField(default=0)
-    conversions_total_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    conversion_total_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
-    # Legacy fields (keep for backward compatibility)
-    total_messages_sent = models.IntegerField(default=0)
-    total_opens = models.IntegerField(default=0)
-    total_clicks = models.IntegerField(default=0)
-    total_conversions = models.IntegerField(default=0)
+    # # Legacy fields (keep for backward compatibility)
+    # total_messages_sent = models.IntegerField(default=0)
+    # total_opens = models.IntegerField(default=0)
+    # total_clicks = models.IntegerField(default=0)
+    # total_conversions = models.IntegerField(default=0)
 
     best_cta = models.ForeignKey(Link, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
     best_message = models.ForeignKey(Message, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
 
     updated_at = models.DateTimeField(auto_now=True)
 
-    @property
-    def open_rate(self):
-        return round(self.total_opens / self.total_messages_sent * 100, 2) if self.total_messages_sent else 0
+    # @property
+    # def open_rate(self):
+    #     return round(self.total_opens / self.total_messages_sent * 100, 2) if self.total_messages_sent else 0
 
-    @property
-    def click_rate(self):
-        return round(self.total_clicks / self.total_opens * 100, 2) if self.total_opens else 0
+    # @property
+    # def click_rate(self):
+    #     return round(self.total_clicks / self.total_opens * 100, 2) if self.total_opens else 0
 
-    @property
-    def conversion_rate(self):
-        return round(self.total_conversions / self.total_leads * 100, 2) if self.total_leads else 0
+    # @property
+    # def conversion_rate(self):
+    #     return round(self.total_conversions / self.total_leads * 100, 2) if self.total_leads else 0
         
-    @property
-    def click_to_conversion_rate(self):
-        return round(self.total_conversions / self.total_clicks * 100, 2) if self.total_clicks else 0
+    # @property
+    # def click_to_conversion_rate(self):
+    #     return round(self.total_conversions / self.total_clicks * 100, 2) if self.total_clicks else 0
 
     # New percentage calculations for the 6 key metrics
     @property
@@ -857,14 +851,14 @@ class CampaignStats(models.Model):
         return round(self.replied_count / self.total_leads * 100, 2) if self.total_leads else 0
 
     @property
-    def opportunities_rate(self):
+    def opportunities_total(self):
         """Percentage of leads marked as opportunities"""
-        return round(self.opportunities_count / self.total_leads * 100, 2) if self.total_leads else 0
+        return round(self.opportunities_count * self.opportunity_value, 2) if self.total_leads else 0
 
     @property
-    def conversion_rate_percentage(self):
+    def conversion_total(self):
         """Percentage of leads that converted (won)"""
-        return round(self.conversions_count / self.total_leads * 100, 2) if self.total_leads else 0
+        return round(self.conversion_total_value, 2) if self.conversions_count else 0
 
     def update_from_campaign(self):
         """Update stats based on campaign data"""

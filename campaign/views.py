@@ -5,13 +5,15 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count, Q, Min
 import pytz
+
+from campaign.utils import get_or_none
 from .dicts import timezone_options, days_options, time_options
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 
 
 from campaign.helpers import get_campaigns_and_products, get_company_email_accounts, get_company_products, get_lead_lists_or_both, get_messages_and_products, get_subscribed_company
-from .models import Campaign, CampaignOptions, LeadList, Link, Message, MessageAssignment, Schedule
+from .models import Campaign, CampaignOptions, CampaignStats, LeadList, Link, Message, MessageAssignment, Schedule
 import logging
 
 logger = logging.getLogger(__name__)
@@ -126,9 +128,13 @@ def campaign_view_list(request):
 
 
 def campaign_dashboard(request, pk):
+    campaign_status= Campaign.objects.get(id=pk, subscribed_company=get_subscribed_company(request)).status
+    campaign_stats = get_or_none(CampaignStats, campaign=pk)
     context = {
         'campaign_id': pk,
-        'current_tab': 'analytics'
+        'current_tab': 'analytics',
+        'status': campaign_status,
+        'stats': campaign_stats
     }
     return render(request, "app/campaign/dashboard.html", context)
 

@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from api.utils import auto_unassign_if_list_empty
 from clients.models import Product, EmailAccount
-from campaign.models import Campaign, CampaignLead, CampaignOptions, Lead, LeadList, Link, Message, MessageAssignment, Schedule
-from .serializers import CampaignOptionsSerializer, LeadSerializer, MessageAssignmentSerializer, ProductSerializer, EmailAccountSerializer, CampaignSerializer, MessageSerializer, LeadListSerializer, ScheduleSerializer
+from campaign.models import Campaign, CampaignLead, CampaignOptions, CampaignStats, Lead, LeadList, Link, Message, MessageAssignment, Schedule
+from .serializers import CampaignOptionsSerializer, CampaignStatsSerializer, LeadSerializer, MessageAssignmentSerializer, ProductSerializer, EmailAccountSerializer, CampaignSerializer, MessageSerializer, LeadListSerializer, ScheduleSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -413,3 +413,13 @@ class CampaignOptionsListCreateView(generics.ListCreateAPIView):
 class CampaignOptionsRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CampaignOptions.objects.all()
     serializer_class = CampaignOptionsSerializer    
+
+
+
+class CampaignStatsListCreateView(generics.ListCreateAPIView):
+    queryset = CampaignStats.objects.all()
+    serializer_class = CampaignStatsSerializer
+
+class CampaignStatsRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CampaignStats.objects.all()
+    serializer_class = CampaignStatsSerializer    

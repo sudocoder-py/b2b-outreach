@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 admin.site.register(Schedule)
 admin.site.register(CampaignOptions)
-
+admin.site.register(CampaignStats)
 
 
 

@@ -182,10 +182,25 @@
         });
 
         if (!response.ok) {
+          showToast('error', 'failed to create Campaign!');
           throw new Error("Failed to create campaign");
         }
 
         const data = await response.json();
+
+        const response_stats = await fetch('/api/campaign-stats/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+          },
+          body: JSON.stringify({campaign: data.id})
+        });
+
+        if (!response_stats.ok) {
+          showToast('error', 'failed to create Campaign stats!');
+          throw new Error("Failed to create campaign stats");
+        }
         
         // Show success toast
         showToast('success', 'Campaign created successfully!');

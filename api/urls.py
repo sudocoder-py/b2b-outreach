@@ -38,4 +38,7 @@ urlpatterns = [
     path('campaign-options/', views.CampaignOptionsListCreateView.as_view(), name='campaign-options-list-create'),
     path('campaign-options/<int:pk>/', views.CampaignOptionsRetrieveUpdateDestroyView.as_view(), name='campaign-options-detail'),
 
+    path('campaign-stats/', views.CampaignStatsListCreateView.as_view(), name='campaign-options-list-create'),
+    path('campaign-stats/<int:pk>/', views.CampaignStatsRetrieveUpdateDestroyView.as_view(), name='campaign-options-detail'),
+
 ]
