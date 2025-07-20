@@ -66,7 +66,7 @@ class CampaignFilter(SimpleListFilter):
 
 @admin.register(Campaign)
 class CampaignAdmin(admin.ModelAdmin):
-    list_display = ('name', 'product', 'start_date', 'end_date', 'is_active', 'lead_count', 'conversion_rate')
+    list_display = ('name', 'product', 'start_date', 'end_date', 'is_active', 'lead_count')
     list_filter = ('is_active', 'product', 'start_date')
     search_fields = ('name', 'short_name', 'product__name')
     inlines = [CampaignLeadInline]
@@ -75,13 +75,6 @@ class CampaignAdmin(admin.ModelAdmin):
         return obj.campaignlead_set.count()
     lead_count.short_description = 'Leads'
     
-    def conversion_rate(self, obj):
-        try:
-            stats = obj.campaignstats
-            return f"{stats.conversion_rate}%"
-        except CampaignStats.DoesNotExist:
-            return "0%"
-    conversion_rate.short_description = 'Conversion'
 
 
 
