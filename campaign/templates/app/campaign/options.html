@@ -322,17 +322,20 @@
     }
 
     function saveOptions() {
-        console.log('Saving options:', campaignOptions);
-
         campaignOptionsToSave = {
             campaign: {{ campaign_id }},
-            email_accounts: campaignOptions.emailAccounts.map(email => email.email_id), //this should be an array of email account ids
+            email_accounts: campaignOptions.emailAccounts.map(email => email.email_id),
             stop_on_reply: campaignOptions.stopOnReply,
             open_tracking_enabled: campaignOptions.openTracking,  
             link_tracking_enabled: campaignOptions.linkTracking, 
             send_as_text_only: campaignOptions.textOnly, 
             send_first_email_as_text_only: campaignOptions.firstEmailTextOnly, 
             daily_limit: campaignOptions.dailyLimit 
+        }
+
+        if (campaignOptions.emailAccounts.length === 0) {
+            ModalSystem.toast('Please select at least one email account before saving the options.', 'error');
+            return;
         }
         
         fetch('/api/campaign-options/{% if campaign_options %}{{ campaign_options.id }}{% else %}0{% endif %}/', {
@@ -343,12 +346,17 @@
             },
             body: JSON.stringify(campaignOptionsToSave)
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                ModalSystem.toast('Error saving options', 'error');
+                return response.json().then(err => { throw err; });
+            }
+        })
         .then(data => {
-            ModalSystem.toast('Campaign options saved successfully!');
+            ModalSystem.toast('Campaign options saved successfully!', 'success');
         })
         .catch(error => {
-            ModalSystem.error('Failed to save options');
+            ModalSystem.toast('Failed to save options', 'error');
         });
     }
 
@@ -356,7 +364,7 @@
     function launchCampaign() {
         // Validate required fields
         if (campaignOptions.emailAccounts.length === 0) {
-            ModalSystem.error('Please select at least one email account before launching the campaign.');
+            ModalSystem.toast('Please select at least one email account before launching the campaign.', 'error');
             return;
         }
 
