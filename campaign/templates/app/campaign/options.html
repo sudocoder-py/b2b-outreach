@@ -184,7 +184,7 @@
     let selectedEmails = [
         {% if campaign_options %}
             {% for email in campaign_options.email_accounts.all %}
-                "{{ email.email }}",
+                { email_id: {{email.id}}, email: "{{email.email}}"},
             {% endfor %}
         {% endif %}
     ];
@@ -221,7 +221,7 @@
 
       const filtered = allEmails.filter(e =>
         e.email.toLowerCase().includes(query) &&
-        !selectedEmails.includes(e.email)
+        !selectedEmails.some(selected => selected.email === e.email)
       );
 
       if (filtered.length === 0) {
@@ -249,17 +249,21 @@
     }
 
     function selectEmail(email) {
-      if (!selectedEmails.includes(email)) {
-        selectedEmails.push(email);
-        campaignOptions.emailAccounts = selectedEmails;
-        renderSelected();
-        searchInput.value = "";
-        filterEmails();
+      if (!selectedEmails.some(selected => selected.email === email)) {
+        // Find the email object from allEmails to get the email_id
+        const emailObj = allEmails.find(e => e.email === email);
+        if (emailObj) {
+          selectedEmails.push({ email_id: emailObj.email_id, email: email });
+          campaignOptions.emailAccounts = selectedEmails;
+          renderSelected();
+          searchInput.value = "";
+          filterEmails();
+        }
       }
     }
 
     function removeEmail(email) {
-      selectedEmails = selectedEmails.filter(e => e !== email);
+      selectedEmails = selectedEmails.filter(e => e.email !== email);
       campaignOptions.emailAccounts = selectedEmails;
       renderSelected();
       filterEmails();
@@ -267,12 +271,12 @@
 
     function renderSelected() {
       selectedContainer.innerHTML = "";
-      selectedEmails.forEach(email => {
+      selectedEmails.forEach(emailObj => {
         const badge = document.createElement("div");
         badge.className = "badge badge-success badge-outline text-xs font-semibold";
         badge.innerHTML = `
-          ${email}
-          <button class="ml-2 text-error" onclick="removeEmail('${email}')">×</button>
+          ${emailObj.email}
+          <button class="ml-2 text-error" onclick="removeEmail('${emailObj.email}')">×</button>
         `;
         selectedContainer.appendChild(badge);
       });
@@ -322,13 +326,13 @@
 
         campaignOptionsToSave = {
             campaign: {{ campaign_id }},
-            email_accounts: campaignOptions.emailAccounts, //this should be an array of email account ids not email accounts emails
-            stop_on_reply: campaignOptions.stopOnReply, //this should a biolen but as python (like TRUE/FALSE not true/false like js) 
-            open_tracking_enabled: campaignOptions.openTracking,  //this should a biolen but as python (like TRUE/FALSE not true/false like js)
-            link_tracking_enabled: campaignOptions.linkTracking, //this should a biolen but as python (like TRUE/FALSE not true/false like js)
-            send_as_text_only: campaignOptions.textOnly, //this should a biolen but as python (like TRUE/FALSE not true/false like js)
-            send_first_email_as_text_only: campaignOptions.firstEmailTextOnly, //this should a biolen but as python (like TRUE/FALSE not true/false like js)
-            daily_limit: campaignOptions.dailyLimit // this is integer
+            email_accounts: campaignOptions.emailAccounts.map(email => email.email_id), //this should be an array of email account ids
+            stop_on_reply: campaignOptions.stopOnReply,
+            open_tracking_enabled: campaignOptions.openTracking,  
+            link_tracking_enabled: campaignOptions.linkTracking, 
+            send_as_text_only: campaignOptions.textOnly, 
+            send_first_email_as_text_only: campaignOptions.firstEmailTextOnly, 
+            daily_limit: campaignOptions.dailyLimit 
         }
         
         fetch('/api/campaign-options/{% if campaign_options %}{{ campaign_options.id }}{% else %}0{% endif %}/', {

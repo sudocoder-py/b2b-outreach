@@ -518,6 +518,9 @@ class MessageAssignment(models.Model):
     sent = models.BooleanField(default=False)
     sent_at = models.DateTimeField(null=True, blank=True)
 
+    opened = models.BooleanField(default=False)
+    opened_at = models.DateTimeField(null=True, blank=True)
+    
     responded = models.BooleanField(default=False)
     responded_content = models.TextField(blank=True)
 
