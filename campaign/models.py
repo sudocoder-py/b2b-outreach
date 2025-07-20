@@ -221,12 +221,45 @@ class Lead(models.Model):
 
 
 class CampaignLead(models.Model):
+    OPPORTUNITY_STATUS_CHOICES = [
+        ('none', 'No Opportunity'),
+        ('positive', 'Positive'),
+        ('won', 'Won'),
+        ('lost', 'Lost'),
+    ]
 
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE)
 
-    is_converted= models.BooleanField(default=False)
+    # Legacy conversion field (keep for backward compatibility)
+    is_converted = models.BooleanField(default=False)
     converted_at = models.DateTimeField(null=True, blank=True)
+
+    # Enhanced opportunity tracking
+    opportunity_status = models.CharField(
+        max_length=20,
+        choices=OPPORTUNITY_STATUS_CHOICES,
+        default='none',
+        help_text="Current opportunity status for this lead"
+    )
+    opportunity_value = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Expected value of this opportunity"
+    )
+    opportunity_marked_at = models.DateTimeField(null=True, blank=True)
+
+    # Conversion tracking (when opportunity becomes won)
+    conversion_value = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Actual conversion value (can be different from opportunity_value)"
+    )
+    conversion_notes = models.TextField(blank=True, help_text="Notes about the conversion")
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -237,18 +270,65 @@ class CampaignLead(models.Model):
         return f"{self.lead} - {self.campaign.name}"
 
     def convert(self):
-        """Mark this lead as converted"""
+        """Mark this lead as converted (legacy method)"""
         if not self.is_converted:
             self.is_converted = True
             self.converted_at = timezone.now()
             self.save()
-            
+
             # Update campaign stats
-            stats, created = CampaignStats.objects.get_or_create(campaign=self.campaign)
+            stats, _ = CampaignStats.objects.get_or_create(campaign=self.campaign)
             stats.update_from_campaign()
-            
+
             return True
         return False
+
+    def mark_as_opportunity(self, value=None):
+        """Mark this lead as a positive opportunity"""
+        self.opportunity_status = 'positive'
+        self.opportunity_value = value
+        self.opportunity_marked_at = timezone.now()
+        self.save()
+
+        # Update campaign stats
+        stats, _ = CampaignStats.objects.get_or_create(campaign=self.campaign)
+        stats.update_from_campaign()
+
+    def mark_as_won(self, conversion_value=None, notes=""):
+        """Mark this opportunity as won (converted)"""
+        self.opportunity_status = 'won'
+        self.conversion_value = conversion_value or self.opportunity_value
+        self.conversion_notes = notes
+
+        # Also update legacy fields for backward compatibility
+        self.is_converted = True
+        self.converted_at = timezone.now()
+
+        self.save()
+
+        # Update campaign stats
+        stats, _ = CampaignStats.objects.get_or_create(campaign=self.campaign)
+        stats.update_from_campaign()
+
+    def mark_as_lost(self, notes=""):
+        """Mark this opportunity as lost"""
+        self.opportunity_status = 'lost'
+        self.conversion_notes = notes
+        self.save()
+
+        # Update campaign stats
+        stats, _ = CampaignStats.objects.get_or_create(campaign=self.campaign)
+        stats.update_from_campaign()
+
+    @property
+    def is_opportunity(self):
+        """Check if this lead is marked as a positive opportunity"""
+        return self.opportunity_status == 'positive'
+
+    @property
+    def is_won(self):
+        """Check if this lead has been converted (won)"""
+        return self.opportunity_status == 'won'
 
 
 
@@ -705,7 +785,30 @@ class MessageAssignment(models.Model):
 class CampaignStats(models.Model):
     campaign = models.OneToOneField(Campaign, on_delete=models.CASCADE)
 
+    # Basic counts
     total_leads = models.IntegerField(default=0)
+
+    # 1. Sequence Started: leads that received at least one email
+    sequence_started_count = models.IntegerField(default=0)
+
+    # 2. Open Rate: leads that opened at least one email
+    opened_count = models.IntegerField(default=0)
+
+    # 3. Click Rate: leads that clicked at least one link
+    clicked_count = models.IntegerField(default=0)
+
+    # 4. Reply Rate: leads that replied to at least one message
+    replied_count = models.IntegerField(default=0)
+
+    # 5. Opportunities: leads marked as positive opportunities
+    opportunities_count = models.IntegerField(default=0)
+    opportunities_total_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    # 6. Conversions: leads that won (converted)
+    conversions_count = models.IntegerField(default=0)
+    conversions_total_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    # Legacy fields (keep for backward compatibility)
     total_messages_sent = models.IntegerField(default=0)
     total_opens = models.IntegerField(default=0)
     total_clicks = models.IntegerField(default=0)
@@ -732,31 +835,103 @@ class CampaignStats(models.Model):
     def click_to_conversion_rate(self):
         return round(self.total_conversions / self.total_clicks * 100, 2) if self.total_clicks else 0
 
+    # New percentage calculations for the 6 key metrics
+    @property
+    def sequence_started_rate(self):
+        """Percentage of leads that started the sequence (received at least one email)"""
+        return round(self.sequence_started_count / self.total_leads * 100, 2) if self.total_leads else 0
+
+    @property
+    def open_rate_percentage(self):
+        """Percentage of leads that opened at least one email"""
+        return round(self.opened_count / self.total_leads * 100, 2) if self.total_leads else 0
+
+    @property
+    def click_rate_percentage(self):
+        """Percentage of leads that clicked at least one link"""
+        return round(self.clicked_count / self.total_leads * 100, 2) if self.total_leads else 0
+
+    @property
+    def reply_rate_percentage(self):
+        """Percentage of leads that replied to at least one message"""
+        return round(self.replied_count / self.total_leads * 100, 2) if self.total_leads else 0
+
+    @property
+    def opportunities_rate(self):
+        """Percentage of leads marked as opportunities"""
+        return round(self.opportunities_count / self.total_leads * 100, 2) if self.total_leads else 0
+
+    @property
+    def conversion_rate_percentage(self):
+        """Percentage of leads that converted (won)"""
+        return round(self.conversions_count / self.total_leads * 100, 2) if self.total_leads else 0
+
     def update_from_campaign(self):
         """Update stats based on campaign data"""
-        # Count leads
-        self.total_leads = self.campaign.campaignlead_set.count()
-        
-        # Count messages sent
+        from django.db.models import Q
+
+        # Count total leads
+        campaign_leads = self.campaign.campaignlead_set.all()
+        self.total_leads = campaign_leads.count()
+
+        # 1. Sequence Started: leads that have been sent at least one email
+        leads_with_sent_messages = campaign_leads.filter(
+            messageassignment__sent_at__isnull=False
+        ).distinct()
+        self.sequence_started_count = leads_with_sent_messages.count()
+
+        # 2. Open Rate: leads that opened at least one email
+        leads_with_opens = campaign_leads.filter(
+            messageassignment__opened=True
+        ).distinct()
+        self.opened_count = leads_with_opens.count()
+
+        # 3. Click Rate: leads that clicked at least one link
+        leads_with_clicks = campaign_leads.filter(
+            Q(messageassignment__url__visit_count__gt=0) |
+            Q(messageassignment__newsletter_link__visit_count__gt=0)
+        ).distinct()
+        self.clicked_count = leads_with_clicks.count()
+
+        # 4. Reply Rate: leads that replied to at least one message
+        leads_with_replies = campaign_leads.filter(
+            messageassignment__responded=True
+        ).distinct()
+        self.replied_count = leads_with_replies.count()
+
+        # 5. Opportunities: leads marked as positive opportunities
+        opportunities = campaign_leads.filter(opportunity_status='positive')
+        self.opportunities_count = opportunities.count()
+        self.opportunities_total_value = sum(
+            lead.opportunity_value or 0 for lead in opportunities
+        )
+
+        # 6. Conversions: leads that won (converted)
+        conversions = campaign_leads.filter(opportunity_status='won')
+        self.conversions_count = conversions.count()
+        self.conversions_total_value = sum(
+            lead.conversion_value or 0 for lead in conversions
+        )
+
+        # Legacy calculations (keep for backward compatibility)
         message_assignments = MessageAssignment.objects.filter(
             campaign_lead__campaign=self.campaign,
             sent_at__isnull=False
         )
         self.total_messages_sent = message_assignments.count()
-        
+        self.total_opens = message_assignments.filter(opened=True).count()
+
         # Count clicks (from link visits)
         links = Link.objects.filter(campaign=self.campaign)
         self.total_clicks = sum(link.visit_count for link in links)
-        
-        # Count conversions
-        self.total_conversions = self.campaign.campaignlead_set.filter(
-            is_converted=True
-        ).count()
-        
+
+        # Count conversions (legacy)
+        self.total_conversions = campaign_leads.filter(is_converted=True).count()
+
         # Find best performing CTA (link with most visits)
         if links.exists():
             self.best_cta = links.order_by('-visit_count').first()
-        
+
         # Find best performing message (most clicks)
         if message_assignments.exists():
             # Group by message and count clicks
@@ -768,12 +943,12 @@ class CampaignStats(models.Model):
                         message_clicks[message_id] += ma.url.visit_count
                     else:
                         message_clicks[message_id] = ma.url.visit_count
-            
+
             # Find message with most clicks
             if message_clicks:
                 best_message_id = max(message_clicks, key=message_clicks.get)
                 self.best_message_id = best_message_id
-        
+
         self.save()
 
     def __str__(self):
@@ -784,11 +959,11 @@ def update_campaign_stats_on_link_visit(sender, instance, **kwargs):
     """Update campaign stats when a link is visited"""
     if instance.visit_count > 0 and instance.campaign:
         # Get or create campaign stats
-        stats, created = CampaignStats.objects.get_or_create(campaign=instance.campaign)
-        
+        stats, _ = CampaignStats.objects.get_or_create(campaign=instance.campaign)
+
         # Update stats
         stats.update_from_campaign()
-        
+
         # If this link is associated with a campaign lead, check for conversion
         if instance.campaign_lead and instance.campaign_lead.is_converted:
             # This could be a good place to trigger conversion tracking
