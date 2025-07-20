@@ -118,10 +118,12 @@ def create_campaign_view(request):
 
 def campaign_view_list(request):
     campaigns, products= get_campaigns_and_products(request)
+    campaigns_stats= CampaignStats.objects.filter(campaign__in=campaigns)
 
     context = {
         'campaigns': campaigns,
         'products': products,
+        'campaigns_stats': campaigns_stats
     }
 
     return render(request, "app/campaign/view-list.html", context)

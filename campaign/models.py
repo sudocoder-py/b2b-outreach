@@ -596,6 +596,7 @@ class MessageAssignment(models.Model):
     opened_at = models.DateTimeField(null=True, blank=True)
     
     responded = models.BooleanField(default=False)
+    responded_at= models.DateTimeField(null=True, blank=True)
     responded_content = models.TextField(blank=True)
 
     def get_tracking_url(self, url_type="product_url"):
@@ -777,7 +778,7 @@ class MessageAssignment(models.Model):
 
 
 class CampaignStats(models.Model):
-    campaign = models.OneToOneField(Campaign, on_delete=models.CASCADE)
+    campaign = models.OneToOneField(Campaign, on_delete=models.CASCADE, related_name='campaign_stats')
 
     # Basic counts
     total_leads = models.IntegerField(default=0)

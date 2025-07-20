@@ -55,9 +55,20 @@
         <div class="flex items-center justify-between mt-8">
             <div class="flex items-center gap-3">
                 <span class="text-sm font-medium text-gray-500">Status:</span>
-                <div class="badge badge-warning font-semibold text-xs py-3" id="campaign-status-badge">{{status}}</div>
-                <span class="text-sm font-bold text-gray-800" id="campaign-progress-text">0%</span>
-                <progress class="progress progress-primary w-40 h-1.5" value="0" max="100" id="campaign-progress-bar"></progress>
+                    {% if status == "active" %}
+                        <span class="badge badge-success text-white font-medium py-2">Active</span>
+                    {% elif status == "paused" %}
+                        <span class="badge badge-warning text-white font-medium py-2">Paused</span>
+                    {% elif status == "draft" %}
+                        <span class="badge badge-neutral text-white font-medium py-2">Draft</span>
+                    {% elif status == "completed" %}
+                        <span class="badge badge-info text-white font-medium py-2">Completed</span>
+                    {% else %}
+                        {{ status }}
+                    {% endif %}
+                <span class="mr-2 ml-2">|</span>    
+                <span class="text-sm font-bold text-gray-800" id="campaign-progress-text">{{stats.sequence_started_rate}}%</span>
+                <progress class="progress progress-primary w-40 h-1.5" value="{{stats.sequence_started_rate}}" max="100" id="campaign-progress-bar"></progress>
             </div>
             <div class="flex items-center gap-3">
                 <button class="btn bg-white border border-base-300 h-10 min-h-10 rounded-lg px-4 text-sm hover:bg-gray-50" onclick="shareCampaign()">
@@ -90,7 +101,7 @@
             <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer">
                 <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
                     <span>Open rate</span>
-                    <div class="tooltip tooltip-left" data-tip="Percentage of emails opened by recipients">
+                    <div class="tooltip tooltip-center" data-tip="Number of leads that have opened at least one email in this campaign.">
                         <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
                     </div>
                 </div>
@@ -105,7 +116,7 @@
             <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer">
                 <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
                     <span>Click rate</span>
-                    <div class="tooltip tooltip-left" data-tip="Percentage of emails where links were clicked">
+                    <div class="tooltip tooltip-center" data-tip="Number of leads that have clicked at least one link in this campaign.">
                         <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
                     </div>
                 </div>
@@ -120,7 +131,7 @@
             <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer">
                 <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
                     <span>Reply rate</span>
-                    <div class="tooltip tooltip-left" data-tip="Number of leads who started the sequence">
+                    <div class="tooltip tooltip-center" data-tip="Number of leads that have replied at least one email in this campaign.">
                         <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
                     </div>
                 </div>
@@ -135,7 +146,7 @@
             <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer">
                 <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
                     <span>Opportunities</span>
-                    <div class="tooltip tooltip-left" data-tip="Number of qualified opportunities and their total potential value">
+                    <div class="tooltip tooltip-center" data-tip="Number of leads that you have marked as positive. Per positive lead value is set to $2,333 Click to update">
                         <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
                     </div>
                 </div>
@@ -150,7 +161,7 @@
             <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer">
                 <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
                     <span>Conversions</span>
-                    <div class="tooltip tooltip-left" data-tip="Number of closed deals and total revenue generated">
+                    <div class="tooltip tooltip-left" data-tip="The total number of won opportunities and its total $ amount">
                         <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
                     </div>
                 </div>

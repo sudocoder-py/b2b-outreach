@@ -59,6 +59,7 @@
                         <th class="text-left font-semibold text-gray-900">Clicked</th>
                         <th class="text-left font-semibold text-gray-900">Replied</th>
                         <th class="text-left font-semibold text-gray-900">Opportunities</th>
+                        <th class="text-left font-semibold text-gray-900">Conversions</th>
                         <th class="text-left font-semibold text-gray-900">Actions</th>
                     </tr>
                 </thead>
@@ -87,22 +88,19 @@
                         <td>
                             <div class="flex items-center gap-2">
                                 <progress class="progress progress-primary w-20" 
-                                    value="{% if campaign.leads > 0 %}{{ campaign.sent|div:campaign.leads|mul:100|floatformat:0 }}{% else %}0{% endif %}" 
+                                    value="{% if campaign.campaign_stats.total_leads > 0 %}{{ campaign.campaign_stats.sequence_started_count|div:campaign.campaign_stats.total_leads|mul:100|floatformat:0 }}{% else %}0{% endif %}"
                                     max="100">
                                 </progress>
                                 <span class="text-sm font-medium text-gray-600">
-                                    {% if campaign.leads > 0 %}
-                                        {{ campaign.sent|div:campaign.leads|mul:100|floatformat:0 }}%
-                                    {% else %}
-                                        0%
-                                    {% endif %}
+                                    {{ campaign.campaign_stats.sequence_started_count|div:campaign.campaign_stats.total_leads|mul:100|floatformat:0 }}% : {{ campaign.campaign_stats.sequence_started_count }} / {{ campaign.campaign_stats.total_leads }}
                                 </span>
                             </div>
                         </td>
-                        <td class="font-medium text-gray-700">{{ campaign.sent }}</td>
-                        <td class="font-medium text-gray-700">{{ campaign.clicked }}</td>
-                        <td class="font-medium text-gray-700">{{ campaign.replied }}</td>
-                        <td class="font-medium text-gray-700">{{ campaign.opportunities }}</td>
+                        <td class="font-medium text-gray-700">{{ campaign.campaign_stats.opened_count }}</td>
+                        <td class="font-medium text-gray-700">{{ campaign.campaign_stats.clicked_count }}</td>
+                        <td class="font-medium text-gray-700">{{ campaign.campaign_stats.replied_count }}</td>
+                        <td class="font-medium text-gray-700">{{ campaign.campaign_stats.opportunities_count }}</td>
+                        <td class="font-medium text-gray-700">{{ campaign.campaign_stats.conversions_count }}</td>
                         <td>
                             <div class="flex items-center gap-0">
                                 <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); editCampaign({{ campaign.id }})" title="Edit">
