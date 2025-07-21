@@ -24,7 +24,7 @@ class Campaign(models.Model):
 
     name = models.CharField(max_length=255)
     short_name = models.SlugField(unique=True, blank=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_campaigns')
     start_date = models.DateTimeField(default=timezone.now)
     end_date = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)

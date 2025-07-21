@@ -78,7 +78,7 @@
                             <input type="text" id="full_name" name="full_name" class="input input-bordered w-full" required 
                             onchange="populateNames()" />
                             <label class="label">
-                            <span class="label-text-alt text-info">Will be used to auto-fill first/last name if empty</span>
+                            <span class="label-text-alt text-gray-500">Will be used to auto-fill first/last name if empty</span>
                             </label>
                         </div>
                         
@@ -544,7 +544,7 @@
     });
     
     if (!isValid) {
-      alert('Please fill in all required fields before proceeding.');
+      ModalSystem.toast('Please fill in all required fields before proceeding.', 'error');
     }
     
     return isValid;
