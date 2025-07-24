@@ -103,7 +103,7 @@
                         <td class="font-medium text-gray-700">{{ campaign.campaign_stats.conversions_count }}</td>
                         <td>
                             <div class="flex items-center gap-0">
-                                <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); editCampaign({{ campaign.id }})" title="Edit">
+                                <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); viewCampaign({{ campaign.id }})" title="Edit">
                                     <i class="fa-solid fa-edit"></i>
                                 </button>
                                 <button class="btn btn-ghost btn-sm text-red-500" onclick="event.stopPropagation(); confirmDeleteCampaign({{ campaign.id }})" title="Delete">

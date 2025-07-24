@@ -170,7 +170,7 @@ def campaign_sequence(request, pk):
         delayed_by_days=Min('messageassignment__delayed_by_days')
     ).order_by('-messageassignment__sent_at')
 
-    products= products.filter(campaign__id=pk)
+    products= products.filter(product_campaigns=pk)
     all_messages= all_messages.filter(product__in=products)
     # here i wanna make all_messages.exclude the ones that are not in the campaign
     all_messages= all_messages.exclude(id__in=messages.values_list('id', flat=True))
