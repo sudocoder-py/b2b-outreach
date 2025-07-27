@@ -1,5 +1,6 @@
 {% extends "app/campaign/campaign-base.html" %}
 {% load static %}
+{% csrf_token %}
 
 {% block title %}Campaign Dashboard{% endblock %}
 
@@ -72,9 +73,9 @@
                 <span class="text-sm font-medium text-gray-500" id="campaign-progress-text">out of <span class="text-2xl text-success font-bold mr-1 ml-1">{{stats.total_leads}}</span> total leads</span>
             </div>
             <div class="flex items-center gap-3">
-                <button class="btn bg-white border border-base-300 h-10 min-h-10 rounded-lg px-4 text-sm hover:bg-gray-50" onclick="shareCampaign()">
+                <button class="btn bg-white border border-base-300 h-10 min-h-10 rounded-lg px-4 text-sm hover:bg-gray-50" onclick="">
                     <i class="fa-solid fa-share-nodes mr-2 text-gray-500"></i>
-                    Share
+                    Sending Status
                 </button>
                 <div class="dropdown dropdown-end">
                     <button tabindex="0" role="button" class="btn bg-white border border-base-300 h-10 min-h-10 px-3 flex items-center gap-2 rounded-lg hover:bg-gray-50">
@@ -82,11 +83,11 @@
                         <i class="fa-solid fa-chevron-down text-xs text-gray-500"></i>
                     </button>
                     <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-white rounded-box w-52 mt-2">
-                        <li><a onclick="changeTimeFilter('Last 24 hours')">Last 24 hours</a></li>
-                        <li><a onclick="changeTimeFilter('Last 7 days')">Last 7 days</a></li>
-                        <li><a onclick="changeTimeFilter('Last 4 weeks')" class="active">Last 4 weeks</a></li>
-                        <li><a onclick="changeTimeFilter('Last 3 months')">Last 3 months</a></li>
-                        <li><a onclick="changeTimeFilter('All time')">All time</a></li>
+                        <li><a onclick="changeTimeFilter('24h', 'Last 24 hours')">Last 24 hours</a></li>
+                        <li><a onclick="changeTimeFilter('7d', 'Last 7 days')">Last 7 days</a></li>
+                        <li><a onclick="changeTimeFilter('4w', 'Last 4 weeks')" class="active">Last 4 weeks</a></li>
+                        <li><a onclick="changeTimeFilter('3m', 'Last 3 months')">Last 3 months</a></li>
+                        <li><a onclick="changeTimeFilter('all', 'All time')">All time</a></li>
                     </ul>
                 </div>
                 <button class="btn bg-white border border-base-300 btn-square h-10 min-h-10 w-10 hover:bg-gray-50" onclick="openSettings()">
@@ -198,7 +199,7 @@
                             <span class="text-gray-600">Replied</span>
                         </div>
                     </div>
-                    <button class="btn btn-sm btn-ghost" onclick="refreshChart()">
+                    <button class="btn btn-sm btn-ghost" onclick="refreshChart()" id="refresh-btn">
                         <i class="fa-solid fa-refresh mr-2"></i>Refresh
                     </button>
                 </div>
@@ -211,9 +212,9 @@
         <div class="flex flex-wrap gap-x-4 gap-y-2 mb-4">
             <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-purple-400"></div>Total replies</div>
             <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-amber-400"></div>Total clicks</div>
-            <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-teal-400"></div>Unique opens</div>
             <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-sky-400"></div>Total opens</div>
             <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-blue-500"></div>Sent</div>
+            <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-teal-400"></div>Opportunities</div>
         </div>
         <div class="chart-container" style="height: 400px;">
             <canvas id="mainAnalyticsChart"></canvas>
@@ -247,21 +248,75 @@
             </div>
         </div>
 
-
+{{ campaign.id|json_script:"campaign-id" }}
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         let mainAnalyticsChart;
+        let currentTimeFilter = '4w';
+        const campaignId = JSON.parse(document.getElementById('campaign-id').textContent);
 
-        const generateChartLabels = () => {
-            const labels = [];
-            const today = new Date();
-            for (let i = 15; i >= 0; i--) {
-                const date = new Date(today);
-                date.setDate(today.getDate() - i);
-                labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        // API functions
+        const fetchAnalyticsData = async (timeFilter = '4w') => {
+            try {
+                const response = await fetch(`/campaign/api/analytics/${campaignId}/?filter=${timeFilter}`);
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching analytics data:', error);
+                return null;
             }
-            return labels;
+        };
+
+        const refreshStats = async () => {
+            try {
+                const refreshBtn = document.getElementById('refresh-btn');
+                refreshBtn.disabled = true;
+                refreshBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Refreshing...';
+
+                const response = await fetch(`/campaign/api/refresh-stats/${campaignId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': Cookies.get('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Reload the chart data after a short delay
+                    setTimeout(() => {
+                        loadAnalyticsData(currentTimeFilter);
+                    }, 2000);
+                } else {
+                    console.error('Error refreshing stats:', result.message);
+                }
+            } catch (error) {
+                console.error('Error refreshing stats:', error);
+            } finally {
+                const refreshBtn = document.getElementById('refresh-btn');
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = '<i class="fa-solid fa-refresh mr-2"></i>Refresh';
+            }
+        };
+
+        // Update summary cards with new data
+        const updateSummaryCards = (summaryStats) => {
+            document.getElementById('opens-count').textContent = summaryStats.opened_count;
+            document.getElementById('open-rate').textContent = summaryStats.open_rate_percentage + '%';
+            document.getElementById('clicks-count').textContent = summaryStats.clicked_count;
+            document.getElementById('click-rate').textContent = summaryStats.click_rate_percentage + '%';
+            document.getElementById('sequence-started').textContent = summaryStats.replied_count;
+            document.getElementById('opportunities-count').textContent = summaryStats.opportunities_count;
+            document.getElementById('opportunities-value').textContent = '$' + summaryStats.opportunities_total_value.toLocaleString();
+            document.getElementById('conversions-count').textContent = summaryStats.conversions_count;
+            document.getElementById('conversions-value').textContent = '$' + summaryStats.conversions_total_value.toLocaleString();
+
+            // Update progress bar
+            document.getElementById('campaign-progress-text').textContent = summaryStats.sequence_started_rate + '%';
+            document.getElementById('campaign-progress-bar').value = summaryStats.sequence_started_rate;
         };
 
         const chartOptions = (theme) => {
@@ -333,54 +388,13 @@
             };
         };
 
-        const createOrUpdateChart = () => {
+        const createOrUpdateChart = (analyticsData) => {
             const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
             const ctx = document.getElementById('mainAnalyticsChart');
-            if (!ctx) return;
+            if (!ctx || !analyticsData) return;
 
-            const datasets = [
-                {
-                    label: 'Sent',
-                    data: [30, 35, 33, 42, 30, 37, 32, 39, 30, 32, 34, 35, 31, 34, 30, 39],
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderColor: '#3b82f6',
-                    borderWidth: 3,
-                    fill: true
-                },
-                {
-                    label: 'Total opens',
-                    data: [0, 3, 0, 0, 10, 0, 0, 0, 7, 0, 0, 0, 3, 0, 4, 0],
-                    backgroundColor: 'rgba(56, 189, 248, 0.1)',
-                    borderColor: '#38bdf8',
-                    borderWidth: 3,
-                    fill: true
-                },
-                {
-                    label: 'Unique opens',
-                    data: [0, 1, 0, 0, 4, 0, 0, 0, 3, 0, 0, 0, 1, 0, 2, 0],
-                    backgroundColor: 'rgba(45, 212, 191, 0.1)',
-                    borderColor: '#2dd4bf',
-                    borderWidth: 3,
-                    fill: true
-                },
-                {
-                    label: 'Total clicks',
-                    data: [0, 1, 0, 0, 3, 10, 0, 2, 0, 0, 0, 2, 0, 0, 1, 0],
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                    borderColor: '#f59e0b',
-                    borderWidth: 3,
-                    fill: true
-                },
-                {
-                    label: 'Total replies',
-                    data: [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
-                    backgroundColor: 'rgba(167, 139, 250, 0.1)',
-                    borderColor: '#a78bfa',
-                    borderWidth: 3,
-                    fill: true
-                }
-            ];
-
+            // Sort datasets by maximum value (lowest to highest for better visibility)
+            const datasets = [...analyticsData.chart_data.datasets];
             datasets.sort((a, b) => {
                 const maxA = Math.max(...a.data);
                 const maxB = Math.max(...b.data);
@@ -388,7 +402,7 @@
             });
 
             const chartData = {
-                labels: generateChartLabels(),
+                labels: analyticsData.chart_data.labels,
                 datasets: datasets
             };
 
@@ -405,12 +419,42 @@
             }
         };
 
-        createOrUpdateChart();
+        // Load analytics data and update chart
+        const loadAnalyticsData = async (timeFilter = '4w') => {
+            const data = await fetchAnalyticsData(timeFilter);
+            if (data && data.success) {
+                createOrUpdateChart(data);
+                updateSummaryCards(data.summary_stats);
+            }
+        };
 
+        // Time filter change handler
+        window.changeTimeFilter = (filterValue, displayText) => {
+            currentTimeFilter = filterValue;
+            document.getElementById('time-filter-text').textContent = displayText;
+
+            // Update active state in dropdown
+            document.querySelectorAll('.dropdown-content a').forEach(a => a.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Load new data
+            loadAnalyticsData(filterValue);
+        };
+
+        // Refresh chart handler
+        window.refreshChart = () => {
+            refreshStats();
+        };
+
+        // Initialize the dashboard
+        loadAnalyticsData(currentTimeFilter);
+
+        // Theme change observer
         const observer = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
-                    createOrUpdateChart();
+                    // Reload chart with current data but new theme
+                    loadAnalyticsData(currentTimeFilter);
                 }
             }
         });

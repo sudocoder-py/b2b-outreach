@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import analytics_views
 
 urlpatterns = [
     path('redirect/<str:ref_code>/', views.redirect_and_track, name='redirect_and_track_emails'),
@@ -25,5 +26,10 @@ urlpatterns = [
     path('overall-dashboard/', views.overall_dashboard_view, name='overall_dashboard'),
     path('feedback/', views.feedback_view, name='feedback'),
     path('account-settings/', views.account_settings_view, name='account_settings'),
+
+    # Analytics API endpoints
+    path('api/analytics/<int:campaign_id>/', analytics_views.campaign_analytics_data, name='campaign_analytics_data'),
+    path('api/refresh-stats/<int:campaign_id>/', analytics_views.refresh_campaign_stats, name='refresh_campaign_stats'),
+    path('api/backfill-analytics/<int:campaign_id>/', analytics_views.backfill_campaign_analytics, name='backfill_campaign_analytics'),
 ]
 

@@ -4,6 +4,7 @@ from django.conf import settings
 import logging
 from datetime import timedelta
 from .models import MessageAssignment
+from .services import AnalyticsService
 
 logger = logging.getLogger(__name__)
 
@@ -391,6 +392,163 @@ def personalize_campaign_messages_and_send_task(campaign_id, force=False):
         
     except Exception as e:
         logger.error(f"Error scheduling personalization and sending tasks: {str(e)}")
+        return {
+            'status': 'error',
+            'message': str(e),
+            'campaign_id': campaign_id
+        }
+
+
+# ============================================================================
+# ANALYTICS TASKS
+# ============================================================================
+
+@shared_task
+def calculate_daily_stats_task(campaign_id, target_date=None):
+    """
+    Celery task to calculate daily stats for a specific campaign.
+
+    Args:
+        campaign_id: ID of the Campaign
+        target_date: Date string in YYYY-MM-DD format, defaults to today
+
+    Returns:
+        dict: Results of the operation
+    """
+    try:
+        from .models import Campaign, CampaignDailyStats
+        from datetime import datetime
+
+        # Get the campaign
+        campaign = Campaign.objects.get(id=campaign_id)
+
+        # Parse target date if provided
+        if target_date:
+            target_date = datetime.strptime(target_date, '%Y-%m-%d').date()
+
+        # Calculate daily stats
+        daily_stats = CampaignDailyStats.calculate_daily_stats(campaign, target_date)
+
+        logger.info(f"Calculated daily stats for campaign {campaign.name} on {daily_stats.date}")
+
+        return {
+            'status': 'success',
+            'message': f'Daily stats calculated for {campaign.name}',
+            'campaign_id': campaign_id,
+            'date': str(daily_stats.date),
+            'emails_sent': daily_stats.emails_sent_today,
+            'opens': daily_stats.opens_today,
+            'clicks': daily_stats.clicks_today
+        }
+
+    except Campaign.DoesNotExist:
+        error_msg = f"Campaign with ID {campaign_id} not found"
+        logger.error(error_msg)
+        return {
+            'status': 'error',
+            'message': error_msg,
+            'campaign_id': campaign_id
+        }
+    except Exception as e:
+        logger.error(f"Error calculating daily stats for campaign {campaign_id}: {str(e)}")
+        return {
+            'status': 'error',
+            'message': str(e),
+            'campaign_id': campaign_id
+        }
+
+
+@shared_task
+def calculate_all_campaigns_daily_stats_task(target_date=None):
+    """
+    Celery task to calculate daily stats for all active campaigns.
+
+    Args:
+        target_date: Date string in YYYY-MM-DD format, defaults to today
+
+    Returns:
+        dict: Results of the operation
+    """
+    try:
+        from .models import Campaign
+
+        # Get all active campaigns
+        campaigns = Campaign.objects.filter(status='active')
+        count = campaigns.count()
+
+        logger.info(f"Calculating daily stats for {count} active campaigns")
+
+        # Schedule a task for each campaign
+        for campaign in campaigns:
+            calculate_daily_stats_task.delay(campaign.id, target_date)
+
+        return {
+            'status': 'success',
+            'message': f'Scheduled daily stats calculation for {count} campaigns',
+            'campaigns_count': count
+        }
+
+    except Exception as e:
+        logger.error(f"Error scheduling daily stats calculation: {str(e)}")
+        return {
+            'status': 'error',
+            'message': str(e)
+        }
+
+
+@shared_task
+def backfill_daily_stats_task(campaign_id, start_date, end_date):
+    """
+    Celery task to backfill daily stats for a campaign over a date range.
+    Useful for populating historical data.
+
+    Args:
+        campaign_id: ID of the Campaign
+        start_date: Start date string in YYYY-MM-DD format
+        end_date: End date string in YYYY-MM-DD format
+
+    Returns:
+        dict: Results of the operation
+    """
+    try:
+        from .models import Campaign
+        from datetime import datetime, timedelta
+
+        # Get the campaign
+        campaign = Campaign.objects.get(id=campaign_id)
+
+        # Parse dates
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+
+        # Calculate stats for each day in the range
+        current_date = start_date
+        days_processed = 0
+
+        while current_date <= end_date:
+            calculate_daily_stats_task.delay(campaign_id, current_date.strftime('%Y-%m-%d'))
+            current_date += timedelta(days=1)
+            days_processed += 1
+
+        logger.info(f"Scheduled backfill for {days_processed} days for campaign {campaign.name}")
+
+        return {
+            'status': 'success',
+            'message': f'Scheduled backfill for {days_processed} days',
+            'campaign_id': campaign_id,
+            'days_processed': days_processed
+        }
+
+    except Campaign.DoesNotExist:
+        error_msg = f"Campaign with ID {campaign_id} not found"
+        logger.error(error_msg)
+        return {
+            'status': 'error',
+            'message': error_msg,
+            'campaign_id': campaign_id
+        }
+    except Exception as e:
+        logger.error(f"Error scheduling backfill for campaign {campaign_id}: {str(e)}")
         return {
             'status': 'error',
             'message': str(e),

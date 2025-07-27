@@ -284,9 +284,9 @@ class CampaignLead(models.Model):
         self.opportunity_marked_at = timezone.now()
         self.save()
 
-        # Update campaign stats
-        stats, _ = CampaignStats.objects.get_or_create(campaign=self.campaign)
-        stats.update_from_campaign()
+        # 🔥 Update analytics efficiently
+        from .services import AnalyticsService
+        AnalyticsService.handle_opportunity_marked(self)
 
     def mark_as_won(self, conversion_value=None, notes=""):
         """Mark this opportunity as won (converted)"""
@@ -300,9 +300,9 @@ class CampaignLead(models.Model):
 
         self.save()
 
-        # Update campaign stats
-        stats, _ = CampaignStats.objects.get_or_create(campaign=self.campaign)
-        stats.update_from_campaign()
+        # 🔥 Update analytics efficiently
+        from .services import AnalyticsService
+        AnalyticsService.handle_conversion_marked(self)
 
     def mark_as_lost(self, notes=""):
         """Mark this opportunity as lost"""
@@ -949,17 +949,174 @@ class CampaignStats(models.Model):
     def __str__(self):
         return f"Stats for {self.campaign.name}"
 
-@receiver(post_save, sender=Link)
-def update_campaign_stats_on_link_visit(sender, instance, **kwargs):
-    """Update campaign stats when a link is visited"""
-    if instance.visit_count > 0 and instance.campaign:
-        # Get or create campaign stats
-        stats, _ = CampaignStats.objects.get_or_create(campaign=instance.campaign)
+class CampaignDailyStats(models.Model):
+    """
+    Daily snapshot of campaign metrics for time-series analytics.
+    This model stores daily aggregated data for dashboard charts.
+    """
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='daily_stats')
+    date = models.DateField(help_text="Date for this metrics snapshot")
 
-        # Update stats
-        stats.update_from_campaign()
+    # Daily counts (new events that day)
+    emails_sent_today = models.IntegerField(default=0, help_text="Emails sent on this date")
+    opens_today = models.IntegerField(default=0, help_text="New opens on this date")
+    clicks_today = models.IntegerField(default=0, help_text="New clicks on this date")
+    replies_today = models.IntegerField(default=0, help_text="New replies on this date")
+    opportunities_today = models.IntegerField(default=0, help_text="New opportunities marked on this date")
+    conversions_today = models.IntegerField(default=0, help_text="New conversions on this date")
 
-        # If this link is associated with a campaign lead, check for conversion
-        if instance.campaign_lead and instance.campaign_lead.is_converted:
-            # This could be a good place to trigger conversion tracking
-            pass
+    # Cumulative counts (total up to this date)
+    total_emails_sent = models.IntegerField(default=0)
+    total_opens = models.IntegerField(default=0)
+    total_clicks = models.IntegerField(default=0)
+    total_replies = models.IntegerField(default=0)
+    total_opportunities = models.IntegerField(default=0)
+    total_conversions = models.IntegerField(default=0)
+
+    # Value tracking
+    opportunities_value_today = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    conversions_value_today = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_opportunities_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_conversions_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('campaign', 'date')
+        ordering = ['-date']
+        indexes = [
+            models.Index(fields=['campaign', 'date']),
+            models.Index(fields=['date']),
+        ]
+
+    def __str__(self):
+        return f"{self.campaign.name} - {self.date}"
+
+    @classmethod
+    def calculate_daily_stats(cls, campaign, target_date=None):
+        """
+        Calculate and save daily stats for a campaign on a specific date.
+        If target_date is None, uses today.
+        """
+        from django.db.models import Q, Count
+        from django.utils import timezone
+
+        if target_date is None:
+            target_date = timezone.now().date()
+
+        # Get or create the daily stats record
+        daily_stats, created = cls.objects.get_or_create(
+            campaign=campaign,
+            date=target_date,
+            defaults={}
+        )
+
+        # Calculate daily metrics (events that happened on this specific date)
+        start_of_day = timezone.datetime.combine(target_date, timezone.datetime.min.time())
+        end_of_day = timezone.datetime.combine(target_date, timezone.datetime.max.time())
+
+        # Make timezone aware
+        start_of_day = timezone.make_aware(start_of_day)
+        end_of_day = timezone.make_aware(end_of_day)
+
+        # Daily counts (new events on this date)
+        daily_stats.emails_sent_today = MessageAssignment.objects.filter(
+            campaign=campaign,
+            sent_at__range=(start_of_day, end_of_day)
+        ).count()
+
+        daily_stats.opens_today = MessageAssignment.objects.filter(
+            campaign=campaign,
+            opened_at__range=(start_of_day, end_of_day)
+        ).count()
+
+        daily_stats.clicks_today = Link.objects.filter(
+            campaign=campaign,
+            visited_at__range=(start_of_day, end_of_day)
+        ).count()
+
+        daily_stats.replies_today = MessageAssignment.objects.filter(
+            campaign=campaign,
+            responded_at__range=(start_of_day, end_of_day)
+        ).count()
+
+        daily_stats.opportunities_today = CampaignLead.objects.filter(
+            campaign=campaign,
+            opportunity_marked_at__range=(start_of_day, end_of_day)
+        ).count()
+
+        daily_stats.conversions_today = CampaignLead.objects.filter(
+            campaign=campaign,
+            converted_at__range=(start_of_day, end_of_day)
+        ).count()
+
+        # Calculate cumulative totals (up to this date)
+        daily_stats.total_emails_sent = MessageAssignment.objects.filter(
+            campaign=campaign,
+            sent_at__lte=end_of_day
+        ).count()
+
+        daily_stats.total_opens = MessageAssignment.objects.filter(
+            campaign=campaign,
+            opened_at__lte=end_of_day
+        ).count()
+
+        daily_stats.total_clicks = Link.objects.filter(
+            campaign=campaign,
+            visited_at__lte=end_of_day
+        ).count()
+
+        daily_stats.total_replies = MessageAssignment.objects.filter(
+            campaign=campaign,
+            responded_at__lte=end_of_day
+        ).count()
+
+        daily_stats.total_opportunities = CampaignLead.objects.filter(
+            campaign=campaign,
+            opportunity_marked_at__lte=end_of_day
+        ).count()
+
+        daily_stats.total_conversions = CampaignLead.objects.filter(
+            campaign=campaign,
+            converted_at__lte=end_of_day
+        ).count()
+
+        # Calculate value totals
+        opportunities_today = CampaignLead.objects.filter(
+            campaign=campaign,
+            opportunity_marked_at__range=(start_of_day, end_of_day)
+        )
+        daily_stats.opportunities_value_today = sum(
+            lead.opportunity_value or 0 for lead in opportunities_today
+        )
+
+        conversions_today = CampaignLead.objects.filter(
+            campaign=campaign,
+            converted_at__range=(start_of_day, end_of_day)
+        )
+        daily_stats.conversions_value_today = sum(
+            lead.conversion_value or 0 for lead in conversions_today
+        )
+
+        # Cumulative values
+        all_opportunities = CampaignLead.objects.filter(
+            campaign=campaign,
+            opportunity_marked_at__lte=end_of_day
+        )
+        daily_stats.total_opportunities_value = sum(
+            lead.opportunity_value or 0 for lead in all_opportunities
+        )
+
+        all_conversions = CampaignLead.objects.filter(
+            campaign=campaign,
+            converted_at__lte=end_of_day
+        )
+        daily_stats.total_conversions_value = sum(
+            lead.conversion_value or 0 for lead in all_conversions
+        )
+
+        daily_stats.save()
+        return daily_stats
+
+

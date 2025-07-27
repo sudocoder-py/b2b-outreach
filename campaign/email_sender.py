@@ -65,6 +65,11 @@ def send_campaign_email(message_assignment):
             message_assignment.sent = True
             message_assignment.sent_at = timezone.now()
             message_assignment.save(update_fields=['sent', 'sent_at'])
+
+            # 🔥 Update analytics efficiently
+            from .services import AnalyticsService
+            AnalyticsService.handle_email_sent(message_assignment)
+
             return True
         else:
             logger.error(f"Failed to send email to {recipient_email}")
