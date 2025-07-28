@@ -199,9 +199,9 @@
                             <span class="text-gray-600">Replied</span>
                         </div>
                     </div>
-                    <button class="btn btn-sm btn-ghost" onclick="refreshChart()" id="refresh-btn">
+                    <!-- <button class="btn btn-sm btn-ghost" onclick="refreshChart()" id="refresh-btn">
                         <i class="fa-solid fa-refresh mr-2"></i>Refresh
-                    </button>
+                    </button> -->
                 </div>
             </div>
             
@@ -255,12 +255,12 @@
     document.addEventListener('DOMContentLoaded', function () {
         let mainAnalyticsChart;
         let currentTimeFilter = '4w';
-        const campaignId = JSON.parse(document.getElementById('campaign-id').textContent);
+        const campaignId = {{ campaign_id }};
 
         // API functions
         const fetchAnalyticsData = async (timeFilter = '4w') => {
             try {
-                const response = await fetch(`/campaign/api/analytics/${campaignId}/?filter=${timeFilter}`);
+                const response = await fetch(`/campaign/api/analytics/${campaignId}?filter=${timeFilter}`);
                 const data = await response.json();
                 return data;
             } catch (error) {
@@ -424,7 +424,7 @@
             const data = await fetchAnalyticsData(timeFilter);
             if (data && data.success) {
                 createOrUpdateChart(data);
-                updateSummaryCards(data.summary_stats);
+                // updateSummaryCards(data.summary_stats);
             }
         };
 
