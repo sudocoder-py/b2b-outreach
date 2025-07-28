@@ -11,6 +11,9 @@ import markdown
 from .dicts import timezone_options, days_options, time_options, get_default_days
 from django.contrib.postgres.fields import ArrayField
 from django.core import validators
+from django.db.models import Q, Count
+from django.utils import timezone
+
 
 
 class Campaign(models.Model):
@@ -580,7 +583,7 @@ class MessageAssignment(models.Model):
     
     campaign_lead = models.ForeignKey(CampaignLead, on_delete=models.CASCADE)
     message = models.ForeignKey(Message, on_delete=models.CASCADE)
-    url = models.ForeignKey(Link, null=True, blank=True, on_delete=models.SET_NULL, related_name='message_assignments')
+    url = models.ForeignKey(Link, null=True, blank=True, on_delete=models.SET_NULL, related_name='url_message_assignments')
     
     newsletter_link = models.ForeignKey(Link, null=True, blank=True, on_delete=models.SET_NULL, related_name='newsletter_message_assignments', help_text="Link for newsletter signup")
 
@@ -863,7 +866,6 @@ class CampaignStats(models.Model):
 
     def update_from_campaign(self):
         """Update stats based on campaign data"""
-        from django.db.models import Q
 
         # Count total leads
         campaign_leads = self.campaign.campaignlead_set.all()
@@ -999,8 +1001,6 @@ class CampaignDailyStats(models.Model):
         Calculate and save daily stats for a campaign on a specific date.
         If target_date is None, uses today.
         """
-        from django.db.models import Q, Count
-        from django.utils import timezone
 
         if target_date is None:
             target_date = timezone.now().date()

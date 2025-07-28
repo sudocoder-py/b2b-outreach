@@ -25,36 +25,36 @@
         <div class="stat-figure text-secondary">
             <i class="fa-solid fa-envelope-open text-3xl text-blue-600"></i>
         </div>
-        <div class="stat-title">Best Link CTA</div>
-        <div class="stat-value">42.3%</div>
-        <div class="stat-desc">click here if you're intersted</div>
+        <div class="stat-title">Most Opened</div>
+        <div class="stat-value">{{most_opened.open_rate}}%</div>
+        <div class="stat-desc">{{most_opened.subject}}</div>
     </div>
 
     <div class="stat">
         <div class="stat-figure text-secondary">
          <i class="fa-solid fa-mouse-pointer text-green-600 text-3xl"></i>
         </div>
-        <div class="stat-title">Most Clicked</div>
-        <div class="stat-value">38.7%</div>
-        <div class="stat-desc">Start Your Free Trial</div>
+        <div class="stat-title">Most Clicked (have a link)</div>   
+        <div class="stat-value">{{most_clicked.ctr}}%</div>
+        <div class="stat-desc">{{most_clicked.subject}}</div>
     </div>
 
     <div class="stat">
         <div class="stat-figure text-secondary">
         <i class="fa-solid fa-star text-purple-600 text-3xl"></i>
         </div>
-        <div class="stat-title">Best Engaged</div>
-        <div class="stat-value">28.9%</div>
-        <div class="stat-desc">P.S. Limited time offer!</div>
+        <div class="stat-title">Most Replied</div>
+        <div class="stat-value">{{most_replied.responded_rate}}%</div>
+        <div class="stat-desc">{{most_replied.subject}}</div>
     </div>
     
      <div class="stat">
         <div class="stat-figure text-secondary">
         <i class="fa-solid fa-chart-line text-orange-600 text-3xl"></i>
         </div>
-        <div class="stat-title">Avg. Converted</div>
-        <div class="stat-value">24.1%</div>
-        <div class="stat-desc">↑ 12% from last month</div>
+        <div class="stat-title">Most Opportunities (generated)</div>
+        <div class="stat-value">{{most_opportunity.opportunity_count}}%</div>
+        <div class="stat-desc">{{most_opportunity.subject}}</div>
     </div>
     
     </div>
@@ -100,7 +100,7 @@
                         <th class="text-left font-semibold text-gray-900">Product</th>
                         <th class="text-left font-semibold text-gray-900">Performance</th>
                         <th class="text-left font-semibold text-gray-900">Open Rate</th>
-                        <th class="text-left font-semibold text-gray-900">Click Rate</th>
+                        <th class="text-left font-semibold text-gray-900">Reply Rate</th>
                         <th class="text-left font-semibold text-gray-900">Actions</th>
                     </tr>
                 </thead>
@@ -133,51 +133,26 @@
                         <td>
                             <span class="badge badge-ghost badge-sm">{{ message.product }}</span>
                         </td>
-                        <!-- <td>
-                            <div class="flex items-center gap-2">
-                                <div class="w-16 bg-gray-200 rounded-full h-2">
-                                    <div class="
-                                        {% if message.performance >= 70 %}bg-green-500
-                                        {% elif message.performance >= 40 %}bg-yellow-500
-                                        {% else %}bg-red-500{% endif %}
-                                        h-2 rounded-full" 
-                                        style="width: {{ message.performance }}%">
-                                    </div>
-                                </div>
-                                <span class="text-sm font-medium 
-                                    {% if message.performance >= 70 %}text-green-600
-                                    {% elif message.performance >= 40 %}text-yellow-600
-                                    {% else %}text-red-600{% endif %}">
-                                    {{ message.performance }}%
-                                </span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="text-sm font-medium text-gray-900">{{ message.open_rate }}%</span>
-                        </td>
-                        <td>
-                            <span class="text-sm font-medium text-gray-900">{{ message.click_rate }}%</span>
-                        </td> -->
                          <td>
                             <div class="flex items-center gap-2">
                                 <div class="w-16 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: {{message.performance}}%"></div>
                                 </div>
-                                <span class="text-sm font-medium text-green-600">85%</span>
+                                <span class="text-sm font-medium text-green-600" title="Performance metric (opened + replied + clicked through) / 3">{{message.performance}}%</span>
                             </div>
                         </td>
                         <td>
-                            <span class="text-sm font-medium text-gray-900">42.3%</span>
+                            <span class="text-sm font-medium text-gray-900">{{message.open_rate}}%</span>
                         </td>
                         <td>
-                            <span class="text-sm font-medium text-gray-900">18.7%</span>
+                            <span class="text-sm font-medium text-gray-900">{{message.responded_rate}}%</span>
                         </td>
                         <td>
                             <div class="flex items-center gap-2">
                                 <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage({{ message.id }})" title="Duplicate">
                                     <i class="fa-solid fa-copy"></i>
                                 </button>
-                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); previewMessage({{ message.id }})" title="Preview">
+                                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); editMessage({{ message.id }})" title="Preview">
                                     <i class="fa-regular fa-eye"></i>
                                 </button>
                                 <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage({{ message.id }})" title="Delete">

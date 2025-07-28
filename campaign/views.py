@@ -13,7 +13,7 @@ import json
 
 
 from campaign.helpers import get_campaigns_and_products, get_company_email_accounts, get_company_products, get_lead_lists_or_both, get_messages_and_products, get_subscribed_company
-from .models import Campaign, CampaignOptions, CampaignStats, LeadList, Link, Message, MessageAssignment, Schedule
+from .models import Campaign, CampaignLead, CampaignOptions, CampaignStats, LeadList, Link, Message, MessageAssignment, Schedule
 import logging
 
 logger = logging.getLogger(__name__)
@@ -275,12 +275,70 @@ def messages_view(request):
     """Messages management page"""
     messages, products = get_messages_and_products(request)
 
+    message_stats = []
+
+    for message in messages:
+        # Get all assignments for this message
+        assignments = MessageAssignment.objects.filter(message=message)
+        total_assignments = assignments.count()
+
+        # Opened
+        opened_count = assignments.filter(opened=True).count()
+        open_rate = (opened_count / total_assignments * 100) if total_assignments > 0 else 0
+
+        # Replied
+        replied_count = assignments.filter(responded=True).count()
+        responded_rate = (replied_count / total_assignments * 100) if total_assignments > 0 else 0
+
+        # Links and CTR
+        links = Link.objects.filter(url_message_assignments__message=message).distinct()
+        total_clicks = sum(link.visit_count for link in links)
+        ctr = (total_clicks / total_assignments * 100) if total_assignments > 0 else 0
+
+        # Opportunities
+        opportunities = CampaignLead.objects.filter(
+            messageassignment__message=message,
+            opportunity_status__in=["positive", "won"]
+        ).distinct().count()
+
+        # Performance metric (opened + replied + clicked) / 3
+        performance = (((opened_count + replied_count + total_clicks)/3) / total_assignments * 100) if total_assignments > 0 else 0 
+
+        # Attach stats to the message object
+        message.opened_count = opened_count
+        message.open_rate = round(open_rate, 2)
+        message.responded_count = replied_count
+        message.responded_rate = round(responded_rate, 2)
+        message.clicks = total_clicks
+        message.ctr = round(ctr, 2)
+        message.performance = round(performance, 2)
+        message.opportunity_count = opportunities
+
+        message_stats.append({
+            "message": message,
+            "opened": opened_count,
+            "clicked": total_clicks,
+            "replied": replied_count,
+            "opportunities": opportunities
+        })
+
+    # Compute the "most" metrics
+    most_opened = max(message_stats, key=lambda x: x["opened"], default=None)
+    most_clicked = max(message_stats, key=lambda x: x["clicked"], default=None)
+    most_replied = max(message_stats, key=lambda x: x["replied"], default=None)
+    most_opportunity = max(message_stats, key=lambda x: x["opportunities"], default=None)
+
     context = {
         'messages': messages,
-        'products': products
+        'products': products,
+        'most_opened': most_opened["message"] if most_opened else None,
+        'most_clicked': most_clicked["message"] if most_clicked else None,
+        'most_replied': most_replied["message"] if most_replied else None,
+        'most_opportunity': most_opportunity["message"] if most_opportunity else None,
     }
 
     return render(request, "app/msgs/messages.html", context)
+
 
 
 def messages_edit_view(request, pk):

@@ -672,7 +672,7 @@ class MessageAssignmentAdminForm(forms.ModelForm):
 @admin.register(MessageAssignment)
 class MessageAssignmentAdmin(admin.ModelAdmin):
     form = MessageAssignmentAdminForm
-    list_display = ('id', 'campaign_lead', 'message', 'link_info', 'delayed_by_days', 'sent_at', 'responded', 'sent')
+    list_display = ('id', 'campaign_lead', 'message', 'link_info', 'delayed_by_days', 'sent', 'opened', 'responded', 'sent_at')
     list_filter = ('campaign', 'responded', 'delayed_by_days', 'sent_at', 'sent')
     search_fields = ('campaign_lead__lead__full_name', 'message__subject')
     
@@ -682,7 +682,7 @@ class MessageAssignmentAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Message Assignment', {
-            'fields': ('campaign', 'campaign_lead', 'message', 'create_for_all_leads', 'personlized_msg_tmp', 'personlized_msg_to_send', 'delayed_by_days', 'sent', 'sent_at', 'responded', 'responded_content')
+            'fields': ('campaign', 'campaign_lead', 'message', 'create_for_all_leads', 'personlized_msg_tmp', 'personlized_msg_to_send', 'delayed_by_days', 'sent', 'sent_at', 'opened', 'opened_at', 'responded', 'responded_at', 'responded_content')
         }),
         ('Tracking Link Parameters', {
             'classes': ('collapse',),
