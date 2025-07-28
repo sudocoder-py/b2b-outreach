@@ -416,7 +416,7 @@ class LinkAdminForm(forms.ModelForm):
 @admin.register(Link)
 class LinkAdmin(admin.ModelAdmin):
     form = LinkAdminForm
-    list_display = ('url', 'campaign', 'campaign_lead', 'purpose', 'tracking_url', 'message_assignments_count', 'visit_count', 'visited_at')
+    list_display = ('url', 'campaign', 'campaign_lead', 'purpose', 'tracking_url', 'url_message_assignments_count', 'visit_count', 'visited_at')
     list_filter = ('campaign', 'purpose', 'visit_count')
     search_fields = ('url', 'utm_campaign', 'ref', 'description')
     
@@ -455,13 +455,13 @@ class LinkAdmin(admin.ModelAdmin):
         return "-"
     tracking_url.short_description = 'Tracking URL'
     
-    def message_assignments_count(self, obj):
+    def url_message_assignments_count(self, obj):
         """Count how many message assignments use this link"""
-        count = obj.message_assignments.count()
+        count = obj.url_message_assignments.count()
         if count > 0:
             return format_html('<a href="/admin/campaign/messageassignment/?url__id__exact={}">{} assignments</a>', obj.id, count)
         return "0"
-    message_assignments_count.short_description = 'Used in Messages'
+    url_message_assignments_count.short_description = 'Used in Messages'
     
     def get_urls(self):
         urls = super().get_urls()
