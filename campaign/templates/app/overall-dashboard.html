@@ -32,18 +32,18 @@
                 </ul>
             </div>
             <div class="dropdown dropdown-end">
-                <div tabindex="0" role="button" class="btn">
+                <div tabindex="0" role="button" class="btn" id="time-filter-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                     </svg>
-                    Last 30 days
+                    <span id="time-filter-text">Last 30 days</span>
                     <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
                 <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                    <li><a>Last 7 days</a></li>
-                    <li><a class="active">Last 30 days</a></li>
-                    <li><a>This quarter</a></li>
-                    <li><a>This Year</a></li>
+                    <li><a onclick="changeTimeFilter('7d', 'Last 7 days')">Last 7 days</a></li>
+                    <li><a onclick="changeTimeFilter('30d', 'Last 30 days')" class="active">Last 30 days</a></li>
+                    <li><a onclick="changeTimeFilter('90d', 'Last 90 days')">Last 90 days</a></li>
+                    <li><a onclick="changeTimeFilter('all', 'All time')">All time</a></li>
                 </ul>
             </div>
             <button class="btn btn-primary">
@@ -60,64 +60,64 @@
         <div class="card bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm hover:shadow-md transition-shadow">
             <div class="card-body p-4">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-medium text-base-content/70">Total Sent</h2>
-                    <div class="badge badge-primary badge-sm">+12%</div>
+                    <h2 class="text-sm font-medium text-base-content/70">Sequence Started</h2>
+                    <div class="badge badge-primary badge-sm" id="sequence-badge">-</div>
                 </div>
-                <p class="text-3xl font-bold mt-1">1,284</p>
+                <p class="text-3xl font-bold mt-1" id="sequence-started-count">-</p>
                 <div class="text-xs text-primary mt-2">
-                    <span class="font-medium">↑ 142</span> from last period
+                    <span class="font-medium" id="sequence-started-rate">-</span> of total leads
                 </div>
             </div>
         </div>
-        
+
         <div class="card bg-gradient-to-br from-info/10 to-info/5 shadow-sm hover:shadow-md transition-shadow">
             <div class="card-body p-4">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-medium text-base-content/70">Open Rate</h2>
-                    <div class="badge badge-info badge-sm">+3.2%</div>
+                    <div class="badge badge-info badge-sm" id="open-badge">-</div>
                 </div>
-                <p class="text-3xl font-bold mt-1">34.2%</p>
+                <p class="text-3xl font-bold mt-1" id="open-rate">-</p>
                 <div class="text-xs text-info mt-2">
-                    <span class="font-medium">↑ 2.1%</span> from last period
+                    <span class="font-medium" id="opened-count">-</span> total opens
                 </div>
             </div>
         </div>
-        
+
         <div class="card bg-gradient-to-br from-secondary/10 to-secondary/5 shadow-sm hover:shadow-md transition-shadow">
             <div class="card-body p-4">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-medium text-base-content/70">Click Rate</h2>
-                    <div class="badge badge-secondary badge-sm">+1.5%</div>
+                    <div class="badge badge-secondary badge-sm" id="click-badge">-</div>
                 </div>
-                <p class="text-3xl font-bold mt-1">8.1%</p>
+                <p class="text-3xl font-bold mt-1" id="click-rate">-</p>
                 <div class="text-xs text-secondary mt-2">
-                    <span class="font-medium">↑ 0.8%</span> from last period
+                    <span class="font-medium" id="clicked-count">-</span> total clicks
                 </div>
             </div>
         </div>
-        
+
         <div class="card bg-gradient-to-br from-accent/10 to-accent/5 shadow-sm hover:shadow-md transition-shadow">
             <div class="card-body p-4">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-medium text-base-content/70">Reply Rate</h2>
-                    <div class="badge badge-accent badge-sm">+0.4%</div>
+                    <div class="badge badge-accent badge-sm" id="reply-badge">-</div>
                 </div>
-                <p class="text-3xl font-bold mt-1">2.3%</p>
+                <p class="text-3xl font-bold mt-1" id="reply-rate">-</p>
                 <div class="text-xs text-accent mt-2">
-                    <span class="font-medium">↑ 0.2%</span> from last period
+                    <span class="font-medium" id="replied-count">-</span> total replies
                 </div>
             </div>
         </div>
-        
+
         <div class="card bg-gradient-to-br from-success/10 to-success/5 shadow-sm hover:shadow-md transition-shadow">
             <div class="card-body p-4">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-medium text-base-content/70">Revenue</h2>
-                    <div class="badge badge-success badge-sm">+18%</div>
+                    <div class="badge badge-success badge-sm" id="revenue-badge">-</div>
                 </div>
-                <p class="text-3xl font-bold mt-1">$1,450</p>
+                <p class="text-3xl font-bold mt-1" id="revenue-total">-</p>
                 <div class="text-xs text-success mt-2">
-                    <span class="font-medium">↑ $220</span> from last period
+                    <span class="font-medium" id="opportunities-count">-</span> opportunities
                 </div>
             </div>
         </div>
@@ -165,110 +165,12 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="campaigns-table-body">
+                        <!-- Dynamic campaign rows will be inserted here -->
                         <tr>
-                            <td>
-                                <div class="flex items-center gap-3">
-                                    <div class="avatar">
-                                        <div class="w-10 rounded bg-primary/10 text-primary flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="font-bold">Summer Sale 2023</div>
-                                        <div class="text-sm opacity-50">Jun 28, 2023</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="badge badge-success badge-sm">Completed</span></td>
-                            <td>12,487</td>
-                            <td>
-                                <div class="flex items-center gap-2">
-                                    5,342
-                                    <span class="text-success text-sm">(42.8%)</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="flex items-center gap-2">
-                                    1,061
-                                    <span class="text-success text-sm">(8.5%)</span>
-                                </div>
-                            </td>
-                            <td class="text-success font-medium">$850</td>
-                            <td>
-                                <button class="btn btn-ghost btn-xs">View</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="flex items-center gap-3">
-                                    <div class="avatar">
-                                        <div class="w-10 rounded bg-info/10 text-info flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="font-bold">New Feature Launch</div>
-                                        <div class="text-sm opacity-50">Jun 20, 2023</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="badge badge-success badge-sm">Completed</span></td>
-                            <td>10,245</td>
-                            <td>
-                                <div class="flex items-center gap-2">
-                                    4,872
-                                    <span class="text-success text-sm">(39.0%)</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="flex items-center gap-2">
-                                    873
-                                    <span class="text-success text-sm">(7.0%)</span>
-                                </div>
-                            </td>
-                            <td class="text-success font-medium">$600</td>
-                            <td>
-                                <button class="btn btn-ghost btn-xs">View</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="flex items-center gap-3">
-                                    <div class="avatar">
-                                        <div class="w-10 rounded bg-warning/10 text-warning flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="font-bold">Abandoned Cart</div>
-                                        <div class="text-sm opacity-50">Sending now</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="badge badge-warning badge-sm">Active</span></td>
-                            <td>3,452 / 8,921</td>
-                            <td>
-                                <div class="flex items-center gap-2">
-                                    <span class="loading loading-spinner loading-xs"></span>
-                                    Tracking...
-                                </div>
-                            </td>
-                            <td>
-                                <div class="flex items-center gap-2">
-                                    <span class="loading loading-spinner loading-xs"></span>
-                                    Tracking...
-                                </div>
-                            </td>
-                            <td>-</td>
-                            <td>
-                                <button class="btn btn-ghost btn-xs">Pause</button>
+                            <td colspan="7" class="text-center py-8">
+                                <div class="loading loading-spinner loading-md"></div>
+                                <p class="mt-2 text-base-content/60">Loading campaigns...</p>
                             </td>
                         </tr>
                     </tbody>
@@ -284,16 +186,41 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         let mainAnalyticsChart;
+        let currentTimeFilter = '30d';
 
-        const generateChartLabels = () => {
-            const labels = [];
-            const today = new Date();
-            for (let i = 15; i >= 0; i--) {
-                const date = new Date(today);
-                date.setDate(today.getDate() - i);
-                labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        // API functions
+        const fetchOverallAnalyticsData = async (timeFilter = '30d') => {
+            try {
+                const response = await fetch(`/campaign/api/overall-analytics/?filter=${timeFilter}`);
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching overall analytics data:', error);
+                return null;
             }
-            return labels;
+        };
+
+        // Update summary cards with new data
+        const updateSummaryCards = (summaryStats) => {
+            document.getElementById('sequence-started-count').textContent = summaryStats.sequence_started_count.toLocaleString();
+            document.getElementById('sequence-started-rate').textContent = `${summaryStats.sequence_started_rate}%`;
+            document.getElementById('sequence-badge').textContent = `${summaryStats.sequence_started_rate}%`;
+
+            document.getElementById('open-rate').textContent = `${summaryStats.open_rate_percentage}%`;
+            document.getElementById('opened-count').textContent = summaryStats.opened_count.toLocaleString();
+            document.getElementById('open-badge').textContent = `${summaryStats.open_rate_percentage}%`;
+
+            document.getElementById('click-rate').textContent = `${summaryStats.click_rate_percentage}%`;
+            document.getElementById('clicked-count').textContent = summaryStats.clicked_count.toLocaleString();
+            document.getElementById('click-badge').textContent = `${summaryStats.click_rate_percentage}%`;
+
+            document.getElementById('reply-rate').textContent = `${summaryStats.reply_rate_percentage}%`;
+            document.getElementById('replied-count').textContent = summaryStats.replied_count.toLocaleString();
+            document.getElementById('reply-badge').textContent = `${summaryStats.reply_rate_percentage}%`;
+
+            document.getElementById('revenue-total').textContent = `$${summaryStats.conversions_total_value.toLocaleString()}`;
+            document.getElementById('opportunities-count').textContent = summaryStats.opportunities_count.toLocaleString();
+            document.getElementById('revenue-badge').textContent = `$${summaryStats.opportunities_total_value.toLocaleString()}`;
         };
 
         const chartOptions = (theme) => {
@@ -329,21 +256,70 @@
             };
         };
 
-        const createOrUpdateChart = () => {
+        // Update campaigns table
+        const updateCampaignsTable = (campaigns) => {
+            const tbody = document.getElementById('campaigns-table-body');
+
+            if (campaigns.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-8">
+                            <p class="text-base-content/60">No campaigns found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = campaigns.map(campaign => {
+                const statusBadge = campaign.status === 'active' ? 'badge-success' :
+                                  campaign.status === 'draft' ? 'badge-warning' : 'badge-info';
+                const statusText = campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1);
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="avatar">
+                                    <div class="w-10 rounded bg-primary/10 text-primary flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="font-bold">${campaign.name}</div>
+                                    <div class="text-sm opacity-50">${campaign.created_at}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge ${statusBadge} badge-sm">${statusText}</span></td>
+                        <td>${campaign.sequence_started_count.toLocaleString()}</td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                ${campaign.opened_count.toLocaleString()}
+                                <span class="text-success text-sm">(${campaign.open_rate_percentage}%)</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                ${campaign.clicked_count.toLocaleString()}
+                                <span class="text-success text-sm">(${campaign.click_rate_percentage}%)</span>
+                            </div>
+                        </td>
+                        <td class="text-success font-medium">$${campaign.conversions_total_value.toLocaleString()}</td>
+                        <td>
+                            <a href="/campaign/dashboard/${campaign.id}/" class="btn btn-ghost btn-xs">View</a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        };
+
+        const createOrUpdateChart = (chartData) => {
             const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
             const ctx = document.getElementById('mainAnalyticsChart');
             if (!ctx) return;
-
-            const chartData = {
-                labels: generateChartLabels(),
-                datasets: [
-                    { label: 'Sent', data: [50, 55, 60, 62, 65, 70, 72, 75, 80, 82, 85, 90, 95, 100, 110, 120], backgroundColor: '#3b82f6', barThickness: 10, borderRadius: 5 },
-                    { label: 'Total opens', data: [15, 18, 22, 25, 28, 30, 32, 35, 40, 42, 45, 50, 55, 60, 65, 70], backgroundColor: '#38bdf8', barThickness: 10, borderRadius: 5 },
-                    { label: 'Unique opens', data: [12, 15, 18, 20, 22, 25, 28, 30, 33, 35, 38, 42, 45, 48, 52, 55], backgroundColor: '#2dd4bf', barThickness: 10, borderRadius: 5 },
-                    { label: 'Total replies', data: [2, 3, 3, 4, 5, 5, 6, 7, 8, 8, 9, 10, 11, 12, 13, 15], backgroundColor: '#a78bfa', barThickness: 10, borderRadius: 5 },
-                    { label: 'Total clicks', data: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 25], backgroundColor: '#f59e0b', barThickness: 10, borderRadius: 5 }
-                ]
-            };
 
             if (mainAnalyticsChart) {
                 mainAnalyticsChart.data = chartData;
@@ -358,15 +334,41 @@
             }
         };
 
-        // Initial chart creation
-        createOrUpdateChart();
+        // Load and display analytics data
+        const loadAnalyticsData = async (timeFilter = '30d') => {
+            const data = await fetchOverallAnalyticsData(timeFilter);
+            if (data && data.success) {
+                updateSummaryCards(data.summary_stats);
+                createOrUpdateChart(data.chart_data);
+                updateCampaignsTable(data.campaigns);
+            }
+        };
+
+        // Time filter change handler
+        window.changeTimeFilter = (filter, text) => {
+            currentTimeFilter = filter;
+            document.getElementById('time-filter-text').textContent = text;
+
+            // Update active state
+            document.querySelectorAll('.dropdown-content a').forEach(a => a.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Reload data
+            loadAnalyticsData(filter);
+        };
+
+        // Initial data load
+        loadAnalyticsData(currentTimeFilter);
 
         // Optional: If you have a theme switcher in your base template,
         // this will listen for changes and update the chart.
         const observer = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
-                    createOrUpdateChart();
+                    if (mainAnalyticsChart) {
+                        mainAnalyticsChart.options = chartOptions(mutation.target.getAttribute('data-theme'));
+                        mainAnalyticsChart.update();
+                    }
                 }
             }
         });

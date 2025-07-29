@@ -28,8 +28,10 @@ class Campaign(models.Model):
     name = models.CharField(max_length=255)
     short_name = models.SlugField(unique=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_campaigns')
-    start_date = models.DateTimeField(default=timezone.now)
+    start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(null=True, blank=True)
+
+    created_at = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
     status= models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
 
