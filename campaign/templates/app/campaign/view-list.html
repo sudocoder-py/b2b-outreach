@@ -92,7 +92,11 @@
                                     max="100">
                                 </progress>
                                 <span class="text-sm font-medium text-gray-600">
-                                    {{ campaign.campaign_stats.sequence_started_count|div:campaign.campaign_stats.total_leads|mul:100|floatformat:0 }}% : {{ campaign.campaign_stats.sequence_started_count }} / {{ campaign.campaign_stats.total_leads }}
+                                    {% if campaign.campaign_stats.total_leads > 0 %}
+                                        {{ campaign.campaign_stats.sequence_started_count|div:campaign.campaign_stats.total_leads|mul:100|floatformat:0 }}% : {{ campaign.campaign_stats.sequence_started_count }} / {{ campaign.campaign_stats.total_leads }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
                                 </span>
                             </div>
                         </td>

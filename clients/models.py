@@ -215,7 +215,7 @@ class EmailAccount(models.Model):
     # Optional sender profile settings
     sender_name = models.CharField(max_length=255, blank=True)
     sender_signature = models.TextField(blank=True)
-    default_from_email = models.EmailField(blank=True)
+    default_from_email = models.CharField(max_length=255, blank=True)
 
     # For Gmail/Outlook/Yahoo OAuth2
     access_token = models.TextField(blank=True)

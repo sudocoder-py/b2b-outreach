@@ -41,6 +41,35 @@
 #dropdownList {
     max-width: calc(100% - 2px); /* Adjust as needed */
 }
+
+/* Launch button animations */
+#launch-btn {
+    transition: all 0.3s ease;
+}
+
+#launch-btn:not(.btn-disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+#launch-btn.btn-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Status indicators */
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .5;
+    }
+}
 </style>
 
         <!-- Options Container -->
@@ -159,15 +188,67 @@
                 </div>
             </form>
 
+            <!-- Campaign Status Card (if campaign is active) -->
+            {% if campaign.status == 'active' %}
+            <div class="card bg-gradient-to-r from-green-50 to-green-100 border-green-200 p-6 rounded-lg shadow-sm mt-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                        <div>
+                            <h3 class="font-bold text-green-800 text-base">Campaign is Active</h3>
+                            <p class="text-sm text-green-600 mt-1">Your campaign is currently running and sending emails</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline btn-success" onclick="checkCampaignStatus()">
+                        <i class="fas fa-chart-line mr-2"></i> View Progress
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Action Buttons -->
             <div class="flex justify-center mt-10 space-x-4">
                 <button class="btn btn-outline btn-primary" onclick="saveOptions()">
-                    <i class="fas fa-save mr-2"></i> Save
+                    <i class="fas fa-save mr-2"></i> Save Options
                 </button>
-                <button class="btn btn-primary" onclick="launchCampaign()">
-                    <i class="fas fa-rocket mr-2"></i> Launch
-                </button>
+
+                {% if campaign.status == 'active' %}
+                    <button class="btn btn-success" onclick="window.location.href='/campaign/dashboard/{{ campaign_id }}'">
+                        <i class="fas fa-chart-line mr-2"></i> View Dashboard
+                    </button>
+                {% else %}
+                    <button class="btn btn-primary btn-lg" onclick="launchCampaign()" id="launch-btn">
+                        <i class="fas fa-rocket mr-2"></i> Launch Campaign
+                    </button>
+                {% endif %}
             </div>
+
+            <!-- Launch Requirements Info -->
+            {% if campaign.status != 'active' %}
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 class="font-semibold text-blue-800 mb-2">
+                    <i class="fas fa-info-circle mr-2"></i>Before launching your campaign:
+                </h4>
+                <ul class="text-sm text-blue-700 space-y-1">
+                    <li class="flex items-center gap-2">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        Select at least one active email account
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        Configure your sending preferences
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        Set appropriate daily limits
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="fas fa-info-circle text-blue-500"></i>
+                        Make sure your campaign has message assignments and leads
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
         </div>
 
 <script>
@@ -254,6 +335,7 @@
           campaignOptions.emailAccounts = selectedEmails;
           renderSelected();
           updateDailyLimit();
+          validateCampaignReadiness();
           searchInput.value = "";
           filterEmails();
         }
@@ -265,6 +347,7 @@
       campaignOptions.emailAccounts = selectedEmails;
       renderSelected();
       updateDailyLimit();
+      validateCampaignReadiness();
       filterEmails();
     }
 
@@ -364,7 +447,7 @@
             return;
         }
         
-        fetch('/api/campaign-options/{% if campaign_options %}{{ campaign_options.id }}{% else %}0{% endif %}/', {
+        fetch('/api/campaign-options/{% if campaign_options %}{{ campaign_options.id }}/{% else %}{% endif %}', {
             method: {% if campaign_options %}'PUT'{% else %}'POST'{% endif %},
             headers: {
                 'Content-Type': 'application/json',
@@ -386,7 +469,7 @@
         });
     }
 
-    // Launch campaign - TODO: Implement actual launch functionality
+    // Launch campaign with real API integration
     function launchCampaign() {
         // Validate required fields
         if (campaignOptions.emailAccounts.length === 0) {
@@ -394,56 +477,181 @@
             return;
         }
 
-        ModalSystem.confirm({
-            title: 'Launch Campaign',
-            message: 'Are you sure you want to launch this campaign? ',
-            confirmText: 'Launch',
-            confirmClass: 'btn-primary',
-            action: () => {
-                ModalSystem.loading('Launching campaign...');
+        // First save options before launching
+        saveOptionsBeforeLaunch().then(() => {
+            ModalSystem.confirm({
+                title: 'Launch Campaign',
+                message: `Are you sure you want to launch this campaign? This will start sending emails to all leads using ${campaignOptions.emailAccounts.length} email account(s).`,
+                confirmText: 'Launch Campaign',
+                confirmClass: 'btn-primary',
+                action: () => {
+                    performCampaignLaunch();
+                }
+            });
+        }).catch(error => {
+            ModalSystem.toast('Please save campaign options first before launching.', 'error');
+        });
+    }
 
-                setTimeout(() => {
-                    ModalSystem.hideLoading();
-                    ModalSystem.success({
-                        title: 'Campaign Launched!',
-                        message: 'Your campaign has been successfully launched and is now active.',
-                        action: () => {
-                            // Redirect to dashboard
-                            window.location.href = '/campaign/dashboard/{{campaign_id}}';
-                        }
-                    });
-                }, 2000);
-                
-                // TODO: Implement actual launch API call
-                /*
-                fetch('/api/campaign/{{ campaign_id }}/launch/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify(campaignOptions)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    window.ModalSystem.hideLoading();
-                    if (data.success) {
-                        window.ModalSystem.success({
-                            title: 'Campaign Launched!',
-                            message: 'Your campaign has been successfully launched and is now active.',
-                            action: () => {
-                                window.location.href = '/campaign/dashboard/{{campaign_id}}';
-                            }
-                        });
-                    } else {
-                        window.ModalSystem.error(data.message || 'Failed to launch campaign');
+    // Save options before launch (without showing success message)
+    function saveOptionsBeforeLaunch() {
+        return new Promise((resolve, reject) => {
+            const campaignOptionsToSave = {
+                campaign: {{ campaign_id }},
+                email_accounts: campaignOptions.emailAccounts.map(email => email.email_id),
+                stop_on_reply: campaignOptions.stopOnReply,
+                open_tracking_enabled: campaignOptions.openTracking,
+                link_tracking_enabled: campaignOptions.linkTracking,
+                send_as_text_only: campaignOptions.textOnly,
+                send_first_email_as_text_only: campaignOptions.firstEmailTextOnly,
+                daily_limit: campaignOptions.dailyLimit
+            };
+
+            fetch('/api/campaign-options/{% if campaign_options %}{{ campaign_options.id }}{% else %}0{% endif %}/', {
+                method: {% if campaign_options %}'PUT'{% else %}'POST'{% endif %},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify(campaignOptionsToSave)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to save options');
+                }
+                resolve();
+            })
+            .catch(error => {
+                reject(error);
+            });
+        });
+    }
+
+    // Perform the actual campaign launch
+    function performCampaignLaunch() {
+        ModalSystem.loading('Launching campaign...');
+
+        fetch('/api/campaigns/{{ campaign_id }}/launch/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            ModalSystem.hideLoading();
+
+            if (data.success) {
+                ModalSystem.success({
+                    title: 'Campaign Launched Successfully!',
+                    message: `Your campaign "${data.campaign_name}" has been launched! ${data.pending_emails} emails are being processed and will be sent according to your schedule.`,
+                    action: () => {
+                        // Redirect to dashboard to monitor progress
+                        window.location.href = '/campaign/dashboard/{{ campaign_id }}';
                     }
-                })
-                .catch(error => {
-                    window.ModalSystem.hideLoading();
-                    window.ModalSystem.error('Failed to launch campaign');
                 });
-                */
+            } else {
+                ModalSystem.error({
+                    title: 'Launch Failed',
+                    message: data.message || 'Failed to launch campaign. Please check your settings and try again.'
+                });
+            }
+        })
+        .catch(error => {
+            ModalSystem.hideLoading();
+            console.error('Launch error:', error);
+            ModalSystem.error({
+                title: 'Launch Error',
+                message: 'An unexpected error occurred while launching the campaign. Please try again.'
+            });
+        });
+    }
+
+    // Add function to check campaign status (optional - for monitoring)
+    function checkCampaignStatus() {
+        fetch('/api/campaigns/{{ campaign_id }}/status/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Campaign Status:', data);
+
+                // Show status modal with detailed information
+                ModalSystem.info({
+                    title: 'Campaign Status',
+                    message: `
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span>Campaign:</span>
+                                <span class="font-semibold">${data.campaign_name}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Status:</span>
+                                <span class="badge badge-${data.campaign_status === 'active' ? 'success' : 'warning'}">${data.campaign_status}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Total Emails:</span>
+                                <span class="font-semibold">${data.statistics.total_message_assignments}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Sent:</span>
+                                <span class="font-semibold text-green-600">${data.statistics.sent_emails}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Pending:</span>
+                                <span class="font-semibold text-blue-600">${data.statistics.pending_emails}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Progress:</span>
+                                <span class="font-semibold">${data.statistics.completion_percentage}%</span>
+                            </div>
+                        </div>
+                    `
+                });
+
+                return data;
+            }
+        })
+        .catch(error => {
+            console.error('Status check error:', error);
+            ModalSystem.toast('Failed to fetch campaign status', 'error');
+        });
+    }
+
+    // Validate campaign readiness for launch
+    function validateCampaignReadiness() {
+        const launchBtn = document.getElementById('launch-btn');
+        const requirements = document.querySelectorAll('.requirement-item');
+
+        if (!launchBtn) return; // Campaign is already active
+
+        let isReady = true;
+
+        // Check if email accounts are selected
+        if (campaignOptions.emailAccounts.length === 0) {
+            isReady = false;
+        }
+
+        // Update launch button state
+        if (isReady) {
+            launchBtn.disabled = false;
+            launchBtn.classList.remove('btn-disabled');
+            launchBtn.classList.add('btn-primary');
+        } else {
+            launchBtn.disabled = true;
+            launchBtn.classList.add('btn-disabled');
+            launchBtn.classList.remove('btn-primary');
+        }
+    }
+
+    // Connect new email account function
+    function connectNewAccount() {
+        ModalSystem.info({
+            title: 'Connect New Email Account',
+            message: 'To connect a new email account, please go to the Email Accounts section in your dashboard and add a new account. Once added, it will appear in this list.',
+            action: () => {
+                // Redirect to email accounts page
+                window.location.href = '/campaign/email-accounts/';
             }
         });
     }
@@ -453,10 +661,13 @@
         // Set initial toggle states
         toggleOption('stopOnReply', campaignOptions.stopOnReply);
         toggleOption('openTracking', campaignOptions.openTracking);
-        
+
         // Render selected emails
         renderSelected();
         updateDailyLimit();
+
+        // Validate campaign readiness
+        validateCampaignReadiness();
     });
 </script>
 

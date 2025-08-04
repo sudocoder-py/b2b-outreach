@@ -402,7 +402,7 @@ function saveSchedule() {
     };
 
     // Send POST request
-    fetch('/api/schedule/{% if not schedule %}/{% else %}{{ schedule.0.id }}/{% endif %}', {
+    fetch('/api/schedule/{% if not schedule %}{% else %}{{ schedule.0.id }}/{% endif %}', {
         method: {% if not schedule %}'POST'{% else %}'PUT'{% endif %},
         headers: {
             'Content-Type': 'application/json',
