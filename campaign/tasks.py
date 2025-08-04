@@ -186,7 +186,7 @@ def send_campaign_emails_task(campaign, only_personalized=True):
         
         # Create a task for each message assignment
         for message_assignment in query:
-            send_email_task.delay(message_assignment.id, campaign_id)
+            send_email_task.delay(message_assignment.id, campaign)
             
         return {
             'status': 'success',
@@ -344,9 +344,9 @@ def send_campaign_emails_task(campaign, only_personalized=True):
 #         }
 
 @shared_task
-def personlize_and_send_all_emails_at_once(campaign):
+def personalize_and_send_all_emails_at_once(campaign):
     """
-    Celery task to personlize and send all emails at once for a specific campaign.
+    Celery task to personalize and send all emails at once for a specific campaign.
 
     Args:
         campaign: the Campaign
@@ -354,10 +354,31 @@ def personlize_and_send_all_emails_at_once(campaign):
     Returns:
         dict: Results of the operation
     """
-    campaign_id= campaign.id
+    try:
+        campaign_id = campaign.id
+        logger.info(f"Starting personalize and send process for campaign {campaign_id}")
 
-    personalize_campaign_messages_task(campaign=campaign, force=False)
-    send_campaign_emails_task(campaign=campaign, only_personalized=True)
+        # First personalize all messages
+        personalize_result = personalize_campaign_messages_task.delay(campaign=campaign, force=False)
+
+        # Then send all personalized emails
+        send_result = send_campaign_emails_task.delay(campaign=campaign, only_personalized=True)
+
+        return {
+            'status': 'success',
+            'message': f'Campaign {campaign_id} launch initiated successfully',
+            'campaign_id': campaign_id,
+            'personalize_task_id': personalize_result.id if hasattr(personalize_result, 'id') else None,
+            'send_task_id': send_result.id if hasattr(send_result, 'id') else None
+        }
+
+    except Exception as e:
+        logger.error(f"Error launching campaign {campaign.id}: {str(e)}")
+        return {
+            'status': 'error',
+            'message': str(e),
+            'campaign_id': campaign.id
+        }
 
 # ============================================================================
 # ANALYTICS TASKS

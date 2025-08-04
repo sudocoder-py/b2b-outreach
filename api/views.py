@@ -62,7 +62,7 @@ class CampaignListCreateView(generics.ListCreateAPIView):
 
 class CampaignRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Campaign.objects.all()
-    serializer_class = CampaignSerializer    
+    serializer_class = CampaignSerializer
 
 
 class MessageListCreateView(generics.ListCreateAPIView):
@@ -435,6 +435,132 @@ class CampaignOptionsListCreateView(generics.ListCreateAPIView):
 class CampaignOptionsRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CampaignOptions.objects.all()
     serializer_class = CampaignOptionsSerializer    
+
+
+
+
+
+@api_view(['POST'])
+def launch_campaign(request, pk):
+    """
+    Launch a campaign by personalizing and sending all emails
+    """
+    try:
+        campaign = get_object_or_404(Campaign, pk=pk)
+
+        # Check if campaign has email accounts assigned
+        campaign_options = campaign.campaign_options.first()
+        if not campaign_options:
+            return Response({
+                'success': False,
+                'message': 'Campaign has no options configured. Please configure campaign options first.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if not campaign_options.email_accounts.filter(status='active').exists():
+            return Response({
+                'success': False,
+                'message': 'No active email accounts assigned to this campaign. Please assign email accounts first.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if campaign has message assignments
+        message_assignments_count = MessageAssignment.objects.filter(
+            campaign=campaign,
+            sent=False
+        ).count()
+
+        if message_assignments_count == 0:
+            return Response({
+                'success': False,
+                'message': 'No pending message assignments found for this campaign. Please create message assignments first.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Launch the campaign using Celery task
+        from campaign.tasks import personalize_and_send_all_emails_at_once
+
+        # Start the async task
+        task_result = personalize_and_send_all_emails_at_once.delay(campaign)
+
+        # Update campaign status to active if it's not already
+        if campaign.status != 'active':
+            campaign.status = 'active'
+            campaign.save(update_fields=['status'])
+
+        return Response({
+            'success': True,
+            'message': f'Campaign "{campaign.name}" launched successfully',
+            'campaign_id': campaign.id,
+            'campaign_name': campaign.name,
+            'pending_emails': message_assignments_count,
+            'task_id': task_result.id if hasattr(task_result, 'id') else None,
+            'status': 'launched'
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'Error launching campaign: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def campaign_launch_status(request, pk):
+    """
+    Get the launch status and statistics for a campaign
+    """
+    try:
+        campaign = get_object_or_404(Campaign, pk=pk)
+
+        # Get message assignment statistics
+        total_assignments = MessageAssignment.objects.filter(campaign=campaign).count()
+        sent_assignments = MessageAssignment.objects.filter(campaign=campaign, sent=True).count()
+        pending_assignments = total_assignments - sent_assignments
+
+        # Get personalization statistics
+        personalized_assignments = MessageAssignment.objects.filter(
+            campaign=campaign,
+            personlized_msg_to_send__gt=''
+        ).count()
+
+        # Get email account information
+        campaign_options = campaign.campaign_options.first()
+        email_accounts_info = []
+
+        if campaign_options:
+            email_accounts = campaign_options.email_accounts.filter(status='active')
+            for account in email_accounts:
+                email_accounts_info.append({
+                    'email': account.email,
+                    'emails_sent_today': account.emails_sent,
+                    'daily_limit': account.daily_limit,
+                    'remaining_capacity': account.daily_limit - account.emails_sent
+                })
+
+        return Response({
+            'success': True,
+            'campaign_id': campaign.id,
+            'campaign_name': campaign.name,
+            'campaign_status': campaign.status,
+            'statistics': {
+                'total_message_assignments': total_assignments,
+                'sent_emails': sent_assignments,
+                'pending_emails': pending_assignments,
+                'personalized_messages': personalized_assignments,
+                'completion_percentage': round((sent_assignments / total_assignments * 100) if total_assignments > 0 else 0, 2)
+            },
+            'email_accounts': email_accounts_info,
+            'is_complete': pending_assignments == 0
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'Error getting campaign status: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
 
 
 

@@ -11,6 +11,9 @@ urlpatterns = [
 
     path('campaigns/', views.CampaignListCreateView.as_view(), name='campaign-list-create'),
     path('campaigns/<int:pk>/', views.CampaignRetrieveUpdateDestroyView.as_view(), name='campaign-detail'),
+    
+    path('campaigns/<int:pk>/launch/', views.launch_campaign, name='campaign-launch'),
+    path('campaigns/<int:pk>/status/', views.campaign_launch_status, name='campaign-launch-status'),
 
     path('messages/', views.MessageListCreateView.as_view(), name='message-list-create'),
     path('messages/<int:pk>/', views.MessageRetrieveUpdateDestroyView.as_view(), name='message-detail'),    

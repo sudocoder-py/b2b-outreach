@@ -163,6 +163,7 @@ def send_campaign_email(message_assignment, campaign):
 
     Args:
         message_assignment: MessageAssignment object to send
+        campaign: Campaign object (for email account selection)
 
     Returns:
         bool: True if successful, False otherwise, or "already sent" if already sent
