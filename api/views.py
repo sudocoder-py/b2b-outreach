@@ -34,6 +34,28 @@ class EmailAccountRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
     serializer_class = EmailAccountSerializer
 
 
+@api_view(['POST'])
+def test_email_account_connection(request, pk):
+    """
+    Test the connection for a specific email account
+    """
+    try:
+        email_account = get_object_or_404(EmailAccount, pk=pk)
+        result = email_account.test_connection()
+
+        return Response({
+            'success': result['success'],
+            'message': result['message'],
+            'account_email': email_account.email
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'Error testing connection: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class CampaignListCreateView(generics.ListCreateAPIView):
     queryset = Campaign.objects.all()
     serializer_class = CampaignSerializer

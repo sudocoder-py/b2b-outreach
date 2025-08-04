@@ -7,6 +7,7 @@ urlpatterns = [
     
     path('email-accounts/', views.EmailAccountListCreateView.as_view(), name='email-account-list-create'),
     path('email-accounts/<int:pk>/', views.EmailAccountRetrieveUpdateDestroyView.as_view(), name='email-account-detail'),
+    path('email-accounts/<int:pk>/test-connection/', views.test_email_account_connection, name='email-account-test-connection'),
 
     path('campaigns/', views.CampaignListCreateView.as_view(), name='campaign-list-create'),
     path('campaigns/<int:pk>/', views.CampaignRetrieveUpdateDestroyView.as_view(), name='campaign-detail'),

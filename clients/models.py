@@ -238,5 +238,12 @@ class EmailAccount(models.Model):
         return self.connection_type == 'imap/smtp'
     
     def test_connection(self):
-        pass 
+        """
+        Test the connection for this email account
+
+        Returns:
+            dict: {'success': bool, 'message': str}
+        """
+        from campaign.email_sender import test_email_account_connection
+        return test_email_account_connection(self)
 
