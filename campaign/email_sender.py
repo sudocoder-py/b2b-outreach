@@ -45,11 +45,15 @@ def get_available_email_account(campaign):
         EmailAccount object or None if no account is available
     """
     try:
+        logger.info(f"📧 Finding available email account for campaign: {campaign.name} (ID: {campaign.id})")
+
         # Get campaign options to find assigned email accounts
         campaign_options = campaign.campaign_options.first()
         if not campaign_options:
-            logger.error(f"No campaign options found for campaign {campaign.id}")
+            logger.error(f"❌ No campaign options found for campaign {campaign.id}")
             return None
+
+        logger.info(f"✅ Campaign options found (ID: {campaign_options.id})")
 
         # Get email accounts assigned to this campaign
         email_accounts = campaign_options.email_accounts.filter(
@@ -57,23 +61,30 @@ def get_available_email_account(campaign):
         ).order_by('?')  # Random order for load balancing
 
         if not email_accounts.exists():
-            logger.error(f"No active email accounts found for campaign {campaign.id}")
+            logger.error(f"❌ No active email accounts found for campaign {campaign.id}")
             return None
+
+        logger.info(f"✅ Found {email_accounts.count()} active email accounts for campaign {campaign.id}")
 
         # Check daily limits and find available account
         today = date.today()
 
         for account in email_accounts:
+            logger.info(f"🔍 Checking account: {account.email} (sent: {account.emails_sent}/{account.daily_limit})")
             # Check if account has reached daily limit
             if account.emails_sent < account.daily_limit:
-                logger.info(f"Selected email account: {account.email} (sent: {account.emails_sent}/{account.daily_limit})")
+                logger.info(f"✅ Selected email account: {account.email} (sent: {account.emails_sent}/{account.daily_limit})")
                 return account
+            else:
+                logger.warning(f"⚠️ Account {account.email} has reached daily limit ({account.emails_sent}/{account.daily_limit})")
 
-        logger.warning(f"All email accounts for campaign {campaign.id} have reached their daily limits")
+        logger.warning(f"❌ All email accounts for campaign {campaign.id} have reached their daily limits")
         return None
 
     except Exception as e:
-        logger.error(f"Error getting available email account: {str(e)}")
+        logger.error(f"💥 Error getting available email account for campaign {campaign.id}: {str(e)}")
+        import traceback
+        logger.error(f"💥 Full traceback:\n{traceback.format_exc()}")
         return None
 
 

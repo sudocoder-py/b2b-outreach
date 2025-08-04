@@ -63,7 +63,7 @@ class Campaign(models.Model):
             'short_name': self.short_name,
             'product_name': self.product.name,
             'product_description': self.product.description,
-            'start_date': self.start_date.isoformat(),
+            'start_date': self.start_date.isoformat() if self.start_date else None,
             'end_date': self.end_date.isoformat() if self.end_date else None
         }
 
@@ -759,25 +759,47 @@ class MessageAssignment(models.Model):
     def personalize_with_ai(self, skip=True):
         """
         Use AI to personalize this message and save the result.
-        
+
         Returns:
             bool: True if successful, False otherwise
         """
         try:
-            from campaign.ai_service import personalize_message
-            
-            # Get personalized text
-            personalized_text = personalize_message(self, skip=skip)
-            
-            # Save it to the database
-            self.personlized_msg_to_send = personalized_text
-            self.save(update_fields=['personlized_msg_to_send'])
-            
-            return True
-        except Exception as e:
             import logging
             logger = logging.getLogger(__name__)
-            logger.error(f"Error personalizing message: {str(e)}")
+            logger.info(f"📝 Starting personalization for message assignment {self.id}")
+
+            from campaign.ai_service import personalize_message
+
+            # Get personalized text
+            logger.info(f"🔄 Calling AI service for personalization (skip={skip})")
+            personalized_text = personalize_message(self, skip=skip)
+
+            if personalized_text:
+                # Save it to the database
+                self.personlized_msg_to_send = personalized_text
+                self.save(update_fields=['personlized_msg_to_send'])
+                logger.info(f"✅ Successfully personalized message assignment {self.id}")
+                return True
+            else:
+                logger.error(f"❌ AI service returned empty personalized text for assignment {self.id}")
+                return False
+
+        except Exception as e:
+            import logging
+            import traceback
+            logger = logging.getLogger(__name__)
+            logger.error(f"💥 Error personalizing message assignment {self.id}: {str(e)}")
+            logger.error(f"💥 Error type: {type(e).__name__}")
+            logger.error(f"💥 Full traceback:\n{traceback.format_exc()}")
+
+            # Try to provide more context about the error
+            try:
+                logger.error(f"💥 Campaign: {self.campaign_lead.campaign.name if self.campaign_lead and self.campaign_lead.campaign else 'None'}")
+                logger.error(f"💥 Lead: {self.campaign_lead.lead.email if self.campaign_lead and self.campaign_lead.lead else 'None'}")
+                logger.error(f"💥 Message: {self.message.subject if self.message else 'None'}")
+            except:
+                logger.error("💥 Could not get additional context")
+
             return False
 
 
