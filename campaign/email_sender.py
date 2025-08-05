@@ -30,7 +30,31 @@ class CustomEmailBackend(EmailBackend):
             'use_ssl': email_account.smtp_use_ssl,
         })
 
+        logger.info(f"🔧 Initializing CustomEmailBackend:")
+        logger.info(f"   Host: {kwargs['host']}")
+        logger.info(f"   Port: {kwargs['port']}")
+        logger.info(f"   Username: {kwargs['username']}")
+        logger.info(f"   Use TLS: {kwargs['use_tls']}")
+        logger.info(f"   Use SSL: {kwargs['use_ssl']}")
+
         super().__init__(**kwargs)
+
+    def open(self):
+        """
+        Override open method to provide better error logging
+        """
+        try:
+            logger.info(f"🔄 Opening SMTP connection to {self.host}:{self.port}")
+            result = super().open()
+            if result:
+                logger.info("✅ SMTP connection opened successfully")
+            else:
+                logger.error("❌ SMTP connection failed to open")
+            return result
+        except Exception as e:
+            logger.error(f"💥 SMTP connection error: {str(e)}")
+            logger.error(f"💥 Error type: {type(e).__name__}")
+            raise e
 
 
 def get_available_email_account(campaign):
@@ -220,25 +244,108 @@ def send_campaign_email(message_assignment, campaign):
 
         # Create custom email backend for this account
         if email_account.is_smtp():
-            backend = CustomEmailBackend(email_account)
+            logger.info(f"📧 Using SMTP backend for {email_account.email}")
+            logger.info(f"🔧 SMTP Config: {email_account.smtp_host}:{email_account.smtp_port}")
+            logger.info(f"🔧 TLS: {email_account.smtp_use_tls}, SSL: {email_account.smtp_use_ssl}")
+            logger.info(f"🔧 Username: {email_account.smtp_username}")
 
-            # Create email message with both HTML and plain text versions
-            email = EmailMultiAlternatives(
-                subject=subject,
-                body=plain_text,  # Plain text version
-                from_email=from_email,
-                to=[f"{recipient_name} <{recipient_email}>"],
-                connection=backend
-            )
+            try:
+                backend = CustomEmailBackend(email_account)
+                logger.info("✅ SMTP backend created successfully")
 
-            # Add HTML version
-            email.attach_alternative(html_content, "text/html")
+                # Create email message with both HTML and plain text versions
+                email = EmailMultiAlternatives(
+                    subject=subject,
+                    body=plain_text,  # Plain text version
+                    from_email=from_email,
+                    to=[f"{recipient_name} <{recipient_email}>"],
+                    connection=backend
+                )
 
-            # Send the email
-            sent = email.send(fail_silently=False)
+                # Add HTML version
+                email.attach_alternative(html_content, "text/html")
+                logger.info("✅ Email message created successfully")
+
+                # Test connection first
+                logger.info("🔄 Testing SMTP connection...")
+                try:
+                    connection = backend.open()
+                    if connection:
+                        logger.info("✅ SMTP connection test successful")
+                        backend.close()
+                    else:
+                        logger.error("❌ SMTP connection test failed")
+                        return False
+                except Exception as conn_error:
+                    logger.error(f"❌ SMTP connection test failed: {str(conn_error)}")
+                    logger.error(f"❌ Connection error type: {type(conn_error).__name__}")
+
+                    # Provide specific SSL/TLS troubleshooting
+                    if "SSL" in str(conn_error) or "TLS" in str(conn_error):
+                        logger.error("🔧 SSL/TLS Configuration Issue Detected:")
+                        logger.error(f"   Current settings: TLS={email_account.smtp_use_tls}, SSL={email_account.smtp_use_ssl}")
+                        logger.error(f"   Port: {email_account.smtp_port}")
+                        logger.error("   💡 Common fixes:")
+                        logger.error("      - Port 587 usually requires TLS=True, SSL=False")
+                        logger.error("      - Port 465 usually requires TLS=False, SSL=True")
+                        logger.error("      - Port 25 usually requires TLS=False, SSL=False")
+
+                        # Suggest alternative configurations
+                        if email_account.smtp_port == 587 and not email_account.smtp_use_tls:
+                            logger.error("   🔧 Try: TLS=True, SSL=False for port 587")
+                        elif email_account.smtp_port == 465 and not email_account.smtp_use_ssl:
+                            logger.error("   🔧 Try: TLS=False, SSL=True for port 465")
+
+                    return False
+
+                # Send the email
+                logger.info("🔄 Sending email...")
+                sent = email.send(fail_silently=False)
+
+                if sent:
+                    logger.info("✅ Email sent successfully via SMTP")
+                else:
+                    logger.error("❌ Email sending failed (no exception thrown)")
+
+            except Exception as smtp_error:
+                logger.error(f"💥 SMTP Error: {str(smtp_error)}")
+                logger.error(f"💥 Error type: {type(smtp_error).__name__}")
+
+                # Enhanced SSL/TLS error analysis
+                error_str = str(smtp_error).lower()
+                if "ssl" in error_str or "tls" in error_str:
+                    logger.error("🔧 SSL/TLS Error Analysis:")
+                    logger.error(f"   Host: {email_account.smtp_host}")
+                    logger.error(f"   Port: {email_account.smtp_port}")
+                    logger.error(f"   TLS: {email_account.smtp_use_tls}")
+                    logger.error(f"   SSL: {email_account.smtp_use_ssl}")
+
+                    if "wrong version number" in error_str:
+                        logger.error("   🚨 Wrong SSL/TLS version error detected!")
+                        logger.error("   💡 This usually means:")
+                        logger.error("      1. Using SSL=True on a TLS-only port (like 587)")
+                        logger.error("      2. Using TLS=True on an SSL-only port (like 465)")
+                        logger.error("      3. Server doesn't support the SSL/TLS version")
+
+                        # Provide specific recommendations based on common providers
+                        host_lower = email_account.smtp_host.lower()
+                        if "gmail" in host_lower:
+                            logger.error("   🔧 Gmail recommendations:")
+                            logger.error("      - Port 587: TLS=True, SSL=False")
+                            logger.error("      - Port 465: TLS=False, SSL=True")
+                        elif "outlook" in host_lower or "hotmail" in host_lower:
+                            logger.error("   🔧 Outlook recommendations:")
+                            logger.error("      - Port 587: TLS=True, SSL=False")
+                        elif "yahoo" in host_lower:
+                            logger.error("   🔧 Yahoo recommendations:")
+                            logger.error("      - Port 587: TLS=True, SSL=False")
+                            logger.error("      - Port 465: TLS=False, SSL=True")
+
+                return False
 
         else:
             # Handle OAuth2 accounts (Gmail, Outlook, Yahoo)
+            logger.info(f"📧 Using OAuth2 for {email_account.connection_type}")
             from .email_oauth import send_oauth2_email
             sent = send_oauth2_email(
                 email_account,

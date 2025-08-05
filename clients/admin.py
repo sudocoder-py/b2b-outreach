@@ -50,7 +50,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(EmailAccount)
 class EmailAccountAdmin(admin.ModelAdmin):
-    list_display = ('email', 'connection_type', 'status', 'is_smtp')
+    list_display = ('id', 'email', 'connection_type', 'status', 'is_smtp')
     search_fields = ('email',)
     list_filter = ('connection_type', 'status',)
     

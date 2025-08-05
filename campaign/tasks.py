@@ -9,7 +9,7 @@ from .services import AnalyticsService
 logger = logging.getLogger(__name__)
 
 
-@shared_task()
+@shared_task(name="personalize_message_task")
 def personalize_message_task(message_assignment_id, skip=True):
     """
     Celery task to personalize a message using AI and save it to the database.
@@ -49,7 +49,7 @@ def personalize_message_task(message_assignment_id, skip=True):
         logger.error(f"💥 Full traceback:\n{traceback.format_exc()}")
         return False
 
-@shared_task
+@shared_task(name="personalize_campaign_messages_task")
 def personalize_campaign_messages_task(campaign_id, force=False):
     """
     Celery task to personalize all messages for a campaign.
@@ -152,7 +152,7 @@ def personalize_campaign_messages_task(campaign_id, force=False):
 #             'message': str(e)
 #         }
 
-@shared_task
+@shared_task(name="send_email_task")
 def send_email_task(message_assignment_id, campaign_id):
     """
     Celery task to send an email for a message assignment.
@@ -211,7 +211,7 @@ def send_email_task(message_assignment_id, campaign_id):
         logger.error(f"💥 Full traceback:\n{traceback.format_exc()}")
         return False
 
-@shared_task
+@shared_task(name="send_campaign_emails_task")
 def send_campaign_emails_task(campaign_id, only_personalized=True):
     """
     Celery task to send emails for all message assignments in a campaign.
@@ -386,44 +386,44 @@ def send_campaign_emails_task(campaign_id, only_personalized=True):
 
 # @shared_task
 # def personalize_campaign_messages_and_send_task(campaign_id, force=False):
-#     """
-#     Celery task to personalize all messages for a campaign and send them immediately if rate limits allow.
+    """
+    Celery task to personalize all messages for a campaign and send them immediately if rate limits allow.
     
-#     Args:
-#         campaign_id: ID of the Campaign
-#         force: Whether to force personalization even if already personalized
+    Args:
+        campaign_id: ID of the Campaign
+        force: Whether to force personalization even if already personalized
         
-#     Returns:
-#         dict: Results of the operation
-#     """
-#     try:
-#         # Get all message assignments for this campaign
-#         query = MessageAssignment.objects.filter(campaign_id=campaign_id, sent=False)
-#         if not force:
-#             query = query.filter(personlized_msg_to_send='')
+    Returns:
+        dict: Results of the operation
+    """
+    try:
+        # Get all message assignments for this campaign
+        query = MessageAssignment.objects.filter(campaign_id=campaign_id, sent=False)
+        if not force:
+            query = query.filter(personlized_msg_to_send='')
             
-#         count = query.count()
-#         logger.info(f"Personalizing and sending {count} message assignments for campaign ID {campaign_id}")
+        count = query.count()
+        logger.info(f"Personalizing and sending {count} message assignments for campaign ID {campaign_id}")
         
-#         # Create a task for each message assignment
-#         for message_assignment in query:
-#             personalize_and_send_message_task.delay(message_assignment.id)
+        # Create a task for each message assignment
+        for message_assignment in query:
+            personalize_and_send_message_task.delay(message_assignment.id)
             
-#         return {
-#             'status': 'success',
-#             'message': f'Scheduled personalization and sending for {count} messages',
-#             'campaign_id': campaign_id,
-#         }
+        return {
+            'status': 'success',
+            'message': f'Scheduled personalization and sending for {count} messages',
+            'campaign_id': campaign_id,
+        }
         
-#     except Exception as e:
-#         logger.error(f"Error scheduling personalization and sending tasks: {str(e)}")
-#         return {
-#             'status': 'error',
-#             'message': str(e),
-#             'campaign_id': campaign_id
-#         }
+    except Exception as e:
+        logger.error(f"Error scheduling personalization and sending tasks: {str(e)}")
+        return {
+            'status': 'error',
+            'message': str(e),
+            'campaign_id': campaign_id
+        }
 
-@shared_task
+@shared_task(name="personalize_and_send_all_emails_at_once")
 def personalize_and_send_all_emails_at_once(campaign_id):
     """
     Celery task to personalize and send all emails at once for a specific campaign.
