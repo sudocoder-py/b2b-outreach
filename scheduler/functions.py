@@ -12,7 +12,7 @@ from .client import inngest_client
     # Event that triggers this function
     trigger=inngest.TriggerEvent(event="posts/campaign.scheduled"),
 )
-def campaign_scheduler(ctx: inngest.Context) -> str:
+def campaign_scheduler(ctx: inngest.Context):
     """
     Schedules a campaign for a future date.
     """
