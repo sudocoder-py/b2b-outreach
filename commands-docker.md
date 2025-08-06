@@ -36,6 +36,9 @@ docker-compose up --build -d
 # run Docker Compose on production
 docker-compose -f docker-compose.prod.yml up --build -d
 
+# inngest
+docker compose -f docker-compose-inngest.yml up
+
 
 ## creating custom admin user for first time 
 from clients.models import SubscribedCompany

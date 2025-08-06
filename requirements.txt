@@ -27,5 +27,6 @@ requests==2.32.3
 gunicorn==23.0.0
 psycopg2-binary==2.9.10
 markdown==3.8
-django-htmx=1.23.1
+django-htmx==1.23.1
 pytz==2025.2
+inngest==0.5.4
