@@ -34,19 +34,22 @@ def campaign_scheduler(ctx: inngest.Context):
         campaign = Campaign.objects.get(id=campaign_id)
         scheduler = create_scheduler_from_campaign(campaign)
 
+        logger.error("created scheduler")
+
         if scheduler:
+            logger.error("scheduler exists")
             # Campaign has a schedule - use smart scheduling
             logger.info(f"📅 Using scheduled delivery for campaign {campaign_id}")
 
             # Get schedule summary for logging
             schedule_summary = scheduler.get_schedule_summary()
-            logger.info(f"📋 Schedule: {schedule_summary}")
+            logger.error(f"📋 Schedule: {schedule_summary}")
 
             # Calculate next valid send time
             next_send_time = scheduler.get_next_valid_send_time()
 
             # Validate timestamp for Inngest
-            timestamp = int(next_send_time.timestamp())
+            timestamp = next_send_time.timestamp() * 1000
             min_timestamp = int(datetime(1980, 1, 2).timestamp())
 
             if timestamp < min_timestamp:
@@ -59,7 +62,7 @@ def campaign_scheduler(ctx: inngest.Context):
                     "campaign_id": campaign_id
                 }
 
-            logger.info(f"⏰ Scheduling for timestamp: {timestamp} ({next_send_time})")
+            logger.error(f"⏰ Scheduling for timestamp: {timestamp} ({next_send_time})")
 
             # Schedule the email processing for the calculated time
             inngest_client.send_sync(
@@ -69,11 +72,11 @@ def campaign_scheduler(ctx: inngest.Context):
                         "campaign_id": campaign_id,
                         "scheduled_time": next_send_time.isoformat()
                     },
-                    ts=timestamp  # Schedule for specific time
+                    ts=int(timestamp)  # Schedule for specific time
                 )
             )
 
-            logger.info(f"⏰ Campaign {campaign_id} scheduled for {next_send_time}")
+            logger.error(f"⏰ Campaign {campaign_id} scheduled for {next_send_time}")
 
             return {
                 "status": "success",
@@ -84,6 +87,7 @@ def campaign_scheduler(ctx: inngest.Context):
             }
 
         else:
+            logger.error("no scheduler")
             # No schedule found - send immediately
             logger.info(f"🚀 No schedule found, sending campaign {campaign_id} immediately")
 

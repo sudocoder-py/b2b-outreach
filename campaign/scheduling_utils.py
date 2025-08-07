@@ -19,56 +19,53 @@ class CampaignScheduler:
     """
     Handles timezone-aware email campaign scheduling with intelligent batch distribution.
     """
-    
-    def __init__(self, schedule_config: Dict, force_start_date: Optional[datetime] = None):
+
+    def __init__(self, start_date: datetime, timing_from: str, timing_to: str, time_zone: str, days: List[str]):
         """
         Initialize scheduler with campaign schedule configuration.
 
         Args:
-            schedule_config: Dict containing:
-                - start_date: datetime (will be overridden if force_start_date provided)
-                - timing_from: str (HH:MM format)
-                - timing_to: str (HH:MM format)
-                - time_zone: str (timezone name)
-                - days: List[str] (day codes like ['mon', 'tue'])
-            force_start_date: Optional datetime to override the schedule's start_date
+            start_date: The starting datetime for the campaign schedule.
+            timing_from: str (HH:MM format)
+            timing_to: str (HH:MM format)
+            time_zone: str (timezone name)
+            days: List[str] (day codes like ['mon', 'tue'])
         """
-        # Use forced start date if provided, otherwise use schedule's start date
-        self.start_date = force_start_date if force_start_date else schedule_config['start_date']
-        self.timing_from = schedule_config['timing_from']
-        self.timing_to = schedule_config['timing_to']
-        self.timezone_name = schedule_config['time_zone']
-        self.allowed_days = schedule_config['days']
-        
+        self.start_date = start_date
+        self.timing_from = timing_from
+        self.timing_to = timing_to
+        self.timezone_name = time_zone
+        self.allowed_days = days
+
         # Convert to timezone object
         self.timezone = pytz.timezone(self.timezone_name)
-        
+
         # Convert time strings to time objects
         self.from_time = self._parse_time(self.timing_from)
         self.to_time = self._parse_time(self.timing_to)
-        
+
         # Day mapping
         self.day_mapping = {
             'mon': 0, 'tue': 1, 'wed': 2, 'thu': 3,
             'fri': 4, 'sat': 5, 'sun': 6
         }
-    
+
     def _parse_time(self, time_str: str) -> time:
         """Parse time string (HH:MM) to time object."""
         hour, minute = map(int, time_str.split(':'))
         return time(hour, minute)
-    
+
     def _is_allowed_day(self, dt: datetime) -> bool:
         """Check if the given datetime falls on an allowed day."""
         weekday = dt.weekday()
         day_codes = [code for code, num in self.day_mapping.items() if num == weekday]
         return any(day in self.allowed_days for day in day_codes)
-    
+
     def _is_within_time_window(self, dt: datetime) -> bool:
         """Check if the given datetime is within the allowed time window."""
         dt_time = dt.time()
         return self.from_time <= dt_time <= self.to_time
-    
+
     def get_next_valid_send_time(self, from_datetime: Optional[datetime] = None) -> datetime:
         """
         Get the next valid send time based on schedule constraints.
@@ -79,16 +76,16 @@ class CampaignScheduler:
         Returns:
             Next valid datetime for sending emails
         """
-        # Force to use current time if no from_datetime provided (safer approach)
+        # Use schedule start date if no from_datetime is provided
         if from_datetime is None:
-            from_datetime = timezone.now()
+            from_datetime = self.start_date
 
         # Ensure timestamp is after 1980 (Inngest requirement)
         min_timestamp = datetime(1980, 1, 2, tzinfo=dt_timezone.utc)
 
         # Force from_datetime to be at least the minimum timestamp
         if from_datetime < min_timestamp:
-            logger.warning(f"from_datetime {from_datetime} is before 1980, using minimum timestamp")
+            logger.warning(f"from_datetime {from_datetime} is before 1980, using minimum timestamp error:1")
             from_datetime = min_timestamp
 
         # Convert to campaign timezone
@@ -101,11 +98,11 @@ class CampaignScheduler:
             current_dt = now_in_tz
 
         logger.info(f"🕐 Starting search from {current_dt} in timezone {self.timezone_name}")
-        
+
         # Find next valid time
         max_attempts = 14  # Look up to 2 weeks ahead
         attempt = 0
-        
+
         while attempt < max_attempts:
             # Check if current time is valid
             if self._is_allowed_day(current_dt) and self._is_within_time_window(current_dt):
@@ -113,11 +110,11 @@ class CampaignScheduler:
 
                 # Final safety check for 1980 minimum
                 if result_time < min_timestamp:
-                    logger.warning(f"Calculated time {result_time} is before 1980, using minimum timestamp")
+                    logger.warning(f"Calculated time {result_time} is before 1980, using minimum timestamp error:2")
                     return min_timestamp
 
                 return result_time
-            
+
             # If not in time window but on allowed day, move to start of window
             if self._is_allowed_day(current_dt) and current_dt.time() < self.from_time:
                 current_dt = current_dt.replace(
@@ -130,11 +127,11 @@ class CampaignScheduler:
 
                 # Final safety check for 1980 minimum
                 if result_time < min_timestamp:
-                    logger.warning(f"Calculated time {result_time} is before 1980, using minimum timestamp")
+                    logger.warning(f"Calculated time {result_time} is before 1980, using minimum timestamp error:3")
                     return min_timestamp
 
                 return result_time
-            
+
             # Move to next day at start time
             current_dt = (current_dt + timedelta(days=1)).replace(
                 hour=self.from_time.hour,
@@ -143,11 +140,11 @@ class CampaignScheduler:
                 microsecond=0
             )
             attempt += 1
-        
+
         # Fallback: return minimum timestamp if no valid time found
         logger.warning(f"No valid send time found within {max_attempts} days, using minimum timestamp")
         return min_timestamp
-    
+
     def calculate_batch_send_times(self, total_emails: int, batch_size: int = 50) -> List[datetime]:
         """
         Calculate optimal send times for email batches.
@@ -235,16 +232,13 @@ def create_scheduler_from_campaign(campaign) -> Optional[CampaignScheduler]:
 
         logger.info(f"📅 Found schedule for campaign {campaign.id}: start_date={schedule.start_date}")
 
-        schedule_config = {
-            'start_date': schedule.start_date,  # This will be overridden by force_start_date
-            'timing_from': schedule.timing_from,
-            'timing_to': schedule.timing_to,
-            'time_zone': schedule.time_zone,
-            'days': schedule.days
-        }
-
-        # Force the start date to be the schedule's start_date (ensuring we use the right date)
-        return CampaignScheduler(schedule_config, force_start_date=schedule.start_date)
+        return CampaignScheduler(
+            start_date=schedule.start_date,
+            timing_from=schedule.timing_from,
+            timing_to=schedule.timing_to,
+            time_zone=schedule.time_zone,
+            days=schedule.days
+        )
 
     except Exception as e:
         logger.error(f"Error creating scheduler for campaign {campaign.id}: {str(e)}")
@@ -258,7 +252,7 @@ def get_immediate_send_time() -> datetime:
     # Ensure timestamp is after 1980 (Inngest requirement)
     min_timestamp = datetime(1980, 1, 2, tzinfo=dt_timezone.utc)
     if immediate_time < min_timestamp:
-        logger.warning(f"Immediate time {immediate_time} is before 1980, using minimum timestamp")
+        logger.warning(f"Immediate time {immediate_time} is before 1980, using minimum timestamp error:4")
         return min_timestamp
 
     return immediate_time

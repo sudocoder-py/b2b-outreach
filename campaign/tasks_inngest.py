@@ -347,7 +347,7 @@ def _process_emails_with_rate_limiting(campaign, rate_limiter, query, total_emai
                         "sequence_number": i + 1,
                         "total_emails": len(message_assignments)
                     },
-                    ts=int(schedule_item['send_time'].timestamp())
+                    ts=int(schedule_item['send_time'].timestamp() * 1000)
                 )
             )
             scheduled_count += 1
@@ -581,7 +581,7 @@ def send_rate_limited_batch(ctx: inngest.Context):
                             "sequence_number": scheduled_count + 1,
                             "total_emails": len(message_assignments)
                         },
-                        ts=int(schedule_item['send_time'].timestamp())
+                        ts=int(schedule_item['send_time'].timestamp() * 1000)
                     )
                 )
                 scheduled_count += 1
