@@ -430,9 +430,29 @@ class ScheduleRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
 
 
-class CampaignOptionsListCreateView(generics.ListCreateAPIView):    
+class CampaignOptionsListCreateView(generics.ListCreateAPIView):
     queryset = CampaignOptions.objects.all()
     serializer_class = CampaignOptionsSerializer
+
+    def create(self, request, *args, **kwargs):
+        """Override create to use get_or_create to prevent duplicates"""
+        campaign_id = request.data.get('campaign')
+
+        if campaign_id:
+            # Try to get existing campaign options first
+            try:
+                campaign_options = CampaignOptions.objects.get(campaign_id=campaign_id)
+                # Update existing options
+                serializer = self.get_serializer(campaign_options, data=request.data, partial=True)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except CampaignOptions.DoesNotExist:
+                # Create new options
+                pass
+
+        # Default create behavior for new options
+        return super().create(request, *args, **kwargs)
     
         
 class CampaignOptionsRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):

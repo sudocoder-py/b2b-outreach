@@ -447,7 +447,7 @@
             return;
         }
         
-        fetch('/api/campaign-options/{% if campaign_options %}{{ campaign_options.id }}/{% else %}{% endif %}', {
+        fetch('{% if campaign_options %}/api/campaign-options/{{ campaign_options.id }}/{% else %}/api/campaign-options/{% endif %}', {
             method: {% if campaign_options %}'PUT'{% else %}'POST'{% endif %},
             headers: {
                 'Content-Type': 'application/json',
@@ -507,7 +507,7 @@
                 daily_limit: campaignOptions.dailyLimit
             };
 
-            fetch('/api/campaign-options/{% if campaign_options %}{{ campaign_options.id }}{% else %}0{% endif %}/', {
+            fetch('{% if campaign_options %}/api/campaign-options/{{ campaign_options.id }}/{% else %}/api/campaign-options/{% endif %}', {
                 method: {% if campaign_options %}'PUT'{% else %}'POST'{% endif %},
                 headers: {
                     'Content-Type': 'application/json',

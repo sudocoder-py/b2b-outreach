@@ -15,7 +15,8 @@ from campaign.tasks_inngest import (
     reset_daily_email_limits,
     calculate_all_campaigns_daily_stats,
     create_campaign_stats,
-    calculate_daily_stats
+    calculate_daily_stats,
+    complete_campaign
 )
 
 
@@ -28,7 +29,8 @@ active_inngest_functions = [
     reset_daily_email_limits,
     calculate_all_campaigns_daily_stats,
     create_campaign_stats,
-    calculate_daily_stats
+    calculate_daily_stats,
+    complete_campaign
 ]
 
 

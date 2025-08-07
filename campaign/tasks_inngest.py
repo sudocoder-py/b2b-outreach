@@ -512,6 +512,25 @@ def send_single_email(ctx: inngest.Context):
 
         if success:
             logger.info(f"✅ Email {sequence_number}/{total_emails} sent to {message_assignment.campaign_lead.lead.email} via {email_account.email}")
+
+            # Check if this was the last email in the campaign
+            if sequence_number == total_emails:
+                # Check if all emails in campaign are now sent
+                remaining_emails = MessageAssignment.objects.filter(
+                    campaign=campaign,
+                    sent=False
+                ).count()
+
+                if remaining_emails == 0:
+                    logger.info(f"🏁 All emails sent for campaign {campaign.name}, triggering completion")
+                    # Trigger campaign completion
+                    inngest_client.send_sync(
+                        inngest.Event(
+                            name="campaigns/complete",
+                            data={"campaign_id": campaign_id}
+                        )
+                    )
+
             return {
                 'status': 'success',
                 'message': 'Email sent successfully',
@@ -870,6 +889,79 @@ def create_campaign_stats(ctx: inngest.Context):
 
     except Exception as e:
         logger.error(f"💥 Error creating campaign stats: {str(e)}")
+        import traceback
+        logger.error(f"💥 Full traceback:\n{traceback.format_exc()}")
+        return {
+            "status": "error",
+            "message": str(e),
+            "campaign_id": campaign_id if 'campaign_id' in locals() else None
+        }
+
+
+@inngest_client.create_function(
+    fn_id="complete_campaign",
+    trigger=inngest.TriggerEvent(event="campaigns/complete"),
+)
+def complete_campaign(ctx: inngest.Context):
+    """
+    Complete a campaign when all message assignments are sent.
+    Updates campaign status and releases email accounts.
+    """
+    try:
+        campaign_id = ctx.event.data.get("campaign_id")
+
+        if not campaign_id:
+            return {"status": "error", "message": "campaign_id is required"}
+
+        logger.info(f"🏁 Completing campaign {campaign_id}")
+
+        from .models import Campaign, MessageAssignment
+
+        # Get the campaign
+        campaign = Campaign.objects.get(id=campaign_id)
+
+        # Check if all message assignments are sent
+        pending_assignments = MessageAssignment.objects.filter(
+            campaign=campaign,
+            sent=False
+        ).count()
+
+        if pending_assignments > 0:
+            logger.warning(f"⚠️ Campaign {campaign_id} still has {pending_assignments} pending assignments")
+            return {
+                "status": "warning",
+                "message": f"Campaign still has {pending_assignments} pending assignments",
+                "campaign_id": campaign_id,
+                "pending_assignments": pending_assignments
+            }
+
+        # Update campaign status
+        campaign.status = 'completed'
+        campaign.is_active = False
+        campaign.save(update_fields=['status', 'is_active'])
+
+        # Release email accounts from campaign options
+        campaign_options = campaign.campaign_options.first()
+        if campaign_options:
+            email_accounts = list(campaign_options.email_accounts.all())
+            campaign_options.email_accounts.clear()
+
+            logger.info(f"🔓 Released {len(email_accounts)} email accounts from campaign {campaign.name}")
+            for account in email_accounts:
+                logger.info(f"  - Released: {account.email}")
+
+        logger.info(f"✅ Campaign {campaign.name} completed successfully")
+
+        return {
+            "status": "success",
+            "message": f"Campaign {campaign.name} completed successfully",
+            "campaign_id": campaign_id,
+            "campaign_name": campaign.name,
+            "released_accounts": len(email_accounts) if 'email_accounts' in locals() else 0
+        }
+
+    except Exception as e:
+        logger.error(f"💥 Error completing campaign: {str(e)}")
         import traceback
         logger.error(f"💥 Full traceback:\n{traceback.format_exc()}")
         return {

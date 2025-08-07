@@ -21,7 +21,8 @@ class Campaign(models.Model):
         ('active', 'Active'),
         ('paused', 'Paused'),
         ('draft', 'Draft'),
-        ('ended', 'Ended')
+        ('ended', 'Ended'),
+        ('completed', 'Completed')
     ]
     subscribed_company = models.ForeignKey(SubscribedCompany, on_delete=models.CASCADE)
 
@@ -103,7 +104,7 @@ class CampaignOptions(models.Model):
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='campaign_options')
     
     # Accounts to use
-    email_accounts = models.ManyToManyField(EmailAccount, related_name='email_accounts_campaign_options')
+    email_accounts = models.ManyToManyField(EmailAccount, related_name='email_accounts_campaign_options', blank=True)
     
     # Stop sending emails on reply
     stop_on_reply = models.BooleanField(default=True)
@@ -934,20 +935,14 @@ class CampaignStats(models.Model):
             lead.conversion_value or 0 for lead in conversions
         )
 
-        # Legacy calculations (keep for backward compatibility)
+        # Get message assignments for best performing analysis
         message_assignments = MessageAssignment.objects.filter(
             campaign_lead__campaign=self.campaign,
             sent_at__isnull=False
         )
-        self.total_messages_sent = message_assignments.count()
-        self.total_opens = message_assignments.filter(opened=True).count()
 
         # Count clicks (from link visits)
         links = Link.objects.filter(campaign=self.campaign)
-        self.total_clicks = sum(link.visit_count for link in links)
-
-        # Count conversions (legacy)
-        self.total_conversions = campaign_leads.filter(is_converted=True).count()
 
         # Find best performing CTA (link with most visits)
         if links.exists():
@@ -968,7 +963,11 @@ class CampaignStats(models.Model):
             # Find message with most clicks
             if message_clicks:
                 best_message_id = max(message_clicks, key=message_clicks.get)
-                self.best_message_id = best_message_id
+                from .models import Message
+                try:
+                    self.best_message = Message.objects.get(id=best_message_id)
+                except Message.DoesNotExist:
+                    pass
 
         self.save()
 
