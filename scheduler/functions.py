@@ -34,22 +34,22 @@ def campaign_scheduler(ctx: inngest.Context):
         campaign = Campaign.objects.get(id=campaign_id)
         scheduler = create_scheduler_from_campaign(campaign)
 
-        logger.error("created scheduler")
+        logger.info("✅ Created scheduler from campaign")
 
         if scheduler:
-            logger.error("scheduler exists")
+            logger.info("📅 Scheduler exists - using scheduled delivery")
             # Campaign has a schedule - use smart scheduling
             logger.info(f"📅 Using scheduled delivery for campaign {campaign_id}")
 
             # Get schedule summary for logging
             schedule_summary = scheduler.get_schedule_summary()
-            logger.error(f"📋 Schedule: {schedule_summary}")
+            logger.info(f"📋 Schedule: {schedule_summary}")
 
             # Calculate next valid send time
             next_send_time = scheduler.get_next_valid_send_time()
 
             # Validate timestamp for Inngest
-            timestamp = next_send_time.timestamp() * 1000
+            timestamp = int(next_send_time.timestamp())
             min_timestamp = int(datetime(1980, 1, 2).timestamp())
 
             if timestamp < min_timestamp:
@@ -62,21 +62,30 @@ def campaign_scheduler(ctx: inngest.Context):
                     "campaign_id": campaign_id
                 }
 
-            logger.error(f"⏰ Scheduling for timestamp: {timestamp} ({next_send_time})")
+            logger.info(f"⏰ Scheduling for timestamp: {timestamp} ({next_send_time})")
+
+            # Prepare event data
+            event_data = {
+                "campaign_id": campaign_id,
+                "scheduled_time": next_send_time.isoformat()
+            }
+
+            logger.info(f"🔍 DEBUG: Sending event data: {event_data}")
+            logger.info(f"🔍 DEBUG: Event timestamp: {timestamp * 1000}")
 
             # Schedule the email processing for the calculated time
-            inngest_client.send_sync(
-                inngest.Event(
-                    name="campaigns/process_scheduled_emails",
-                    data={
-                        "campaign_id": campaign_id,
-                        "scheduled_time": next_send_time.isoformat()
-                    },
-                    ts=int(timestamp)  # Schedule for specific time
-                )
+            event = inngest.Event(
+                name="campaigns/process_scheduled_emails",
+                data=event_data,
+                ts=timestamp * 1000  # Convert to milliseconds for Inngest
             )
 
-            logger.error(f"⏰ Campaign {campaign_id} scheduled for {next_send_time}")
+            logger.info(f"🔍 DEBUG: Created event: {event}")
+
+            result = inngest_client.send_sync(event)
+            logger.info(f"🔍 DEBUG: Event send result: {result}")
+
+            logger.info(f"⏰ Campaign {campaign_id} scheduled for {next_send_time}")
 
             return {
                 "status": "success",
@@ -87,7 +96,7 @@ def campaign_scheduler(ctx: inngest.Context):
             }
 
         else:
-            logger.error("no scheduler")
+            logger.info("🚀 No scheduler found - using immediate delivery")
             # No schedule found - send immediately
             logger.info(f"🚀 No schedule found, sending campaign {campaign_id} immediately")
 
@@ -107,16 +116,25 @@ def campaign_scheduler(ctx: inngest.Context):
 
             logger.info(f"⏰ Immediate scheduling for timestamp: {timestamp} ({send_time})")
 
-            inngest_client.send_sync(
-                inngest.Event(
-                    name="campaigns/process_scheduled_emails",
-                    data={
-                        "campaign_id": campaign_id,
-                        "scheduled_time": send_time.isoformat()
-                    },
-                    ts=timestamp
-                )
+            # Prepare event data for immediate send
+            event_data = {
+                "campaign_id": campaign_id,
+                "scheduled_time": send_time.isoformat()
+            }
+
+            logger.info(f"🔍 DEBUG: Immediate event data: {event_data}")
+            logger.info(f"🔍 DEBUG: Immediate timestamp: {timestamp * 1000}")
+
+            event = inngest.Event(
+                name="campaigns/process_scheduled_emails",
+                data=event_data,
+                ts=timestamp * 1000  # Convert to milliseconds for Inngest
             )
+
+            logger.info(f"🔍 DEBUG: Created immediate event: {event}")
+
+            result = inngest_client.send_sync(event)
+            logger.info(f"🔍 DEBUG: Immediate event send result: {result}")
 
             return {
                 "status": "success",

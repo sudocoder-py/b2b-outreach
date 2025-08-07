@@ -226,21 +226,44 @@ def process_scheduled_emails(ctx: inngest.Context):
     This function handles timezone-aware email delivery in optimized batches.
     """
     try:
+        logger.info("🔍 DEBUG: process_scheduled_emails function started")
+        logger.info(f"🔍 DEBUG: ctx = {ctx}")
+        logger.info(f"🔍 DEBUG: ctx.event = {ctx.event}")
+        logger.info(f"🔍 DEBUG: ctx.event.data = {ctx.event.data}")
+
+        # Check if ctx.event.data exists
+        if not hasattr(ctx.event, 'data') or ctx.event.data is None:
+            logger.error("❌ ERROR: ctx.event.data is None or missing")
+            return {"status": "error", "message": "event data is missing"}
+
         campaign_id = ctx.event.data.get("campaign_id")
         scheduled_time = ctx.event.data.get("scheduled_time")
 
+        logger.info(f"🔍 DEBUG: campaign_id = {campaign_id}")
+        logger.info(f"🔍 DEBUG: scheduled_time = {scheduled_time}")
+
         if not campaign_id:
+            logger.error("❌ ERROR: campaign_id is required but not provided")
             return {"status": "error", "message": "campaign_id is required"}
 
         logger.info(f"📧 Processing scheduled emails for campaign {campaign_id} at {scheduled_time}")
 
         # Get the campaign, schedule, and rate limiter
+        logger.info(f"🔍 DEBUG: Importing models and utilities")
         from .models import Campaign
         from .scheduling_utils import create_scheduler_from_campaign, create_rate_limiter_from_campaign
 
+        logger.info(f"🔍 DEBUG: Getting campaign with ID: {campaign_id}")
         campaign = Campaign.objects.get(id=campaign_id)
+        logger.info(f"🔍 DEBUG: Found campaign: {campaign.name}")
+
+        logger.info(f"🔍 DEBUG: Creating scheduler from campaign")
         scheduler = create_scheduler_from_campaign(campaign)
+        logger.info(f"🔍 DEBUG: Scheduler created: {scheduler}")
+
+        logger.info(f"🔍 DEBUG: Creating rate limiter from campaign")
         rate_limiter = create_rate_limiter_from_campaign(campaign)
+        logger.info(f"🔍 DEBUG: Rate limiter created: {rate_limiter}")
 
         # Check if we have email accounts configured
         if not rate_limiter:
@@ -251,6 +274,7 @@ def process_scheduled_emails(ctx: inngest.Context):
             }
 
         # Get all message assignments that need processing
+        logger.info(f"🔍 DEBUG: Querying message assignments for campaign {campaign_id}")
         query = MessageAssignment.objects.filter(
             campaign_id=campaign_id,
             sent=False
@@ -258,6 +282,12 @@ def process_scheduled_emails(ctx: inngest.Context):
 
         total_emails = query.count()
         logger.info(f"📊 Found {total_emails} emails to process for campaign {campaign_id}")
+        logger.info(f"🔍 DEBUG: Message assignments query: {query}")
+
+        # Log some sample message assignments
+        sample_assignments = list(query[:3])  # Get first 3 for debugging
+        for i, assignment in enumerate(sample_assignments):
+            logger.info(f"🔍 DEBUG: Sample assignment {i+1}: ID={assignment.id}, sent={assignment.sent}, lead={assignment.campaign_lead.lead.email}")
 
         if total_emails == 0:
             return {
@@ -347,7 +377,7 @@ def _process_emails_with_rate_limiting(campaign, rate_limiter, query, total_emai
                         "sequence_number": i + 1,
                         "total_emails": len(message_assignments)
                     },
-                    ts=int(schedule_item['send_time'].timestamp() * 1000)
+                    ts=int(schedule_item['send_time'].timestamp()) * 1000
                 )
             )
             scheduled_count += 1
@@ -419,7 +449,7 @@ def _process_emails_with_smart_scheduling(campaign, scheduler, rate_limiter, que
                         "total_batches": len(batch_send_times),
                         "batch_send_time": send_time.isoformat()
                     },
-                    ts=int(send_time.timestamp())
+                    ts=int(send_time.timestamp()) * 1000
                 )
             )
 
@@ -581,7 +611,7 @@ def send_rate_limited_batch(ctx: inngest.Context):
                             "sequence_number": scheduled_count + 1,
                             "total_emails": len(message_assignments)
                         },
-                        ts=int(schedule_item['send_time'].timestamp() * 1000)
+                        ts=int(schedule_item['send_time'].timestamp()) * 1000
                     )
                 )
                 scheduled_count += 1
