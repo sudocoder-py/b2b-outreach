@@ -666,11 +666,7 @@ def launch_inggest_test(request):
 
 
         try:
-            # Use the new Inngest function instead of Celery
-            from campaign.tasks_inngest import personalize_and_send_all_emails_at_once_sync
-            task_result = personalize_and_send_all_emails_at_once_sync(campaign.id)
-
-            # Also trigger the campaign scheduler event
+            # Trigger the campaign scheduler event (this will handle everything)
             inngest_client.send_sync(
                 inngest.Event(
                     name="campaigns/campaign.scheduled",
@@ -678,6 +674,8 @@ def launch_inggest_test(request):
                     data={"object_id": campaign.id},
                     # ts=int(time_delay)
                 ))
+            logger.info(f"🚀 Campaign {campaign.id} launch event sent to Inngest")
+
         except Exception as e:
             logger.error(f"Error launching campaign {campaign.id}: {str(e)}")
             return Response({
