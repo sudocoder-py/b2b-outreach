@@ -15,11 +15,16 @@ from .client import inngest_client
 def campaign_scheduler(ctx: inngest.Context):
     """
     Schedules a campaign for a future date.
+    This is the main entry point for campaign launching.
     """
     campaign_id = ctx.event.data.get("object_id")
-    print(f"Campaign scheduler triggered for campaign ID: {campaign_id}")
+    print(f"🎯 Campaign scheduler triggered for campaign ID: {campaign_id}")
+
+    if not campaign_id:
+        return {"status": "error", "message": "campaign_id (object_id) is required"}
 
     # Trigger the personalize and send all emails function
+    # This will handle everything in one efficient function call
     inngest_client.send_sync(
         inngest.Event(
             name="campaigns/personalize_and_send.all_emails",
@@ -27,4 +32,4 @@ def campaign_scheduler(ctx: inngest.Context):
         )
     )
 
-    return {"status": "success", "campaign_id": campaign_id}
+    return {"status": "success", "message": "Campaign launch initiated", "campaign_id": campaign_id}

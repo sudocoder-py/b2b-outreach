@@ -316,6 +316,7 @@ def send_campaign_emails_task(ctx: inngest.Context):
 def personalize_and_send_all_emails_at_once(ctx: inngest.Context):
     """
     Inngest function to personalize and send all emails at once for a specific campaign.
+    This function processes everything in batches to avoid creating too many individual events.
 
     Args:
         ctx.event.data.campaign_id: ID of the Campaign
@@ -341,33 +342,56 @@ def personalize_and_send_all_emails_at_once(ctx: inngest.Context):
                 'campaign_id': campaign_id
             }
 
-        # First personalize all messages
-        inngest_client.send_sync(
-            inngest.Event(
-                name="campaigns/personalize.campaign_messages",
-                data={
-                    "campaign_id": campaign_id,
-                    "force": False
-                }
-            )
+        logger.info(f"🚀 Starting campaign launch for {campaign.name} (ID: {campaign_id})")
+
+        # Step 1: Personalize all messages that need personalization
+        query = MessageAssignment.objects.filter(
+            campaign_id=campaign_id,
+            personlized_msg_to_send=''
         )
 
-        # Then send all personalized emails
-        inngest_client.send_sync(
-            inngest.Event(
-                name="campaigns/send.campaign_emails",
-                data={
-                    "campaign_id": campaign_id,
-                    "only_personalized": True
-                }
-            )
+        personalize_count = query.count()
+        logger.info(f"📝 Personalizing {personalize_count} messages")
+
+        for message_assignment in query:
+            success = message_assignment.personalize_with_ai(skip=True)
+            if success:
+                logger.info(f"✅ Personalized message for assignment ID {message_assignment.id}")
+            else:
+                logger.error(f"❌ Failed to personalize message for assignment ID {message_assignment.id}")
+
+        # Step 2: Send all personalized emails
+        send_query = MessageAssignment.objects.filter(
+            campaign_id=campaign_id,
+            sent=False,
+            personlized_msg_to_send__gt=''
         )
+
+        send_count = send_query.count()
+        logger.info(f"📧 Sending {send_count} emails")
+
+        from campaign.email_sender import send_campaign_email
+        sent_successfully = 0
+
+        for message_assignment in send_query:
+            try:
+                success = send_campaign_email(message_assignment, campaign)
+                if success:
+                    sent_successfully += 1
+                    logger.info(f"✅ Email sent successfully to {message_assignment.campaign_lead.lead.email}")
+                else:
+                    logger.error(f"❌ Failed to send email to {message_assignment.campaign_lead.lead.email}")
+            except Exception as e:
+                logger.error(f"💥 Error sending email to {message_assignment.campaign_lead.lead.email}: {str(e)}")
 
         return {
             'status': 'success',
-            'message': f'Campaign {campaign_id} launch initiated successfully',
+            'message': f'Campaign {campaign_id} launch completed successfully',
             'campaign_id': campaign_id,
-            'campaign_name': campaign.name
+            'campaign_name': campaign.name,
+            'personalized_count': personalize_count,
+            'sent_count': sent_successfully,
+            'total_processed': send_count
         }
 
     except Exception as e:
