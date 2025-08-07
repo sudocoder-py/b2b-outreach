@@ -26,12 +26,14 @@ logger = logging.getLogger(__name__)
 
 
 
-admin.site.register(Schedule)
+
 admin.site.register(CampaignOptions)
 admin.site.register(CampaignStats)
 admin.site.register(CampaignDailyStats)
 
-
+@admin.register(Schedule)
+class ScheduleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'campaign', 'start_date', 'timing_from', 'timing_to', 'time_zone', 'days')
 
 
 

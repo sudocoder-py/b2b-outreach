@@ -380,6 +380,132 @@ def send_campaign_email(message_assignment, campaign):
         logger.error(f"Error sending email: {str(e)}")
         return False
 
+
+def send_campaign_email_with_account(message_assignment, campaign, email_account):
+    """
+    Send an email for a message assignment using a specific email account.
+    This function is used by the rate-limited scheduling system.
+
+    Args:
+        message_assignment: MessageAssignment object to send
+        campaign: Campaign object
+        email_account: Specific EmailAccount object to use for sending
+
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        if message_assignment.sent:
+            logger.info(f"Email already sent for assignment {message_assignment.id}")
+            return True
+
+        # Check if account is active and has capacity
+        if email_account.status != 'active':
+            logger.error(f"Email account {email_account.email} is not active")
+            return False
+
+        if email_account.emails_sent >= email_account.daily_limit:
+            logger.error(f"Email account {email_account.email} has reached daily limit ({email_account.emails_sent}/{email_account.daily_limit})")
+            return False
+
+        # Get personalized content with tracking URL
+        subject = message_assignment.message.subject
+
+        # Use personalized content if available, otherwise get default personalized content
+        if message_assignment.personlized_msg_to_send:
+            content = message_assignment.personlized_msg_to_send
+        else:
+            content = message_assignment.get_personalized_content()
+
+        # Get recipient email
+        recipient_email = message_assignment.campaign_lead.lead.email
+        recipient_name = message_assignment.campaign_lead.lead.full_name
+
+        # Determine sender information
+        sender_name = email_account.sender_name or email_account.email.split('@')[0]
+        from_email = f"{sender_name} <{email_account.email}>"
+
+        # Log the email details for debugging
+        logger.info(f"📧 Sending via {email_account.email} to {recipient_name} <{recipient_email}>")
+        logger.info(f"📧 Subject: {subject}")
+
+        # Create plain text version
+        plain_text = content
+
+        # Create HTML version with proper formatting
+        html_content = format_email_as_html(content)
+
+        # Send email based on account type
+        sent = False
+
+        if email_account.is_smtp():
+            logger.info(f"📧 Using SMTP backend for {email_account.email}")
+
+            try:
+                backend = CustomEmailBackend(email_account)
+
+                # Create email message with both HTML and plain text versions
+                email = EmailMultiAlternatives(
+                    subject=subject,
+                    body=plain_text,  # Plain text version
+                    from_email=from_email,
+                    to=[f"{recipient_name} <{recipient_email}>"],
+                    connection=backend
+                )
+
+                # Add HTML version
+                email.attach_alternative(html_content, "text/html")
+
+                # Send the email
+                sent = email.send(fail_silently=False)
+
+                if sent:
+                    logger.info(f"✅ Email sent successfully via SMTP from {email_account.email}")
+                else:
+                    logger.error(f"❌ Email sending failed from {email_account.email}")
+
+            except Exception as smtp_error:
+                logger.error(f"💥 SMTP Error from {email_account.email}: {str(smtp_error)}")
+                return False
+
+        else:
+            # Handle OAuth2 accounts (Gmail, Outlook, Yahoo)
+            logger.info(f"📧 Using OAuth2 for {email_account.connection_type}")
+            from .email_oauth import send_oauth2_email
+            sent = send_oauth2_email(
+                email_account,
+                subject,
+                html_content,
+                recipient_email,
+                recipient_name
+            )
+
+        # Record that the email was sent if successful
+        if sent:
+            logger.info(f"✅ Successfully sent email to {recipient_email} from {email_account.email}")
+
+            # Update message assignment
+            message_assignment.sent = True
+            message_assignment.sent_at = timezone.now()
+            message_assignment.save(update_fields=['sent', 'sent_at'])
+
+            # Update email account usage
+            update_email_account_usage(email_account)
+
+            # Update analytics efficiently
+            from .services import AnalyticsService
+            AnalyticsService.handle_email_sent(message_assignment)
+
+            return True
+        else:
+            logger.error(f"❌ Failed to send email to {recipient_email} from {email_account.email}")
+            return False
+
+    except Exception as e:
+        logger.error(f"💥 Error sending email with specific account {email_account.email}: {str(e)}")
+        return False
+
+
 def format_email_as_html(content):
     """
     Format plain text content as HTML with proper line breaks and paragraphs
