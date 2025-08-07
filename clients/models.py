@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from urllib.parse import urlparse, urlunparse
-
+from django.core import validators
 
 
 class SubscribedCompany(models.Model):
@@ -226,7 +226,15 @@ class EmailAccount(models.Model):
     # Rate control
     min_wait_time = models.IntegerField(default=1)
     emails_sent = models.IntegerField(default=0)
-    daily_limit = models.IntegerField(default=30)
+
+    # to do: as the appility to change when the campaign options rate limit changed, you will get the emails in options and the
+    #        rate limit, you will do: rate_limit/emails.count, if it is 30 pass, else you will update each email (of thise emails)
+    #        rate limit to be the result 
+    daily_limit = models.IntegerField(validators=[
+            validators.MinValueValidator(1, "Daily limit must be at least 1."),
+            validators.MaxValueValidator(50, "Daily limit cannot exceed 1000.")
+        ],
+        default=30)
 
     def __str__(self):
         return f"{self.email} - {self.get_connection_type_display()}"

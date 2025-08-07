@@ -133,7 +133,7 @@
                     </div>
                     <div class="flex items-center gap-4">
                         <label class="label cursor-pointer gap-2">
-                            <input type="checkbox" name="linkTracking" class="checkbox checkbox-primary" onchange="updateOption('linkTracking', this.checked)" {% if campaign_options and campaign_options.link_tracking_enabled %}checked{% endif %}/>
+                            <input type="checkbox" name="linkTracking" class="checkbox checkbox-primary" onchange="updateOption('linkTracking', this.checked)" {% if campaign_options and campaign_options.link_tracking_enabled %}checked{% elif not campaign_options %}checked{% endif %}/>
                             <span class="label-text">Link tracking</span>
                         </label>
                         <div class="join rounded-lg toggle-group" data-option="openTracking">
@@ -145,7 +145,7 @@
                     </div>
                 </div>
                 <!-- Card: Delivery Optimization -->
-                <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between option-card">
+                <!-- <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between option-card">
                     <div>
                         <h3 class="font-bold text-gray-800 text-base flex items-center gap-2">
                             Delivery Optimization
@@ -162,11 +162,11 @@
                             <input type="checkbox" name="firstEmailTextOnly" class="checkbox checkbox-primary" onchange="updateOption('firstEmailTextOnly', this.checked)" {% if not campaign_options or campaign_options.send_first_email_as_text_only %}checked{% endif %}/>
                             <span class="label-text text-sm flex items-center gap-2">
                                 Send first email as text-only
-                                <!-- <div class="badge badge-warning text-yellow-800 font-bold text-xs">Pro</div> -->
+                                <div class="badge badge-warning text-yellow-800 font-bold text-xs">Pro</div>
                             </span>
                         </label>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Card: Daily Limit -->
                 <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between option-card">
@@ -275,10 +275,10 @@
     let campaignOptions = {
         emailAccounts: selectedEmails,
         stopOnReply: {% if campaign_options %}{{ campaign_options.stop_on_reply|lower }}{% else %}true{% endif %},
-        openTracking: {% if campaign_options %}{{ campaign_options.open_tracking_enabled|lower }}{% else %}true{% endif %},
-        linkTracking: {% if campaign_options %}{{ campaign_options.link_tracking_enabled|lower }}{% else %}false{% endif %},
+        openTracking: {% if campaign_options %}{{ campaign_options.open_tracking_enabled|lower }}{% else %}false{% endif %},
+        linkTracking: {% if campaign_options %}{{ campaign_options.link_tracking_enabled|lower }}{% else %}true{% endif %},
         textOnly: {% if campaign_options %}{{ campaign_options.send_as_text_only|lower }}{% else %}false{% endif %},
-        firstEmailTextOnly: {% if not campaign_options or campaign_options.send_first_email_as_text_only %}true{% else %}false{% endif %},
+        firstEmailTextOnly: {% if not campaign_options or campaign_options.send_first_email_as_text_only %}false{% else %}false{% endif %},
         dailyLimit: {% if campaign_options %}{{ campaign_options.daily_limit }}{% else %}30{% endif %}
     };
 
@@ -425,7 +425,7 @@
         const accountCount = selectedEmails.length;
         const newLimit = accountCount * 30; // 30 emails per account
         document.getElementById('daily-limit').value = newLimit;
-        document.getElementById('daily-limit').max = newLimit+accountCount*5;
+        document.getElementById('daily-limit').max = newLimit+accountCount*10;
         document.getElementById('daily-limit').min = newLimit-accountCount*20;
         campaignOptions.dailyLimit = newLimit;
     }
@@ -664,7 +664,6 @@
 
         // Render selected emails
         renderSelected();
-        updateDailyLimit();
 
         // Validate campaign readiness
         validateCampaignReadiness();

@@ -16,6 +16,10 @@ from rest_framework.decorators import api_view
 from django.db import transaction
 import uuid
 
+# testing inggest
+import inngest
+from scheduler.client import inngest_client
+
 logger = logging.getLogger(__name__)
 
 
@@ -632,9 +636,58 @@ class CampaignStatsRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVi
 
 
 
-# testing inggest
-import inngest
-from scheduler.client import inngest_client
+@api_view(['POST'])
+def refresh_campaign_daily_stats(request):
+    """
+    refresh_campaign_daily_stats
+    """
+    try:
+        pk= request.data.get('campaign_id')
+        campaign = get_object_or_404(Campaign, pk=pk)
+
+        from datetime import datetime
+
+        try:
+            # Create/update campaign stats first
+            inngest_client.send_sync(
+                inngest.Event(
+                    name="analytics/calculate_daily_stats",
+                    data={
+                        "campaign_id": campaign.id,
+                        "target_date": None,
+                        }
+                )
+            )
+
+        except Exception as e:
+            logger.error(f"Error calc daily stats, campaign id:{campaign.id}: {str(e)}")
+            return Response({
+                'success': False,
+                'message': f'Error calc daily stats: {str(e)}',
+                'campaign_id': campaign.id
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+        return Response({
+            'success': True,
+            'message': f'calculated "{campaign.name}" daily stats successfully',
+            'campaign_id': campaign.id,
+            'campaign_name': campaign.name,
+            #'task_id': task_result.id if hasattr(task_result, 'id') else None,
+        }, status=status.HTTP_200_OK)
+
+
+    except Exception as e:
+        logger.error(f"Unexpected error {pk}: {str(e)}")
+        return Response({
+            'success': False,
+            'message': f'Error: {str(e)}',
+            'error_type': 'unexpected_error',
+            'campaign_id': pk
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
 
 
 

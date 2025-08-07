@@ -99,6 +99,21 @@
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6" id="stats-container">
 
+            <!-- Card 1: sent -->
+            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer">
+                <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
+                    <span>Sent</span>
+                    <div class="tooltip tooltip-center" data-tip="number of leads that have been sent at least one message in this campaign">
+                        <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-4xl font-bold text-gray-800">
+                    <span id="conversions-count">{{stats.sequence_started_count}}</span>
+                    <span class="text-gray-300 font-light mx-1">|</span>
+                    <span class="text-2xl font-semibold text-gray-500" id="conversions-value">{{stats.sequence_started_rate}}%</span>
+                </div>
+            </div>
+
             <!-- Card 2: Open Rate -->
             <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer">
                 <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
@@ -148,7 +163,7 @@
             <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer">
                 <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
                     <span>Opportunities</span>
-                    <div class="tooltip tooltip-center" data-tip="Number of leads that you have marked as positive. Per positive lead value is set to $2,333 Click to update">
+                    <div class="tooltip tooltip-left" data-tip="Number of leads that you have marked as positive. Per positive lead value is set to $2,333 Click to update">
                         <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
                     </div>
                 </div>
@@ -159,20 +174,6 @@
                 </div>
             </div>
 
-            <!-- Card 5: Conversions -->
-            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer">
-                <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
-                    <span>Conversions</span>
-                    <div class="tooltip tooltip-left" data-tip="The total number of won opportunities and its total $ amount">
-                        <i class="fa-solid fa-circle-info hover:text-gray-600 cursor-help"></i>
-                    </div>
-                </div>
-                <div class="mt-4 text-4xl font-bold text-gray-800">
-                    <span id="conversions-count">{{stats.conversions_count}}</span>
-                    <span class="text-gray-300 font-light mx-1">|</span>
-                    <span class="text-2xl font-semibold text-gray-500" id="conversions-value">${{stats.conversion_total}}</span>
-                </div>
-            </div>
         </div>
         
         <!-- Chart Section -->
@@ -199,9 +200,9 @@
                             <span class="text-gray-600">Replied</span>
                         </div>
                     </div>
-                    <!-- <button class="btn btn-sm btn-ghost" onclick="refreshChart()" id="refresh-btn">
+                    <button class="btn btn-sm btn-ghost" onclick="refreshChart()" id="refresh-btn">
                         <i class="fa-solid fa-refresh mr-2"></i>Refresh
-                    </button> -->
+                    </button>
                 </div>
             </div>
             
@@ -275,12 +276,15 @@
                 refreshBtn.disabled = true;
                 refreshBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Refreshing...';
 
-                const response = await fetch(`/campaign/api/refresh-stats/${campaignId}/`, {
+                const response = await fetch(`/api/refresh-daily-stats/`, {
                     method: 'POST',
                     headers: {
-                        'X-CSRFToken': Cookies.get('csrftoken'),
+                        'X-CSRFToken': '{{ csrf_token }}',
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({
+                        campaign_id: campaignId,
+                    })
                 });
 
                 const result = await response.json();

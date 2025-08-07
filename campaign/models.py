@@ -110,12 +110,12 @@ class CampaignOptions(models.Model):
     stop_on_reply = models.BooleanField(default=True)
     
     # Open Tracking
-    open_tracking_enabled = models.BooleanField(default=True)
+    open_tracking_enabled = models.BooleanField(default=False)
     link_tracking_enabled = models.BooleanField(default=True)
     
     # Delivery Optimization
     send_as_text_only = models.BooleanField(default=False)
-    send_first_email_as_text_only = models.BooleanField(default=True)
+    send_first_email_as_text_only = models.BooleanField(default=False)
     
     #Daily Limit
     daily_limit = models.IntegerField(

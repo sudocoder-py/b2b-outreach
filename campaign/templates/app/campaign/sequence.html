@@ -63,7 +63,7 @@
         </div>
     </div>
 
-    <!-- Message Grid -->
+    <!-- Message Grid -->{{messages}}
     <div class="message-grid">
         {% for message in messages %}
         <div class="message-card" style="padding-bottom: 10px;  padding-right: 15px; min-width: 350px;" onclick="openMessageModal({{ message.id }})">
