@@ -45,4 +45,7 @@ urlpatterns = [
     path('campaign-stats/', views.CampaignStatsListCreateView.as_view(), name='campaign-options-list-create'),
     path('campaign-stats/<int:pk>/', views.CampaignStatsRetrieveUpdateDestroyView.as_view(), name='campaign-options-detail'),
 
+
+
+    path('inngest/launch/test/', views.launch_inggest_test, name='launch_inggest_test'),
 ]

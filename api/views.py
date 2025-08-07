@@ -612,4 +612,89 @@ class CampaignStatsListCreateView(generics.ListCreateAPIView):
 
 class CampaignStatsRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CampaignStats.objects.all()
-    serializer_class = CampaignStatsSerializer    
+    serializer_class = CampaignStatsSerializer
+
+
+
+
+# testing inggest
+import inngest
+from scheduler.client import inngest_client
+
+
+
+@api_view(['POST'])
+def launch_inggest_test(request):
+    try:
+        pk= request.data.get('id')
+        campaign = get_object_or_404(Campaign, pk=pk)
+
+        # Check if campaign has email accounts assigned
+        campaign_options = campaign.campaign_options.first()
+        if not campaign_options:
+
+            return Response({
+                'success': False,
+                'message': 'Campaign has no options configured. Please configure campaign options first.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+        # Check email accounts
+        active_email_accounts = campaign_options.email_accounts.filter(status='active')
+        if not active_email_accounts.exists():
+
+            return Response({
+                'success': False,
+                'message': 'No active email accounts assigned to this campaign. Please assign email accounts first.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+        # Check if campaign has message assignments
+        message_assignments_count = MessageAssignment.objects.filter(
+            campaign=campaign,
+            sent=False
+        ).count()
+
+        if message_assignments_count == 0:
+            return Response({
+                'success': False,
+                'message': 'No pending message assignments found for this campaign.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+        try:
+            task_result = personalize_and_send_all_emails_at_once(campaign.id)
+            inngest_client.send_sync(
+                inngest.Event(
+                    name="campaigns/campaign.scheduled",
+                    id=f"campaigns/campaign.scheduled.{campaign.id}",
+                    data={"object_id": campaign.id},
+                    # ts=int(time_delay)
+                ))
+        except Exception as e:
+            raise e
+
+        # Update campaign status to active if it's not already
+        if campaign.status != 'active':
+            campaign.status = 'active'
+            campaign.save(update_fields=['status'])
+
+        return Response({
+            'success': True,
+            'message': f'Campaign "{campaign.name}" launched successfully',
+            'campaign_id': campaign.id,
+            'campaign_name': campaign.name,
+            'pending_emails': message_assignments_count,
+            #'task_id': task_result.id if hasattr(task_result, 'id') else None,
+            'status': 'launched'
+        }, status=status.HTTP_200_OK)
+
+
+    except:
+        return Response({
+            'success': False,
+            'message': f'Error launching campaign: error',
+            'error_type': 'error',
+            'campaign_id': pk
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
