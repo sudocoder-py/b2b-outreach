@@ -116,14 +116,14 @@ class CampaignOptions(models.Model):
     send_as_text_only = models.BooleanField(default=False)
     send_first_email_as_text_only = models.BooleanField(default=True)
     
-    # Daily Limit
-    # daily_limit = models.IntegerField(
-    #     validators=[
-    #         validators.MinValueValidator(1, "Daily limit must be at least 1."),
-    #         validators.MaxValueValidator(1000, "Daily limit cannot exceed 1000.")
-    #     ],
-    #     default=30
-    # )
+    #Daily Limit
+    daily_limit = models.IntegerField(
+        validators=[
+            validators.MinValueValidator(1, "Daily limit must be at least 1."),
+            validators.MaxValueValidator(1000, "Daily limit cannot exceed 1000.")
+        ],
+        default=30
+    )
     
     def __str__(self):
         return f"Options for Campaign: {self.campaign.name}"

@@ -448,38 +448,28 @@ def launch_campaign(request, pk):
     """
     Launch a campaign by personalizing and sending all emails
     """
-    import logging
-    logger = logging.getLogger(__name__)
-
     try:
-        logger.info(f"🚀 Starting campaign launch for campaign ID: {pk}")
-
         campaign = get_object_or_404(Campaign, pk=pk)
-        logger.info(f"✅ Campaign found: {campaign.name} (ID: {campaign.id}, Status: {campaign.status})")
 
         # Check if campaign has email accounts assigned
         campaign_options = campaign.campaign_options.first()
         if not campaign_options:
-            logger.error(f"❌ Campaign {campaign.id} has no options configured")
+
             return Response({
                 'success': False,
                 'message': 'Campaign has no options configured. Please configure campaign options first.'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        logger.info(f"✅ Campaign options found (ID: {campaign_options.id})")
 
         # Check email accounts
         active_email_accounts = campaign_options.email_accounts.filter(status='active')
         if not active_email_accounts.exists():
-            logger.error(f"❌ Campaign {campaign.id} has no active email accounts assigned")
+
             return Response({
                 'success': False,
                 'message': 'No active email accounts assigned to this campaign. Please assign email accounts first.'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        logger.info(f"✅ Found {active_email_accounts.count()} active email accounts")
-        for account in active_email_accounts:
-            logger.info(f"   📧 {account.email} (sent: {account.emails_sent}/{account.daily_limit})")
 
         # Check if campaign has message assignments
         message_assignments_count = MessageAssignment.objects.filter(
@@ -488,37 +478,35 @@ def launch_campaign(request, pk):
         ).count()
 
         if message_assignments_count == 0:
-            logger.error(f"❌ Campaign {campaign.id} has no pending message assignments")
             return Response({
                 'success': False,
-                'message': 'No pending message assignments found for this campaign. Please create message assignments first.'
+                'message': 'No pending message assignments found for this campaign.'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        logger.info(f"✅ Found {message_assignments_count} pending message assignments")
 
-        # Launch the campaign using Celery task
-        logger.info("🔄 Importing Celery task...")
-        from campaign.tasks import personalize_and_send_all_emails_at_once
-
-        # Start the async task - Pass campaign ID instead of campaign object
-        logger.info(f"🔄 Starting Celery task for campaign ID: {campaign.id}")
         try:
-            task_result = personalize_and_send_all_emails_at_once.delay(campaign.id)
-            logger.info(f"✅ Celery task started successfully. Task ID: {getattr(task_result, 'id', 'Unknown')}")
-        except Exception as celery_error:
-            logger.error(f"❌ Celery task failed to start: {str(celery_error)}")
-            raise celery_error
+            # Trigger the campaign scheduler event (this will handle everything)
+            inngest_client.send_sync(
+                inngest.Event(
+                    name="campaigns/campaign.scheduled",
+                    id=f"campaigns/campaign.scheduled.{campaign.id}",
+                    data={"object_id": campaign.id},
+                    # ts=int(time_delay)
+                ))
+            logger.info(f"🚀 Campaign {campaign.id} launch event sent to Inngest")
+
+        except Exception as e:
+            logger.error(f"Error launching campaign {campaign.id}: {str(e)}")
+            return Response({
+                'success': False,
+                'message': f'Error launching campaign: {str(e)}',
+                'campaign_id': campaign.id
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Update campaign status to active if it's not already
         if campaign.status != 'active':
-            logger.info(f"🔄 Updating campaign status from '{campaign.status}' to 'active'")
             campaign.status = 'active'
             campaign.save(update_fields=['status'])
-            logger.info("✅ Campaign status updated to active")
-        else:
-            logger.info("ℹ️ Campaign is already active")
-
-        logger.info(f"🎉 Campaign launch completed successfully for '{campaign.name}'")
 
         return Response({
             'success': True,
@@ -526,25 +514,20 @@ def launch_campaign(request, pk):
             'campaign_id': campaign.id,
             'campaign_name': campaign.name,
             'pending_emails': message_assignments_count,
-            'task_id': task_result.id if hasattr(task_result, 'id') else None,
+            #'task_id': task_result.id if hasattr(task_result, 'id') else None,
             'status': 'launched'
         }, status=status.HTTP_200_OK)
 
+
     except Exception as e:
-        logger.error(f"💥 CRITICAL ERROR in campaign launch: {str(e)}")
-        logger.error(f"💥 Error type: {type(e).__name__}")
-        logger.error(f"💥 Campaign ID: {pk}")
-
-        # Import traceback for detailed error logging
-        import traceback
-        logger.error(f"💥 Full traceback:\n{traceback.format_exc()}")
-
+        logger.error(f"Unexpected error launching campaign {pk}: {str(e)}")
         return Response({
             'success': False,
             'message': f'Error launching campaign: {str(e)}',
-            'error_type': type(e).__name__,
+            'error_type': 'unexpected_error',
             'campaign_id': pk
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(['GET'])
@@ -628,84 +611,4 @@ from scheduler.client import inngest_client
 
 @api_view(['POST'])
 def launch_inggest_test(request):
-    try:
-        pk= request.data.get('id')
-        campaign = get_object_or_404(Campaign, pk=pk)
-
-        # Check if campaign has email accounts assigned
-        campaign_options = campaign.campaign_options.first()
-        if not campaign_options:
-
-            return Response({
-                'success': False,
-                'message': 'Campaign has no options configured. Please configure campaign options first.'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-
-        # Check email accounts
-        active_email_accounts = campaign_options.email_accounts.filter(status='active')
-        if not active_email_accounts.exists():
-
-            return Response({
-                'success': False,
-                'message': 'No active email accounts assigned to this campaign. Please assign email accounts first.'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-
-        # Check if campaign has message assignments
-        message_assignments_count = MessageAssignment.objects.filter(
-            campaign=campaign,
-            sent=False
-        ).count()
-
-        if message_assignments_count == 0:
-            return Response({
-                'success': False,
-                'message': 'No pending message assignments found for this campaign.'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-
-        try:
-            # Trigger the campaign scheduler event (this will handle everything)
-            inngest_client.send_sync(
-                inngest.Event(
-                    name="campaigns/campaign.scheduled",
-                    id=f"campaigns/campaign.scheduled.{campaign.id}",
-                    data={"object_id": campaign.id},
-                    # ts=int(time_delay)
-                ))
-            logger.info(f"🚀 Campaign {campaign.id} launch event sent to Inngest")
-
-        except Exception as e:
-            logger.error(f"Error launching campaign {campaign.id}: {str(e)}")
-            return Response({
-                'success': False,
-                'message': f'Error launching campaign: {str(e)}',
-                'campaign_id': campaign.id
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        # Update campaign status to active if it's not already
-        if campaign.status != 'active':
-            campaign.status = 'active'
-            campaign.save(update_fields=['status'])
-
-        return Response({
-            'success': True,
-            'message': f'Campaign "{campaign.name}" launched successfully',
-            'campaign_id': campaign.id,
-            'campaign_name': campaign.name,
-            'pending_emails': message_assignments_count,
-            #'task_id': task_result.id if hasattr(task_result, 'id') else None,
-            'status': 'launched'
-        }, status=status.HTTP_200_OK)
-
-
-    except Exception as e:
-        logger.error(f"Unexpected error launching campaign {pk}: {str(e)}")
-        return Response({
-            'success': False,
-            'message': f'Error launching campaign: {str(e)}',
-            'error_type': 'unexpected_error',
-            'campaign_id': pk
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+    pass
