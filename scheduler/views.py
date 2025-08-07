@@ -11,7 +11,11 @@ from campaign.tasks_inngest import (
     personalize_and_send_all_emails_at_once,
     process_scheduled_emails,
     send_single_email,
-    send_rate_limited_batch
+    send_rate_limited_batch,
+    reset_daily_email_limits,
+    calculate_all_campaigns_daily_stats,
+    create_campaign_stats,
+    calculate_daily_stats
 )
 
 
@@ -20,7 +24,11 @@ active_inngest_functions = [
     personalize_and_send_all_emails_at_once,
     process_scheduled_emails,
     send_single_email,
-    send_rate_limited_batch
+    send_rate_limited_batch,
+    reset_daily_email_limits,
+    calculate_all_campaigns_daily_stats,
+    create_campaign_stats,
+    calculate_daily_stats
 ]
 
 
