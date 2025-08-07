@@ -1,8 +1,7 @@
-# testing inggest
+# Inngest functions for campaign processing
 import inngest
 from scheduler.client import inngest_client
 
-from celery import shared_task
 from django.utils import timezone
 from django.conf import settings
 import logging
@@ -10,22 +9,31 @@ from datetime import timedelta
 from .models import MessageAssignment
 from .services import AnalyticsService
 
+logger = logging.getLogger(__name__)
 
 
-@shared_task(name="personalize_message_task")
-def personalize_message_task(message_assignment_id, skip=True):
+@inngest_client.create_function(
+    fn_id="personalize_message",
+    trigger=inngest.TriggerEvent(event="campaigns/personalize.message"),
+)
+def personalize_message_task(ctx: inngest.Context):
     """
-    Celery task to personalize a message using AI and save it to the database.
+    Inngest function to personalize a message using AI and save it to the database.
     Rate limited to respect AI API limits.
 
     Args:
-        message_assignment_id: ID of the MessageAssignment to personalize
-        skip: If True, skip AI and use simple replacement
+        ctx.event.data.message_assignment_id: ID of the MessageAssignment to personalize
+        ctx.event.data.skip: If True, skip AI and use simple replacement
 
     Returns:
-        bool: True if successful, False otherwise
+        dict: Result of the operation
     """
     try:
+        message_assignment_id = ctx.event.data.get("message_assignment_id")
+        skip = ctx.event.data.get("skip", True)
+
+        if not message_assignment_id:
+            return {"status": "error", "message": "message_assignment_id is required"}
 
         # Get the message assignment
         message_assignment = MessageAssignment.objects.get(id=message_assignment_id)
@@ -33,29 +41,45 @@ def personalize_message_task(message_assignment_id, skip=True):
         success = message_assignment.personalize_with_ai(skip=skip)
 
         if success:
-            print(f"✅ Successfully personalized message for assignment ID {message_assignment_id}")
-
-        return success
+            logger.info(f"✅ Successfully personalized message for assignment ID {message_assignment_id}")
+            return {"status": "success", "message_assignment_id": message_assignment_id}
+        else:
+            return {"status": "error", "message": "Failed to personalize message", "message_assignment_id": message_assignment_id}
 
     except MessageAssignment.DoesNotExist:
-        return False
+        return {"status": "error", "message": "MessageAssignment not found", "message_assignment_id": message_assignment_id}
     except Exception as e:
-        return False
+        logger.error(f"Error personalizing message {message_assignment_id}: {str(e)}")
+        return {"status": "error", "message": str(e), "message_assignment_id": message_assignment_id}
 
-@shared_task(name="personalize_campaign_messages_task")
-def personalize_campaign_messages_task(campaign_id, force=False):
+
+
+
+
+
+@inngest_client.create_function(
+    fn_id="personalize_campaign_messages",
+    trigger=inngest.TriggerEvent(event="campaigns/personalize.campaign_messages"),
+)
+def personalize_campaign_messages_task(ctx: inngest.Context):
     """
-    Celery task to personalize all messages for a campaign.
+    Inngest function to personalize all messages for a campaign.
 
     Args:
-        campaign_id: ID of the Campaign
-        force: Whether to force personalization even if already personalized
+        ctx.event.data.campaign_id: ID of the Campaign
+        ctx.event.data.force: Whether to force personalization even if already personalized
 
     Returns:
         dict: Results of the operation
     """
     try:
-        print(f"📝 Starting personalization for campaign ID: {campaign_id}")
+        campaign_id = ctx.event.data.get("campaign_id")
+        force = ctx.event.data.get("force", False)
+
+        if not campaign_id:
+            return {"status": "error", "message": "campaign_id is required"}
+
+        logger.info(f"📝 Starting personalization for campaign ID: {campaign_id}")
 
         # Get the campaign object
         from .models import Campaign
@@ -82,10 +106,17 @@ def personalize_campaign_messages_task(campaign_id, force=False):
                 'campaign_id': campaign_id
             }
 
-        # Create a task for each message assignment
+        # Send events for each message assignment
         for message_assignment in query:
-            personalize_message_task.delay(message_assignment.id)
-
+            inngest_client.send_sync(
+                inngest.Event(
+                    name="campaigns/personalize.message",
+                    data={
+                        "message_assignment_id": message_assignment.id,
+                        "skip": True
+                    }
+                )
+            )
 
         return {
             'status': 'success',
@@ -94,78 +125,128 @@ def personalize_campaign_messages_task(campaign_id, force=False):
         }
 
     except Exception as e:
+        logger.error(f"Error personalizing campaign messages {campaign_id}: {str(e)}")
         return {
             'status': 'error',
             'message': str(e),
             'campaign_id': campaign_id
         }
 
-@shared_task(name="send_email_task")
-def send_email_task(message_assignment_id, campaign_id):
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@inngest_client.create_function(
+    fn_id="send_email",
+    trigger=inngest.TriggerEvent(event="campaigns/send.email"),
+)
+def send_email_task(ctx: inngest.Context):
     """
-    Celery task to send an email for a message assignment.
+    Inngest function to send an email for a message assignment.
     Respects daily email sending limits.
 
     Args:
-        message_assignment_id: ID of the MessageAssignment to send
-        campaign_id: ID of the Campaign
+        ctx.event.data.message_assignment_id: ID of the MessageAssignment to send
+        ctx.event.data.campaign_id: ID of the Campaign
 
     Returns:
-        str/bool: "rate_limit_exceeded" if rate limit exceeded, True if successful, False otherwise
+        dict: Result of the operation
     """
     try:
+        message_assignment_id = ctx.event.data.get("message_assignment_id")
+        campaign_id = ctx.event.data.get("campaign_id")
+
+        if not message_assignment_id or not campaign_id:
+            return {"status": "error", "message": "message_assignment_id and campaign_id are required"}
+
         # Get the campaign object
         from .models import Campaign
         try:
             campaign = Campaign.objects.get(id=campaign_id)
         except Campaign.DoesNotExist:
-            return False
+            return {"status": "error", "message": "Campaign not found", "campaign_id": campaign_id}
 
         # Get the message assignment
         message_assignment = MessageAssignment.objects.get(id=message_assignment_id)
 
         # Check if it has personalized content and hasn't been sent
         if not message_assignment.personlized_msg_to_send:
-            return False
+            return {"status": "error", "message": "No personalized content", "message_assignment_id": message_assignment_id}
 
         if message_assignment.sent:
-            return "already sent"
+            return {"status": "success", "message": "already sent", "message_assignment_id": message_assignment_id}
 
         # Send the email using the existing function
         from campaign.email_sender import send_campaign_email
         success = send_campaign_email(message_assignment, campaign)
 
         if success:
-            print(f"✅ Email sent successfully to {message_assignment.campaign_lead.lead.email}")
+            logger.info(f"✅ Email sent successfully to {message_assignment.campaign_lead.lead.email}")
+            return {"status": "success", "message_assignment_id": message_assignment_id}
         else:
-            print(f"❌ Failed to send email to {message_assignment.campaign_lead.lead.email}")
-
-        return success
+            logger.error(f"❌ Failed to send email to {message_assignment.campaign_lead.lead.email}")
+            return {"status": "error", "message": "Failed to send email", "message_assignment_id": message_assignment_id}
 
     except MessageAssignment.DoesNotExist:
-        return False
+        return {"status": "error", "message": "MessageAssignment not found", "message_assignment_id": message_assignment_id}
     except Exception as e:
-        return False
+        logger.error(f"Error sending email {message_assignment_id}: {str(e)}")
+        return {"status": "error", "message": str(e), "message_assignment_id": message_assignment_id}
 
-@shared_task(name="send_campaign_emails_task")
-def send_campaign_emails_task(campaign_id, only_personalized=True):
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@inngest_client.create_function(
+    fn_id="send_campaign_emails",
+    trigger=inngest.TriggerEvent(event="campaigns/send.campaign_emails"),
+)
+def send_campaign_emails_task(ctx: inngest.Context):
     """
-    Celery task to send emails for all message assignments in a campaign.
+    Inngest function to send emails for all message assignments in a campaign.
 
     Args:
-        campaign_id: ID of the Campaign
-        only_personalized: Only send emails that have personalized content
+        ctx.event.data.campaign_id: ID of the Campaign
+        ctx.event.data.only_personalized: Only send emails that have personalized content
 
     Returns:
         dict: Results of the operation
     """
     try:
+        campaign_id = ctx.event.data.get("campaign_id")
+        only_personalized = ctx.event.data.get("only_personalized", True)
+
+        if not campaign_id:
+            return {"status": "error", "message": "campaign_id is required"}
 
         # Get the campaign object
         from .models import Campaign
         try:
             campaign = Campaign.objects.get(id=campaign_id)
-
         except Campaign.DoesNotExist:
             error_msg = f"Campaign with ID {campaign_id} not found"
             return {
@@ -192,10 +273,17 @@ def send_campaign_emails_task(campaign_id, only_personalized=True):
                 'campaign_id': campaign_id
             }
 
-        # Create a task for each message assignment
+        # Send events for each message assignment
         for message_assignment in query:
-            send_email_task.delay(message_assignment.id, campaign_id)
-
+            inngest_client.send_sync(
+                inngest.Event(
+                    name="campaigns/send.email",
+                    data={
+                        "message_assignment_id": message_assignment.id,
+                        "campaign_id": campaign_id
+                    }
+                )
+            )
 
         return {
             'status': 'success',
@@ -204,6 +292,7 @@ def send_campaign_emails_task(campaign_id, only_personalized=True):
         }
 
     except Exception as e:
+        logger.error(f"Error sending campaign emails {campaign_id}: {str(e)}")
         return {
             'status': 'error',
             'message': str(e),
@@ -211,26 +300,41 @@ def send_campaign_emails_task(campaign_id, only_personalized=True):
         }
 
 
-def personalize_and_send_all_emails_at_once(campaign_id):
+
+
+
+
+
+
+
+
+
+@inngest_client.create_function(
+    fn_id="personalize_and_send_all_emails",
+    trigger=inngest.TriggerEvent(event="campaigns/personalize_and_send.all_emails"),
+)
+def personalize_and_send_all_emails_at_once(ctx: inngest.Context):
     """
-    Celery task to personalize and send all emails at once for a specific campaign.
+    Inngest function to personalize and send all emails at once for a specific campaign.
 
     Args:
-        campaign_id: ID of the Campaign
+        ctx.event.data.campaign_id: ID of the Campaign
 
     Returns:
         dict: Results of the operation
     """
     try:
-       
+        campaign_id = ctx.event.data.get("campaign_id")
+
+        if not campaign_id:
+            return {"status": "error", "message": "campaign_id is required"}
+
         # Get the campaign object
         from .models import Campaign
         try:
             campaign = Campaign.objects.get(id=campaign_id)
-          
         except Campaign.DoesNotExist:
             error_msg = f"Campaign with ID {campaign_id} not found"
-           
             return {
                 'status': 'error',
                 'message': error_msg,
@@ -238,22 +342,73 @@ def personalize_and_send_all_emails_at_once(campaign_id):
             }
 
         # First personalize all messages
-       
-        personalize_result = personalize_campaign_messages_task.delay(campaign_id=campaign_id, force=False)
+        inngest_client.send_sync(
+            inngest.Event(
+                name="campaigns/personalize.campaign_messages",
+                data={
+                    "campaign_id": campaign_id,
+                    "force": False
+                }
+            )
+        )
 
         # Then send all personalized emails
-        send_result = send_campaign_emails_task.delay(campaign_id=campaign_id, only_personalized=True)
+        inngest_client.send_sync(
+            inngest.Event(
+                name="campaigns/send.campaign_emails",
+                data={
+                    "campaign_id": campaign_id,
+                    "only_personalized": True
+                }
+            )
+        )
 
         return {
             'status': 'success',
             'message': f'Campaign {campaign_id} launch initiated successfully',
             'campaign_id': campaign_id,
-            'campaign_name': campaign.name,
-            'personalize_task_id': personalize_result.id if hasattr(personalize_result, 'id') else None,
-            'send_task_id': send_result.id if hasattr(send_result, 'id') else None
+            'campaign_name': campaign.name
         }
 
     except Exception as e:
+        logger.error(f"Error launching campaign {campaign_id}: {str(e)}")
+        return {
+            'status': 'error',
+            'message': str(e),
+            'campaign_id': campaign_id
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+# Helper function for backward compatibility
+def personalize_and_send_all_emails_at_once_sync(campaign_id):
+    """
+    Synchronous helper function to trigger the Inngest function.
+    Used for backward compatibility with existing code.
+    """
+    try:
+        inngest_client.send_sync(
+            inngest.Event(
+                name="campaigns/personalize_and_send.all_emails",
+                data={"campaign_id": campaign_id}
+            )
+        )
+        return {
+            'status': 'success',
+            'message': f'Campaign {campaign_id} launch initiated successfully',
+            'campaign_id': campaign_id
+        }
+    except Exception as e:
+        logger.error(f"Error triggering campaign launch {campaign_id}: {str(e)}")
         return {
             'status': 'error',
             'message': str(e),

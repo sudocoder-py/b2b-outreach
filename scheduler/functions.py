@@ -16,6 +16,15 @@ def campaign_scheduler(ctx: inngest.Context):
     """
     Schedules a campaign for a future date.
     """
-    print(ctx.event.data)
-    return "done"
-    
+    campaign_id = ctx.event.data.get("object_id")
+    print(f"Campaign scheduler triggered for campaign ID: {campaign_id}")
+
+    # Trigger the personalize and send all emails function
+    inngest_client.send_sync(
+        inngest.Event(
+            name="campaigns/personalize_and_send.all_emails",
+            data={"campaign_id": campaign_id}
+        )
+    )
+
+    return {"status": "success", "campaign_id": campaign_id}

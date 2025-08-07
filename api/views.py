@@ -1,4 +1,5 @@
 import json
+import logging
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
@@ -14,6 +15,8 @@ from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from django.db import transaction
 import uuid
+
+logger = logging.getLogger(__name__)
 
 
 class ProductListCreateView(generics.ListCreateAPIView):
@@ -663,7 +666,11 @@ def launch_inggest_test(request):
 
 
         try:
-            task_result = personalize_and_send_all_emails_at_once(campaign.id)
+            # Use the new Inngest function instead of Celery
+            from campaign.tasks_inngest import personalize_and_send_all_emails_at_once_sync
+            task_result = personalize_and_send_all_emails_at_once_sync(campaign.id)
+
+            # Also trigger the campaign scheduler event
             inngest_client.send_sync(
                 inngest.Event(
                     name="campaigns/campaign.scheduled",
@@ -672,7 +679,12 @@ def launch_inggest_test(request):
                     # ts=int(time_delay)
                 ))
         except Exception as e:
-            raise e
+            logger.error(f"Error launching campaign {campaign.id}: {str(e)}")
+            return Response({
+                'success': False,
+                'message': f'Error launching campaign: {str(e)}',
+                'campaign_id': campaign.id
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Update campaign status to active if it's not already
         if campaign.status != 'active':
@@ -690,11 +702,12 @@ def launch_inggest_test(request):
         }, status=status.HTTP_200_OK)
 
 
-    except:
+    except Exception as e:
+        logger.error(f"Unexpected error launching campaign {pk}: {str(e)}")
         return Response({
             'success': False,
-            'message': f'Error launching campaign: error',
-            'error_type': 'error',
+            'message': f'Error launching campaign: {str(e)}',
+            'error_type': 'unexpected_error',
             'campaign_id': pk
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
