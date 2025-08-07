@@ -666,3 +666,214 @@ def personalize_and_send_all_emails_at_once_sync(campaign_id):
             'message': str(e),
             'campaign_id': campaign_id
         }
+
+
+# ============================================================================
+# ANALYTICS AND MAINTENANCE TASKS
+# ============================================================================
+
+@inngest_client.create_function(
+    fn_id="reset_daily_email_limits",
+    trigger=inngest.TriggerCron(cron="0 0 * * *"),  # Daily at midnight UTC
+)
+def reset_daily_email_limits(ctx: inngest.Context):
+    """
+    Reset daily email counts for all email accounts.
+    Runs daily at midnight UTC to reset the emails_sent counter.
+    """
+    try:
+        logger.info("🔄 Starting daily email limit reset")
+
+        from clients.models import EmailAccount
+
+        # Reset all email accounts that have sent emails
+        updated_count = EmailAccount.objects.filter(emails_sent__gt=0).update(emails_sent=0)
+
+        logger.info(f"✅ Reset daily email counts for {updated_count} email accounts")
+
+        return {
+            "status": "success",
+            "message": f"Reset daily email counts for {updated_count} email accounts",
+            "updated_count": updated_count
+        }
+
+    except Exception as e:
+        logger.error(f"💥 Error resetting daily email limits: {str(e)}")
+        import traceback
+        logger.error(f"💥 Full traceback:\n{traceback.format_exc()}")
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
+
+@inngest_client.create_function(
+    fn_id="calculate_daily_stats",
+    trigger=inngest.TriggerEvent(event="analytics/calculate_daily_stats"),
+)
+def calculate_daily_stats(ctx: inngest.Context):
+    """
+    Calculate daily stats for a specific campaign.
+    Triggered by event with campaign_id and optional target_date.
+    """
+    try:
+        campaign_id = ctx.event.data.get("campaign_id")
+        target_date_str = ctx.event.data.get("target_date")  # YYYY-MM-DD format
+
+        if not campaign_id:
+            return {"status": "error", "message": "campaign_id is required"}
+
+        logger.info(f"📊 Calculating daily stats for campaign {campaign_id}")
+
+        from .models import Campaign, CampaignDailyStats
+        from datetime import datetime
+
+        # Get the campaign
+        campaign = Campaign.objects.get(id=campaign_id)
+
+        # Parse target date if provided
+        target_date = None
+        if target_date_str:
+            target_date = datetime.strptime(target_date_str, '%Y-%m-%d').date()
+
+        # Calculate daily stats
+        daily_stats = CampaignDailyStats.calculate_daily_stats(campaign, target_date)
+
+        logger.info(f"✅ Calculated daily stats for campaign {campaign.name} on {daily_stats.date}")
+
+        return {
+            "status": "success",
+            "message": f"Daily stats calculated for {campaign.name}",
+            "campaign_id": campaign_id,
+            "date": daily_stats.date.isoformat(),
+            "stats": {
+                "emails_sent": daily_stats.emails_sent,
+                "emails_opened": daily_stats.emails_opened,
+                "links_clicked": daily_stats.links_clicked,
+                "replies_received": daily_stats.replies_received
+            }
+        }
+
+    except Exception as e:
+        logger.error(f"💥 Error calculating daily stats: {str(e)}")
+        import traceback
+        logger.error(f"💥 Full traceback:\n{traceback.format_exc()}")
+        return {
+            "status": "error",
+            "message": str(e),
+            "campaign_id": campaign_id if 'campaign_id' in locals() else None
+        }
+
+
+@inngest_client.create_function(
+    fn_id="calculate_all_campaigns_daily_stats",
+    trigger=inngest.TriggerCron(cron="0 1 * * *"),  # Daily at 1 AM UTC
+)
+def calculate_all_campaigns_daily_stats(ctx: inngest.Context):
+    """
+    Calculate daily stats for all active campaigns.
+    Runs daily at 1 AM UTC (after email limit reset).
+    """
+    try:
+        logger.info("📊 Starting daily stats calculation for all active campaigns")
+
+        from .models import Campaign
+
+        # Get all active campaigns
+        campaigns = Campaign.objects.filter(status='active')
+        count = campaigns.count()
+
+        logger.info(f"📊 Found {count} active campaigns for daily stats calculation")
+
+        # Trigger individual calculation for each campaign
+        for campaign in campaigns:
+            inngest_client.send_sync(
+                inngest.Event(
+                    name="analytics/calculate_daily_stats",
+                    data={
+                        "campaign_id": campaign.id,
+                        "target_date": None  # Use today's date
+                    }
+                )
+            )
+
+        logger.info(f"✅ Scheduled daily stats calculation for {count} campaigns")
+
+        return {
+            "status": "success",
+            "message": f"Scheduled daily stats calculation for {count} campaigns",
+            "campaigns_count": count
+        }
+
+    except Exception as e:
+        logger.error(f"💥 Error scheduling daily stats calculation: {str(e)}")
+        import traceback
+        logger.error(f"💥 Full traceback:\n{traceback.format_exc()}")
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
+
+@inngest_client.create_function(
+    fn_id="create_campaign_stats",
+    trigger=inngest.TriggerEvent(event="campaigns/create_stats"),
+)
+def create_campaign_stats(ctx: inngest.Context):
+    """
+    Create and initialize campaign stats when a campaign is launched.
+    This replaces the stats creation during campaign creation.
+    """
+    try:
+        campaign_id = ctx.event.data.get("campaign_id")
+
+        if not campaign_id:
+            return {"status": "error", "message": "campaign_id is required"}
+
+        logger.info(f"📊 Creating campaign stats for campaign {campaign_id}")
+
+        from .models import Campaign, CampaignStats
+        from .services import AnalyticsService
+
+        # Get the campaign
+        campaign = Campaign.objects.get(id=campaign_id)
+
+        # Create or get campaign stats
+        stats, created = CampaignStats.objects.get_or_create(campaign=campaign)
+
+        if created:
+            logger.info(f"✅ Created new campaign stats for {campaign.name}")
+        else:
+            logger.info(f"📊 Campaign stats already exist for {campaign.name}, updating...")
+
+        # Perform full recalculation to ensure accuracy
+        AnalyticsService.recalculate_campaign_stats(campaign)
+
+        # Refresh stats from database
+        stats.refresh_from_db()
+
+        logger.info(f"✅ Campaign stats initialized for {campaign.name}")
+
+        return {
+            "status": "success",
+            "message": f"Campaign stats created/updated for {campaign.name}",
+            "campaign_id": campaign_id,
+            "stats": {
+                "sequence_started_count": stats.sequence_started_count,
+                "opened_count": stats.opened_count,
+                "clicked_count": stats.clicked_count,
+                "replied_count": stats.replied_count,
+                "opportunities_count": stats.opportunities_count,
+                "conversions_count": stats.conversions_count
+            }
+        }
+
+    except Exception as e:
+        logger.error(f"💥 Error creating campaign stats: {str(e)}")
+        import traceback
+        logger.error(f"💥 Full traceback:\n{traceback.format_exc()}")
+        return {
+            "status": "error",
+            "message": str(e),
+            "campaign_id": campaign_id if 'campaign_id' in locals() else None
+        }

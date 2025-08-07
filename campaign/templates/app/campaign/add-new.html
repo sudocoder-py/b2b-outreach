@@ -188,19 +188,8 @@
 
         const data = await response.json();
 
-        const response_stats = await fetch('/api/campaign-stats/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}',
-          },
-          body: JSON.stringify({campaign: data.id})
-        });
-
-        if (!response_stats.ok) {
-          showToast('error', 'failed to create Campaign stats!');
-          throw new Error("Failed to create campaign stats");
-        }
+        // Campaign stats will be created when the campaign is launched
+        // This ensures stats are calculated with actual leads and messages
         
         // Show success toast
         showToast('success', 'Campaign created successfully!');

@@ -485,6 +485,15 @@ def launch_campaign(request, pk):
 
 
         try:
+            # Create/update campaign stats first
+            inngest_client.send_sync(
+                inngest.Event(
+                    name="campaigns/create_stats",
+                    data={"campaign_id": campaign.id}
+                )
+            )
+            logger.info(f"📊 Campaign stats creation triggered for campaign {campaign.id}")
+
             # Trigger the campaign scheduler event (this will handle everything)
             inngest_client.send_sync(
                 inngest.Event(
