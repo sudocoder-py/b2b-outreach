@@ -68,6 +68,13 @@ class Campaign(models.Model):
             'end_date': self.end_date.isoformat() if self.end_date else None
         }
 
+    def is_locked_for_editing(self):
+        """
+        Check if campaign is locked for editing.
+        Returns True if campaign is active or completed and should not be edited.
+        """
+        return self.status in ['active', 'completed'] or self.is_active
+
 
 class Schedule(models.Model):
     subscribed_company = models.ForeignKey(SubscribedCompany, on_delete=models.CASCADE, null=True, blank=True)

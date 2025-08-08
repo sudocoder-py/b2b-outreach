@@ -44,6 +44,7 @@ urlpatterns = [
 
     path('campaign-stats/', views.CampaignStatsListCreateView.as_view(), name='campaign-options-list-create'),
     path('campaign-stats/<int:pk>/', views.CampaignStatsRetrieveUpdateDestroyView.as_view(), name='campaign-options-detail'),
+    path('campaigns/<int:campaign_id>/update-opportunity-value/', views.update_opportunity_value, name='update-opportunity-value'),
     path('refresh-daily-stats/', views.refresh_campaign_daily_stats, name='refresh-daily-stats'),
 
 
