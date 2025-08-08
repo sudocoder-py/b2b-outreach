@@ -535,17 +535,21 @@ function deleteLead(leadId) {
 }
 
 function addLeadToList(leadId) {
+    // Build the select options dynamically from the available lists
+    let selectOptions = '<option value="">Select a list</option>';
+    {% for list in lead_lists %}
+        selectOptions += '<option value="{{ list.id }}">{{ list.title|escapejs }}</option>';
+    {% endfor %}
+
     ModalSystem.confirm({
         title: 'Add to List',
         message: `Select a list to add this lead to:`,
         confirmText: 'Add',
         confirmClass: 'btn-primary',
+        html: true,  // Enable HTML rendering
         customContent: `
             <select id="list-select" class="select select-bordered w-full mt-2">
-                <option value="">Select a list</option>
-                {% for list in lead_lists %}
-                    <option value="{{ list.id }}">{{ list.title }}</option>
-                {% endfor %}
+                ${selectOptions}
             </select>
         `,
         action: function() {
@@ -597,17 +601,21 @@ function addToList() {
 
     if (leadIds.length === 0) return;
 
+    // Build the select options dynamically from the available lists
+    let selectOptions = '<option value="">Select a list</option>';
+    {% for list in lead_lists_assign %}
+        selectOptions += '<option value="{{ list.id }}">{{ list.title|escapejs }}</option>';
+    {% endfor %}
+
     ModalSystem.confirm({
         title: 'Add to List',
         message: `Select a list to add ${leadIds.length} lead(s) to:`,
         confirmText: 'Add',
         confirmClass: 'btn-primary',
+        html: true,  // Enable HTML rendering
         customContent: `
             <select id="list-select" class="select select-bordered w-full mt-2">
-                <option value="">Select a list</option>
-                {% for list in lead_lists_assign %}
-                    <option value="{{ list.id }}">{{ list.title }}</option>
-                {% endfor %}
+                ${selectOptions}
             </select>
         `,
         action: function() {

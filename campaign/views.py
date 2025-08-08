@@ -21,35 +21,62 @@ logger = logging.getLogger(__name__)
 def redirect_and_track(request, ref_code):
     """
     Track the visit and redirect to the actual landing page
-    
+
     This view:
     1. Looks up the Link by ref_code
     2. Records the visit
-    3. Redirects to the actual landing page with UTM parameters
+    3. Updates campaign stats if this is the first visit
+    4. Redirects to the actual landing page with UTM parameters
     """
     try:
         # Find the link with this reference code
         link = get_object_or_404(Link, ref=ref_code)
-        
+
+        # Check if this is the first visit (before tracking)
+        is_first_visit = link.visit_count == 0
+
         # Record the visit
         link.track_visit()
-        
+
+        # Update campaign stats if this is the first visit
+        if is_first_visit and link.campaign:
+            try:
+                campaign_stats, _ = CampaignStats.objects.get_or_create(
+                    campaign=link.campaign,
+                    defaults={
+                        'clicked_count': 0,
+                        'sequence_started_count': 0,
+                        'opened_count': 0,
+                        'replied_count': 0,
+                        'opportunities_count': 0,
+                        'conversions_count': 0
+                    }
+                )
+                # Increment clicked count
+                campaign_stats.clicked_count += 1
+                campaign_stats.save(update_fields=['clicked_count'])
+
+                logger.info(f"Updated campaign stats: clicked_count incremented for campaign {link.campaign.id}")
+            except Exception as stats_error:
+                # Log the error but don't break the redirect
+                logger.error(f"Error updating campaign stats: {str(stats_error)}")
+
         # Get the campaign lead for potential future use
         campaign_lead = link.campaign_lead
         if campaign_lead:
             # You could update additional stats here
             # For example, mark that this lead has engaged
             pass
-        
+
         # Log the visit for debugging
         logger.info(f"Tracked visit for link {link.id} with ref {ref_code}")
-        
+
         # Get the full URL with UTM parameters
         destination_url = link.full_url()
-        
+
         # Redirect to the actual landing page
         return redirect(destination_url)
-        
+
     except Exception as e:
         # Log the error but don't expose details to user
         logger.error(f"Error tracking link visit: {str(e)}")
@@ -159,8 +186,8 @@ def campaign_leads(request, pk):
 
 def campaign_sequence(request, pk):
     all_messages, products= get_messages_and_products(request)
-    
-    # Get unique messages with their assignment counts
+
+    # Get unique messages with their assignment counts - use distinct() to avoid duplicates
     messages = all_messages.filter(
         messageassignment__campaign_id=pk
     ).annotate(
@@ -168,7 +195,7 @@ def campaign_sequence(request, pk):
         sent_count=Count('messageassignment', filter=Q(messageassignment__sent=True)),
         response_count=Count('messageassignment', filter=Q(messageassignment__responded=True)),
         delayed_by_days=Min('messageassignment__delayed_by_days')
-    ).order_by('-messageassignment__sent_at')
+    ).distinct().order_by('id')  # Use distinct() and order by id for consistent ordering
 
     products= products.filter(product_campaigns=pk)
     all_messages= all_messages.filter(product__in=products)
@@ -178,7 +205,7 @@ def campaign_sequence(request, pk):
     context = {
         'campaign_id': pk,
         'current_tab': 'sequences',
-        'messages': messages,  # Now contains aggregated data
+        'messages': messages,  # Now contains aggregated data without duplicates
         'all_messages': all_messages  # For the "Add" dropdown
     }
     return render(request, "app/campaign/sequence.html", context)

@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 import uuid
 from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.conf import settings
 import re
@@ -1141,5 +1141,41 @@ class CampaignDailyStats(models.Model):
 
         daily_stats.save()
         return daily_stats
+
+
+# Signal handlers for email rate limit synchronization
+@receiver(post_save, sender=CampaignOptions)
+def sync_email_account_rate_limits(sender, instance, created, **kwargs):
+    """
+    Sync EmailAccount daily_limit when CampaignOptions daily_limit changes.
+    Distributes the campaign rate limit across selected email accounts.
+    """
+    if instance.email_accounts.exists():
+        email_accounts = instance.email_accounts.all()
+        email_count = email_accounts.count()
+
+        if email_count > 0:
+            # Calculate per-account limit: campaign_limit / number_of_accounts
+            per_account_limit = instance.daily_limit // email_count
+
+            # Ensure minimum of 1 per account
+            if per_account_limit < 1:
+                per_account_limit = 1
+
+            # Update all email accounts
+            for email_account in email_accounts:
+                if email_account.daily_limit != per_account_limit:
+                    email_account.daily_limit = per_account_limit
+                    email_account.save(update_fields=['daily_limit'])
+
+
+@receiver(m2m_changed, sender=CampaignOptions.email_accounts.through)
+def sync_email_accounts_on_m2m_change(sender, instance, action, pk_set, **kwargs):
+    """
+    Sync email account rate limits when email accounts are added/removed from campaign options.
+    """
+    if action in ['post_add', 'post_remove', 'post_clear']:
+        # Re-sync rate limits after the M2M change
+        sync_email_account_rate_limits(CampaignOptions, instance, False)
 
 

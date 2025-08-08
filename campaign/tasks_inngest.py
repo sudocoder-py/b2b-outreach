@@ -275,10 +275,57 @@ def process_scheduled_emails(ctx: inngest.Context):
 
         # Get all message assignments that need processing
         logger.info(f"🔍 DEBUG: Querying message assignments for campaign {campaign_id}")
+
+        # Get campaign options to check stop_on_reply setting
+        campaign_options = campaign.campaign_options.first()
+
+        # Base query for unsent messages
         query = MessageAssignment.objects.filter(
             campaign_id=campaign_id,
             sent=False
         )
+
+        # Handle stop_on_reply: exclude messages for leads that have already replied
+        if campaign_options and campaign_options.stop_on_reply:
+            # Get leads that have replied to any message in this campaign
+            replied_lead_ids = MessageAssignment.objects.filter(
+                campaign_id=campaign_id,
+                responded=True
+            ).values_list('campaign_lead_id', flat=True).distinct()
+
+            # Exclude message assignments for leads that have replied
+            query = query.exclude(campaign_lead_id__in=replied_lead_ids)
+            logger.info(f"🛑 Stop on reply enabled: excluded {len(replied_lead_ids)} leads who have replied")
+
+        # Handle delayed_by_days: only include messages that are ready to send
+
+        ready_to_send_ids = []
+        for assignment in query:
+            if assignment.delayed_by_days and assignment.delayed_by_days > 0:
+                # Find the most recent sent message for this lead in this campaign
+                last_sent = MessageAssignment.objects.filter(
+                    campaign_id=campaign_id,
+                    campaign_lead=assignment.campaign_lead,
+                    sent=True,
+                    sent_at__isnull=False
+                ).order_by('-sent_at').first()
+
+                if last_sent:
+                    # Check if enough days have passed since the last sent message
+                    days_since_last = (timezone.now() - last_sent.sent_at).days
+                    if days_since_last >= assignment.delayed_by_days:
+                        ready_to_send_ids.append(assignment.id)
+                    else:
+                        logger.info(f"⏰ Message {assignment.id} delayed: {days_since_last}/{assignment.delayed_by_days} days passed")
+                else:
+                    # No previous message sent, this can be sent immediately
+                    ready_to_send_ids.append(assignment.id)
+            else:
+                # No delay specified, ready to send
+                ready_to_send_ids.append(assignment.id)
+
+        # Filter query to only include ready-to-send messages
+        query = query.filter(id__in=ready_to_send_ids)
 
         total_emails = query.count()
         logger.info(f"📊 Found {total_emails} emails to process for campaign {campaign_id}")
@@ -505,6 +552,25 @@ def send_single_email(ctx: inngest.Context):
                 'campaign_id': campaign_id,
                 'message_assignment_id': message_assignment_id
             }
+
+        # Check stop_on_reply: don't send if lead has already replied
+        campaign_options = campaign.campaign_options.first()
+        if campaign_options and campaign_options.stop_on_reply:
+            # Check if this lead has replied to any message in this campaign
+            has_replied = MessageAssignment.objects.filter(
+                campaign_id=campaign_id,
+                campaign_lead=message_assignment.campaign_lead,
+                responded=True
+            ).exists()
+
+            if has_replied:
+                logger.info(f"🛑 Skipping email to {message_assignment.campaign_lead.lead.email} - lead has already replied")
+                return {
+                    'status': 'skipped',
+                    'message': 'Email skipped - lead has replied (stop_on_reply enabled)',
+                    'campaign_id': campaign_id,
+                    'message_assignment_id': message_assignment_id
+                }
 
         # Send email using specific account
         from campaign.email_sender import send_campaign_email_with_account
