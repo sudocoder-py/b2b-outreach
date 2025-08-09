@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count, Q, Min
 import pytz
 
-from campaign.utils import get_or_none
+from campaign.utils import get_or_none, is_campaign_view_only
 from .dicts import timezone_options, days_options, time_options
 from django.core.serializers.json import DjangoJSONEncoder
 import json
@@ -170,6 +170,8 @@ def campaign_dashboard(request, pk):
 
 def campaign_leads(request, pk):
     
+    is_view_only = is_campaign_view_only(pk)
+    
     all_lead_lists= get_lead_lists_or_both(request, lead_lists_only=True, list_id=None)
     lead_lists= all_lead_lists.filter(campaigns=pk)
     lead_lists_assign= all_lead_lists.exclude(campaigns__id=pk)
@@ -179,12 +181,16 @@ def campaign_leads(request, pk):
         'current_tab': 'leads',
         'lead_lists': lead_lists,
         'lead_lists_assign': lead_lists_assign,
+        'view_only': is_view_only
     }
     return render(request, "app/campaign/campaign-leads.html", context)
 
 
 
 def campaign_sequence(request, pk):
+
+    is_view_only = is_campaign_view_only(pk)
+
     all_messages, products= get_messages_and_products(request)
 
     # Get unique messages with their assignment counts - use distinct() to avoid duplicates
@@ -206,7 +212,8 @@ def campaign_sequence(request, pk):
         'campaign_id': pk,
         'current_tab': 'sequences',
         'messages': messages,  # Now contains aggregated data without duplicates
-        'all_messages': all_messages  # For the "Add" dropdown
+        'all_messages': all_messages,  # For the "Add" dropdown
+        'view_only': is_view_only
     }
     return render(request, "app/campaign/sequence.html", context)
 
@@ -214,6 +221,10 @@ def campaign_sequence(request, pk):
 
 
 def campaign_scheduele(request, pk):
+
+    is_view_only = is_campaign_view_only(pk)
+
+    
     timezones, days, times = timezone_options, days_options, time_options
     campaign = Campaign.objects.get(id=pk)
     campaign_Schedule = Schedule.objects.filter(campaign=campaign)
@@ -224,13 +235,18 @@ def campaign_scheduele(request, pk):
         'timezones': timezones,
         'days': days,
         'times': times,
-        'schedule': campaign_Schedule
+        'schedule': campaign_Schedule,
+        'view_only': is_view_only
     }
     return render(request, "app/campaign/scheduele.html", context)
 
 
 
 def campaign_options(request, pk):
+
+    is_view_only = is_campaign_view_only(pk)
+
+
     # Get all email accounts for the company
     company_email_accounts = get_company_email_accounts(request)
     
@@ -265,7 +281,8 @@ def campaign_options(request, pk):
         'campaign_id': pk,
         'current_tab': 'options',
         'emails': formatted_emails,
-        'campaign_options': current_campaign_options
+        'campaign_options': current_campaign_options,
+        'view_only': is_view_only
     }
     return render(request, "app/campaign/options.html", context)
 

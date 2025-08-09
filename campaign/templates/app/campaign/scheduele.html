@@ -1,5 +1,5 @@
 {% extends "app/campaign/campaign-base.html" %}
-
+{% load static %}
 {% block title %}Campaign schedule{% endblock %}
  
 {% block js %}
@@ -51,7 +51,6 @@
 }
 </style>
 
-        
 
         {% if not schedule %}
           <!-- div two-column layout -->
@@ -293,8 +292,18 @@
           </div>
         </div>
 
+ 
 
+
+<script src="{% static 'js/block-interactions.js' %}"></script> 
 <script>
+    
+    {% if view_only %}
+        blockInteractions('#deafault-view-form');
+        blockInteractions('#editable-form');
+    {% endif %}
+
+
 function editDeafaultForm() {
     editForm= document.getElementById('editable-form');
     deafaultForm= document.getElementById('deafault-view-form');

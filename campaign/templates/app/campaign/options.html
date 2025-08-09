@@ -1,4 +1,5 @@
 {% extends "app/campaign/campaign-base.html" %}
+{% load static %}
 
 {% block title %}Campaign options{% endblock %}
 
@@ -71,9 +72,8 @@
     }
 }
 </style>
-
         <!-- Options Container -->
-        <div class="mt-6 w-full max-w-4xl mx-auto">
+        <div id= "options-container" class="mt-6 w-full max-w-4xl mx-auto">
             <form id="options-form" class="space-y-4">
                 <!-- Card: Accounts to use -->
                 <div class="card bg-white p-6 rounded-lg shadow-sm flex-row items-center justify-between option-card">
@@ -261,7 +261,14 @@
             {% endif %}
         </div>
 
+<script src="{% static 'js/block-interactions.js' %}"></script> 
 <script>
+    
+    {% if view_only %}
+        blockInteractions('#options-container');
+    {% endif %}
+
+
     const allEmails = [
     {% for email in emails %}
         { email_id: {{email.email_id}}, email: "{{email.email}}", active: {% if email.active %}true{% else %}false{% endif %}, used: {% if email.used %}true{% else %}false{% endif %} },
@@ -720,3 +727,5 @@
 </script>
 
 {% endblock %}
+
+

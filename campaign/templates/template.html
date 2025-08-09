@@ -1,361 +1,155 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="light">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Email Marketing Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      plugins: [window.daisyui],
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/daisyui"></script>
+let isInteractionsBlocked = false;
+let tooltip = null;
+let blurStylesInjected = false;
 
-    <style>
-        /* Custom styles for better matching */
-        .upload-box {
-            border: 2px dashed #d1d5db; /* neutral-300 */
-        }
-        .upload-box.dragover {
-            border-color: #570df8; /* primary */
-            background-color: #f2f2f2; /* base-200 */
-        }
-        .mapping-row {
-            display: grid;
-            grid-template-columns: 1.2fr 1.5fr 1fr;
-            gap: 1.5rem;
-            align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid #e5e7eb; /* neutral-200 */
-        }
-        .mapping-header {
-            color: #6b7280; /* neutral-500 */
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-    </style>
-</head>
-<body class="bg-base-100 text-base-content min-h-screen">
-
-    <!-- Floating Action Button -->
-    <button class="btn btn-primary btn-circle fixed bottom-8 right-8 z-50 shadow-lg">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-    </button>
-
-    <div class="container mx-auto max-w-5xl p-4 sm:p-8">
-        
-        <!-- Top Navigation -->
-        <div class="mb-8">
-            <a href="#" class="inline-flex items-center text-primary hover:underline">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-                Choose another method
-            </a>
-        </div>
-
-        <h1 class="text-3xl font-bold mb-6">Upload CSV File</h1>
-
-        <!-- File Upload Section -->
-        <div id="upload-container">
-            <!-- Initial State -->
-            <div id="drop-zone" class="upload-box rounded-xl p-8 text-center cursor-pointer">
-                <input type="file" id="file-input" class="hidden" accept=".csv">
-                <p class="text-neutral-500">Drag & drop your file here, or click to select a file</p>
-            </div>
-
-            <!-- Uploaded State -->
-            <div id="file-display" class="hidden upload-box rounded-xl p-6">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="flex-shrink-0">
-                           <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p id="file-name" class="font-semibold">Lead-2025-06-08.csv</p>
-                            <p id="file-size" class="text-sm text-neutral-500">2 KB</p>
-                        </div>
-                    </div>
-                    <button id="cancel-upload" class="btn btn-ghost btn-circle">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- File Processed Message -->
-        <div id="processed-message" class="hidden mt-4 flex items-center gap-2 text-success">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-            </svg>
-            <span>File processed</span>
-        </div>
-
-        <!-- Mapping Section -->
-        <div id="mapping-section" class="hidden mt-10">
-            <!-- Header -->
-            <div class="mapping-row mapping-header">
-                <span>Column Name</span>
-                <span>Select Type</span>
-                <span>Samples</span>
-            </div>
-
-            <!-- Mapping Row 1: subscribed_company -->
-            <div class="mapping-row">
-                <span class="font-medium">subscribed_company</span>
-                <div class="dropdown-container">
-                     <button class="btn btn-outline justify-between w-full font-normal dropdown-trigger">
-                         <span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                            Company Name
-                         </span>
-                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    <ul class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                        <li><a data-style="btn-error"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Do not import</a></li>
-                        <li><a data-style="btn-warning"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>First Name</a></li>
-                        <li><a data-style="btn-outline" class="active"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>Company Name</a></li>
-                    </ul>
-                </div>
-                <div class="text-sm text-neutral-600">
-                    <p>1</p>
-                    <p>1</p>
-                    <p>1</p>
-                    <p>1</p>
-                </div>
-            </div>
-
-            <!-- Mapping Row 2: full_name -->
-            <div class="mapping-row">
-                <span class="font-medium">full_name</span>
-                <div class="dropdown-container">
-                    <button class="btn btn-error justify-between w-full font-normal dropdown-trigger">
-                        <span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            Do not import
-                        </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    <ul class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                        <li><a data-style="btn-error" class="active"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Do not import</a></li>
-                        <li><a data-style="btn-warning"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>First Name</a></li>
-                        <li><a data-style="btn-outline"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>Company Name</a></li>
-                    </ul>
-                </div>
-                <div class="text-sm text-neutral-600">
-                    <p>fdud ramo</p>
-                    <p>Yamen Alobsi</p>
-                    <p>Salemi AL-najjar</p>
-                    <p class="text-primary font-semibold">Ghasson Rizk</p>
-                </div>
-            </div>
-
-            <!-- Mapping Row 3: first_name -->
-             <div class="mapping-row">
-                <span class="font-medium">first_name</span>
-                <div class="dropdown-container">
-                     <button class="btn btn-warning justify-between w-full font-normal dropdown-trigger">
-                         <span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                            First Name
-                         </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    <ul class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                        <li><a data-style="btn-error"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Do not import</a></li>
-                        <li><a data-style="btn-warning" class="active"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>First Name</a></li>
-                        <li><a data-style="btn-outline"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>Company Name</a></li>
-                    </ul>
-                </div>
-                <div class="text-sm text-neutral-600">
-                    <p>fdud</p>
-                    <p>Yamen</p>
-                    <p>Mohammad</p>
-                    <p class="text-primary font-semibold">Ghasson</p>
-                </div>
-            </div>
-            
-             <!-- ... more mapping rows would go here ... -->
-             <!-- The screenshot shows more rows, but for brevity, I'm omitting them. You can copy-paste the structure above to add more. -->
-
-            <!-- Final Options & Upload Button -->
-            <div class="mt-12 p-6 bg-base-200 rounded-lg">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-                    <div class="flex items-center gap-6 font-medium">
-                        <span>Check for duplicates across all</span>
-                        <div class="form-control">
-                            <label class="label cursor-pointer gap-2">
-                                <input type="checkbox" checked="checked" class="checkbox checkbox-primary" />
-                                <span class="label-text">Campaigns</span> 
-                            </label>
-                        </div>
-                        <div class="form-control">
-                            <label class="label cursor-pointer gap-2">
-                                <input type="checkbox" checked="checked" class="checkbox checkbox-primary" />
-                                <span class="label-text">Lists</span> 
-                            </label>
-                        </div>
-                         <div class="form-control">
-                            <label class="label cursor-pointer gap-2">
-                                <input type="checkbox" checked="checked" class="checkbox checkbox-primary" />
-                                <span class="label-text">The Workspace</span> 
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-control">
-                       <label class="label cursor-pointer gap-2">
-                           <input type="checkbox" class="checkbox checkbox-primary" />
-                           <span class="label-text font-medium">Verify leads</span> 
-                           <span class="text-sm text-neutral-500 font-mono">0.25 / Row</span>
-                       </label>
-                   </div>
-                </div>
-            </div>
-
-            <div class="text-center mt-8">
-                <div id="detection-message" class="hidden mb-4 flex items-center justify-center gap-2 text-success">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                    <span>Detected 8 data rows</span>
-                </div>
-                <button class="btn btn-lg btn-success text-white">
-                    UPLOAD ALL
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const fileDisplay = document.getElementById('file-display');
-    const cancelUploadBtn = document.getElementById('cancel-upload');
-    const processedMessage = document.getElementById('processed-message');
-    const mappingSection = document.getElementById('mapping-section');
-    const detectionMessage = document.getElementById('detection-message');
-    const fileNameEl = document.getElementById('file-name');
-    const fileSizeEl = document.getElementById('file-size');
-
-    // --- File Upload Logic ---
+// Inject CSS for blur effect
+function injectBlurStyles() {
+    if (blurStylesInjected) return;
     
-    // Function to handle file processing
-    const handleFile = (file) => {
-        if (!file || !file.type.match('text/csv')) {
-            alert('Please select a valid CSV file.');
-            return;
+    const style = document.createElement('style');
+    style.textContent = `
+        .interaction-blocked-blur {
+            filter: blur(2px);
+            transition: filter 0.3s ease;
         }
+        .interaction-blocked-blur:hover {
+            filter: blur(2px);
+        }
+    `;
+    document.head.appendChild(style);
+    blurStylesInjected = true;
+}
 
-        // Update file info display
-        fileNameEl.textContent = file.name;
-        fileSizeEl.textContent = `${(file.size / 1024).toFixed(1)} KB`;
+// Create the tooltip element
+function createTooltip() {
+    tooltip = document.createElement('div');
+    tooltip.textContent = 'You cannot interact with the page right now';
+    tooltip.style.cssText = `
+        position: fixed;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        pointer-events: none;
+        z-index: 10000;
+        display: none;
+        transition: opacity 0.3s;
+    `;
+    document.body.appendChild(tooltip);
+}
 
-        // Switch views
-        dropZone.classList.add('hidden');
-        fileDisplay.classList.remove('hidden');
+// Show tooltip at position
+function showTooltip(x, y) {
+    if (!tooltip) createTooltip();
+    
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y}px`;
+    tooltip.style.display = 'block';
+    
+    // Hide after 2 seconds
+    setTimeout(() => {
+        tooltip.style.display = 'none';
+    }, 2000);
+}
 
-        // Simulate processing delay
+// Handle interaction attempts with blur effect
+function handleInteraction(event) {
+    if (!isInteractionsBlocked) return;
+    
+    // Check if target is an interactive element
+    const interactiveElement = event.target.closest(
+        'button, input, select, textarea, a, [role="button"], [tabindex]:not([tabindex="-1"])'
+    );
+    
+    if (interactiveElement) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Add blur effect
+        interactiveElement.classList.add('interaction-blocked-blur');
+        
+        // Remove blur effect after animation
         setTimeout(() => {
-            processedMessage.classList.remove('hidden');
-            mappingSection.classList.remove('hidden');
-            detectionMessage.classList.remove('hidden');
-        }, 1000); // 1 second delay
-    };
-    
-    // Reset function
-    const resetUI = () => {
-        dropZone.classList.remove('hidden');
-        fileDisplay.classList.add('hidden');
-        processedMessage.classList.add('hidden');
-        mappingSection.classList.add('hidden');
-        detectionMessage.classList.add('hidden');
-        fileInput.value = ''; // Important to allow re-uploading the same file
-    }
-
-    // Event Listeners for file upload
-    dropZone.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-
-    // Drag and Drop events
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('dragover');
-    });
-    dropZone.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('dragover');
-    });
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('dragover');
-        const files = e.dataTransfer.files;
-        if (files.length) {
-            handleFile(files[0]);
-        }
-    });
-    
-    // Cancel button
-    cancelUploadBtn.addEventListener('click', resetUI);
-
-
-    // --- Dropdown Logic ---
-    const dropdownContainers = document.querySelectorAll('.dropdown-container');
-
-    dropdownContainers.forEach(container => {
-        const trigger = container.querySelector('.dropdown-trigger');
-        const menu = container.querySelector('.dropdown-content');
-
-        // Toggle dropdown on trigger click
-        trigger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            // Close other open dropdowns
-            closeAllDropdowns(container);
-            // Toggle current dropdown
-            if (document.activeElement === trigger) {
-                trigger.blur();
-            } else {
-                trigger.focus();
-            }
-        });
+            interactiveElement.classList.remove('interaction-blocked-blur');
+        }, 500);
         
-        // Handle selection
-        menu.addEventListener('click', (e) => {
-            if (e.target.tagName === 'A') {
-                e.preventDefault();
-                const selectedOption = e.target;
-                
-                // Update trigger button's content and style
-                trigger.innerHTML = selectedOption.innerHTML + `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 9l-7 7-7-7"></path></svg>`;
-                trigger.className = `btn justify-between w-full font-normal dropdown-trigger ${selectedOption.dataset.style}`;
+        // Show tooltip at cursor position
+        showTooltip(event.clientX, event.clientY);
+    }
+}
 
-                // Update active state in menu
-                menu.querySelectorAll('a').forEach(a => a.classList.remove('active'));
-                selectedOption.classList.add('active');
+// Handle keyboard interactions
+function handleKeydown(event) {
+    if (!isInteractionsBlocked) return;
+    
+    const interactiveElement = event.target.closest(
+        'button, input, select, textarea, a, [role="button"], [tabindex]:not([tabindex="-1"])'
+    );
+    
+    if (interactiveElement) {
+        // Allow navigation keys
+        const allowedKeys = ['Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Escape'];
+        if (!allowedKeys.includes(event.key)) {
+            event.preventDefault();
+            
+            // Add blur effect
+            interactiveElement.classList.add('interaction-blocked-blur');
+            
+            // Remove blur effect after animation
+            setTimeout(() => {
+                interactiveElement.classList.remove('interaction-blocked-blur');
+            }, 500);
+            
+            // Show tooltip near element
+            const rect = interactiveElement.getBoundingClientRect();
+            showTooltip(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        }
+    }
+}
 
-                // Close the dropdown
-                trigger.blur();
-            }
-        });
+// Block all interactions
+function blockInteractions() {
+    if (isInteractionsBlocked) return;
+    isInteractionsBlocked = true;
+    
+    // Inject blur styles
+    injectBlurStyles();
+    
+    // Create tooltip if needed
+    if (!tooltip) createTooltip();
+    
+    // Add event listeners
+    document.addEventListener('mousedown', handleInteraction, true);
+    document.addEventListener('click', handleInteraction, true);
+    document.addEventListener('touchstart', handleInteraction, true);
+    document.addEventListener('keydown', handleKeydown, true);
+    document.addEventListener('submit', (e) => e.preventDefault(), true);
+    
+    // Add visual cue
+    document.body.style.cursor = 'not-allowed';
+}
+
+// Restore interactions
+function restoreInteractions() {
+    if (!isInteractionsBlocked) return;
+    isInteractionsBlocked = false;
+    
+    // Remove event listeners
+    document.removeEventListener('mousedown', handleInteraction, true);
+    document.removeEventListener('click', handleInteraction, true);
+    document.removeEventListener('touchstart', handleInteraction, true);
+    document.removeEventListener('keydown', handleKeydown, true);
+    
+    // Remove visual cue
+    document.body.style.cursor = '';
+    
+    // Remove any remaining blur effects
+    document.querySelectorAll('.interaction-blocked-blur').forEach(el => {
+        el.classList.remove('interaction-blocked-blur');
     });
+}
 
-    // Function to close all dropdowns, except the one passed as an argument
-    const closeAllDropdowns = (exceptContainer = null) => {
-        dropdownContainers.forEach(container => {
-            if (container !== exceptContainer) {
-                container.querySelector('.dropdown-trigger').blur();
-            }
-        });
-    };
-
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', () => closeAllDropdowns());
-});
-</script>
-
-</body>
-
-</html>
+// Usage:
+// blockInteractions(); // Disable interactions
+// restoreInteractions(); // Enable interactions

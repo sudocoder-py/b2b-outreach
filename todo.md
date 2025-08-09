@@ -22,6 +22,3 @@
 
 
 ### 4. implemnt the stats for http://127.0.0.1:8000/campaign/messages/ dealyed
-### 5. lock the editing in the complete or active (running) dealyed
-### 7. clcik to update: the opportunity value setting dealyed
-### 9. implement the see current result button as a card for results: see this http://127.0.0.1:8000/api/campaigns/9/status/ dealyed

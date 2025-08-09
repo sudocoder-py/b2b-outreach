@@ -15,60 +15,12 @@ from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from django.db import transaction
 import uuid
-from functools import wraps
 
 # testing inggest
 import inngest
 from scheduler.client import inngest_client
 
 logger = logging.getLogger(__name__)
-
-
-def campaign_not_locked(view_func):
-    """
-    Decorator to check if campaign is locked for editing.
-    Prevents editing when campaign is active or completed.
-    """
-    @wraps(view_func)
-    def wrapper(request, *args, **kwargs):
-        # Try to get campaign_id from various sources
-        campaign_id = None
-
-        # Check URL parameters
-        if 'pk' in kwargs:
-            campaign_id = kwargs['pk']
-        elif 'campaign_id' in kwargs:
-            campaign_id = kwargs['campaign_id']
-
-        # Check request data for campaign field
-        if not campaign_id and hasattr(request, 'data'):
-            campaign_id = request.data.get('campaign')
-
-        # Check if this is a campaign options request
-        if not campaign_id and 'CampaignOptions' in str(view_func):
-            try:
-                # For campaign options, get campaign from the options object
-                if 'pk' in kwargs:
-                    options = CampaignOptions.objects.get(pk=kwargs['pk'])
-                    campaign_id = options.campaign.id
-            except CampaignOptions.DoesNotExist:
-                pass
-
-        if campaign_id:
-            try:
-                campaign = Campaign.objects.get(pk=campaign_id)
-                if campaign.is_locked_for_editing():
-                    return Response({
-                        'success': False,
-                        'message': f'Campaign "{campaign.name}" is currently {campaign.status} and cannot be edited.',
-                        'locked': True,
-                        'campaign_status': campaign.status
-                    }, status=status.HTTP_403_FORBIDDEN)
-            except Campaign.DoesNotExist:
-                pass
-
-        return view_func(request, *args, **kwargs)
-    return wrapper
 
 
 class ProductListCreateView(generics.ListCreateAPIView):
@@ -139,7 +91,6 @@ class MessageAssignmentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyA
 
 
 class MessageAssignmentBulkCreateView(APIView):
-    @campaign_not_locked
     def post(self, request):
         campaign_id = request.data.get("campaign_id")
         message_id = request.data.get("message_id")
@@ -487,7 +438,6 @@ class CampaignOptionsListCreateView(generics.ListCreateAPIView):
     queryset = CampaignOptions.objects.all()
     serializer_class = CampaignOptionsSerializer
 
-    @campaign_not_locked
     def create(self, request, *args, **kwargs):
         """Override create to use get_or_create to prevent duplicates"""
         campaign_id = request.data.get('campaign')
@@ -512,18 +462,6 @@ class CampaignOptionsListCreateView(generics.ListCreateAPIView):
 class CampaignOptionsRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CampaignOptions.objects.all()
     serializer_class = CampaignOptionsSerializer
-
-    @campaign_not_locked
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-
-    @campaign_not_locked
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-
-    @campaign_not_locked
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
 
 
 
