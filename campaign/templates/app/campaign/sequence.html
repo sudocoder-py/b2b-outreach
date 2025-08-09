@@ -122,6 +122,81 @@
     </div>
 </div>
 
+
+
+
+
+
+
+<!-- Assign Message Modal -->
+<dialog id="add-modal" class="modal">
+    <div class="modal-box max-w-md">
+        <div class="flex flex-col gap-4">
+            <!-- Header -->
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-900">Assign Message to Sequence</h3>
+            </div>
+            
+            <!-- Message Selection -->
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-medium">Select Message</span>
+                </label>
+                <select class="select select-bordered w-full focus:ring-2 focus:ring-primary" id="message-select">
+                    {% for msg in all_messages %}
+                        <option value="{{ msg.id }}">{{ msg.subject }}</option>
+                    {% empty %}
+                        <option>no message found</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="divider my-0"></div>
+            
+            <!-- Delay Input -->
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-medium">Days After Previous Message</span>
+                </label>
+                <div class="flex items-center gap-2">
+                    <input name="number" id="delayed-from-last-message" 
+                           type="number" 
+                           class="input input-bordered w-24 text-center focus:ring-2 focus:ring-primary" 
+                           min="0" 
+                           value="0" 
+                           required>
+                    <span class="text-sm text-gray-500">days</span>
+                </div>
+                <label class="label">
+                    <span class="label-text-alt text-gray-500">Number of days after the previous message in sequence</span>
+                </label>
+            </div>
+            
+            <!-- Actions -->
+            <div class="modal-action mt-2">
+                <button class="btn btn-primary" onclick="AssignMessage2Sequence({{campaign_id}})">Assign</button>
+                <form method="dialog">
+                    <button class="btn btn-ghost">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Backdrop -->
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+
+
+
+
+
+
+
+
+
 <!-- Assignments Modal -->
 <dialog id="assignment-modal" class="modal">
     <div class="modal-box w-11/12 max-w-5xl bg-base-100 shadow-lg rounded-xl">
