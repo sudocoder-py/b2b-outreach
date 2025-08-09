@@ -9,6 +9,7 @@ import html
 import smtplib
 import random
 from datetime import date
+from .tracking import add_tracking_to_email
 
 logger = logging.getLogger(__name__)
 
@@ -239,8 +240,8 @@ def send_campaign_email(message_assignment, campaign):
         # Create plain text version (for email clients that don't support HTML)
         plain_text = content
 
-        # Create HTML version with proper formatting
-        html_content = format_email_as_html(content)
+        # Create HTML version with proper formatting and tracking
+        html_content = format_email_as_html(content, message_assignment)
 
         # Create custom email backend for this account
         if email_account.is_smtp():
@@ -432,8 +433,8 @@ def send_campaign_email_with_account(message_assignment, campaign, email_account
         # Create plain text version
         plain_text = content
 
-        # Create HTML version with proper formatting
-        html_content = format_email_as_html(content)
+        # Create HTML version with proper formatting and tracking
+        html_content = format_email_as_html(content, message_assignment)
 
         # Send email based on account type
         sent = False
@@ -506,18 +507,19 @@ def send_campaign_email_with_account(message_assignment, campaign, email_account
         return False
 
 
-def format_email_as_html(content):
+def format_email_as_html(content, message_assignment=None):
     """
     Format plain text content as HTML with proper line breaks and paragraphs
-    
+
     Args:
         content: Plain text content to format
-        
+        message_assignment: MessageAssignment object for tracking (optional)
+
     Returns:
-        str: HTML formatted content
+        str: HTML formatted content with tracking if enabled
     """
     # Replace newlines with HTML line breaks
-    
+
     # Wrap in HTML structure
     html_content = f"""
     <!DOCTYPE html>
@@ -565,5 +567,13 @@ def format_email_as_html(content):
     </body>
     </html>
     """
-    
+
+    # Add tracking if message_assignment is provided
+    if message_assignment:
+        try:
+            html_content = add_tracking_to_email(html_content, message_assignment)
+        except Exception as e:
+            logger.error(f"Error adding tracking to email: {str(e)}")
+            # Continue with original content if tracking fails
+
     return html_content

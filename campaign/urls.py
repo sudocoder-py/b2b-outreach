@@ -1,8 +1,14 @@
 from django.urls import path
 from . import views
 from . import analytics_views
+from .tracking import CustomOpenTrackingView, CustomClickTrackingView
 
 urlpatterns = [
+    # Pytracking URLs for open and click tracking
+    path('tracking/open/<path:path>', CustomOpenTrackingView.as_view(), name='open_tracking'),
+    path('tracking/click/<path:path>', CustomClickTrackingView.as_view(), name='click_tracking'),
+
+    # Existing redirect tracking (for backward compatibility)
     path('redirect/<str:ref_code>/', views.redirect_and_track, name='redirect_and_track_emails'),
     path('leads/<int:pk>/', views.leads_view, name='leads_view'),
     path('leads/lists/', views.leads_lists, name='leads_lists'),
@@ -32,5 +38,8 @@ urlpatterns = [
     path('api/refresh-stats/<int:campaign_id>/', analytics_views.refresh_campaign_stats, name='refresh_campaign_stats'),
     path('api/backfill-analytics/<int:campaign_id>/', analytics_views.backfill_campaign_analytics, name='backfill_campaign_analytics'),
     path('api/overall-analytics/', analytics_views.overall_analytics_data, name='overall_analytics_data'),
+
+    # Tracking test endpoint
+    path('tracking/test/', views.tracking_test_view, name='tracking_test'),
 ]
 

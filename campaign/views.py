@@ -438,3 +438,29 @@ def feedback_view(request):
 def account_settings_view(request):
     """Account settings page"""
     return render(request, "app/account/account-settings.html")
+
+
+def tracking_test_view(request):
+    """Simple view to test if tracking endpoints are accessible"""
+    from django.conf import settings
+    from .tracking import get_pytracking_configuration
+
+    try:
+        site_url = getattr(settings, 'SITE_URL', 'Not configured')
+        config = get_pytracking_configuration()
+
+        test_data = {
+            'site_url': site_url,
+            'open_tracking_url': config.base_open_tracking_url,
+            'click_tracking_url': config.base_click_tracking_url,
+            'status': 'OK',
+            'message': 'Tracking configuration is working'
+        }
+
+        return JsonResponse(test_data)
+
+    except Exception as e:
+        return JsonResponse({
+            'status': 'ERROR',
+            'message': str(e)
+        }, status=500)
