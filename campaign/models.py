@@ -73,7 +73,7 @@ class Campaign(models.Model):
         Check if campaign is locked for editing.
         Returns True if campaign is active or completed and should not be edited.
         """
-        return self.status in ['active', 'completed'] or self.is_active
+        return self.status in ['active', 'completed']
 
 
 class Schedule(models.Model):
