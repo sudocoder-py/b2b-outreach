@@ -13,13 +13,5 @@ services:
     env_file:
       - .env.production
 
-  celery:
-    image: ghcr.io/sudocoder-py/b2b-outreach:latest
-    command: celery -A dcrm worker -l info
-    env_file:
-      - .env.production
-    depends_on:
-      - web
-
 volumes:
   static_volume:
