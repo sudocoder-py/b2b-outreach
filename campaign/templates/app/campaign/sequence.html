@@ -72,7 +72,7 @@
     <!-- Message Grid -->
     <div class="message-grid">
         {% for message in messages %}
-        <div class="message-card" style="padding-bottom: 10px;  padding-right: 15px; min-width: 350px;" onclick="openMessageModal({{ message.id }})">
+        <div class="message-card always-interaction-allowed" style="padding-bottom: 10px;  padding-right: 15px; min-width: 350px;" onclick="openMessageModal({{ message.id }})">
             <div class="flex justify-between items-start">
                 <h3 class="font-medium text-gray-900">{{ message.subject }}</h3>
                 <div class="text-right">
@@ -100,7 +100,7 @@
                     </span>
                 </div>
                 <div class="stats-bar flex-col">
-                    <button class="btn btn-sm btn-ghost text-error" onclick="event.preventDefault(); event.stopPropagation(); ConfirmBulkDelete({{message.id}}, {{campaign_id}})" title="Delete">
+                    <button class="btn btn-sm btn-ghost text-error force-block" onclick="event.preventDefault(); event.stopPropagation(); ConfirmBulkDelete({{message.id}}, {{campaign_id}})" title="Delete">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
@@ -122,101 +122,44 @@
     </div>
 </div>
 
-<!-- Assign Message Modal -->
-<dialog id="add-modal" class="modal">
-    <div class="modal-box max-w-md">
-        <div class="flex flex-col gap-4">
-            <!-- Header -->
-            <div class="flex items-center justify-between">
-                <h3 class="text-xl font-bold text-gray-900">Assign Message to Sequence</h3>
-            </div>
-            
-            <!-- Message Selection -->
-            <div class="form-control w-full">
-                <label class="label">
-                    <span class="label-text font-medium">Select Message</span>
-                </label>
-                <select class="select select-bordered w-full focus:ring-2 focus:ring-primary" id="message-select">
-                    {% for msg in all_messages %}
-                        <option value="{{ msg.id }}">{{ msg.subject }}</option>
-                    {% empty %}
-                        <option>no message found</option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <div class="divider my-0"></div>
-            
-            <!-- Delay Input -->
-            <div class="form-control w-full">
-                <label class="label">
-                    <span class="label-text font-medium">Days After Previous Message</span>
-                </label>
-                <div class="flex items-center gap-2">
-                    <input name="number" id="delayed-from-last-message" 
-                           type="number" 
-                           class="input input-bordered w-24 text-center focus:ring-2 focus:ring-primary" 
-                           min="0" 
-                           value="0" 
-                           required>
-                    <span class="text-sm text-gray-500">days</span>
-                </div>
-                <label class="label">
-                    <span class="label-text-alt text-gray-500">Number of days after the previous message in sequence</span>
-                </label>
-            </div>
-            
-            <!-- Actions -->
-            <div class="modal-action mt-2">
-                <button class="btn btn-primary" onclick="AssignMessage2Sequence({{campaign_id}})">Assign</button>
-                <form method="dialog">
-                    <button class="btn btn-ghost">Cancel</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Backdrop -->
-    <form method="dialog" class="modal-backdrop">
-        <button>close</button>
-    </form>
-</dialog>
-
 <!-- Assignments Modal -->
 <dialog id="assignment-modal" class="modal">
-    <div class="modal-box w-11/12 max-w-5xl">
+    <div class="modal-box w-11/12 max-w-5xl bg-base-100 shadow-lg rounded-xl">
+        <!-- Header -->
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-lg">Message Assignments</h3>
             <form method="dialog">
                 <button class="btn btn-sm btn-circle">✕</button>
             </form>
         </div>
-        
+
+        <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="stats bg-primary text-primary-content">
-                <div class="stat">
-                    <div class="stat-title">Total Assignments</div>
-                    <div class="stat-value" id="total-assignments">0</div>
+            <div class="card bg-gradient-to-br from-indigo-50 to-indigo-100 shadow-sm border border-indigo-200 rounded-lg">
+                <div class="card-body p-4">
+                    <div class="text-sm text-indigo-700 font-medium">Total Assignments</div>
+                    <div class="text-3xl font-bold text-neutral-900" id="total-assignments">3</div>
                 </div>
             </div>
-            <div class="stats bg-success text-success-content">
-                <div class="stat">
-                    <div class="stat-title">Sent</div>
-                    <div class="stat-value" id="sent-count">0</div>
+            <div class="card bg-gradient-to-br from-emerald-50 to-emerald-100 shadow-sm border border-emerald-200 rounded-lg">
+                <div class="card-body p-4">
+                    <div class="text-sm text-emerald-700 font-medium">Sent</div>
+                    <div class="text-3xl font-bold text-neutral-900" id="sent-count">0</div>
                 </div>
             </div>
-            <div class="stats bg-info text-info-content">
-                <div class="stat">
-                    <div class="stat-title">Responses</div>
-                    <div class="stat-value" id="response-count">0</div>
+            <div class="card bg-gradient-to-br from-sky-50 to-sky-100 shadow-sm border border-sky-200 rounded-lg">
+                <div class="card-body p-4">
+                    <div class="text-sm text-sky-700 font-medium">Responses</div>
+                    <div class="text-3xl font-bold text-neutral-900" id="response-count">0</div>
                 </div>
             </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="table table-zebra w-full">
-                <thead>
-                    <tr>
+        <!-- Table -->
+        <div class="overflow-x-auto rounded-lg border border-base-300 shadow-sm">
+            <table class="table w-full">
+                <thead class="bg-base-200">
+                    <tr class="text-sm text-neutral-600">
                         <th>Lead</th>
                         <th>Email</th>
                         <th>Status</th>
@@ -225,16 +168,17 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="assignments-table-body">
-                    <!-- Will be populated by JavaScript -->
+                <tbody id="assignments-table-body" class="text-sm text-neutral-800">
+                    <!-- Rows populated dynamically -->
                 </tbody>
             </table>
         </div>
 
-        <div class="modal-action">
-            <button class="btn btn-primary" onclick="exportAssignments()">
-                <i class="fas fa-download mr-2"></i> Export
-            </button>
+        <!-- Actions -->
+        <div class="modal-action mt-6 border-t border-base-300 pt-4">
+            <!-- <button class="btn btn-primary gap-2" onclick="exportAssignments()">
+                <i class="fas fa-download"></i> Export
+            </button> -->
             <form method="dialog">
                 <button class="btn btn-ghost">Close</button>
             </form>
@@ -244,6 +188,7 @@
         <button>close</button>
     </form>
 </dialog>
+
 
 <script src="{% static 'js/block-interactions.js' %}"></script> 
 <script>
