@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   web:
     build: .
@@ -22,7 +21,10 @@ services:
       - .:/app
       - static_volume:/app/staticfiles
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
 
   db:
     image: postgres:15
@@ -33,7 +35,18 @@ services:
       POSTGRES_PASSWORD: uW9_qX9_pT8-yG4_zU1_
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U omar -d vibereach-db-1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
 
 volumes:
   static_volume:
   pgdata:
+
+networks:
+  app-network:
+    driver: bridge
