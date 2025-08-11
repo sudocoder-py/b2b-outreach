@@ -59,30 +59,22 @@ def add_tracking_to_email(html_content, message_assignment):
             'lead_id': message_assignment.campaign_lead.lead.id,
         }
         
-        # Apply tracking modifications
-        tracked_html = html_content
-        
-        # Add open tracking pixel if enabled
-        if campaign_options.open_tracking_enabled:
-            logger.info(f"Adding open tracking for message assignment {message_assignment.id}")
+        # Apply tracking modifications based on what's enabled
+        open_tracking = campaign_options.open_tracking_enabled
+        click_tracking = campaign_options.link_tracking_enabled
+
+        if open_tracking or click_tracking:
+            logger.info(f"Adding tracking for message assignment {message_assignment.id} - Open: {open_tracking}, Click: {click_tracking}")
             tracked_html = adapt_html(
-                tracked_html,
+                html_content,
                 extra_metadata=tracking_context,
                 configuration=configuration,
-                track_open=True,
-                track_click=False  # We'll handle clicks separately
+                open_tracking=open_tracking,
+                click_tracking=click_tracking
             )
-        
-        # Add click tracking if enabled
-        if campaign_options.link_tracking_enabled:
-            logger.info(f"Adding click tracking for message assignment {message_assignment.id}")
-            tracked_html = adapt_html(
-                tracked_html,
-                extra_metadata=tracking_context,
-                configuration=configuration,
-                track_open=False,  # Already handled above
-                track_click=True
-            )
+        else:
+            tracked_html = html_content
+            logger.info(f"No tracking enabled for message assignment {message_assignment.id}")
         
         return tracked_html
         
@@ -96,7 +88,19 @@ class CustomOpenTrackingView(OpenTrackingView):
     """
     Custom open tracking view that integrates with our MessageAssignment model
     """
-    
+
+    def get_configuration(self):
+        """
+        Return the pytracking configuration
+        """
+        return get_pytracking_configuration()
+
+    def notify_decoding_error(self, exception, request):
+        """
+        Handle decoding errors
+        """
+        logger.error(f"Open tracking decoding error: {str(exception)}")
+
     def notify_tracking_event(self, tracking_result):
         """
         Handle open tracking event
@@ -164,7 +168,19 @@ class CustomClickTrackingView(ClickTrackingView):
     """
     Custom click tracking view that integrates with our Link model
     """
-    
+
+    def get_configuration(self):
+        """
+        Return the pytracking configuration
+        """
+        return get_pytracking_configuration()
+
+    def notify_decoding_error(self, exception, request):
+        """
+        Handle decoding errors
+        """
+        logger.error(f"Click tracking decoding error: {str(exception)}")
+
     def notify_tracking_event(self, tracking_result):
         """
         Handle click tracking event

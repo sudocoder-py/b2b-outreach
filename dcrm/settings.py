@@ -206,6 +206,13 @@ LOGGING = {
 # Site URL for generating absolute URLs
 SITE_URL = env('SITE_URL')
 
+# PyTracking configuration
+PYTRACKING_CONFIGURATION = {
+    "base_open_tracking_url": f"{SITE_URL}/campaign/tracking/open/",
+    "base_click_tracking_url": f"{SITE_URL}/campaign/tracking/click/",
+    "append_slash": False
+}
+
 
 
 # Security settings - different for development vs production

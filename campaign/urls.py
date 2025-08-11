@@ -5,8 +5,8 @@ from .tracking import CustomOpenTrackingView, CustomClickTrackingView
 
 urlpatterns = [
     # Pytracking URLs for open and click tracking
-    path('tracking/open/<path:path>', CustomOpenTrackingView.as_view(), name='open_tracking'),
-    path('tracking/click/<path:path>', CustomClickTrackingView.as_view(), name='click_tracking'),
+    path('tracking/open/<str:path>/', CustomOpenTrackingView.as_view(), name='open_tracking'),
+    path('tracking/click/<str:path>/', CustomClickTrackingView.as_view(), name='click_tracking'),
 
     # Existing redirect tracking (for backward compatibility)
     path('redirect/<str:ref_code>/', views.redirect_and_track, name='redirect_and_track_emails'),
