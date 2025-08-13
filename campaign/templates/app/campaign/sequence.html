@@ -203,20 +203,9 @@
         <!-- Header -->
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-lg">Message Assignments</h3>
-            <div class="flex items-center gap-2">
-                <button id="search-toggle-btn" class="btn btn-sm btn-ghost" onclick="toggleSearch()">
-                    <i class="fas fa-search"></i>
-                </button>
-                <form method="dialog">
-                    <button class="btn btn-sm btn-circle">✕</button>
-                </form>
-            </div>
-        </div>
 
-        <!-- Search Bar (initially hidden) -->
-        <div id="search-container" class="mb-4 hidden">
-            <div class="form-control">
-                <div class="input-group">
+            <div class="flex items-center gap-2">
+                <div id="search-container" class="input-group hidden">
                     <input
                         type="text"
                         id="assignment-search"
@@ -224,10 +213,13 @@
                         class="input input-bordered w-full"
                         oninput="filterAssignments()"
                     />
-                    <button class="btn btn-square btn-ghost" onclick="clearSearch()">
-                        <i class="fas fa-times"></i>
-                    </button>
                 </div>
+                <button id="search-toggle-btn" class="btn btn-sm btn-ghost" onclick="toggleSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle">✕</button>
+                </form>
             </div>
         </div>
 
@@ -383,7 +375,7 @@
             // Status
             const statusCell = document.createElement('td');
             const statusBadge = document.createElement('span');
-            statusBadge.className = `badge ${assignment.sent ? 'badge-success' : 'badge-warning'}`;
+            statusBadge.className = `badge ${assignment.sent ? 'badge-success text-white' : 'badge-warning text-white'}`;
             statusBadge.textContent = assignment.sent ? 'Sent' : 'Pending';
             statusCell.appendChild(statusBadge);
             row.appendChild(statusCell);
@@ -397,7 +389,7 @@
             // Response
             const responseCell = document.createElement('td');
             if (assignment.responded) {
-                responseCell.innerHTML = '<span class="badge badge-info">Responded</span>';
+                responseCell.innerHTML = '<span class="badge badge-success text-white">Responded</span>';
             } else {
                 responseCell.innerHTML = '<span class="text-gray-400">-</span>';
             }
@@ -410,8 +402,8 @@
             // Only show "Mark as Replied" for sent assignments that haven't responded yet
             if (assignment.sent && !assignment.responded) {
                 const replyBtn = document.createElement('button');
-                replyBtn.className = 'btn btn-xs btn-success';
-                replyBtn.innerHTML = '<i class="fas fa-reply"></i> Reply';
+                replyBtn.className = 'btn btn-xs btn-ghost';
+                replyBtn.innerHTML = '<i class="fas fa-reply"></i>';
                 replyBtn.title = 'Mark as Replied';
                 replyBtn.onclick = (e) => {
                     e.stopPropagation();
@@ -422,7 +414,7 @@
                 // Show a disabled replied indicator
                 const repliedBtn = document.createElement('button');
                 repliedBtn.className = 'btn btn-xs btn-ghost btn-disabled';
-                repliedBtn.innerHTML = '<i class="fas fa-check"></i> Replied';
+                repliedBtn.innerHTML = '<i class="fas fa-check"></i>';
                 repliedBtn.title = 'Already replied';
                 actionsCell.appendChild(repliedBtn);
             }
