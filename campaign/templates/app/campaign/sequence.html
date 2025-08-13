@@ -203,9 +203,32 @@
         <!-- Header -->
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-lg">Message Assignments</h3>
-            <form method="dialog">
-                <button class="btn btn-sm btn-circle">✕</button>
-            </form>
+            <div class="flex items-center gap-2">
+                <button id="search-toggle-btn" class="btn btn-sm btn-ghost" onclick="toggleSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle">✕</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Search Bar (initially hidden) -->
+        <div id="search-container" class="mb-4 hidden">
+            <div class="form-control">
+                <div class="input-group">
+                    <input
+                        type="text"
+                        id="assignment-search"
+                        placeholder="Search by name or email..."
+                        class="input input-bordered w-full"
+                        oninput="filterAssignments()"
+                    />
+                    <button class="btn btn-square btn-ghost" onclick="clearSearch()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Stats -->
@@ -308,15 +331,25 @@
         });
     }
 
+    // Store all assignments for search functionality
+    let allAssignments = [];
+
     function renderAssignmentModal(assignments) {
+        // Store assignments globally for search
+        allAssignments = assignments;
+
         // Update stats
         document.getElementById('total-assignments').textContent = assignments.length;
-        document.getElementById('sent-count').textContent = 
+        document.getElementById('sent-count').textContent =
             assignments.filter(a => a.sent).length;
-        document.getElementById('response-count').textContent = 
+        document.getElementById('response-count').textContent =
             assignments.filter(a => a.responded).length;
 
-        // Render table
+        // Render table with all assignments
+        renderAssignmentTable(assignments);
+    }
+
+    function renderAssignmentTable(assignments) {
         const tableBody = document.getElementById('assignments-table-body');
         tableBody.innerHTML = '';
 
@@ -333,17 +366,20 @@
 
         assignments.forEach(assignment => {
             const row = document.createElement('tr');
-            
+            row.setAttribute('data-assignment-id', assignment.id);
+            row.setAttribute('data-name', `${assignment.campaign_lead__lead__first_name} ${assignment.campaign_lead__lead__last_name}`.toLowerCase());
+            row.setAttribute('data-email', assignment.campaign_lead__lead__email.toLowerCase());
+
             // Lead Name
             const nameCell = document.createElement('td');
             nameCell.textContent = `${assignment.campaign_lead__lead__first_name} ${assignment.campaign_lead__lead__last_name}`;
             row.appendChild(nameCell);
-            
+
             // Email
             const emailCell = document.createElement('td');
             emailCell.textContent = assignment.campaign_lead__lead__email;
             row.appendChild(emailCell);
-            
+
             // Status
             const statusCell = document.createElement('td');
             const statusBadge = document.createElement('span');
@@ -351,13 +387,13 @@
             statusBadge.textContent = assignment.sent ? 'Sent' : 'Pending';
             statusCell.appendChild(statusBadge);
             row.appendChild(statusCell);
-            
+
             // Sent At
             const sentAtCell = document.createElement('td');
-            sentAtCell.textContent = assignment.sent_at ? 
+            sentAtCell.textContent = assignment.sent_at ?
                 new Date(assignment.sent_at).toLocaleString() : 'Not sent';
             row.appendChild(sentAtCell);
-            
+
             // Response
             const responseCell = document.createElement('td');
             if (assignment.responded) {
@@ -366,31 +402,132 @@
                 responseCell.innerHTML = '<span class="text-gray-400">-</span>';
             }
             row.appendChild(responseCell);
-            
+
             // Actions
             const actionsCell = document.createElement('td');
             actionsCell.className = 'flex gap-2';
-            
-            const viewBtn = document.createElement('button');
-            viewBtn.className = 'btn btn-xs btn-ghost';
-            viewBtn.innerHTML = '<i class="fas fa-eye"></i>';
-            viewBtn.onclick = (e) => {
-                e.stopPropagation();
-                viewAssignmentDetails(assignment.id);
-            };
-            actionsCell.appendChild(viewBtn);
-            
+
+            // Only show "Mark as Replied" for sent assignments that haven't responded yet
+            if (assignment.sent && !assignment.responded) {
+                const replyBtn = document.createElement('button');
+                replyBtn.className = 'btn btn-xs btn-success';
+                replyBtn.innerHTML = '<i class="fas fa-reply"></i> Reply';
+                replyBtn.title = 'Mark as Replied';
+                replyBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    markAsReplied(assignment.id);
+                };
+                actionsCell.appendChild(replyBtn);
+            } else if (assignment.responded) {
+                // Show a disabled replied indicator
+                const repliedBtn = document.createElement('button');
+                repliedBtn.className = 'btn btn-xs btn-ghost btn-disabled';
+                repliedBtn.innerHTML = '<i class="fas fa-check"></i> Replied';
+                repliedBtn.title = 'Already replied';
+                actionsCell.appendChild(repliedBtn);
+            }
+
             const resendBtn = document.createElement('button');
             resendBtn.className = 'btn btn-xs btn-ghost';
             resendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            resendBtn.title = 'Resend';
             resendBtn.onclick = (e) => {
                 e.stopPropagation();
                 resendAssignment(assignment.id);
             };
             actionsCell.appendChild(resendBtn);
-            
+
             row.appendChild(actionsCell);
             tableBody.appendChild(row);
+        });
+    }
+
+    // Search functionality
+    function toggleSearch() {
+        const searchContainer = document.getElementById('search-container');
+        const searchInput = document.getElementById('assignment-search');
+
+        if (searchContainer.classList.contains('hidden')) {
+            searchContainer.classList.remove('hidden');
+            searchInput.focus();
+        } else {
+            searchContainer.classList.add('hidden');
+            clearSearch();
+        }
+    }
+
+    function clearSearch() {
+        const searchInput = document.getElementById('assignment-search');
+        searchInput.value = '';
+        filterAssignments();
+    }
+
+    function filterAssignments() {
+        const searchTerm = document.getElementById('assignment-search').value.toLowerCase().trim();
+
+        if (!searchTerm) {
+            // Show all assignments
+            renderAssignmentTable(allAssignments);
+            return;
+        }
+
+        // Filter assignments based on name or email
+        const filteredAssignments = allAssignments.filter(assignment => {
+            const fullName = `${assignment.campaign_lead__lead__first_name} ${assignment.campaign_lead__lead__last_name}`.toLowerCase();
+            const email = assignment.campaign_lead__lead__email.toLowerCase();
+
+            return fullName.includes(searchTerm) || email.includes(searchTerm);
+        });
+
+        renderAssignmentTable(filteredAssignments);
+    }
+
+    // Mark assignment as replied
+    function markAsReplied(assignmentId) {
+        ModalSystem.confirm({
+            title: 'Mark as Replied',
+            message: 'Are you sure you want to mark this assignment as replied?',
+            confirmText: 'Mark as Replied',
+            confirmClass: 'btn-success',
+            action: function() {
+                fetch(`/api/message-assignments/${assignmentId}/mark-replied/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: JSON.stringify({
+                        reply_content: 'Manually marked as replied'
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => { throw data; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    ModalSystem.toast('✅ Assignment marked as replied successfully!', 'success');
+
+                    // Update the assignment in our local data
+                    const assignment = allAssignments.find(a => a.id === assignmentId);
+                    if (assignment) {
+                        assignment.responded = true;
+                    }
+
+                    // Re-render the table to reflect changes
+                    const searchTerm = document.getElementById('assignment-search').value.toLowerCase().trim();
+                    if (searchTerm) {
+                        filterAssignments();
+                    } else {
+                        renderAssignmentTable(allAssignments);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error marking as replied:', error);
+                    ModalSystem.toast('❌ Failed to mark as replied', 'error');
+                });
+            }
         });
     }
 

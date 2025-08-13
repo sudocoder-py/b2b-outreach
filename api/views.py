@@ -249,7 +249,32 @@ def delete_assignments_by_message(request):
         campaign_id=campaign_id
     ).delete()
 
-    return Response({'deleted': count}, status=200)   
+    return Response({'deleted': count}, status=200)
+
+
+@api_view(['POST'])
+def mark_assignment_as_replied(request, assignment_id):
+    """
+    Mark a message assignment as replied
+    """
+    try:
+        assignment = MessageAssignment.objects.get(id=assignment_id)
+    except MessageAssignment.DoesNotExist:
+        return Response({'error': 'Assignment not found'}, status=404)
+
+    reply_content = request.data.get('reply_content', '')
+
+    success = assignment.mark_as_replied(reply_content)
+
+    if success:
+        return Response({
+            'success': True,
+            'message': 'Assignment marked as replied successfully'
+        }, status=200)
+    else:
+        return Response({
+            'error': 'Failed to mark assignment as replied or already replied'
+        }, status=400)
 
 
 class LeadListCreateView(generics.ListCreateAPIView):

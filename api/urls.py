@@ -23,6 +23,7 @@ urlpatterns = [
     path('message-assignments/bulk-create/', views.MessageAssignmentBulkCreateView.as_view(), name='message-assignment-bulk-create'),
     path('message/assignments/details/<int:message_id>/', views.campaign_sequence_message_assignments, name='campaign_sequence_message'),
     path("message-assignments/bulk-delete-by-message/", views.delete_assignments_by_message, name="delete_assignments_by_message"),
+    path('message-assignments/<int:assignment_id>/mark-replied/', views.mark_assignment_as_replied, name='mark-assignment-replied'),
 
     
     path('leads/lists/', views.LeadListCreateView.as_view(), name='lead-list-list-create'),
