@@ -554,23 +554,14 @@ def send_single_email(ctx: inngest.Context):
             }
 
         # Check stop_on_reply: don't send if lead has already replied
-        campaign_options = campaign.campaign_options.first()
-        if campaign_options and campaign_options.stop_on_reply:
-            # Check if this lead has replied to any message in this campaign
-            has_replied = MessageAssignment.objects.filter(
-                campaign_id=campaign_id,
-                campaign_lead=message_assignment.campaign_lead,
-                responded=True
-            ).exists()
-
-            if has_replied:
-                logger.info(f"🛑 Skipping email to {message_assignment.campaign_lead.lead.email} - lead has already replied")
-                return {
-                    'status': 'skipped',
-                    'message': 'Email skipped - lead has replied (stop_on_reply enabled)',
-                    'campaign_id': campaign_id,
-                    'message_assignment_id': message_assignment_id
-                }
+        if message_assignment.should_skip_sending_due_to_reply():
+            logger.info(f"🛑 Skipping email to {message_assignment.campaign_lead.lead.email} - lead has already replied")
+            return {
+                'status': 'skipped',
+                'message': 'Email skipped - lead has replied (stop_on_reply enabled)',
+                'campaign_id': campaign_id,
+                'message_assignment_id': message_assignment_id
+            }
 
         # Send email using specific account
         from campaign.email_sender import send_campaign_email_with_account

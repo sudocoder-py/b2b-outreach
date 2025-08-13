@@ -810,6 +810,65 @@ class MessageAssignment(models.Model):
 
             return False
 
+    def mark_as_replied(self, reply_content=None):
+        """
+        Mark this message assignment as replied to
+
+        Args:
+            reply_content (str): The content of the reply
+
+        Returns:
+            bool: True if successfully marked as replied
+        """
+        try:
+            if self.responded:
+                return False
+
+            # Update reply fields
+            self.responded = True
+            self.responded_at = timezone.now()
+            if reply_content:
+                self.responded_content = reply_content[:1000]  # Limit to 1000 characters
+            self.save(update_fields=['responded', 'responded_at', 'responded_content'])
+
+            # Mark campaign lead as opportunity if not already marked
+            if self.campaign_lead.opportunity_status == 'none':
+                self.campaign_lead.mark_as_opportunity()
+
+            # Trigger analytics update
+            from .services import AnalyticsService
+            AnalyticsService.handle_email_replied(self)
+
+            return True
+
+        except Exception as e:
+            return False
+
+    def should_skip_sending_due_to_reply(self):
+        """
+        Check if this message should be skipped due to stop_on_reply setting
+
+        Returns:
+            bool: True if sending should be skipped
+        """
+        try:
+            # Get campaign options
+            campaign_options = self.campaign.campaign_options.first()
+            if not campaign_options or not campaign_options.stop_on_reply:
+                return False
+
+            # Check if this lead has already replied to any message in this campaign
+            has_replied = MessageAssignment.objects.filter(
+                campaign=self.campaign,
+                campaign_lead=self.campaign_lead,
+                responded=True
+            ).exists()
+
+            return has_replied
+
+        except Exception as e:
+            return False
+
 
 
 class CampaignStats(models.Model):
