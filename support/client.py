@@ -85,6 +85,7 @@ Reply with: `/reply {message.session.id} <your response>`
             logger.error("Cannot setup bot handlers: TELEGRAM_BOT_TOKEN not configured")
             return None
 
+        # Build application with proper initialization
         application = Application.builder().token(self.bot_token).build()
 
         # Add handlers
@@ -138,7 +139,12 @@ Reply with: `/reply {message.session.id} <your response>`
         """
         try:
             # Check if this is a reply to a bot message
-            if not update.message.reply_to_message or update.message.reply_to_message.from_user.id != self.bot.id:
+            if not update.message.reply_to_message:
+                return
+
+            # Get bot info to check if reply is to our bot
+            bot_info = await context.bot.get_me()
+            if update.message.reply_to_message.from_user.id != bot_info.id:
                 return
 
             # Extract session ID from the original message
