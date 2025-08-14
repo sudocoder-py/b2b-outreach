@@ -48,6 +48,11 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'clients.CustomUser'
 
+# Authentication settings
+LOGIN_URL = '/auth/login/'
+LOGIN_REDIRECT_URL = '/campaign/overall-dashboard/'
+LOGOUT_REDIRECT_URL = '/auth/login/'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
