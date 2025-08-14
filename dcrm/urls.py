@@ -14,6 +14,7 @@ urlpatterns = [
     path('campaign/', include('campaign.urls')),
     path('api/', include('api.urls')),
     path('auth/', include('clients.urls')),
+    path('support/', include('support.urls')),
     # path('posts/', include('posts.urls')),
 ]
 

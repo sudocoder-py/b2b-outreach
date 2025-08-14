@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'clients',
     'api',
     'campaign',
+    'support',
 ]
 
 
@@ -255,6 +256,13 @@ CELERY_TIMEZONE = env('CELERY_TIMEZONE')
 CELERY_TASK_TRACK_STARTED = env.bool('CELERY_TASK_TRACK_STARTED')
 CELERY_TASK_TIME_LIMIT = env.int('CELERY_TASK_TIME_LIMIT')
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = env.bool('CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP')
+
+
+# Telegram Bot Settings
+TELEGRAM_BOT_TOKEN = env('TELEGRAM_BOT_TOKEN', default=None)
+TELEGRAM_SUPPORT_CHAT_ID = env('TELEGRAM_SUPPORT_CHAT_ID', default=None)
+TELEGRAM_WEBHOOK_API_KEY = env('TELEGRAM_WEBHOOK_API_KEY', default='your-secret-key-change-this')
+DJANGO_API_URL = env('DJANGO_API_URL', default='http://localhost:8000')
 
 # # Email settings for Zoho Mail
 # EMAIL_BACKEND = env('EMAIL_BACKEND')
