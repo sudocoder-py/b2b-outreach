@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Auth{% endblock %} - VibeReach</title>
+    <!-- DaisyUI and Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles to match the screenshot's aesthetic */
+        body {
+            background-color: #F8F9FC;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        }
+        
+        /* Custom blue color for the primary button and links */
+        .btn-primary-custom {
+            background-color: #007BFF;
+            border-color: #007BFF;
+            color: white;
+        }
+        .btn-primary-custom:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .link-primary-custom {
+            color: #007BFF;
+        }
+        
+        /* Styling for the background wave on the right panel */
+        .wave-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .wave {
+            position: absolute;
+            top: -15%;
+            left: -10%;
+            width: 120%;
+            height: 130%;
+            background-color: #EFF6FF; /* A light blue */
+            border-bottom-left-radius: 50% 40%;
+            border-top-left-radius: 50% 40%;
+            transform: rotate(-15deg);
+            z-index: 1;
+        }
+
+                /* Custom styles to match the screenshot's aesthetic */
+        body {
+            background-color: #F8F9FC;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        }
+        
+        /* Custom blue color for the primary button and links */
+        .btn-primary-custom {
+            background-color: #007BFF;
+            border-color: #007BFF;
+            color: white;
+        }
+        .btn-primary-custom:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .link-primary-custom {
+            color: #007BFF;
+        }
+        
+        /* Styling for the background wave on the right panel */
+        .wave-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .wave {
+            position: absolute;
+            top: -15%;
+            left: -10%;
+            width: 120%;
+            height: 130%;
+            background-color: #EFF6FF; /* A light blue */
+            border-bottom-left-radius: 50% 40%;
+            border-top-left-radius: 50% 40%;
+            transform: rotate(-15deg);
+            z-index: 1;
+        }
+
+         /* A little bit of custom styling to ensure the background and fonts match closely */
+        body {
+            background-color: #F9FAFB; /* A very light gray, similar to the screenshot */
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        }
+    </style>
+</head>
+
+{% block content %}
+
+{% endblock %}
+
+</html>
