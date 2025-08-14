@@ -160,11 +160,9 @@ class AnalyticsService:
             stats, created = CampaignStats.objects.get_or_create(campaign=campaign)
             
             # Increment opportunity count and value
-            stats.opportunities_count = F('opportunities_count') + 1
-            if campaign_lead.opportunity_value:
-                stats.opportunities_total_value = F('opportunities_total_value') + campaign_lead.opportunity_value
+            stats.opportunities_count += 1
             
-            stats.save(update_fields=['opportunities_count', 'opportunities_total_value'])
+            stats.save(update_fields=['opportunities_count'])
             
             logger.info(f"Analytics updated for opportunity marked: {campaign_lead.id}")
             
