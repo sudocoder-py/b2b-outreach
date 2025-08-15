@@ -32,3 +32,4 @@ pytz==2025.2
 inngest==0.5.4
 pytracking[all]
 django-mathfilters==1.0.0
+python-telegram-bot==22.3
