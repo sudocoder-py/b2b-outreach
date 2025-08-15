@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Component</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        /* Custom transition for the chat widget */
+        #chat-widget {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        /* Hide scrollbar for the main content area but keep it scrollable */
+        #chat-log, main {
+            scrollbar-width: none;  /* Firefox */
+            -ms-overflow-style: none;  /* IE and Edge */
+        }
+        #chat-log::-webkit-scrollbar, main::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+    </style>
+</head>
+<body class="bg-gray-200">
+
+    <!-- Container for the entire chat component, fixed to the bottom right -->
+    <div id="chat-container" class="fixed bottom-5 right-5 z-50">
+
+        <!-- The Chat Widget Window (initially hidden) -->
+        <div id="chat-widget" class="w-[400px] h-[700px] max-h-[calc(100vh-100px)] flex flex-col bg-gray-100 rounded-2xl shadow-2xl overflow-hidden hidden opacity-0 transform translate-y-4 scale-95 absolute bottom-[80px] right-0">
+            
+            <!-- Header section: dynamically populated by JavaScript -->
+            <div id="chat-header"></div>
+            
+            <!-- Main content area for pages -->
+            <div class="flex-grow overflow-y-auto relative">
+                
+                <!-- Page 1: Home -->
+                <div id="page-home" class="page-content">
+                    <div class="pt-6 pb-8 px-4 text-white" style="background: linear-gradient(180deg, #02255B 0%, #0047B4 100%);">
+                        <div class="flex justify-end items-center mb-4"><div class="flex -space-x-3"><img class="inline-block h-9 w-9 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="User avatar"/><img class="inline-block h-9 w-9 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="User avatar"/><img class="inline-block h-9 w-9 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80" alt="User avatar"/></div></div>
+                        <h1 class="text-3xl font-bold">Hi fdud 👋</h1><h2 class="text-3xl font-bold mt-1">How can we help? 🚀</h2>
+                    </div>
+                    <div class="p-4 space-y-3 -mt-8">
+                        <div id="action-send-message-home" class="bg-white p-4 rounded-xl shadow-md flex justify-between items-center cursor-pointer hover:bg-gray-50"><div><p class="font-semibold text-gray-900">Send us a message</p><p class="text-sm text-gray-500">We typically reply in a few hours</p></div><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg></div>
+                        <div class="bg-white p-4 rounded-xl shadow-md text-center"><p class="text-gray-800 font-medium">Status: All systems operational</p></div>
+                        <div class="bg-white p-4 rounded-xl shadow-md"><div class="relative"><input type="text" placeholder="Search for help" class="w-full bg-gray-100 border-none rounded-lg pl-10 pr-4 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg></div><ul class="mt-4 space-y-1 divide-y divide-gray-100"><li class="flex justify-between items-center py-3 cursor-pointer group"><span class="text-gray-800 group-hover:text-blue-600">DFY (Done-for-you) service from Instantly. Automated Email Setup.</span><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 group-hover:text-blue-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg></li></ul></div>
+                    </div>
+                </div>
+                
+                <!-- Page 2: Messages -->
+                <div id="page-messages" class="page-content hidden h-full bg-white">
+                     <div class="px-4">
+                        <div class="flex items-start py-4 cursor-pointer border-t border-gray-200">
+                           <img class="w-10 h-10 rounded-full mr-4 mt-1" src="https://i.pravatar.cc/40?u=reio" alt="Reio avatar">
+                            <div class="flex-grow">
+                                <div class="flex justify-between items-center mb-1">
+                                    <p class="font-semibold text-gray-900">Reio</p>
+                                    <p class="text-sm text-gray-500">8w ago</p>
+                                </div>
+                                <p class="text-gray-600">Want to learn how to use and set up In...</p>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="absolute bottom-[70px] left-0 right-0 p-4 bg-white">
+                        <button id="action-send-message-messages" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 flex items-center justify-center text-base">
+                            Send us a message
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Page 3: Help -->
+                <div id="page-help" class="page-content hidden h-full p-4 space-y-4 bg-white">
+                    <div class="relative"><input type="text" placeholder="Search for help" class="w-full bg-gray-100 border-none rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg></div>
+                    <h3 class="text-lg font-bold text-gray-800 px-1">20 collections</h3>
+                </div>
+                
+                <!-- Page 4: Chat -->
+                <div id="page-chat" class="page-content hidden flex flex-col h-full bg-white">
+                    <div id="chat-log" class="flex-grow p-4 space-y-4 overflow-y-auto">
+                        <div class="text-center text-xs text-gray-500 my-2">Thanks for reaching out to us!</div>
+                        <div class="flex justify-start"><div class="bg-gray-100 text-gray-800 p-3 rounded-2xl rounded-bl-none max-w-[80%]"><p>Hi fdud! This is a bot speaking. I'm here to answer your questions, but you'll always have the option to talk to our team.</p></div></div>
+                        <div class="flex justify-start"><div class="bg-gray-100 text-gray-800 p-3 rounded-2xl rounded-bl-none max-w-[80%]"><p>So what brings you here today? I can assist you better if you provide as many details as possible about your needs.</p><p class="text-xs text-gray-500 mt-1">Fin Bot • Just now</p></div></div>
+                         <div class="flex justify-end"><div class="bg-blue-600 text-white p-3 rounded-2xl rounded-br-none max-w-[80%]">hi</div></div>
+                    </div>
+                    <div class="p-3 bg-white border-t"><div class="p-2"><textarea id="chat-input" placeholder="Message..." class="w-full border-gray-300 rounded-lg focus:ring-0 focus:border-gray-400 p-2 resize-none placeholder-gray-500" rows="1"></textarea><div class="flex justify-between items-center mt-2"><div class="flex items-center space-x-3 text-gray-500"><svg id="emoji-btn" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer hover:text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><div id="gif-btn" class="w-7 h-6 border-2 border-gray-400 rounded flex items-center justify-center cursor-pointer hover:border-gray-700"><span class="text-xs font-bold text-gray-400">GIF</span></div><svg id="file-btn" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer hover:text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg></div><button id="send-btn" class="bg-gray-200 w-9 h-9 rounded-full flex items-center justify-center cursor-not-allowed transition-colors"><svg class="h-5 w-5 text-white transform -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg></button></div></div></div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <nav id="bottom-nav" class="border-t bg-white flex justify-around">
+                <button data-page="home" class="nav-tab flex-1 flex flex-col items-center py-2.5 text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg><span class="text-xs font-semibold">Home</span></button>
+                <button data-page="messages" class="nav-tab flex-1 flex flex-col items-center py-2.5 text-gray-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg><span class="text-xs">Messages</span></button>
+                <button data-page="help" class="nav-tab flex-1 flex flex-col items-center py-2.5 text-gray-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span class="text-xs">Help</span></button>
+            </nav>
+        </div>
+
+        <!-- Master Toggle Button (Open/Close) -->
+        <button id="chat-toggle-button" class="bg-blue-600 text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-transform duration-300">
+            <svg id="open-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+            <svg id="close-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButton = document.getElementById('chat-toggle-button');
+            const openIcon = document.getElementById('open-icon');
+            const closeIcon = document.getElementById('close-icon');
+            const chatWidget = document.getElementById('chat-widget');
+            const navTabs = document.querySelectorAll('.nav-tab');
+            const pages = document.querySelectorAll('.page-content');
+            const chatHeader = document.getElementById('chat-header');
+            const bottomNav = document.getElementById('bottom-nav');
+            const sendMessageHomeBtn = document.getElementById('action-send-message-home');
+            const sendMessageMessagesBtn = document.getElementById('action-send-message-messages');
+            
+            const chatLog = document.getElementById('chat-log');
+            const chatInput = document.getElementById('chat-input');
+            const sendBtn = document.getElementById('send-btn');
+            
+            const headers = {
+                home: '',
+                messages: `<div class="flex items-center justify-between p-4 border-b bg-white"><div class="w-16"></div><h2 class="text-xl font-bold text-gray-800">Messages</h2><button class="text-base text-blue-600 font-medium">+ Add New</button></div>`,
+                help: `<div class="flex items-center justify-center p-4 border-b bg-white"><h2 class="text-xl font-bold text-gray-800">Help</h2></div>`,
+                chat: `<div class="flex items-center justify-between p-3 border-b bg-white shadow-sm"><button id="back-to-home-btn" class="text-gray-600 p-1 rounded-full hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button><div class="flex items-center space-x-2"><img class="w-8 h-8 rounded-full" src="https://i.pravatar.cc/32?u=finbot" alt="Finbot Avatar"><p class="font-bold text-gray-800">Fin Bot</p></div><button class="text-gray-600 p-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" /></svg></button></div>`
+            };
+
+            const toggleWidget = () => {
+                const isHidden = chatWidget.classList.contains('hidden');
+                if (isHidden) {
+                    chatWidget.classList.remove('hidden');
+                    setTimeout(() => chatWidget.classList.remove('opacity-0', 'translate-y-4', 'scale-95'), 10);
+                    openIcon.classList.add('hidden');
+                    closeIcon.classList.remove('hidden');
+                } else {
+                    chatWidget.classList.add('opacity-0', 'translate-y-4', 'scale-95');
+                    setTimeout(() => chatWidget.classList.add('hidden'), 300);
+                    openIcon.classList.remove('hidden');
+                    closeIcon.classList.add('hidden');
+                }
+            };
+
+            const showPage = (pageId) => {
+                pages.forEach(page => page.classList.add('hidden'));
+                document.getElementById(`page-${pageId}`).classList.remove('hidden');
+                navTabs.forEach(tab => {
+                    const isActive = tab.dataset.page === pageId;
+                    tab.classList.toggle('text-blue-600', isActive);
+                    tab.classList.toggle('text-gray-500', !isActive);
+                    tab.querySelector('span').classList.toggle('font-semibold', isActive);
+                });
+                chatHeader.innerHTML = headers[pageId] || '';
+                bottomNav.classList.toggle('hidden', pageId === 'chat');
+                if (pageId === 'chat') {
+                    document.getElementById('back-to-home-btn').addEventListener('click', () => showPage('home'));
+                }
+            };
+            
+            const handleSendMessage = () => {
+                const messageText = chatInput.value.trim();
+                if (messageText === '') return;
+                const messageElement = document.createElement('div');
+                messageElement.className = 'flex justify-end';
+                messageElement.innerHTML = `<div class="bg-blue-600 text-white p-3 rounded-2xl rounded-br-none max-w-[80%]">${messageText.replace(/\n/g, "<br>")}</div>`;
+                chatLog.appendChild(messageElement);
+                chatInput.value = '';
+                chatInput.dispatchEvent(new Event('input'));
+                chatLog.scrollTop = chatLog.scrollHeight;
+            };
+
+            chatInput.addEventListener('input', () => {
+                chatInput.style.height = 'auto';
+                chatInput.style.height = `${chatInput.scrollHeight}px`;
+                if (chatInput.value.trim() !== '') {
+                    sendBtn.classList.remove('bg-gray-200', 'cursor-not-allowed');
+                    sendBtn.classList.add('bg-blue-600', 'cursor-pointer');
+                } else {
+                    sendBtn.classList.add('bg-gray-200', 'cursor-not-allowed');
+                    sendBtn.classList.remove('bg-blue-600', 'cursor-pointer');
+                }
+            });
+
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); }
+            });
+            
+            sendBtn.addEventListener('click', handleSendMessage);
+            
+            toggleButton.addEventListener('click', toggleWidget);
+            navTabs.forEach(tab => tab.addEventListener('click', () => showPage(tab.dataset.page)));
+            sendMessageHomeBtn.addEventListener('click', () => showPage('chat'));
+            sendMessageMessagesBtn.addEventListener('click', () => showPage('chat'));
+            showPage('home');
+        });
+    </script>
+</body>
+</html>
