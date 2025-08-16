@@ -153,7 +153,12 @@ def telegram_webhook(request):
     api_key = request.headers.get('X-API-Key')
     expected_key = getattr(settings, 'TELEGRAM_WEBHOOK_API_KEY', 'your-secret-key')
 
+    # Debug logging
+    logger.info(f"Webhook called. API Key received: {api_key[:10] + '...' if api_key else 'None'}")
+    logger.info(f"Expected API Key: {expected_key[:10] + '...' if expected_key else 'None'}")
+
     if api_key != expected_key:
+        logger.error(f"API key mismatch. Received: {api_key}, Expected: {expected_key}")
         return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
     try:
@@ -190,3 +195,18 @@ def telegram_webhook(request):
     except Exception as e:
         logger.error(f"Telegram webhook error: {e}")
         return Response({'error': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# Test view for chat integration
+@login_required
+def test_chat_integration(request):
+    """Test page for the chat integration"""
+    return render(request, 'support/test_chat_integration.html')
+
+
+# Chat session view
+@login_required
+def chat_session_view(request, session_id):
+    """View a specific chat session"""
+    session = get_object_or_404(ChatSession, id=session_id, user=request.user)
+    return render(request, 'support/chat_session.html', {'session': session})

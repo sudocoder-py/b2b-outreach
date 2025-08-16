@@ -33,7 +33,13 @@ class ChatSession(models.Model):
     def session_url(self):
         """Generate a URL for this chat session"""
         from django.conf import settings
-        return f"{settings.SITE_URL}/support/chat/{self.id}/"
+        from django.urls import reverse
+        try:
+            # Use Django's URL reverse for proper URL generation
+            return f"{settings.SITE_URL}{reverse('support:chat-session', kwargs={'session_id': self.id})}"
+        except:
+            # Fallback to manual URL construction
+            return f"{settings.SITE_URL}/support/chat/{self.id}/"
 
 
 class Message(models.Model):

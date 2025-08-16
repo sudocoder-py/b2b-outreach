@@ -46,3 +46,6 @@ company = SubscribedCompany.objects.create(name="GataraAI", website="gatara.org"
 from clients.models import CustomUser, SubscribedCompany
 company = SubscribedCompany.objects.get(id=1)
 CustomUser.objects.create_superuser(    username='omar',    email='omar@gatara.org',    password='26480',    subscribed_company=company)
+
+## start the webhook for telgram:
+docker compose exec web python manage.py set_telegram_webhook

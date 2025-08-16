@@ -12,4 +12,8 @@ urlpatterns = [
 
     # Telegram webhook
     path('webhook/telegram/', views.telegram_webhook, name='telegram-webhook'),
+
+    # Frontend views
+    path('test/', views.test_chat_integration, name='test-chat-integration'),
+    path('chat/<uuid:session_id>/', views.chat_session_view, name='chat-session'),
 ]

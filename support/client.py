@@ -216,6 +216,9 @@ This bot forwards customer support messages to this group.
                 'Content-Type': 'application/json',
                 'X-API-Key': self.webhook_api_key
             }
+
+            logger.info(f"Sending to Django API: {url}")
+            logger.info(f"Using API key: {self.webhook_api_key[:10] + '...' if self.webhook_api_key else 'None'}")
             data = {
                 'session_id': session_id,
                 'content': content,
