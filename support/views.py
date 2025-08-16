@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 import logging
+from .helpers import extract_telegram_fields
 
 from .models import ChatSession, Message
 from .client import TelegramBotClient
@@ -161,13 +162,16 @@ def telegram_webhook(request):
     #     logger.error(f"API key mismatch. Received: {api_key}, Expected: {expected_key}")
     #     return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
-    try:
-        session_id = request.data.get('session_id')
-        content = request.data.get('content')
-        support_agent_name = request.data.get('support_agent_name', 'Support Team')
-        telegram_user_id = request.data.get('telegram_user_id')
-        message_type = request.data.get('message_type', 'text')
+    logger.info('Webhook called.')
+    data = extract_telegram_fields(request.body)
 
+    try:
+        session_id = data.get('session_id')
+        content = data.get('content')
+        support_agent_name = data.get('support_agent_name', 'Support Team')
+        telegram_user_id = data.get('telegram_user_id')
+        message_type = data.get('message_type', 'text')
+        
         if not session_id or not content:
             return Response({'error': 'session_id and content are required'}, status=status.HTTP_400_BAD_REQUEST)
 

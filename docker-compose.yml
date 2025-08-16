@@ -17,7 +17,7 @@ services:
             python manage.py migrate campaign &&
             python manage.py migrate support &&
             python manage.py migrate &&
-            gunicorn dcrm.wsgi:application --bind 0.0.0.0:8000 --workers 2"
+            gunicorn dcrm.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
