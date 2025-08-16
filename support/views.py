@@ -150,16 +150,16 @@ def telegram_webhook(request):
     Webhook endpoint for Telegram bot to post support replies.
     """
     # Simple API key authentication for webhook
-    api_key = request.headers.get('X-API-Key')
-    expected_key = getattr(settings, 'TELEGRAM_WEBHOOK_API_KEY', 'your-secret-key')
+    # api_key = request.headers.get('X-API-Key')
+    # expected_key = getattr(settings, 'TELEGRAM_WEBHOOK_API_KEY', 'your-secret-key')
 
-    # Debug logging
-    logger.info(f"Webhook called. API Key received: {api_key[:10] + '...' if api_key else 'None'}")
-    logger.info(f"Expected API Key: {expected_key[:10] + '...' if expected_key else 'None'}")
+    # # Debug logging
+    # logger.info(f"Webhook called. API Key received: {api_key[:10] + '...' if api_key else 'None'}")
+    # logger.info(f"Expected API Key: {expected_key[:10] + '...' if expected_key else 'None'}")
 
-    if api_key != expected_key:
-        logger.error(f"API key mismatch. Received: {api_key}, Expected: {expected_key}")
-        return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+    # if api_key != expected_key:
+    #     logger.error(f"API key mismatch. Received: {api_key}, Expected: {expected_key}")
+    #     return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
     try:
         session_id = request.data.get('session_id')

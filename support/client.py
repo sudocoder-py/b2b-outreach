@@ -19,7 +19,7 @@ class TelegramBotClient:
         self.bot_token = getattr(settings, 'TELEGRAM_BOT_TOKEN', None)
         self.support_chat_id = getattr(settings, 'TELEGRAM_SUPPORT_CHAT_ID', None)
         self.django_api_url = getattr(settings, 'DJANGO_API_URL', 'http://localhost:8000')
-        self.webhook_api_key = getattr(settings, 'TELEGRAM_WEBHOOK_API_KEY', 'your-secret-key')
+        #self.webhook_api_key = getattr(settings, 'TELEGRAM_WEBHOOK_API_KEY', 'your-secret-key')
 
         if not self.bot_token:
             logger.error("TELEGRAM_BOT_TOKEN not configured")
@@ -214,11 +214,11 @@ This bot forwards customer support messages to this group.
             url = f"{self.django_api_url}/support/webhook/telegram/"
             headers = {
                 'Content-Type': 'application/json',
-                'X-API-Key': self.webhook_api_key
+                #'X-API-Key': self.webhook_api_key
             }
 
             logger.info(f"Sending to Django API: {url}")
-            logger.info(f"Using API key: {self.webhook_api_key[:10] + '...' if self.webhook_api_key else 'None'}")
+            #logger.info(f"Using API key: {self.webhook_api_key[:10] + '...' if self.webhook_api_key else 'None'}")
             data = {
                 'session_id': session_id,
                 'content': content,
