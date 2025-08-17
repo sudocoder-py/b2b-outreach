@@ -14,7 +14,7 @@
                 <p class="text-gray-600">Manage leads lists, add, delete or move leads between lists</p>
             </div>
             <div class="flex gap-2">
-                <a href="{% url 'show_all_leads' %}" tabindex="0" role="button" class="btn">
+                <a href="{% url 'show_all_leads' %}" tabindex="0" role="button" class="btn text-gray-900">
                     <i class="fa-regular fa-eye"></i>
                     View all leads
                 </a>    
@@ -46,7 +46,7 @@
         <div class="text-sm text-gray-500 mb-2">Created: {{list.created_at}}</div>
         <div class="flex flex-wrap gap-1 mb-4">
           {% for tag in list.tags.split %}
-          <span class="badge badge-accent">{{ tag }}</span>
+          <span class="badge badge-outline">{{ tag }}</span>
           {% endfor %}
         </div>
         <div class="card-actions justify-end">
@@ -79,8 +79,8 @@
         </div>
 
         <div class="text-center mb-6">
-            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <i class="fa-solid fa-list text-blue-600 text-lg"></i>
+            <div class="w-12 h-12 bg-base-200 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <i class="fa-solid fa-list bg-base-200 text-lg"></i>
             </div>
             <h3 class="font-bold text-lg">Add New Leads List</h3>
             <p class="text-sm text-gray-500">Create a new lead list for your campaigns</p>
@@ -113,7 +113,7 @@
         </form>
 
         <div class="modal-action">
-            <button class="btn btn-success w-full text-gray-100" onclick="submitLeadsListForm({{ request.user.subscribed_company.id }})">
+            <button class="btn btn-primary w-full text-gray-100" onclick="submitLeadsListForm({{ request.user.subscribed_company.id }})">
                 <i class="fa-solid fa-save mr-2"></i>
                 Create List
             </button>

@@ -1,0 +1,265 @@
+:root {
+    /* Colors from your theme */
+    --p: 67.242% .13084 38.755907;      /* primary: #d97757 */
+    --pc: 98.1775% .005392 95.098555;   /* primary-content: #faf9f5 */
+    --s: 74.7553% .097017 151.267294;    /* secondary: #7ebf8e */
+    --sc: 98.1775% .005392 95.098555;   /* secondary-content: #faf9f5 */
+    --a: 66.5794% .124742 282.477686;   /* accent: #8989de */
+    --ac: 98.1775% .005392 95.098555;   /* accent-content: #faf9f5 */
+    --n: 35.8974% .005073 106.652383;    /* neutral: #3d3d3a */
+    --nc: 94.8457% .010853 95.166436;   /* neutral-content: #f0eee6 */
+    --b1: 98.1775% .005392 95.098555;   /* base-100: #faf9f5 */
+    --b2: 94.8457% .010853 95.166436;   /* base-200: #f0eee6 */
+    --b3: 92.3736% .013538 97.45182;    /* base-300: #e8e6dc */
+    --bc: 19.0839% .001983 106.585937;  /* base-content: #141413 */
+    --in: 72.0891% .12864 249.735858;    /* info: #61aaf2 */
+    --su: 74.7553% .097017 151.267294; /* success: #63d17f */
+    --wa: 75.0359% .076282 56.246004;    /* warning: #d4a27f */
+    --er: 56.8967% .148913 27.742807;    /* error: #bf4d43 */
+
+    /* Other theme variables you defined */
+    --rounded-box: .5rem;
+    --rounded-btn: .25rem;
+    --rounded-badge: 1rem;
+    --rounded-btn-sm: .25rem;
+}
+
+
+/* Generic button styles */
+.btn {
+  display: inline-flex;
+  height: 3rem;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--rounded-btn, .5rem);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-size: .875rem;
+  font-weight: 600;
+  background-color: oklch(var(--b2)); /* Uses base-200 by default */
+  border-width: 1px;
+  border-color: transparent;
+  color: var(--fallback-bc,oklch(var(--bc)/var(--tw-text-opacity))); /* Uses base-content color */
+  color: #34984d;
+}
+
+/* Primary Button */
+.btn-primary {
+  --tw-text-opacity: 1;
+  color: var(--fallback-pc, oklch(var(--pc) / var(--tw-text-opacity))); /* Uses primary-content for text */
+  background-color: var(--fallback-p, oklch(var(--p) / 1)); /* Uses primary for background */
+  border-color: var(--fallback-p, oklch(var(--p) / 1)); /* Uses primary for border */
+}
+
+.btn-primary:hover {
+  background-color: color-mix(in oklab, var(--fallback-p,oklch(var(--p)/1)) 90%, black);
+  border-color: color-mix(in oklab, var(--fallback-p,oklch(var(--p)/1)) 90%, black);
+}
+
+
+/* Secondary Button */
+.btn-secondary {
+    --tw-text-opacity: 1;
+    color: var(--fallback-sc,oklch(var(--sc)/var(--tw-text-opacity))); /* Uses secondary-content */
+    background-color: var(--fallback-s,oklch(var(--s)/1)); /* Uses secondary */
+    border-color: var(--fallback-s,oklch(var(--s)/1)); /* Uses secondary */
+}
+
+/* Outline Button */
+.btn-outline {
+    background-color: var(--fallback-b1,oklch(var(--b1)/var(--tw-text-opacity)));
+    color: oklch(19.0839% .001983 106.585937 / 1);
+    border-color: oklch(19.0839% .001983 106.585937 / 1);
+}
+.btn-outline:hover {
+    background-color: oklch(19.0839% .001983 106.585937 / 1); /* base-content on hover */
+    color: var(--fallback-b1,oklch(var(--b1)/var(--tw-text-opacity))); /* base-100 on hover */
+}
+/* Custom utility for clear/filter buttons */
+.btn-ghost {
+  background-color: transparent;
+  border-color: transparent;
+  color: oklch(var(--bc) / 0.8); /* Use base-content color at 60% opacity */
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background-color: oklch(var(--bc) / 0.1); /* Subtle background on hover */
+  color: oklch(var(--bc) / 1); /* Full opacity text on hover */
+}
+
+.btn-success {
+  /* Use the new success color for the background */
+  background-color: oklch(var(--su)); 
+  border-color: oklch(var(--su));
+
+  /* Use the new high-contrast success-content color for the text */
+  color: oklch(var(--su));
+}
+
+/* Create a slightly darker, satisfying hover/focus state */
+.btn-success:hover, .btn-success:focus {
+  background-color: color-mix(in oklab, oklch(var(--su)) 90%, black);
+  border-color: color-mix(in oklab, oklch(var(--su)) 90%, black);
+}
+
+/* =============================================== */
+/* START: Custom Error Button Styles              */
+/* =============================================== */
+
+/* 1. The Solid Error Button (for high-impact confirmation) */
+.btn-error {
+  /* Use the error color from your theme for the background and border */
+  background-color: oklch(var(--er)); 
+  border-color: oklch(var(--er));
+
+  /* Use the high-contrast error-content color for the text */
+  color: oklch(var(--b2));
+}
+
+/* On hover, make it slightly darker for clear feedback */
+.btn-error:hover {
+  background-color: color-mix(in oklab, oklch(var(--er)) 90%, black);
+  border-color: color-mix(in oklab, oklch(var(--er)) 90%, black);
+}
+
+/* 2. The Outline Error Button (for initiating a destructive action) */
+.btn-error-outline {
+  /* Transparent background and use the error color for text and border */
+  background-color: transparent;
+  color: oklch(var(--er));
+  border-color: oklch(var(--er));
+}
+
+/* On hover, fill the button to show a strong state change */
+.btn-error-outline:hover {
+  background-color: oklch(var(--er));
+  border-color: oklch(var(--er));
+  color: oklch(var(--b2));
+}
+
+/* Add to the end of your CSS */
+.btn-icon {
+  background-color: transparent;
+  border-color: transparent;
+  color: oklch(var(--bc) / 0.4); /* Muted text color */
+  padding: 0.5rem; /* Adjust padding for icons */
+  border-radius: var(--rounded-btn);
+}
+
+.btn-icon:hover {
+  background-color: oklch(var(--b2)); /* Use base-200 for hover background */
+  color: oklch(var(--p)); /* Use primary color for the icon on hover */
+}
+
+.btn-icon.danger:hover {
+  color: oklch(var(--er)); /* Use error color for danger icons like delete */
+}
+
+/* Outline Badge */
+.badge-outline.badge-primary {
+    background-color: transparent;
+    border-color: currentColor;
+    color: var(--fallback-p,oklch(var(--p)/var(--tw-text-opacity)));
+}
+
+.badge-info {
+    background-color: oklch(var(--in)); /* Use the new info color for the background */
+    color: oklch(var(--b1)); /* Use the new high-contrast info-content color for the text */
+}
+
+.badge-error {
+    background-color: oklch(var(--er)); /* Use the new error color for the background */
+    color: oklch(var(--b3)); /* Use the new high-contrast info-content color for the text */
+}
+
+/* Add to the end of your CSS */
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--rounded-badge);
+  text-transform: capitalize;
+}
+
+.status-badge.draft {
+  background-color: oklch(var(--b2)); /* base-200 */
+  color: oklch(var(--bc) / 0.7);
+}
+
+.status-badge.active {
+  background-color: oklch(var(--su) / 0.2); /* success color at 20% opacity */
+  color: oklch(var(--su)); /* success color */
+}
+
+.status-badge.finished {
+  background-color: oklch(var(--b3)); /* base-300 */
+  color: oklch(var(--bc) / 0.5);
+  text-decoration: line-through;
+}
+
+/* Generic alert styles */
+.alert {
+    display: grid;
+    width: 100%;
+    padding: 1rem;
+    border-radius: var(--rounded-box, 1rem);
+    background-color: var(--fallback-b2,oklch(var(--b2)/1)); /* base-200 */
+    color: var(--fallback-bc,oklch(var(--bc)/var(--tw-text-opacity))); /* base-content */
+}
+
+/* Success Alert */
+.alert-success {
+    border-color: var(--fallback-su,oklch(var(--su)/.2)); /* success with 20% opacity */
+    color: var(--fallback-suc,oklch(var(--suc)/var(--tw-text-opacity))); /* success-content */
+    background-color: var(--fallback-su,oklch(var(--su)/1)); /* success */
+}
+
+/* Warning Alert */
+.alert-warning {
+    border-color: var(--fallback-wa,oklch(var(--wa)/.2));
+    color: var(--fallback-wac,oklch(var(--wac)/var(--tw-text-opacity)));
+    background-color: var(--fallback-wa,oklch(var(--wa)/1));
+}
+
+/* Error Alert */
+.alert-error {
+    border-color: var(--fallback-er,oklch(var(--er)/.2));
+    color: var(--fallback-erc,oklch(var(--erc)/var(--tw-text-opacity)));
+    background-color: var(--fallback-er,oklch(var(--er)/1));
+}
+
+/* Text Colors */
+.text-primary {
+    --tw-text-opacity: 1;
+    color: var(--fallback-p,oklch(var(--p)/var(--tw-text-opacity, 1)));
+}
+.text-secondary {
+    --tw-text-opacity: 1;
+    color: var(--fallback-s,oklch(var(--s)/var(--tw-text-opacity, 1)));
+}
+.text-accent {
+    --tw-text-opacity: 1;
+    color: var(--fallback-a,oklch(var(--a)/var(--tw-text-opacity, 1)));
+}
+.text-base-content {
+    --tw-text-opacity: 1;
+    color: var(--fallback-bc,oklch(var(--bc)/var(--tw-text-opacity, 1)));
+}
+
+/* Background Colors */
+.bg-primary {
+    --tw-bg-opacity: 1;
+    background-color: var(--fallback-p,oklch(var(--p)/var(--tw-bg-opacity, 1)));
+}
+.bg-base-100 {
+    --tw-bg-opacity: 1;
+    background-color: var(--fallback-b1,oklch(var(--b1)/var(--tw-bg-opacity, 1)));
+}
+.bg-base-200 {
+    --tw-bg-opacity: 1;
+    background-color: var(--fallback-b2,oklch(var(--b2)/var(--tw-bg-opacity, 1)));
+}

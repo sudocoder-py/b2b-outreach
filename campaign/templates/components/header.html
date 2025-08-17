@@ -1,32 +1,69 @@
 <header class="navbar border-b border-base-200 bg-base-100 px-6">
-        <div class="navbar-start">
-            <h1 class="text-xl font-bold">VibeReach</h1>
+    <div class="navbar-start flex items-center gap-2">
+        <h1 class="text-xl font-bold gradient-logo">VibeReach</h1>
+        <span class="badge badge-primary badge-outline font-semibold text-xs">Beta</span>
+    </div>
+
+    <!-- This is the new, updated navbar-end section -->
+    <div class="navbar-end flex items-center gap-2">
+
+        <!-- 1. The "Provide Feedback" Button -->
+        <button class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm font-semibold" onclick="document.getElementById('feedback-modal').showModal();">Provide Feedback</button>
+            
+        <!-- 2. The Enhanced User & Organization Dropdown -->
+        <div class="dropdown dropdown-end">
+            <button tabindex="0" role="button" class="btn bg-white hover:bg-base-200 border border-base-300 h-10 min-h-10 px-3 flex items-center gap-2 rounded-lg">
+                <span class="text-m font-medium text-gray-700">{{user.first_name}} - Beta User</span>
+                <i class="fa-solid fa-chevron-down text-xs text-gray-500"></i>
+            </button>
+                    
+            <ul tabindex="0" class="menu dropdown-content z-[1] p-2 shadow bg-base-100 rounded-box w-60 mt-4">
+                <!-- User Info Header -->
+                <li class="px-4 py-2 pointer-events-none">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="font-bold text-base-content text-base">
+                                {{ user.get_full_name|default:'Beta User' }}
+                            </div>
+                            <div class="text-sm text-base-content/60">{{ user.email }}</div>
+                        </div>
+                        <span class="badge badge-accent badge-outline font-semibold text-xs">Beta</span>
+                    </div>
+                </li>
+                
+                <!-- Divider -->
+                <li class="my-1 h-px bg-base-200"></li>
+                
+                <!-- Menu Links -->
+                <li>
+                    <a href="{% url 'account_settings' %}"> <!-- Replace with your settings URL -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        Account Settings
+                    </a>
+                </li>
+                
+                <!-- Divider -->
+                <li class="my-1 h-px bg-base-200"></li>
+
+                <li>
+                    <a href="{% url 'logout' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                        Logout
+                    </a>
+                </li>
+            </ul>
         </div>
-        <div class="navbar-end">
-            <div class="flex items-center gap-x-4">
-                <div class="dropdown dropdown-end">
-                    <button tabindex="0" role="button" class="btn btn-ghost h-10 min-h-10 px-3 flex items-center gap-2">
-                        <i class="fa-solid fa-database text-yellow-500 text-lg"></i>
-                        <span class="font-semibold text-sm">79</span>
-                        <i class="fa-solid fa-chevron-down text-xs text-gray-500"></i>
-                    </button>
-                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40 mt-2">
-                        <li><a>Credits</a></li>
-                        <li><a>Billing</a></li>
-                    </ul>
-                </div>
-                <button class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm font-semibold">Get All Features</button>
-                 <div class="dropdown dropdown-end">
-                    <button tabindex="0" role="button" class="btn bg-white hover:bg-base-200 border border-base-300 h-10 min-h-10 px-3 flex items-center gap-2 rounded-lg">
-                        <span class="text-sm font-medium text-gray-700">My Organizatio...</span>
-                        <i class="fa-solid fa-chevron-down text-xs text-gray-500"></i>
-                    </button>
-                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-2">
-                        <li><a>Organization 1</a></li>
-                        <li><a>Organization 2</a></li>
-                        <li><a>Settings</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-      </header>
+    </div>
+</header>
+
+<style>
+.gradient-logo {
+  background: linear-gradient(90deg,rgba(82, 32, 3, 1) 0%, rgba(153, 109, 8, 1) 35%, rgba(255, 64, 0, 1) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+</style>
+
+
+{% include 'components/feedback-modal.html' %}

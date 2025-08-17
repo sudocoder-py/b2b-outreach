@@ -73,7 +73,7 @@
                 <span class="text-sm font-medium text-gray-500" id="campaign-progress-text">out of <span class="text-2xl text-success font-bold mr-1 ml-1">{{stats.total_leads}}</span> total leads</span>
             </div>
             <div class="flex items-center gap-3">
-                <button class="btn bg-white border border-base-300 h-10 min-h-10 rounded-lg px-4 text-sm hover:bg-gray-50" onclick="showCurrentResults()">
+                <button class="btn bg-white text-gray-900 border border-base-300 h-10 min-h-10 rounded-lg px-4 text-sm hover:bg-gray-50" onclick="showCurrentResults()">
                     <i class="fa-solid fa-history mr-2 text-gray-500"></i>
                     see current results
                 </button>
@@ -209,22 +209,22 @@
                 </div>
             </div>
             
-<!-- Main Analytics Chart -->
-<div class="card bg-base-100 shadow-lg mb-8">
-    <div class="card-body">
-        <!-- Custom Legend - Updated to match new order -->
-        <div class="flex flex-wrap gap-x-4 gap-y-2 mb-4">
-            <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-purple-400"></div>Total replies</div>
-            <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-amber-400"></div>Total clicks</div>
-            <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-sky-400"></div>Total opens</div>
-            <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-blue-500"></div>Sent</div>
-            <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-teal-400"></div>Opportunities</div>
-        </div>
-        <div class="chart-container" style="height: 400px;">
-            <canvas id="mainAnalyticsChart"></canvas>
-        </div>
-    </div>
-</div>
+            <!-- Main Analytics Chart -->
+            <div class="card bg-base-100 shadow-lg mb-8">
+                <div class="card-body">
+                    <!-- Custom Legend - Updated to match new order -->
+                    <div class="flex flex-wrap gap-x-4 gap-y-2 mb-4">
+                        <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-purple-400"></div>Total replies</div>
+                        <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-amber-400"></div>Total clicks</div>
+                        <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-sky-400"></div>Total opens</div>
+                        <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-blue-500"></div>Sent</div>
+                        <div class="flex items-center gap-2 text-sm"><div class="w-3 h-3 rounded-full bg-teal-400"></div>Opportunities</div>
+                    </div>
+                    <div class="chart-container" style="height: 400px;">
+                        <canvas id="mainAnalyticsChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Step Analytics & Activity -->

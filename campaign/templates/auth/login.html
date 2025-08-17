@@ -1,14 +1,16 @@
 {% extends 'auth/base_auth.html' %}
+{% load static %}
 
 {% block title %}Login{% endblock %} 
 
 {% block content %}
-<body class="min-h-screen">
+<body class="min-h-screen bg-base-100">
 
-    <!-- Header with Home Icon -->
-    <header class="absolute top-0 right-0 p-6">
-        <a href="#" class="text-gray-600 hover:text-gray-900">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <!-- Header: Correctly positioned with flexbox -->
+    <header class="absolute top-0 left-0 w-full flex justify-between items-center p-4 pt-2">
+        <span class="badge badge-primary badge-outline font-semibold">Beta</span> 
+        <a href="{% url 'home' %}" class="btn btn-ghost">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
         </a>
@@ -18,11 +20,8 @@
         
         <!-- Logo -->
         <div class="flex items-center mb-6">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16 32C24.8366 32 32 24.8366 32 16C32 7.16344 24.8366 0 16 0C7.16344 0 0 7.16344 0 16C0 24.8366 7.16344 32 16 32Z" fill="#4285F4"/>
-                <path d="M22.5 14.5L12.5 20.5L16.5 11.5L22.5 14.5Z" fill="white"/>
-            </svg>
-            <span class="ml-3 text-3xl font-bold" style="color: #4285F4;">VibeReach</span>
+            <img src="/static/vibereach-logo.png" alt="Logo" class="w-12">
+            <span class="ml-3 text-3xl font-bold gradient-logo">VibeReach</span>
         </div>
 
         <!-- Login Card -->
@@ -58,43 +57,108 @@
 
                 <!-- Login Button and Forgot Password -->
                 <div class="form-control mt-6 flex flex-row items-center justify-between">
-                     <button type="submit" class="btn btn-success w-32" style="background-color: #27C464; border-color: #27C464; color: white;">
+                     <button type="submit" class="btn btn-primary w-32">
                         Log In
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
                     </button>
-                    <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
+                    <a href="https://t.me/Omar_Gatara" class="label-text-alt link link-hover">Forgot password?<br>contact support</a>
                 </div>
 
                 <!-- Divider -->
                 <div class="divider my-4">OR</div>
 
-                <!-- Social Logins -->
+                <!-- Social Logins (Disabled for Beta) -->
                 <div class="form-control">
-                    <button class="btn btn-outline bg-white border-gray-300 hover:bg-gray-50 hover:border-gray-400">
+                    <button id="google-login-btn" class="btn btn-outline btn-disabled" disabled>
                         <img src="https://www.google.com/favicon.ico" alt="Google" class="w-4 h-4 mr-2">
                         Log In with Google
                     </button>
                 </div>
-                <div class="form-control mt-2">
-                     <button class="btn btn-outline bg-white border-gray-300 hover:bg-gray-50 hover:border-gray-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                           <path d="M17.252 12.01c-.01-2.288 1.93-3.05 1.98-3.074.008-.003-1.605-.96-3.95-1.022-3.435-.04-5.276 2.004-6.68 2.004-1.392 0-3.034-1.923-4.992-1.89-2.21.034-3.882 1.25-4.832 3.123-2.07 4.098-.52 9.94 1.764 13.23 1.134 1.61 2.45 3.39 4.162 3.34 1.63-.048 2.21-1.05 4.192-1.05 1.982 0 2.502 1.05 4.232 1.023 1.78-.027 2.94-1.57 4.02-3.216 1.3-1.98 1.83-3.87 1.88-3.92-.04-.02-3.41-1.33-3.48-5.57zM14.75 6.742c.98-.992 1.57-2.37 1.41-3.75-.98.05-2.26.6-3.24 1.59-.89.9-1.63 2.29-1.47 3.65.98-.03 2.32-.51 3.3-1.49z"/>
-                        </svg>
-                        Log In with Apple
-                    </button>
-                </div>
 
-                <!-- Sign Up Link -->
+                <!-- Sign Up Link (Disabled for Beta) -->
                 <div class="text-center mt-4">
-                    <p class="text-sm">Don't have an account? <a href="#" class="font-bold link text-black">Sign Up</a></p>
+                    <p class="text-sm">Don't have an account? 
+                        <a href="#" id="signup-link" class="font-bold link opacity-50 cursor-not-allowed">Sign Up</a>
+                    </p>
                 </div>
             </form>
         </div>
     </main>
 
+    <style>
+        .beta-tooltip {
+            position: absolute;
+            background-color: oklch(var(--n)); /* Use your theme's neutral color */
+            color: oklch(var(--nc)); /* Use your theme's neutral-content color */
+            padding: 0.5rem 1rem;
+            border-radius: var(--rounded-btn);
+            font-size: 0.875rem;
+            font-weight: 600;
+            z-index: 50;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+    </style>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const googleBtn = document.getElementById('google-login-btn');
+            const signupLink = document.getElementById('signup-link');
+
+            // --- Tooltip Function ---
+            function showTooltip(targetElement, message) {
+                // Remove any existing tooltips first
+                const existingTooltip = document.querySelector('.beta-tooltip');
+                if (existingTooltip) {
+                    existingTooltip.remove();
+                }
+
+                // Create the tooltip element
+                const tooltip = document.createElement('div');
+                tooltip.className = 'beta-tooltip';
+                tooltip.textContent = message;
+                document.body.appendChild(tooltip);
+
+                // Position the tooltip above the target element
+                const targetRect = targetElement.getBoundingClientRect();
+                tooltip.style.left = `${targetRect.left + (targetRect.width / 2) - (tooltip.offsetWidth / 2)}px`;
+                tooltip.style.top = `${targetRect.top - tooltip.offsetHeight - 10}px`;
+
+                // Fade in the tooltip
+                setTimeout(() => {
+                    tooltip.style.opacity = '1';
+                    tooltip.style.transform = 'translateY(0)';
+                }, 10);
+
+                // Fade out and remove the tooltip after a delay
+                setTimeout(() => {
+                    tooltip.style.opacity = '0';
+                    tooltip.style.transform = 'translateY(10px)';
+                    setTimeout(() => tooltip.remove(), 200);
+                }, 2500); // Tooltip disappears after 2.5 seconds
+            }
+
+            // --- Event Listeners for Disabled Elements ---
+            const disabledMessage = 'Not available during beta';
+
+            if (googleBtn) {
+                googleBtn.addEventListener('click', (event) => {
+                    event.preventDefault(); // Prevent any default button action
+                    showTooltip(googleBtn, disabledMessage);
+                });
+            }
+
+            if (signupLink) {
+                signupLink.addEventListener('click', (event) => {
+                    event.preventDefault(); // Prevent the link from navigating
+                    showTooltip(signupLink, disabledMessage);
+                });
+            }
+        });
+    </script>
 </body>
-
 {% endblock %}

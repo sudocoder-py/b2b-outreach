@@ -40,6 +40,12 @@ def login_submit(request):
     return render(request, 'auth/login.html')
 
 
+def logout_view(request):
+    """Logout page template"""
+    logout(request)
+    return redirect('home')
+
+
 def company_registration_view(request):
     """Company registration page template"""
     return render(request, 'auth/company_registration.html')

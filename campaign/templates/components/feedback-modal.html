@@ -1,0 +1,58 @@
+<!-- ======================================================== -->
+<!-- START: The In-App Feedback Modal                      -->
+<!-- ======================================================== -->
+<dialog id="feedback-modal" class="modal">
+    <div class="modal-box bg-base-100 shadow-lg rounded-xl">
+        
+        <!-- Modal Header -->
+        <div class="text-center mb-6 mt-2">
+            <div class="w-16 h-16 mx-auto rounded-full bg-primary/20 text-primary flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-base-content">Share Your Feedback</h3>
+            <p class="text-base-content/70 mt-2">We read every message.<br>Your insights help us build a better product.</p>
+        </div>
+
+        <!-- Feedback Form -->
+        <form method="dialog" class="space-y-4">
+            <!-- Feedback Type Selector -->
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">What kind of feedback is this?</span>
+                </label>
+                <select class="select select-bordered w-full bg-base-100">
+                    <option>Suggestion / Idea</option>
+                    <option>Bug Report</option>
+                    <option>General Comment</option>
+                </select>
+            </div>
+
+            <!-- Message Textarea -->
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Your Message</span>
+                </label>
+                <textarea class="textarea textarea-bordered h-32 bg-base-100" placeholder="The more details, the better!"></textarea>
+            </div>
+
+            <!-- Urgent Contact Info -->
+            <div class="text-center text-sm text-base-content/70 pt-2">
+                For urgent issues, you can also reach me directly on
+                <a href="https://wa.me/+963939676801" target="_blank" rel="noopener noreferrer" class="link link-success font-semibold">WhatsApp</a>.
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="modal-action mt-6">
+                <button class="btn btn-outline">Cancel</button>
+                <button class="btn btn-primary">Submit Feedback</button>
+            </div>
+        </form>
+
+    </div>
+    <!-- Add this to allow closing the modal by clicking outside -->
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>

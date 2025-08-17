@@ -7,7 +7,7 @@
     <h1 class="text-3xl text-gray-900 mb-2">{% for list in lead_lists %}{% if list.id == lead_list_id %}{{ list.title }}{% endif %}{% endfor %}
  List</h1>
     <div class="flex items-center gap-4">
-         <a href="/campaign/leads/lists/" tabindex="0" role="button" class="btn">
+         <a href="/campaign/leads/lists/" tabindex="0" role="button" class="btn text-gray-900">
             <i class="fa-regular fa-eye"></i>
             View all lists
     </a>
@@ -45,7 +45,7 @@
             </div>
             <div class="flex items-center gap-3">
                 <div class="dropdown dropdown-end">
-                    <div tabindex="0" role="button" class="btn bg-white border border-base-300 h-10 min-h-10 rounded-lg px-4 text-sm">
+                    <div tabindex="0" role="button" class="btn bg-white text-gray-900 border border-base-300 h-10 min-h-10 rounded-lg px-4 text-sm">
                         <i class="fa-solid fa-filter mr-2 text-gray-500"></i>Filters
                     </div>
                     <div tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-52 border border-gray-200">
@@ -75,7 +75,7 @@
                         </div>
                     </div>
                 </div>
-                <a href="{% url 'add_leads' lead_list_id %}" class="btn btn-primary btn-outline btn-square h-10 w-10 min-h-10" title="Import Leads"><i class="fa-solid fa-file-import"></i></a>
+                <a href="{% url 'add_leads' lead_list_id %}" class="btn btn-outline btn-square h-10 w-10 min-h-10" title="Import Leads"><i class="fa-solid fa-file-import"></i></a>
                 <a href="{% url 'add_leads' lead_list_id %}" class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm">Add Lead</a>
             </div>
         </div>
@@ -142,25 +142,27 @@
                             <td class="text-gray-500 text-center">{{ forloop.counter }}</td>
                             <td class="font-medium text-gray-700">
                                 <div class="flex flex-col">
-                                    <span>{{ lead.full_name }}</span>
+                                    <span style="font-size:16px;">{{ lead.full_name }}</span>
                                     <span class="text-sm text-gray-500">{{ lead.email }}</span>
                                     {% if lead.linkedin_profile %}
                                     <span class="text-xs text-blue-500">
-                                        <a href="{{ lead.linkedin_profile }}" target="_blank" class="hover:underline">
+                                        <a href="{{ lead.linkedin_profile }}" target="_blank" class="hover:underline" style="font-size:14px;">
                                             <i class="fa-brands fa-linkedin mr-1"></i>LinkedIn
                                         </a>
                                     </span>
-                                    {% else %}
+                                    {% elif lead.phone_number %}
                                     <span class="text-xs text-gray-400">📞 {{ lead.phone_number|default:"N/A" }}</span>
+                                    {% else %}
+                                    <span class="text-xs text-gray-400">N/A: No contact info</span>
                                     {% endif %}
                                 </div>
                             </td>
                             <td class="text-gray-600">
                                 <div class="flex flex-col">
-                                    <span>{{ lead.company_name }}</span>
+                                    <span style="font-size:15px;">{{ lead.company_name }}</span>
                                     {% if lead.company_website %}
                                     <span class="text-sm text-blue-500">
-                                        <a href="{{ lead.company_website }}" target="_blank" class="hover:underline">
+                                        <a href="{{ lead.company_website }}" target="_blank" class="hover:underline" style="font-size:14px;">
                                             <i class="fa-solid fa-link mr-1"></i>Website
                                         </a>
                                     </span>
@@ -171,7 +173,7 @@
                                 </div>
                             </td>
                             <td class="text-gray-600">{{ lead.position }}</td>
-                            <td class="text-gray-600">{{ lead.location }}</td>
+                            <td class="text-gray-600">{{ lead.location|default:"N/A" }}</td>
                             <td class="text-gray-600">
                                 {% if lead.lead_type == 'cold' %}
                                     <span class="badge badge-ghost gap-1 font-medium py-2">
