@@ -73,7 +73,6 @@
                 <tbody id="links-table-body">
                     {% for link in links %}
                     <tr class="hover:bg-gray-50 cursor-pointer link-row" 
-                        onclick="editLink({{ link.id }})"
                         data-product="{{ link.product|lower }}"
                         data-performance="{{ link.performance }}"
                         data-open-rate="{{ link.open_rate }}"
@@ -172,8 +171,8 @@
         </div>
 
         <div class="text-center mb-6">
-            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <i class="fa-solid fa-link text-blue-600 text-lg"></i>
+            <div class="w-12 h-12 bg-base-200 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <i class="fa-solid fa-link bg-base-200 text-lg"></i>
             </div>
             <h3 class="font-bold text-lg">Create New Tracking Link</h3>
             <p class="text-sm text-gray-500">Step 1: Basic Information</p>
@@ -259,7 +258,7 @@
         </form>
 
         <div class="modal-action">
-            <button class="btn btn-success w-full text-gray-100" onclick="proceedToLinkStep2()">
+            <button class="btn btn-primary w-full text-gray-100" onclick="proceedToLinkStep2()">
                 Next >
             </button>
         </div>
@@ -357,7 +356,7 @@
             <button class="btn btn-ghost flex-1" onclick="backToLinkStep1()">
                 < Back
             </button>
-            <button class="btn btn-success flex-1 text-gray-100" onclick="submitNewLink()">
+            <button class="btn btn-primary flex-1 text-gray-100" onclick="submitNewLink()">
                 Create Link
             </button>
         </div>

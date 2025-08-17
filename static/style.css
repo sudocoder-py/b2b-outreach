@@ -89,3 +89,8 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+.base-custom-bg {
+  background-color: #f0eee6; 
+}
+

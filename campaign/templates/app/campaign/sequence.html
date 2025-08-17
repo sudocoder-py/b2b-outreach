@@ -48,6 +48,64 @@
         font-size: 1.5rem;
         font-weight: bold;
     }
+
+    /* =============================================== */
+/* START: Custom Theme-Aware Stat Card Styles     */
+/* =============================================== */
+
+/* The base class for all stat cards */
+.stat-card {
+  /* Use your theme's lightest base color for the background */
+  background-color: oklch(var(--b1)); 
+  border-width: 1px;
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / .05); /* shadow-sm */
+  transition: all 0.2s ease-in-out;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1); /* shadow-md */
+}
+
+/* Modifier for the "Total/Accent" stat */
+.stat-card-accent {
+  background-color: oklch(var(--a) / 0.1); /* 10% accent color tint */
+  border-color: oklch(var(--a) / 0.2); /* 20% accent color for border */
+}
+.stat-card-accent .stat-label {
+  color: oklch(var(--a)); /* Full accent color for the label */
+}
+
+/* Modifier for the "Success" stat */
+.stat-card-success {
+  background-color: oklch(var(--su) / 0.1); /* 10% success color tint */
+  border-color: oklch(var(--su) / 0.2); /* 20% success color for border */
+}
+.stat-card-success .stat-label {
+  color: oklch(var(--su)); /* Full success color for the label */
+}
+
+/* Modifier for the "Info" stat */
+.stat-card-info {
+  background-color: oklch(var(--in) / 0.1); /* 10% info color tint */
+  border-color: oklch(var(--in) / 0.2); /* 20% info color for border */
+}
+.stat-card-info .stat-label {
+  color: oklch(var(--in)); /* Full info color for the label */
+}
+
+/* Common styles for the text inside the cards */
+.stat-label {
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+}
+.stat-value {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 700; /* font-bold */
+  color: oklch(var(--bc)); /* Use your main base-content color for numbers */
+  margin-top: 0.25rem;
+}
 </style>
 
 <div id="first" class="flex flex-col h-full">
@@ -199,7 +257,7 @@
 
 <!-- Assignments Modal -->
 <dialog id="assignment-modal" class="modal">
-    <div class="modal-box w-11/12 max-w-5xl bg-base-100 shadow-lg rounded-xl">
+    <div class="modal-box w-11/12 max-w-5xl bg-base-100 rounded-xl" style="border: none !important; box-shadow: none !important;">
         <!-- Header -->
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-lg">Message Assignments</h3>
@@ -218,31 +276,50 @@
                     <i class="fas fa-search"></i>
                 </button>
                 <form method="dialog">
-                    <button class="btn btn-sm btn-circle">✕</button>
+                    <button class="btn btn-icon btn-circle text-gray-700">✕</button>
                 </form>
             </div>
         </div>
 
         <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="card bg-gradient-to-br from-indigo-50 to-indigo-100 shadow-sm border border-indigo-200 rounded-lg">
-                <div class="card-body p-4">
-                    <div class="text-sm text-indigo-700 font-medium">Total Assignments</div>
-                    <div class="text-3xl font-bold text-neutral-900" id="total-assignments">3</div>
+
+            <!-- Total Assignments Card (Themed with Accent Color) -->
+            <div class="p-4 shadow-sm border rounded-lg 
+                        bg-[oklch(var(--a)/0.1)]      <!-- Light accent background tint -->
+                        border-[oklch(var(--a)/0.2)]">  <!-- Subtle accent border -->
+                
+                <div class="text-sm font-medium 
+                            text-[oklch(var(--a))]">     <!-- Full accent color for the label -->
+                    Total Assignments
                 </div>
+                <div class="text-3xl font-bold text-base-content mt-1" id="total-assignments">7</div>
             </div>
-            <div class="card bg-gradient-to-br from-emerald-50 to-emerald-100 shadow-sm border border-emerald-200 rounded-lg">
-                <div class="card-body p-4">
-                    <div class="text-sm text-emerald-700 font-medium">Sent</div>
-                    <div class="text-3xl font-bold text-neutral-900" id="sent-count">0</div>
+
+            <!-- Sent Card (Themed with Success Color) -->
+            <div class="p-4 shadow-sm border rounded-lg 
+                        bg-[oklch(var(--su)/0.1)]     <!-- Light success background tint -->
+                        border-[oklch(var(--su)/0.2)]"> <!-- Subtle success border -->
+                
+                <div class="text-sm font-medium 
+                            text-[oklch(var(--su))]">    <!-- Full success color for the label -->
+                    Sent
                 </div>
+                <div class="text-3xl font-bold text-base-content mt-1" id="sent-count">0</div>
             </div>
-            <div class="card bg-gradient-to-br from-sky-50 to-sky-100 shadow-sm border border-sky-200 rounded-lg">
-                <div class="card-body p-4">
-                    <div class="text-sm text-sky-700 font-medium">Responses</div>
-                    <div class="text-3xl font-bold text-neutral-900" id="response-count">0</div>
+
+            <!-- Responses Card (Themed with Info Color) -->
+            <div class="p-4 shadow-sm border rounded-lg 
+                        bg-[oklch(var(--in)/0.1)]      <!-- Light info background tint -->
+                        border-[oklch(var(--in)/0.2)]">   <!-- Subtle info border -->
+                
+                <div class="text-sm font-medium 
+                            text-[oklch(var(--in))]">     <!-- Full info color for the label -->
+                    Responses
                 </div>
+                <div class="text-3xl font-bold text-base-content mt-1" id="response-count">0</div>
             </div>
+
         </div>
 
         <!-- Table -->

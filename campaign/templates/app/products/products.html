@@ -63,8 +63,8 @@
                         data-status="{{ product.status|lower }}">
                         <td>
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <i class="fa-solid fa-desktop text-blue-600"></i>
+                                <div class="w-10 h-10 bg-base-200 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-desktop bg-base-200"></i>
                                 </div>
                                 <div>
                                     <div class="font-medium text-gray-900">{{ product.name }}</div>
@@ -216,8 +216,8 @@
         </div>
 
         <div class="text-center mb-6">
-            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <i class="fa-solid fa-box-open text-blue-600 text-lg"></i>
+            <div class="w-12 h-12 bg-base-200 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <i class="fa-solid fa-box-open bg-base-200 text-lg"></i>
             </div>
             <h3 class="font-bold text-lg">Add New Product</h3>
             <p class="text-sm text-gray-500">Create a new product for your campaigns</p>
@@ -259,7 +259,7 @@
         </form>
 
         <div class="modal-action">
-            <button class="btn btn-success w-full text-gray-100" onclick="submitProductForm({{request.user.subscribed_company.id}})">
+            <button class="btn btn-primary w-full text-gray-100" onclick="submitProductForm({{request.user.subscribed_company.id}})">
                 <i class="fa-solid fa-save mr-2"></i>
                 Save Product
             </button>

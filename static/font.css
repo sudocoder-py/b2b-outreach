@@ -1,0 +1,140 @@
+@font-face {
+  font-family: 'Product Sans';
+  font-style: normal;
+  font-weight: 300;
+  src: url('home/fonts/ProductSans-Light.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Product Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url('home/fonts/ProductSans-Regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Product Sans';
+  font-style: normal;
+  font-weight: 500;
+  src: url('home/fonts/ProductSans-Medium.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Product Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: url('home/fonts/ProductSans-Bold.woff') format('woff');
+}
+
+
+body  label, summary, span, blockquote, figure, figcaption, form, fieldset, legend {
+    font-family: 'Product Sans', sans-serif;
+}
+
+
+body h1 {
+    font-family: 'Product Sans', sans-serif;
+    font-weight: 700; /* Bold */
+    font-size: 2.5rem; /* Adjust based on your design */
+    line-height: 1.2;
+}
+
+body h2 {
+    font-family: 'Product Sans', sans-serif;
+    font-weight: 600;
+    font-size: 2rem;
+    line-height: 1.3;
+}
+
+body h3 {
+    font-family: 'Product Sans', sans-serif;
+    font-weight: 400;
+    font-size: 1.25rem;
+    line-height: 1.4;
+}
+
+body h4 {
+    font-family: 'Product Sans', sans-serif;
+    font-weight: 500;
+    font-size: 1.5rem;
+    line-height: 1.4;
+}
+
+body h5 {
+    font-family: 'Product Sans', sans-serif;
+    font-weight: 400;
+    font-size: 1.25rem;
+    line-height: 1.4;
+}
+
+body h6 {
+    font-family: 'Product Sans', sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+
+body a,
+body button {
+    font-family: 'Product Sans', sans-serif;
+    font-weight: 500; /* slightly bolder for buttons and links */
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+body input,
+body select,
+body textarea {
+    font-family: 'Product Sans', sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+
+body th,
+body td,
+body caption,
+body thead,
+body tbody,
+body tfoot {
+    font-family: 'Product Sans', sans-serif;
+    font-weight: 400;
+    font-size: 0.95rem; /* slightly smaller for tables */
+    line-height: 1.4;
+}
+
+
+body ul,
+body ol,
+body li,
+body dl,
+body dt,
+body dd {
+    font-family: 'Product Sans', sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+body pre,
+body code {
+    font-family: 'Product Sans', sans-serif; /* or monospace if you want */
+    font-weight: 400;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+
+
+.tooltip {
+    font-family: 'Product Sans', sans-serif;
+}
+
+
+
+body div.card-body {
+    font-family: 'Product Sans', sans-serif;
+}
+

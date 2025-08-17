@@ -1,5 +1,6 @@
+{% load static %}
 
-    <style>
+<style>
         /* Custom transition for the chat widget */
         #chat-widget {
             transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
@@ -19,8 +20,8 @@
     <!-- Container for the entire chat component, fixed to the bottom right -->
     <div id="chat-container" class="fixed bottom-5 right-5 z-50">
 
-        <!-- The Chat Widget Window (initially hidden) -->
-        <div id="chat-widget" class="w-[400px] h-[700px] max-h-[calc(100vh-100px)] flex flex-col bg-gray-100 rounded-2xl shadow-2xl overflow-hidden hidden opacity-0 transform translate-y-4 scale-95 absolute bottom-[80px] right-0">
+        <!-- The Chat Widget Window (themed) -->
+        <div id="chat-widget" class="w-[400px] h-[700px] max-h-[calc(100vh-100px)] flex flex-col bg-base-100 rounded-2xl shadow-2xl overflow-hidden hidden opacity-0 transform translate-y-4 scale-95 absolute bottom-[80px] right-0">
             
             <!-- Header section: dynamically populated by JavaScript -->
             <div id="chat-header"></div>
@@ -28,37 +29,121 @@
             <!-- Main content area for pages -->
             <main class="flex-grow overflow-y-auto relative">
                 
-                <!-- Page 1: Home -->
+                <!-- Page 1: Home (Content and Formatting REVISED) -->
                 <div id="page-home" class="page-content">
-                    <div class="pt-6 pb-8 px-4 text-white" style="background: linear-gradient(180deg, #02255B 0%, #0047B4 100%);">
-                        <div class="flex justify-end items-center mb-4"><div class="flex -space-x-3"><img class="inline-block h-9 w-9 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="User avatar"/><img class="inline-block h-9 w-9 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="User avatar"/><img class="inline-block h-9 w-9 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80" alt="User avatar"/></div></div>
+                    <div class="pt-6 pb-8 px-4 text-primary-content bg-primary">
+                        <div class="flex justify-end items-center mb-4">
+                            <div class="flex -space-x-3">
+                                <img class="inline-block h-9 w-9 rounded-full ring-2 ring-base-100" src="https://media.licdn.com/dms/image/v2/D4D03AQGgLuzhjK4pXw/profile-displayphoto-crop_800_800/B4DZgIX2vTH0AQ-/0/1752487129014?e=1758153600&v=beta&t=MHfmKE8MVRNG7AA6-CURxOLC42OFi-xaN5-pQn4q-TE" alt="User avatar"/>
+                                <img class="inline-block h-9 w-9 rounded-full ring-2 ring-base-100" src="https://media.licdn.com/dms/image/v2/D4E03AQHLO9jW6VWLhw/profile-displayphoto-shrink_800_800/B4EZd5QPWbGcAg-/0/1750085990798?e=1758153600&v=beta&t=VqW1z6nJOt3Q-dLFjLg3k5htAwG5q9rV3IxiBdDsVlc" alt="User avatar"/>
+                            </div>
+                        </div> 
                         <h1 class="text-3xl font-bold">Hi {{ user.first_name }} 👋</h1>
                         <h2 class="text-3xl font-bold mt-1">How can we help? 🚀</h2>
                     </div>
-                    <div class="p-4 space-y-3 mt-4">
-                        <div id="action-send-message-home" class="bg-white p-4 rounded-xl shadow-md flex justify-between items-center cursor-pointer hover:bg-gray-50"><div><p class="font-semibold text-gray-900">Send us a message</p><p class="text-sm text-gray-500">We typically reply in a few hours</p></div><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg></div>
-                        <div class="bg-white p-4 rounded-xl shadow-md text-center"><p class="text-gray-800 font-medium">
-                            you can sen us any thing you want,<br> pleease be descriptivwe as possiple<br> we will reply you as soon as possible,<br> normally within 24 hours
-                        </p></div>
+                    <div class="p-4 space-y-3 mt-0">
+                        <div id="action-send-message-home" class="bg-base-200 p-4 rounded-xl shadow-md flex justify-between items-center cursor-pointer hover:bg-base-300">
+                            <div>
+                                <p class="font-semibold text-base-content">Send us a message</p>
+                                <p class="text-sm text-base-content/70">We typically reply in a few hours</p>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                        
+                        <!-- REWRITTEN AND REFORMATTED Informational Card -->
+                        <div class="bg-base-100 p-4 rounded-xl shadow-md">
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-info shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="text-m text-base-content/80">
+                                        <b>For the fastest help,</b> please be as descriptive as possible. Screenshots are always welcome!
+                                    </span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-success shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="text-m text-base-content/80">
+                                        Our team typically responds via chat, telegram, and email <i>as soon as possible</i>.
+                                    </span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-success shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.886-.001 2.269.655 4.516 1.905 6.462l-1.299 4.745 4.833-1.276z"/>
+                                    </svg>
+                                    <span class="text-m text-base-content/80">
+                                        For urgent issues, you can reach me (the founder) directly on 
+                                        <a href="https://wa.me/+963939676801" target="_blank" rel="noopener noreferrer" class="link link-success font-semibold">WhatsApp</a>.
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-4">
+                            <!-- Optional: A subtle heading for the section -->
+                            <h3 class="text-xs font-semibold text-base-content/50 uppercase tracking-wider text-center mb-2">Quick Links</h3>
+
+                            <div class="grid grid-cols-2 gap-3">
+
+                                <!-- Email Us Link Card -->
+                                <a href="mailto:ahmad@gatara.org" 
+                                class="group flex flex-col items-center justify-center p-4 rounded-xl shadow-sm bg-base-200 hover:bg-base-300 transition-colors cursor-pointer text-center">
+                                    
+                                    <!-- Themed Icon Wrapper -->
+                                    <div class="w-10 h-10 rounded-full bg-accent/20 text-accent flex items-center justify-center mb-2 transition-transform group-hover:scale-110">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    
+                                    <p class="font-semibold text-sm text-base-content">Email</p>
+                                    <!-- <p class="text-xs text-base-content/60">For general questions</p> -->
+                                </a>
+
+                                <!-- Telegram Link Card (UPDATED) -->
+                                <a href="https://t.me/Omar_Gatara"
+                                    target="_blank" rel="noopener noreferrer" 
+                                    class="group flex flex-col items-center justify-center p-4 rounded-xl shadow-sm bg-base-200 hover:bg-base-300 transition-colors cursor-pointer text-center">
+
+                                    <!-- Themed Icon Wrapper (UPDATED to use 'info' color for blue) -->
+                                    <div class="w-10 h-10 rounded-full bg-info/20 text-info flex items-center justify-center mb-2 transition-transform group-hover:scale-110">
+                                        <!-- UPDATED SVG Icon for Telegram -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 512 512">
+                                            <path d="M477,43.86,13.32,223.29a5.86,5.86,0,0,0-.8.38c-3.76,2.13-30,18.18,7,32.57l.38.14,110.41,35.67a6.08,6.08,0,0,0,5.09-.62L409.25,120.57a6,6,0,0,1,2.2-.83c3.81-.63,14.78-1.81,7.84,7-7.85,10-194.9,177.62-215.66,196.21a6.3,6.3,0,0,0-2.07,4.17l-9.06,108a7.08,7.08,0,0,0,2.83,5.67,6.88,6.88,0,0,0,8.17-.62l65.6-58.63a6.09,6.09,0,0,1,7.63-.39l114.45,83.1.37.25c2.77,1.71,32.69,19.12,41.33-19.76l79-375.65c.11-1.19,1.18-14.27-8.17-22-9.82-8.08-23.72-4-25.81-3.56A6,6,0,0,0,477,43.86Z"/>
+                                        </svg>
+                                    </div>
+                                    
+                                    <p class="font-semibold text-sm text-base-content">Telegram</p>
+                                    <!-- <p class="text-xs text-base-content/60">For urgent issues</p> -->
+                                </a>
+
+
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 
-                <!-- Page 2: Messages -->
-                <div id="page-messages" class="page-content hidden h-full bg-white">
+                <!-- Page 2: Messages (themed) -->
+                <div id="page-messages" class="page-content hidden h-full bg-base-100">
                      <div class="px-4">
-                        <div class="flex items-start py-4 cursor-pointer border-t border-gray-200">
-                           <img class="w-10 h-10 rounded-full mr-4 mt-1" src="https://i.pravatar.cc/40?u=reio" alt="Reio avatar">
+                        <div class="flex items-start py-4 cursor-pointer border-t border-base-200">
+                           <img class="w-10 h-10 rounded-full mr-4 mt-1" src="{% static 'vibereach-logo.png' %}" alt="Reio avatar">
                             <div class="flex-grow">
                                 <div class="flex justify-between items-center mb-1">
-                                    <p class="font-semibold text-gray-900">Reio</p>
-                                    <p class="text-sm text-gray-500">8w ago</p>
+                                    <p class="font-semibold text-base-content">Reio</p>
+                                    <p class="text-sm text-base-content/60">8w ago</p>
                                 </div>
-                                <p class="text-gray-600">Want to learn how to use and set up In...</p>
+                                <p class="text-base-content/80">Want to learn how to use and set up In...</p>
                             </div>
                         </div>
                     </div>
-                     <div class="absolute bottom-[70px] left-0 right-0 p-4 bg-white">
-                        <button id="action-send-message-messages" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 flex items-center justify-center text-base">
+                     <div class="absolute bottom-[70px] left-0 right-0 p-4 bg-base-100">
+                        <button id="action-send-message-messages" class="btn btn-primary w-full text-base">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
@@ -66,42 +151,41 @@
                         </button>
                     </div>
                 </div>
-
-                <!-- Page 3: Help -->
-                <!-- <div id="page-help" class="page-content hidden h-full p-4 space-y-4 bg-white">
-                    <div class="relative"><input type="text" placeholder="Search for help" class="w-full bg-gray-100 border-none rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg></div>
-                    <h3 class="text-lg font-bold text-gray-800 px-1">20 collections</h3>
-                </div>
-                 -->
-                <!-- Page 4: Chat -->
-                <div id="page-chat" class="page-content hidden flex flex-col h-full bg-white">
+                
+                <!-- Page 4: Chat (themed and corrected) -->
+                <div id="page-chat" class="page-content hidden flex flex-col h-full bg-base-100">
                     <div id="chat-log" class="flex-grow p-4 space-y-4 overflow-y-auto">
-                        <div class="text-center text-xs text-gray-500 my-2">Thanks for reaching out to us!</div>
-                        <div class="flex justify-start"><div class="bg-gray-100 text-gray-800 p-3 rounded-2xl rounded-bl-none max-w-[80%]"><p>Hi fdud! This is a bot speaking. I'm here to answer your questions, but you'll always have the option to talk to our team.</p></div></div>
-                        <div class="flex justify-start"><div class="bg-gray-100 text-gray-800 p-3 rounded-2xl rounded-bl-none max-w-[80%]"><p>So what brings you here today? I can assist you better if you provide as many details as possible about your needs.</p><p class="text-xs text-gray-500 mt-1">Fin Bot • Just now</p></div></div>
-                         <div class="flex justify-end"><div class="bg-blue-600 text-white p-3 rounded-2xl rounded-br-none max-w-[80%]">hi</div></div>
+                        <div class="text-center text-xs text-base-content/60 my-2">Thanks for reaching out to us!</div>
+                        <div class="flex justify-start"><div class="bg-base-200 text-base-content p-3 rounded-2xl rounded-bl-none max-w-[80%]"><p>Hi fdud! This is a bot speaking. I'm here to answer your questions, but you'll always have the option to talk to our team.</p></div></div>
+                        <div class="flex justify-start"><div class="bg-base-200 text-base-content p-3 rounded-2xl rounded-bl-none max-w-[80%]"><p>So what brings you here today? I can assist you better if you provide as many details as possible about your needs.</p><p class="text-xs text-base-content/60 mt-1">Fin Bot • Just now</p></div></div>
+                         <!-- CORRECTED USER CHAT BUBBLE -->
+                         <div class="flex justify-end"><div class="bg-primary text-primary-content p-3 rounded-2xl rounded-br-none max-w-[80%]">hi</div></div>
                     </div>
-                    <div class="p-3 bg-white border-t"><div class="p-2"><textarea id="chat-input" placeholder="Message..." class="w-full border-gray-300 rounded-lg focus:ring-0 focus:border-gray-400 p-2 resize-none placeholder-gray-500" rows="1"></textarea>
+                    <div class="p-3 bg-base-100 border-t border-base-200"><div class="p-2"><textarea id="chat-input" placeholder="Message..." class="w-full border-base-300 rounded-lg focus:ring-0 focus:border-primary p-2 resize-none placeholder-base-content/50" rows="1"></textarea>
                         <div class="flex justify-between items-center mt-2">
-                            <div class="flex items-center space-x-3 text-gray-500">
-                                <!-- <svg id="emoji-btn" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer hover:text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> -->
-                                <!-- <div id="gif-btn" class="w-7 h-6 border-2 border-gray-400 rounded flex items-center justify-center cursor-pointer hover:border-gray-700"><span class="text-xs font-bold text-gray-400">GIF</span></div> -->
-                                <svg id="file-btn" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer hover:text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                            <div class="flex items-center space-x-3 text-base-content/50">
+                                <svg id="file-btn" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer hover:text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
                             </div>
-                            <button id="send-btn" class="bg-gray-200 w-9 h-9 rounded-full flex items-center justify-center cursor-not-allowed transition-colors"><svg class="h-5 w-5 text-white transform rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg></button></div></div></div>
+                            <!-- CORRECTED SEND BUTTON: Uses btn-primary when active -->
+                           
+                            <button id="send-btn" 
+                            class="bg-gray-200 w-9 h-9 rounded-full flex items-center justify-center cursor-not-allowed transition-colors">
+                            <svg class="h-5 w-5 text-white transform rotate-90" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
+                            </button></div></div></div>
                 </div>
             </main>
 
-            <!-- Bottom Navigation -->
-            <nav id="bottom-nav" class="border-t bg-white flex justify-around">
-                <button data-page="home" class="nav-tab flex-1 flex flex-col items-center py-2.5 text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg><span class="text-xs font-semibold">Home</span></button>
-                <button data-page="messages" class="nav-tab flex-1 flex flex-col items-center py-2.5 text-gray-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg><span class="text-xs">Messages</span></button>
-                <!-- <button data-page="help" class="nav-tab flex-1 flex flex-col items-center py-2.5 text-gray-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span class="text-xs">Help</span></button> -->
+            <!-- Bottom Navigation (themed and corrected) -->
+            <nav id="bottom-nav" class="border-t border-base-200 bg-base-100 flex justify-around">
+                <!-- CORRECTED ACTIVE TAB COLOR -->
+                <button data-page="home" class="nav-tab flex-1 flex flex-col items-center py-2.5 text-primary"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg><span class="text-xs font-semibold">Home</span></button>
+                <button data-page="messages" class="nav-tab flex-1 flex flex-col items-center py-2.5 text-base-content/60 hover:text-primary"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg><span class="text-xs">Messages</span></button>
             </nav>
         </div>
 
-        <!-- Master Toggle Button (Open/Close) -->
-        <button id="chat-toggle-button" class="bg-blue-600 text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-transform duration-300">
+        <!-- Master Toggle Button (themed and corrected) -->
+        <button id="chat-toggle-button" class="btn btn-primary btn-circle btn-lg w-16 h-16 rounded-full shadow-lg flex items-center justify-center transition-transform duration-300">
             <svg id="open-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
             <svg id="close-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
         </button>
@@ -214,9 +298,9 @@
                 if (isUser) {
                     messageElement.className = 'flex justify-end';
                     messageElement.innerHTML = `
-                        <div class="bg-blue-600 text-white p-3 rounded-2xl rounded-br-none max-w-[80%]">
+                        <div class="bg-primary text-primary-content p-3 rounded-2xl rounded-br-none max-w-[80%]">
                             ${message.content.replace(/\n/g, "<br>")}
-                            <p class="text-xs text-blue-200 mt-1">${timestamp}</p>
+                            <p class="text-xs text-primary-200 mt-1">${timestamp}</p>
                         </div>
                     `;
                 } else {
@@ -307,7 +391,7 @@
                             <div class="flex items-start py-4 cursor-pointer border-t border-gray-200 hover:bg-gray-50"
                                  onclick="openChatSession('${session.id}')">
                                 <img class="w-10 h-10 rounded-full mr-4 mt-1"
-                                     src="https://i.pravatar.cc/40?u=${session.id}" alt="Session avatar">
+                                     src="{% static 'vibereach-logo.png' %}" alt="Session avatar">
                                 <div class="flex-grow">
                                     <div class="flex justify-between items-center mb-1">
                                         <p class="font-semibold text-gray-900">${session.subject || 'Support Chat'}</p>
@@ -356,7 +440,7 @@
                 home: '',
                 messages: `<div class="flex items-center justify-center p-4 border-b bg-white"><h2 class="text-xl font-bold text-gray-800">Messages</h2></div>`,
                 help: `<div class="flex items-center justify-center p-4 border-b bg-white"><h2 class="text-xl font-bold text-gray-800">Help</h2></div>`,
-                chat: `<div class="flex items-center justify-between p-3 border-b bg-white shadow-sm"><button id="back-to-home-btn" class="text-gray-600 p-1 rounded-full hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button><div class="flex items-center space-x-2"><img class="w-8 h-8 rounded-full" src="https://i.pravatar.cc/32?u=support" alt="Support Avatar"><p class="font-bold text-gray-800">Support Team</p></div><button class="text-gray-600 p-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" /></svg></button></div>`
+                chat: `<div class="flex items-center justify-between p-3 border-b bg-white shadow-sm"><button id="back-to-home-btn" class="text-gray-600 p-1 rounded-full hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button><div class="flex items-center space-x-2"><img class="w-8 h-8 rounded-full" src="{% static 'vibereach-logo.png' %}" alt="Support Avatar"><p class="font-bold text-gray-800">Support Team</p></div><button class="text-gray-600 p-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" /></svg></button></div>`
             };
 
             // Widget Toggle
@@ -382,7 +466,7 @@
                 document.getElementById(`page-${pageId}`).classList.remove('hidden');
                 navTabs.forEach(tab => {
                     const isActive = tab.dataset.page === pageId;
-                    tab.classList.toggle('text-blue-600', isActive);
+                    tab.classList.toggle('text-primary-600', isActive);
                     tab.classList.toggle('text-gray-500', !isActive);
                     tab.querySelector('span').classList.toggle('font-semibold', isActive);
                 });
@@ -472,10 +556,10 @@
 
                 if (chatInput.value.trim() !== '' && !isLoading) {
                     sendBtn.classList.remove('bg-gray-200', 'cursor-not-allowed');
-                    sendBtn.classList.add('bg-blue-600', 'cursor-pointer');
+                    sendBtn.classList.add('bg-primary', 'cursor-pointer');
                 } else {
                     sendBtn.classList.add('bg-gray-200', 'cursor-not-allowed');
-                    sendBtn.classList.remove('bg-blue-600', 'cursor-pointer');
+                    sendBtn.classList.remove('bg-primary', 'cursor-pointer');
                 }
             });
 

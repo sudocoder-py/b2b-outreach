@@ -5,6 +5,7 @@ urlpatterns = [
     # Template views
     path('login/', views.login_view, name='login'),
     path('login/submit/', views.login_submit, name='login_submit'),
+    path('logout/', views.logout_view, name='logout'),
     #path('register/company/', views.company_registration_view, name='company_registration'),
     #path('register/user/', views.user_registration_view, name='user_registration'),
 
