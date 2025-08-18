@@ -430,11 +430,6 @@ def overall_dashboard_view(request):
     return render(request, "app/overall-dashboard.html")
 
 
-def feedback_view(request):
-    """Feedback and feature requests page"""
-    return render(request, "app/account/feedback.html")
-
-
 def account_settings_view(request):
     """Account settings page"""
     return render(request, "app/account/account-settings.html")

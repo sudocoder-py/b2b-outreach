@@ -30,7 +30,6 @@ urlpatterns = [
     path('messages/add/', views.messages_add_view, name='messages_add'),
     path('links/', views.links_view, name='links'),
     path('overall-dashboard/', views.overall_dashboard_view, name='overall_dashboard'),
-    path('feedback/', views.feedback_view, name='feedback'),
     path('account-settings/', views.account_settings_view, name='account_settings'),
 
     # Analytics API endpoints
