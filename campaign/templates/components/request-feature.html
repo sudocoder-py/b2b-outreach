@@ -1,0 +1,552 @@
+<style>
+    /* Feature Request Form Styling */
+    .feature-form-step {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    }
+    .feature-form-step.active {
+    opacity: 1;
+    }
+    .feature-form-step[data-step="1"] {
+    display: block;
+    opacity: 1;
+    }
+    
+    /* Question styling for feature request form */
+    .feature-main-question {
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    }
+    .feature-sub-question {
+    font-size: 1.25rem;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    }
+    .feature-question-header {
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-align: center;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+    }
+    
+    /* Position relative for form step to allow absolute positioning of dependent questions */
+    .feature-form-step {
+    position: relative;
+    }
+    
+    /* Dropdown styling */
+    .feature-dropdown {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    background-color: white;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    .feature-dropdown:focus {
+    outline: none;
+    border-color: #d97757;
+    box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.1);
+    }
+</style>
+
+<div>
+    <div class="container mx-auto px-1 sm:px-6 py-8">
+    <div class="mb-2">
+        <button class="btn btn-ghost gap-2" onclick="hideRequestFeature();">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+        </button>
+    </div>
+    
+    <div class="w-full max-w-4xl mx-auto flex flex-col justify-center">
+        <!-- Welcome Screen -->
+        <div id="feature-welcome-screen" class="bg-base-100 rounded-xl shadow-lg p-6 md:p-10 flex flex-col items-center justify-center text-center">
+            <div class="mb-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold text-base-content mb-4">Request a Feature</h1>
+            <p class="text-lg md:text-xl text-base-content/80 leading-relaxed mb-8 max-w-2xl mx-auto" style="font-family: 'Product Sans', sans-serif;">
+                Have an idea to make VibeReach better? We'd love to hear it! Your suggestions help us prioritize our development roadmap.
+            </p>
+            <div class="space-y-4 w-full max-w-xs">
+                <button id="start-feature-form" class="btn btn-primary btn-lg w-full text-lg transform transition-transform hover:scale-[1.02] active:scale-95">
+                Start Request
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+                </button>
+                <p class="text-sm text-base-content/60">Takes just 2-3 minutes</p>
+            </div>
+        </div>
+        
+        <!-- Multi-step Form -->
+        <div id="feature-form-container" class="bg-base-100 rounded-xl shadow-lg hidden">
+        <!-- Progress Bar -->
+        <div class="px-6 pt-6 sticky top-0 bg-base-100 z-10 border-b border-base-200">
+            <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-medium text-base-content/70">Step  <span id="feature-progress-text">1</span> of 5</span>
+            <span id="feature-progress-percent" class="text-sm font-medium text-primary">20%</span>
+            </div>
+            <div class="w-full bg-base-200 rounded-full h-2.5 mb-4">
+            <div id="feature-progress-bar" class="bg-primary h-2.5 rounded-full transition-all duration-300" style="width: 20%"></div>
+            </div>
+        </div>
+        <div class="px-6 pb-8">
+            <form id="feature-request-form" class="flex flex-col">
+            <!-- Step 1: Title -->
+            <div class="feature-form-step active" data-step="1">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">What's your feature idea?</h2>
+                <p class="feature-question-header">Give your request a short title</p>
+                </div>
+                <div class="max-w-md mx-auto">
+                <div class="form-control">
+                    <input 
+                    type="text" 
+                    name="title" 
+                    class="input input-bordered w-full text-lg" 
+                    placeholder="e.g., Export reports to PDF"
+                    required
+                    >
+                    <label class="label">
+                    <span class="label-text-alt text-base-content/50">Keep it short and descriptive</span>
+                    </label>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Step 2: Description -->
+            <div class="feature-form-step" data-step="2">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">Describe your feature</h2>
+                <p class="feature-question-header">What should this feature do?</p>
+                </div>
+                <div class="max-w-md mx-auto">
+                <div class="form-control">
+                    <textarea 
+                    name="description" 
+                    class="textarea textarea-bordered w-full text-lg min-h-[150px]" 
+                    placeholder="Describe in detail what you'd like VibeReach to do..."
+                    required
+                    ></textarea>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Step 3: Reason -->
+            <div class="feature-form-step" data-step="3">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">Importance</h2>
+                <p class="feature-question-header">Why is this important to you?</p>
+                </div>
+                <div class="max-w-md mx-auto">
+                <div class="form-control">
+                    <textarea 
+                    name="reason" 
+                    class="textarea textarea-bordered w-full text-lg min-h-[150px]" 
+                    placeholder="Explain why this feature would be valuable for you or your team..."
+                    required
+                    ></textarea>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Step 4: Priority -->
+            <div class="feature-form-step" data-step="4">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">Priority</h2>
+                <p class="feature-question-header">How important is this feature to you?</p>
+                </div>
+                <div class="max-w-md mx-auto">
+                <div class="form-control">
+                    <select name="priority" class="feature-dropdown">
+                    <option value="">Select priority (optional)</option>
+                    <option value="nice">Nice to have</option>
+                    <option value="important">Important</option>
+                    <option value="critical">Critical</option>
+                    </select>
+                    <label class="label">
+                    <span class="label-text-alt text-base-content/50">This helps us prioritize our development roadmap</span>
+                    </label>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Step 5: Workaround -->
+            <div class="feature-form-step" data-step="5">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">Workaround</h2>
+                <p class="feature-question-header">Are you using any workaround today?</p>
+                </div>
+                <div class="max-w-md mx-auto">
+                <div class="form-control">
+                    <textarea 
+                    name="workaround" 
+                    class="textarea textarea-bordered w-full text-lg min-h-[150px]" 
+                    placeholder="Tell us about any current solutions or workarounds you're using..."
+                    ></textarea>
+                    <label class="label">
+                    <span class="label-text-alt text-base-content/50">This field is optional</span>
+                    </label>
+                </div>
+                
+                <div class="form-control mt-6">
+                    <div class="flex items-center">
+                    <input type="checkbox" name="is_approved_to_share" id="feature-share" class="checkbox checkbox-primary mr-2">
+                    <label for="feature-share" class="label-text cursor-pointer">
+                        I consent to sharing this feature request publicly
+                    </label>
+                    </div>
+                    <label class="label">
+                    <span class="label-text-alt text-base-content/50">We may share your idea on our public roadmap</span>
+                    </label>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between items-center mt-12 max-w-md mx-auto w-full">
+                <button type="button" id="feature-prev-btn" class="btn btn-ghost text-primary hover:bg-primary/10 gap-2" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Previous
+                </button>
+                <div class="flex items-center gap-2 text-sm text-base-content/50">
+                <span id="feature-current-step">1</span>
+                <span>/</span>
+                <span>5</span>
+                </div>
+                <button type="button" id="feature-next-btn" class="btn btn-primary gap-2">
+                Next
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+                </button>
+                <button type="submit" id="feature-submit-btn" class="btn btn-primary gap-2 hidden">
+                Submit Request
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                </button>
+            </div>
+            </form>
+        </div>
+        </div>
+        
+        <!-- Thank You Screen -->
+        <div id="feature-thank-you-screen" class="bg-base-100 rounded-xl shadow-lg p-8 md:p-12 hidden">
+        <div class="text-center max-w-2xl mx-auto">
+            <div class="mb-8">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-base-content mb-4">Thank You for Your Feature Request!</h1>
+            <p class="text-lg text-base-content/80 leading-relaxed mb-8">
+            We appreciate you taking the time to share your idea. Our team will review your request and consider it for our development roadmap.
+            </p>
+            <div class="space-y-4">
+            <div class="pt-8">
+                <p class="text-sm text-base-content/60">We'll notify you if your feature request is selected for development.</p>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+  // Initialize the feature request form controller
+  const featureFormController = {
+    currentStep: 1,
+    totalSteps: 5,
+    
+    init() {
+      this.setupEventListeners();
+      this.initializeFormSteps();
+      this.updateProgress();
+      this.updateButtons();
+    },
+    
+    initializeFormSteps() {
+      // Hide all steps except the first one
+      const allSteps = document.querySelectorAll('.feature-form-step');
+      allSteps.forEach((step, index) => {
+        if (index === 0) {
+          step.style.display = 'block';
+          step.style.opacity = '1';
+          step.classList.add('active');
+        } else {
+          step.style.display = 'none';
+          step.style.opacity = '0';
+          step.classList.remove('active');
+        }
+      });
+    },
+    
+    setupEventListeners() {
+      // Start form button
+      const startFormBtn = document.getElementById('start-feature-form');
+      if (startFormBtn) {
+        startFormBtn.addEventListener('click', () => this.showForm());
+      }
+      
+      // Navigation buttons
+      const nextBtn = document.getElementById('feature-next-btn');
+      const prevBtn = document.getElementById('feature-prev-btn');
+      const submitBtn = document.getElementById('feature-submit-btn');
+      const form = document.getElementById('feature-request-form');
+      
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => this.nextStep());
+      }
+      
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => this.prevStep());
+      }
+      
+      if (form) {
+        form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+      }
+    },
+    
+    showForm() {
+      const welcomeScreen = document.getElementById('feature-welcome-screen');
+      const formContainer = document.getElementById('feature-form-container');
+      
+      if (welcomeScreen) welcomeScreen.classList.add('hidden');
+      if (formContainer) {
+        formContainer.classList.remove('hidden');
+        formContainer.classList.add('fade-in');
+      }
+    },
+    
+    nextStep() {
+      if (!this.validateCurrentStep()) {
+        return;
+      }
+      
+      if (this.currentStep < this.totalSteps) {
+        this.hideCurrentStep();
+        this.currentStep++;
+        this.showCurrentStep();
+        this.updateProgress();
+        this.updateButtons();
+      }
+    },
+    
+    prevStep() {
+      if (this.currentStep > 1) {
+        this.hideCurrentStep();
+        this.currentStep--;
+        this.showCurrentStep();
+        this.updateProgress();
+        this.updateButtons();
+      }
+    },
+    
+    validateCurrentStep() {
+      const currentStepElement = document.querySelector(`.feature-form-step[data-step="${this.currentStep}"]`);
+      if (!currentStepElement) return true;
+      
+      const inputs = currentStepElement.querySelectorAll('input[required], textarea[required], select[required]');
+      
+      // Validate text inputs, textareas, and selects
+      for (let input of inputs) {
+        if (!input.value.trim()) {
+          input.focus();
+          this.showError('Please fill in all required fields');
+          return false;
+        }
+      }
+      
+      return true;
+    },
+    
+    hideCurrentStep() {
+      const currentStepElement = document.querySelector(`.feature-form-step[data-step="${this.currentStep}"]`);
+      if (currentStepElement) {
+        currentStepElement.classList.remove('active');
+        currentStepElement.style.opacity = '0';
+        setTimeout(() => {
+          currentStepElement.style.display = 'none';
+        }, 300);
+      }
+    },
+    
+    showCurrentStep() {
+      const currentStepElement = document.querySelector(`.feature-form-step[data-step="${this.currentStep}"]`);
+      if (currentStepElement) {
+        currentStepElement.style.display = 'block';
+        setTimeout(() => {
+          currentStepElement.style.opacity = '1';
+          currentStepElement.classList.add('active');
+        }, 50);
+      }
+    },
+    
+    updateProgress() {
+      const progressBar = document.getElementById('feature-progress-bar');
+      const progressPercent = (this.currentStep / this.totalSteps) * 100;
+      const progressPercentDisplay = document.getElementById('feature-progress-percent');
+      const progressText = document.getElementById('feature-progress-text');
+      const currentStepDisplay = document.getElementById('feature-current-step');
+      
+      if (progressText && currentStepDisplay) {
+        currentStepDisplay.textContent = this.currentStep;
+        progressText.textContent = `${this.currentStep}`;
+      }
+      
+      if (progressPercentDisplay) {
+        progressPercentDisplay.textContent = `${Math.round(progressPercent)}%`;
+      }
+      
+      if (progressBar) {
+        progressBar.style.width = `${progressPercent}%`;
+      }
+    },
+    
+    updateButtons() {
+      const nextBtn = document.getElementById('feature-next-btn');
+      const prevBtn = document.getElementById('feature-prev-btn');
+      const submitBtn = document.getElementById('feature-submit-btn');
+      
+      if (prevBtn) {
+        prevBtn.disabled = this.currentStep === 1;
+      }
+      
+      if (this.currentStep === this.totalSteps) {
+        if (nextBtn) nextBtn.classList.add('hidden');
+        if (submitBtn) submitBtn.classList.remove('hidden');
+      } else {
+        if (nextBtn) nextBtn.classList.remove('hidden');
+        if (submitBtn) submitBtn.classList.add('hidden');
+      }
+    },
+    
+    async handleFormSubmit(e) {
+      e.preventDefault();
+      
+      // Validate current step
+      if (!this.validateCurrentStep()) return;
+      
+      // Get form data
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+      
+      // Handle checkbox for is_approved_to_share
+      data.is_approved_to_share = !!data.is_approved_to_share;
+      
+      // Set empty fields to null
+      if (data.reason === '') data.reason = null;
+      if (data.priority === '') data.priority = null;
+      if (data.workaround === '') data.workaround = null;
+      
+      // Add user ID from Django template
+      data.user = {{ request.user.id }};
+      
+      // Show loading state
+      const submitBtn = document.getElementById('feature-submit-btn');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = `
+        <span class="loading loading-spinner loading-sm"></span>
+        Submitting...
+      `;
+      submitBtn.disabled = true;
+      
+      try {
+        // Submit to Django API
+        const response = await fetch('/feedback/api/feature-request/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': "{{ csrf_token }}",
+          },
+          body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Submission failed');
+        }
+        
+        const result = await response.json();
+        console.log('Feature request submitted successfully:', result);
+        
+        this.showThankYou();
+        
+      } catch (error) {
+        console.error('Submission error:', error);
+        this.showError(`Submission failed: ${error.message}`);
+        
+      } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+      }
+    },
+    
+    showThankYou() {
+      const formContainer = document.getElementById('feature-form-container');
+      const thankYouScreen = document.getElementById('feature-thank-you-screen');
+      
+      if (formContainer) formContainer.classList.add('hidden');
+      if (thankYouScreen) {
+        thankYouScreen.classList.remove('hidden');
+        thankYouScreen.classList.add('fade-in');
+      }
+    },
+    
+    showError(message) {
+      // Create a toast notification if it doesn't exist
+      let toast = document.getElementById('feature-error-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'feature-error-toast';
+        toast.className = 'toast toast-top toast-center';
+        document.body.appendChild(toast);
+        
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-error';
+        alert.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>${message}</span>
+        `;
+        toast.appendChild(alert);
+      } else {
+        // Update existing toast message
+        const alert = toast.querySelector('.alert span');
+        if (alert) alert.textContent = message;
+      }
+      
+      // Show the toast
+      toast.classList.remove('hidden');
+      
+      // Hide after 3 seconds
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3000);
+    }
+  };
+  
+  // Initialize the feature request form controller
+  featureFormController.init();
+});
+</script>

@@ -18,7 +18,7 @@
             <p class="text-base-content/70">Monitor your email campaign performance</p>
         </div>
         <div class="flex items-center gap-4 flex-wrap">
-            <div class="dropdown dropdown-end">
+            <!-- <div class="dropdown dropdown-end">
                 <div tabindex="0" role="button" class="btn btn-ghost">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.186 2.25 2.25 0 0 0-3.933 2.186Z" />
@@ -30,7 +30,7 @@
                     <li><a>Share via email</a></li>
                     <li><a>Generate report</a></li>
                 </ul>
-            </div>
+            </div> -->
             <div class="dropdown dropdown-end">
                 <div tabindex="0" role="button" class="btn text-gray-900" id="time-filter-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -46,12 +46,12 @@
                     <li><a onclick="changeTimeFilter('all', 'All time')">All time</a></li>
                 </ul>
             </div>
-            <button class="btn btn-primary">
+            <a href="{% url 'create_campaign' %}" class="btn btn-primary btn-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
                 New Campaign
-            </button>
+            </a>
         </div>
     </div>
 
@@ -146,10 +146,10 @@
         <div class="card-body p-0">
             <div class="flex flex-wrap justify-between items-center p-6 pb-0">
                 <h2 class="text-xl font-semibold">Recent Campaigns</h2>
-                <div class="tabs tabs-boxed">
-                    <a class="tab tab-active">All</a> 
-                    <a class="tab">Active</a> 
-                    <a class="tab">Drafts</a>
+               <div class="tabs tabs-boxed">
+                    <a class="tab tab-active" data-filter="all">All</a> 
+                    <a class="tab" data-filter="active">Active</a> 
+                    <a class="tab" data-filter="draft">Drafts</a>
                 </div>
             </div>
             <div class="overflow-x-auto">
@@ -177,7 +177,7 @@
                 </table>
             </div>
             <div class="p-4 flex justify-center">
-                <button class="btn btn-ghost">View All Campaigns</button>
+                <a href="{% url 'campaign_view_list' %}" class="btn btn-ghost">View All Campaigns</a>
             </div>
         </div>
     </div>
@@ -343,6 +343,38 @@
                 updateCampaignsTable(data.campaigns);
             }
         };
+
+
+        // Tab filtering functionality
+        document.querySelectorAll('.tabs-boxed .tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Update active tab
+                document.querySelectorAll('.tabs-boxed .tab').forEach(t => t.classList.remove('tab-active'));
+                this.classList.add('tab-active');
+                
+                // Get filter value
+                const filter = this.getAttribute('data-filter');
+                
+                // Filter the table rows
+                const rows = document.querySelectorAll('#campaigns-table-body tr');
+                rows.forEach(row => {
+                    if (filter === 'all') {
+                        row.style.display = '';
+                    } else {
+                        // Find the status badge in this row
+                        const statusBadge = row.querySelector('.badge');
+                        if (statusBadge) {
+                            const statusText = statusBadge.textContent.toLowerCase();
+                            if (statusText === filter) {
+                                row.style.display = '';
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        }
+                    }
+                });
+            });
+        });
 
         // Time filter change handler
         window.changeTimeFilter = (filter, text) => {

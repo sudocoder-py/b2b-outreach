@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Auth{% endblock %} - VibeReach</title>
     <!-- DaisyUI and Tailwind CSS CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.min.css" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="{% static 'cdn/daisyui-4-12-2-full.css' %}" rel="stylesheet" type="text/css" />
+    <script src="{% static 'cdn/tailwindcss-3-4-16.js' %}"></script>
     <link rel="stylesheet" href="{% static 'root-extracted.css' %}">
     <link rel="stylesheet" href="{% static 'font.css' %}">
     <style>

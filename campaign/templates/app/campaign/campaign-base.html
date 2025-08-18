@@ -30,8 +30,84 @@
                         Options</a>
             </div>
             <div class="flex items-center gap-3">
-                <button class="btn bg-green-100 text-green-700 hover:bg-green-200 border-none h-10 min-h-10 rounded-lg px-4 text-sm"><i class="fa-solid fa-play mr-1 text-xs"></i>Resume campaign</button>
-                <button class="btn bg-white border border-base-300 btn-square h-10 min-h-10 w-10"><i class="fa-solid fa-ellipsis"></i></button>
+                {% if campaign_status == 'active' %}
+                    <button class="btn bg-amber-100 text-amber-700 hover:bg-amber-200 border-none h-10 min-h-10 rounded-lg px-4 text-sm font-semibold">
+                        <i class="fa-solid fa-pause mr-2"></i>Pause campaign
+                    </button>
+                    {% elif campaign_status == 'paused' %}
+                    <button class="btn bg-green-100 text-green-700 hover:bg-green-200 border-none h-10 min-h-10 rounded-lg px-4 text-sm font-semibold">
+                        <i class="fa-solid fa-play mr-2"></i>Resume campaign
+                    </button>
+                    {% elif campaign_status == 'draft' %}
+                    <button class="btn bg-blue-100 text-blue-700 hover:bg-blue-200 border-none h-10 min-h-10 rounded-lg px-4 text-sm font-semibold">
+                        <i class="fa-solid fa-rocket mr-2"></i>Publish campaign
+                    </button>
+                    {% elif campaign_status == 'ended' %}
+                    <a href="{% url 'campaign_dashboard' campaign_id %}" class="btn bg-gray-200 text-gray-700 hover:bg-gray-300 border-none h-10 min-h-10 rounded-lg px-4 text-sm font-semibold">
+                        <i class="fa-solid fa-chart-line mr-2"></i>View Report
+                    </a>
+                    {% elif campaign_status == 'completed' %}
+                    <a href="{% url 'campaign_dashboard' campaign_id %}" class="btn bg-gray-200 text-gray-700 hover:bg-gray-300 border-none h-10 min-h-10 rounded-lg px-4 text-sm font-semibold">
+                        <i class="fa-solid fa-chart-line mr-2"></i>View Report
+                    </a>
+                {% endif %}
+                <div class="dropdown dropdown-end">
+    
+                <!-- The 3-dot button that triggers the dropdown -->
+                <div tabindex="0" role="button" class="btn bg-white border border-base-300 btn-square h-10 min-h-10 w-10">
+                    <i class="fa-solid fa-ellipsis text-gray-900"></i>
+                </div>
+
+                <!-- The dropdown menu content -->
+                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-2">
+                    
+                    <!-- 1. Conditional Status Action -->
+                    {% if campaign_status == 'active' %}
+                    <li>
+                        <a class="hover:bg-green-100 text-green-700">
+                            <i class="fa-solid fa-circle-check mr-2"></i>Active
+                        </a>
+                    </li>
+                    {% elif campaign_status == 'paused' %}
+                    <li>
+                        <a class="hover:bg-amber-100 text-amber-700">
+                            <i class="fa-solid fa-circle-pause mr-2"></i>Paused
+                        </a>
+                    </li>
+                    {% elif campaign_status == 'draft' %}
+                    <li>
+                        <a class="hover:bg-blue-100 text-blue-700">
+                            <i class="fa-solid fa-file-lines mr-2"></i>Draft
+                        </a>
+                    </li>
+                    {% elif campaign_status == 'ended' %}
+                    <li>
+                        <a class="text-gray-700">
+                            <i class="fa-solid fa-circle-stop mr-2"></i>Ended
+                        </a>
+                    </li>
+                    {% elif campaign_status == 'completed' %}
+                    <li>
+                        <a class="text-gray-700">
+                            <i class="fa-solid fa-flag-checkered mr-2"></i>Completed
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Visual divider for separating actions -->
+                    <div class="divider my-1"></div>
+
+                    <!-- 2. Delete Action (Destructive) -->
+                    <li>
+                        <a class="text-error hover:bg-error hover:text-white"
+                        onclick="confirmDeleteCampaign({{ campaign_id }});" 
+                        title="Delete">
+                            <i class="fa-solid fa-trash-can w-5"></i>
+                            Delete
+                        </a>
+                    </li>
+                </ul>
+            </div>
             </div>
         </div>
 
@@ -42,5 +118,47 @@
 
 
     </div>
+<script>
 
+    // Your provided delete confirmation function
+    function confirmDeleteCampaign(id) {
+        // Assuming ModalSystem is defined elsewhere in your project
+        ModalSystem.confirm({
+            title: 'Delete Campaign',
+            message: 'Are you sure you want to delete this campaign? All associated data will be lost.',
+            confirmText: 'Delete',
+            confirmClass: 'btn-error',
+            action: function() {
+                fetch(`/api/campaigns/${id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        ModalSystem.toast('Error deleting Campaign', 'error');
+                        throw new Error('Failed to delete Campaign');
+                    }
+                    // This is great for a table view, but for a dashboard,
+                    // you probably want to redirect the user.
+                    // For example: window.location.href = '/campaigns/';
+                    ModalSystem.toast('Campaign deleted successfully!', 'success');
+                    
+                    // Redirect after a short delay to let the user see the toast
+                    setTimeout(() => {
+                        window.location.href = '{% url 'campaign_view_list' %}';
+                    }, 500);
+
+                    return response;
+                })
+                .catch(error => {
+                    console.error('Error deleting message:', error);
+                    throw error;
+                });
+            }
+        });
+    }
+</script>
 {% endblock %}

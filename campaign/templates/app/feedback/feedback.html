@@ -3,7 +3,16 @@
 {% block title %}Feedback{% endblock %}
 
 {% block content %}
-<div class="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-8">
+
+<div id="main-feedback" class="hidden">
+{% include 'components/main-feedback.html' %}
+</div>
+
+<div id="request-feature" class="hidden">
+{% include 'components/request-feature.html' %}
+</div>
+
+<div id="main-content" class="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-8">
     <!-- Header -->
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Feedback & Feature Requests</h1>
@@ -58,14 +67,14 @@
             
             <!-- Action Buttons -->
             <div class="space-y-3">
-                <a href="https://forms.gle/tKS8Vcowi8qmyGbM9" class="btn btn-primary w-full">
+                <button class="btn btn-primary w-full" onclick="showFeedbackForm();">
                     <i class="fa-solid fa-paper-plane mr-2"></i>
                     Submit Feedback
-                </a>
-                <a  href="https://forms.gle/zhG8qw34tZPNbCVd6" class="btn btn-outline w-full">
+                </button>
+                <button class="btn btn-outline w-full" onclick="showRequestFeature();">
                     <i class="fa-solid fa-lightbulb mr-2"></i>
                     Request Feature
-                </a>
+                </button>
             </div>
         </div>
     </div>
@@ -78,6 +87,29 @@ function showComingSoon() {
     } else {
         alert('Feedback system coming soon!');
     }
+}
+
+function showFeedbackForm() {
+    document.getElementById('main-feedback').classList.remove('hidden');
+    document.getElementById('main-content').classList.add('hidden');
+}
+
+
+function hideFeedbackForm() {
+    document.getElementById('main-feedback').classList.add('hidden');
+    document.getElementById('main-content').classList.remove('hidden');
+}
+
+
+function showRequestFeature() {
+    document.getElementById('request-feature').classList.remove('hidden');
+    document.getElementById('main-content').classList.add('hidden');
+}
+
+
+function hideRequestFeature() {
+    document.getElementById('request-feature').classList.add('hidden');
+    document.getElementById('main-content').classList.remove('hidden');
 }
 </script>
 {% endblock %}
