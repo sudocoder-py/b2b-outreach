@@ -1,0 +1,25 @@
+
+{% extends "base-app.html" %}
+
+{% block title %}Feedback Analytics{% endblock %}
+
+{% block content %}
+
+
+
+
+
+
+<h2>Feedback</h2>
+<ul>
+{% for item in feedbacks_with_upvotes %}
+    <li>
+        <p>{{ item.feedback.satisfaction_comment|default:"No comment" }}</p>
+        <small>Upvotes: {{ item.upvotes }}</small>
+    </li>
+{% endfor %}
+</ul>
+
+
+
+{% endblock %}
