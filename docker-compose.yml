@@ -12,10 +12,11 @@ services:
     command: >
       sh -c "python manage.py collectstatic --noinput &&
             python manage.py makemigrations &&
-            python manage.py makemigrations clients campaign api support &&
+            python manage.py makemigrations clients campaign api support feedback &&
             python manage.py migrate clients &&
             python manage.py migrate campaign &&
             python manage.py migrate support &&
+            python manage.py migrate feedback &&
             python manage.py migrate &&
             gunicorn dcrm.wsgi:application --bind 0.0.0.0:8000"
     volumes:
