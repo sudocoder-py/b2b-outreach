@@ -1,8 +1,8 @@
 <!-- ======================================================== -->
-<!-- START: The In-App Feedback Modal                      -->
+<!-- START: The Quick Feedback Modal                      -->
 <!-- ======================================================== -->
-<dialog id="feedback-modal" class="modal">
-    <div class="modal-box bg-base-100 shadow-lg rounded-xl">
+<dialog id="quick-feedback-modal" class="modal">
+    <div class="modal-box bg-base-100 shadow-lg rounded-xl max-w-md">
         
         <!-- Modal Header -->
         <div class="text-center mb-6 mt-2">
@@ -11,48 +11,469 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
             </div>
-            <h3 class="text-2xl font-bold text-base-content">Share Your Feedback</h3>
-            <p class="text-base-content/70 mt-2">We read every message.<br>Your insights help us build a better product.</p>
+            <h3 class="text-2xl font-bold text-base-content">Quick Feedback</h3>
+            <p class="text-base-content/70 mt-2">How's your experience with VibeReach?</p>
         </div>
-
-        <!-- Feedback Form -->
-        <form method="dialog" class="space-y-4">
-            <!-- Feedback Type Selector -->
+        
+        <!-- Quick Feedback Form -->
+        <form id="quick-feedback-form" class="space-y-6">
+            <!-- Experience Selector -->
             <div class="form-control">
+                <div class="flex justify-center space-x-6">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="quick-experience" value="positive" class="sr-only peer" />
+                        <div class="quick-experience-option flex flex-col items-center p-4 rounded-lg border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary/10 transition-all">
+                            <span class="text-4xl mb-2">👍</span>
+                            <span class="text-sm font-medium">Positive</span>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="quick-experience" value="negative" class="sr-only peer" />
+                        <div class="quick-experience-option flex flex-col items-center p-4 rounded-lg border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary/10 transition-all">
+                            <span class="text-4xl mb-2">👎</span>
+                            <span class="text-sm font-medium">Negative</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Comment Section (Initially Hidden) -->
+            <div id="quick-comment-section" class="form-control hidden">
                 <label class="label">
-                    <span class="label-text">What kind of feedback is this?</span>
+                    <span id="quick-comment-label" class="label-text font-medium">What's the best thing about your experience so far?</span>
                 </label>
-                <select class="select select-bordered w-full bg-base-100">
-                    <option>Suggestion / Idea</option>
-                    <option>Bug Report</option>
-                    <option>General Comment</option>
-                </select>
+                <textarea 
+                    id="quick-comment" 
+                    name="quick-comment" 
+                    class="textarea textarea-bordered h-24 bg-base-100" 
+                    placeholder="Share your thoughts..."
+                ></textarea>
             </div>
-
-            <!-- Message Textarea -->
-            <div class="form-control">
+            
+            <!-- Recommendation Section (Initially Hidden) -->
+            <div id="quick-recommendation-section" class="form-control hidden">
                 <label class="label">
-                    <span class="label-text">Your Message</span>
+                    <span class="label-text font-medium">How likely are you to recommend VibeReach to people you know?</span>
                 </label>
-                <textarea class="textarea textarea-bordered h-32 bg-base-100" placeholder="The more details, the better!"></textarea>
+                <div class="quick-rating-scale flex justify-between mb-2">
+                    <div class="quick-rating-option">
+                        <input type="radio" name="quick-recommendation" id="quick-rec-0" value="0" class="sr-only">
+                        <label for="quick-rec-0" class="quick-rating-circle">0</label>
+                    </div>
+                    <div class="quick-rating-option">
+                        <input type="radio" name="quick-recommendation" id="quick-rec-1" value="1" class="sr-only">
+                        <label for="quick-rec-1" class="quick-rating-circle">1</label>
+                    </div>
+                    <div class="quick-rating-option">
+                        <input type="radio" name="quick-recommendation" id="quick-rec-2" value="2" class="sr-only">
+                        <label for="quick-rec-2" class="quick-rating-circle">2</label>
+                    </div>
+                    <div class="quick-rating-option">
+                        <input type="radio" name="quick-recommendation" id="quick-rec-3" value="3" class="sr-only">
+                        <label for="quick-rec-3" class="quick-rating-circle">3</label>
+                    </div>
+                    <div class="quick-rating-option">
+                        <input type="radio" name="quick-recommendation" id="quick-rec-4" value="4" class="sr-only">
+                        <label for="quick-rec-4" class="quick-rating-circle">4</label>
+                    </div>
+                    <div class="quick-rating-option">
+                        <input type="radio" name="quick-recommendation" id="quick-rec-5" value="5" class="sr-only">
+                        <label for="quick-rec-5" class="quick-rating-circle">5</label>
+                    </div>
+                    <div class="quick-rating-option">
+                        <input type="radio" name="quick-recommendation" id="quick-rec-6" value="6" class="sr-only">
+                        <label for="quick-rec-6" class="quick-rating-circle">6</label>
+                    </div>
+                    <div class="quick-rating-option">
+                        <input type="radio" name="quick-recommendation" id="quick-rec-7" value="7" class="sr-only">
+                        <label for="quick-rec-7" class="quick-rating-circle">7</label>
+                    </div>
+                    <div class="quick-rating-option">
+                        <input type="radio" name="quick-recommendation" id="quick-rec-8" value="8" class="sr-only">
+                        <label for="quick-rec-8" class="quick-rating-circle">8</label>
+                    </div>
+                    <div class="quick-rating-option">
+                        <input type="radio" name="quick-recommendation" id="quick-rec-9" value="9" class="sr-only">
+                        <label for="quick-rec-9" class="quick-rating-circle">9</label>
+                    </div>
+                    <div class="quick-rating-option">
+                        <input type="radio" name="quick-recommendation" id="quick-rec-10" value="10" class="sr-only">
+                        <label for="quick-rec-10" class="quick-rating-circle">10</label>
+                    </div>
+                </div>
+                <div class="flex justify-between text-xs text-base-content/50 px-1">
+                    <span>Not likely</span>
+                    <span>Very likely</span>
+                </div>
             </div>
-
-            <!-- Urgent Contact Info -->
-            <div class="text-center text-sm text-base-content/70 pt-2">
-                For urgent issues, you can also reach me directly on
-                <a href="https://wa.me/+963939676801" target="_blank" rel="noopener noreferrer" class="link link-success font-semibold">WhatsApp</a>.
+            
+            <!-- Full Feedback Link -->
+            <div class="text-center text-sm text-base-content/70">
+                Want to provide more detailed feedback? 
+                <a href="/feedback/" class="link link-primary font-semibold">Give full feedback</a>
             </div>
-
+            
             <!-- Action Buttons -->
-            <div class="modal-action mt-6">
-                <button class="btn btn-outline">Cancel</button>
-                <button class="btn btn-primary">Submit Feedback</button>
+            <div class="modal-action mt-2">
+                <button type="button" id="quick-feedback-cancel" class="btn btn-outline">Cancel</button>
+                <button type="submit" id="quick-feedback-submit" class="btn btn-primary" disabled>Submit</button>
             </div>
         </form>
-
     </div>
     <!-- Add this to allow closing the modal by clicking outside -->
     <form method="dialog" class="modal-backdrop">
         <button>close</button>
     </form>
 </dialog>
+
+<style>
+    /* Quick Feedback Modal Styles */
+    .quick-rating-scale {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+    }
+    
+    .quick-rating-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+    }
+    
+    .quick-rating-option input[type="radio"] {
+        display: none;
+    }
+    
+    .quick-rating-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 4px;
+        border: 2px solid #d1d5db;
+        background-color: white;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+    
+    .quick-rating-option input[type="radio"]:checked + .quick-rating-circle {
+        background-color: #d97757;
+        color: white;
+        border-color: #d97757;
+    }
+    
+    .quick-rating-option:hover .quick-rating-circle {
+        transform: scale(1.1);
+    }
+    
+    /* Disabled experience options */
+    .quick-experience-option.disabled {
+        pointer-events: none;
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the quick feedback modal controller
+        const quickFeedbackController = {
+            modal: null,
+            form: null,
+            commentSection: null,
+            commentLabel: null,
+            commentTextarea: null,
+            recommendationSection: null,
+            experienceRadios: null,
+            experienceOptions: null,
+            recommendationRadios: null,
+            submitBtn: null,
+            cancelBtn: null,
+            experienceSelected: null,
+            
+            init() {
+                // Get DOM elements
+                this.modal = document.getElementById('quick-feedback-modal');
+                this.form = document.getElementById('quick-feedback-form');
+                this.commentSection = document.getElementById('quick-comment-section');
+                this.commentLabel = document.getElementById('quick-comment-label');
+                this.commentTextarea = document.getElementById('quick-comment');
+                this.recommendationSection = document.getElementById('quick-recommendation-section');
+                this.experienceRadios = document.querySelectorAll('input[name="quick-experience"]');
+                this.experienceOptions = document.querySelectorAll('.quick-experience-option');
+                this.recommendationRadios = document.querySelectorAll('input[name="quick-recommendation"]');
+                this.submitBtn = document.getElementById('quick-feedback-submit');
+                this.cancelBtn = document.getElementById('quick-feedback-cancel');
+                
+                // Setup event listeners
+                this.setupEventListeners();
+            },
+            
+            setupEventListeners() {
+                // Experience selection
+                this.experienceRadios.forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        this.handleExperienceChange(radio.value);
+                    });
+                });
+                
+                // Comment textarea unfocus
+                if (this.commentTextarea) {
+                    this.commentTextarea.addEventListener('blur', () => {
+                        if (this.commentTextarea.value.trim()) {
+                            this.handleCommentComplete();
+                        }
+                    });
+                }
+                
+                // Recommendation selection
+                this.recommendationRadios.forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        // Enable submit button if all required fields are filled
+                        this.checkFormValidity();
+                    });
+                });
+                
+                // Form submission
+                if (this.form) {
+                    this.form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+                }
+                
+                // Cancel button
+                if (this.cancelBtn) {
+                    this.cancelBtn.addEventListener('click', () => {
+                        this.closeModal();
+                    });
+                }
+                
+                // Close modal when clicking outside
+                const backdrop = this.modal?.querySelector('.modal-backdrop button');
+                if (backdrop) {
+                    backdrop.addEventListener('click', () => {
+                        this.closeModal();
+                    });
+                }
+            },
+            
+            handleExperienceChange(experience) {
+                // Store the selected experience
+                this.experienceSelected = experience;
+                
+                // Disable all experience options to prevent changing
+                this.experienceOptions.forEach(option => {
+                    option.classList.add('disabled');
+                });
+                
+                // Show comment section
+                this.commentSection.classList.remove('hidden');
+                
+                // Update comment label based on experience
+                if (experience === 'positive') {
+                    this.commentLabel.textContent = "What's the best thing about your experience so far?";
+                } else {
+                    this.commentLabel.textContent = "What's one thing that didn't work as expected?";
+                }
+                
+                // Focus on comment textarea
+                this.commentTextarea.focus();
+                
+                // Check form validity
+                this.checkFormValidity();
+            },
+            
+            handleCommentComplete() {
+                // Only show recommendation section if experience was positive
+                if (this.experienceSelected === 'positive') {
+                    this.recommendationSection.classList.remove('hidden');
+                }
+                
+                // Check form validity
+                this.checkFormValidity();
+            },
+            
+            checkFormValidity() {
+                // Check if experience is selected
+                const experienceSelected = this.experienceSelected !== null;
+                
+                // Check if comment is provided
+                const commentProvided = this.commentTextarea.value.trim() !== '';
+                
+                // Check if recommendation is selected (only if recommendation section is visible)
+                const recommendationVisible = !this.recommendationSection.classList.contains('hidden');
+                const recommendationSelected = !recommendationVisible || 
+                    Array.from(this.recommendationRadios).some(radio => radio.checked);
+                
+                // Enable/disable submit button
+                if (this.submitBtn) {
+                    this.submitBtn.disabled = !(experienceSelected && commentProvided && recommendationSelected);
+                }
+            },
+            
+            async handleFormSubmit(e) {
+                e.preventDefault();
+                
+                // Get form data
+                const experienceRadio = document.querySelector('input[name="quick-experience"]:checked');
+                const recommendationRadio = document.querySelector('input[name="quick-recommendation"]:checked');
+                
+                if (!experienceRadio) {
+                    this.showError('Please select your experience');
+                    return;
+                }
+                
+                if (!this.commentTextarea.value.trim()) {
+                    this.showError('Please provide a comment');
+                    return;
+                }
+                
+                // For positive experience, recommendation is required
+                if (this.experienceSelected === 'positive' && !recommendationRadio) {
+                    this.showError('Please provide a recommendation rating');
+                    return;
+                }
+                
+                // Prepare data
+                const data = {
+                    experience: experienceRadio.value,
+                    comment: this.commentTextarea.value.trim(),
+                    recommendation: this.experienceSelected === 'positive' ? 
+                        parseInt(recommendationRadio.value) : null,
+                    user: {{ request.user.id }}
+                };
+                
+                // Show loading state
+                const originalText = this.submitBtn.innerHTML;
+                this.submitBtn.innerHTML = `
+                    <span class="loading loading-spinner loading-sm"></span>
+                    Submitting...
+                `;
+                this.submitBtn.disabled = true;
+                
+                try {
+                    // Submit to Django API
+                    const response = await fetch('/feedback/api/quick-feedback/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': "{{ csrf_token }}",
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'Submission failed');
+                    }
+                    
+                    const result = await response.json();
+                    console.log('Quick feedback submitted successfully:', result);
+                    
+                    // Show success message and close modal
+                    this.showSuccessMessage();
+                    this.closeModal();
+                    
+                } catch (error) {
+                    console.error('Submission error:', error);
+                    this.showError(`Submission failed: ${error.message}`);
+                    
+                } finally {
+                    // Reset button state
+                    this.submitBtn.innerHTML = originalText;
+                    this.submitBtn.disabled = false;
+                }
+            },
+            
+            showSuccessMessage() {
+                // Create a success toast
+                let toast = document.getElementById('quick-feedback-success-toast');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'quick-feedback-success-toast';
+                    toast.className = 'toast toast-top toast-center';
+                    document.body.appendChild(toast);
+                    
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-success';
+                    alert.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Thank you for your feedback!</span>
+                    `;
+                    toast.appendChild(alert);
+                }
+                
+                // Show the toast
+                toast.classList.remove('hidden');
+                
+                // Hide after 3 seconds
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3000);
+            },
+            
+            showError(message) {
+                // Create an error toast
+                let toast = document.getElementById('quick-feedback-error-toast');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'quick-feedback-error-toast';
+                    toast.className = 'toast toast-top toast-center';
+                    document.body.appendChild(toast);
+                    
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-error';
+                    alert.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>${message}</span>
+                    `;
+                    toast.appendChild(alert);
+                }
+                
+                // Show the toast
+                toast.classList.remove('hidden');
+                
+                // Hide after 3 seconds
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3000);
+            },
+            
+            openModal() {
+                if (this.modal) {
+                    this.modal.showModal();
+                    // Reset form
+                    this.form.reset();
+                    this.commentSection.classList.add('hidden');
+                    this.recommendationSection.classList.add('hidden');
+                    this.submitBtn.disabled = true;
+                    this.experienceSelected = null;
+                    
+                    // Re-enable experience options
+                    this.experienceOptions.forEach(option => {
+                        option.classList.remove('disabled');
+                    });
+                }
+            },
+            
+            closeModal() {
+                if (this.modal) {
+                    this.modal.close();
+                }
+            }
+        };
+        
+        // Initialize the quick feedback controller
+        quickFeedbackController.init();
+        
+        // Make it globally accessible so it can be opened from anywhere
+        window.openQuickFeedbackModal = () => {
+            quickFeedbackController.openModal();
+        };
+    });
+</script>

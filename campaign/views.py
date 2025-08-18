@@ -12,7 +12,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 import json
 
 
-from campaign.helpers import get_campaigns_and_products, get_company_email_accounts, get_company_products, get_lead_lists_or_both, get_messages_and_products, get_subscribed_company
+from campaign.helpers import get_campaign_status, get_campaigns_and_products, get_company_email_accounts, get_company_products, get_lead_lists_or_both, get_messages_and_products, get_subscribed_company
 from .models import Campaign, CampaignLead, CampaignOptions, CampaignStats, LeadList, Link, Message, MessageAssignment, Schedule
 import logging
 
@@ -118,6 +118,7 @@ def show_all_leads_view(request):
 
     context = {
         'leads': leads,
+        'lead_lists': lead_lists,
     }
     return render(request, "app/leads/all-leads-view.html", context)
 
@@ -157,20 +158,20 @@ def campaign_view_list(request):
 
 
 def campaign_dashboard(request, pk):
-    campaign_status= Campaign.objects.get(id=pk, subscribed_company=get_subscribed_company(request)).status
+    campaign_status= get_campaign_status(request, pk)
     campaign_stats = get_or_none(CampaignStats, campaign=pk)
     context = {
         'campaign_id': pk,
         'current_tab': 'analytics',
-        'status': campaign_status,
+        'campaign_status': campaign_status,
         'stats': campaign_stats
     }
     return render(request, "app/campaign/dashboard.html", context)
 
 
 def campaign_leads(request, pk):
-    
     is_view_only = is_campaign_view_only(pk)
+    campaign_status= get_campaign_status(request, pk)
     
     all_lead_lists= get_lead_lists_or_both(request, lead_lists_only=True, list_id=None)
     lead_lists= all_lead_lists.filter(campaigns=pk)
@@ -181,14 +182,15 @@ def campaign_leads(request, pk):
         'current_tab': 'leads',
         'lead_lists': lead_lists,
         'lead_lists_assign': lead_lists_assign,
-        'view_only': is_view_only
+        'view_only': is_view_only,
+        'campaign_status': campaign_status
     }
     return render(request, "app/campaign/campaign-leads.html", context)
 
 
 
 def campaign_sequence(request, pk):
-
+    campaign_status= get_campaign_status(request, pk)
     is_view_only = is_campaign_view_only(pk)
 
     all_messages, products= get_messages_and_products(request)
@@ -213,7 +215,8 @@ def campaign_sequence(request, pk):
         'current_tab': 'sequences',
         'messages': messages,  # Now contains aggregated data without duplicates
         'all_messages': all_messages,  # For the "Add" dropdown
-        'view_only': is_view_only
+        'view_only': is_view_only,
+        'campaign_status': campaign_status
     }
     return render(request, "app/campaign/sequence.html", context)
 
@@ -221,7 +224,7 @@ def campaign_sequence(request, pk):
 
 
 def campaign_scheduele(request, pk):
-
+    campaign_status= get_campaign_status(request, pk)
     is_view_only = is_campaign_view_only(pk)
 
     
@@ -236,14 +239,15 @@ def campaign_scheduele(request, pk):
         'days': days,
         'times': times,
         'schedule': campaign_Schedule,
-        'view_only': is_view_only
+        'view_only': is_view_only,
+        'campaign_status': campaign_status
     }
     return render(request, "app/campaign/scheduele.html", context)
 
 
 
 def campaign_options(request, pk):
-
+    campaign_status= get_campaign_status(request, pk)
     is_view_only = is_campaign_view_only(pk)
 
 
@@ -282,7 +286,8 @@ def campaign_options(request, pk):
         'current_tab': 'options',
         'emails': formatted_emails,
         'campaign_options': current_campaign_options,
-        'view_only': is_view_only
+        'view_only': is_view_only,
+        'campaign_status': campaign_status
     }
     return render(request, "app/campaign/options.html", context)
 

@@ -157,14 +157,17 @@ function filterCampaigns() {
     
     const rows = document.querySelectorAll('.campaign-row');
     let visibleCount = 0;
-
+    
     rows.forEach(row => {
         const campaignText = row.textContent.toLowerCase();
-        const status = row.getAttribute('data-status').toLowerCase();
+        
+        // Get the status from the badge text instead of data-status attribute
+        const statusBadge = row.querySelector('.badge');
+        const status = statusBadge ? statusBadge.textContent.toLowerCase() : '';
         
         const matchesSearch = searchTerm === '' || campaignText.includes(searchTerm);
         const matchesStatus = statusFilter === '' || status === statusFilter;
-
+        
         if (matchesSearch && matchesStatus) {
             row.style.display = '';
             visibleCount++;
@@ -172,7 +175,7 @@ function filterCampaigns() {
             row.style.display = 'none';
         }
     });
-
+    
     // Update empty state
     const noCampaignsRow = document.getElementById('no-campaigns-row');
     if (visibleCount === 0 && rows.length > 0) {
@@ -180,7 +183,7 @@ function filterCampaigns() {
     } else {
         if (noCampaignsRow) noCampaignsRow.style.display = 'none';
     }
-
+    
     // Update counter
     document.getElementById('campaign-count').textContent = `${visibleCount} campaigns`;
 }

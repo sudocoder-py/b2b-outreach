@@ -197,7 +197,7 @@ function filterMessages() {
     
     const rows = document.querySelectorAll('.message-row');
     let visibleCount = 0;
-
+    
     // First filter the rows
     rows.forEach(row => {
         const messageText = row.textContent.toLowerCase();
@@ -208,7 +208,7 @@ function filterMessages() {
                              messageText.includes(searchTerm) || 
                              name.includes(searchTerm);
         const matchesProduct = productFilter === '' || product === productFilter;
-
+        
         if (matchesSearch && matchesProduct) {
             row.style.display = '';
             visibleCount++;
@@ -216,12 +216,12 @@ function filterMessages() {
             row.style.display = 'none';
         }
     });
-
+    
     // Then sort if a sort option is selected
     if (sortFilter) {
         sortTable(sortFilter);
     }
-
+    
     // Update empty state
     const noMessagesRow = document.getElementById('no-messages-row');
     if (visibleCount === 0 && rows.length > 0) {
@@ -229,14 +229,17 @@ function filterMessages() {
     } else {
         noMessagesRow.style.display = 'none';
     }
-
+    
     // Update counter
     document.getElementById('message-count').textContent = `${visibleCount} messages`;
 }
 
 function sortTable(sortBy) {
     const tbody = document.getElementById('messages-table-body');
-    const rows = Array.from(tbody.querySelectorAll('.message-row[style=""]'));
+    // Get all visible rows (not hidden by filtering)
+    const rows = Array.from(tbody.querySelectorAll('.message-row')).filter(row => {
+        return window.getComputedStyle(row).display !== 'none';
+    });
     
     rows.sort((a, b) => {
         let aValue, bValue;
@@ -262,7 +265,7 @@ function sortTable(sortBy) {
                 return 0;
         }
     });
-
+    
     // Re-append sorted rows
     rows.forEach(row => tbody.appendChild(row));
 }

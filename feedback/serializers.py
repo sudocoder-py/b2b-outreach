@@ -1,5 +1,31 @@
 from rest_framework import serializers
-from .models import Feedback, FeatureRequest
+from .models import Feedback, QuickFeedback, FeatureRequest
+
+
+
+
+
+
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = '__all__'
+
+
+class QuickFeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuickFeedback
+        fields = '__all__'
+
+class FeatureRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FeatureRequest
+        fields = '__all__'
+
+
+
+
 
 
 class FeedbackAnalyticsSerializer(serializers.ModelSerializer):

@@ -29,7 +29,7 @@ def login_submit(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return redirect('products')
+                    return redirect('overall_dashboard')
                 else:
                     messages.error(request, 'Your account is disabled.')
             else:

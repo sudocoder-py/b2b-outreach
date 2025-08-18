@@ -54,7 +54,7 @@ class QuickFeedback(models.Model):
 
     experience = models.CharField(max_length=10, choices=EXPERIENCE_CHOICES)
     comment = models.TextField(blank=True, null=True)
-    recommendation = models.IntegerField(choices=RECOMMENDATION_SCALE)
+    recommendation = models.IntegerField(choices=RECOMMENDATION_SCALE, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -7,10 +7,14 @@
     <h1 class="text-3xl text-gray-900 mb-2">{% for list in lead_lists %}{% if list.id == lead_list_id %}{{ list.title }}{% endif %}{% endfor %}
  List</h1>
     <div class="flex items-center gap-4">
-         <a href="/campaign/leads/lists/" tabindex="0" role="button" class="btn text-gray-900">
+        <a href="/campaign/leads/lists/" tabindex="0" role="button" class="btn text-gray-900">
             <i class="fa-regular fa-eye"></i>
             View all lists
-    </a>
+        </a>
+        <button onclick="exportLeadsToCSV()" class="btn btn-outline text-gray-900 h-10 min-h-10 rounded-lg px-4 text-sm">
+            <i class="fa-solid fa-download mr-2"></i>
+            Export CSV
+        </button>
     </div>
   </div>
         <!-- Toolbar -->
@@ -209,6 +213,7 @@
                                         <i class="fa-solid fa-ellipsis-vertical"></i>
                                     </div>
                                     <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-40 border border-gray-200">
+                                        <li><a onclick="copyLeadDetails({{ lead.id }})" class="text-blue-600"><i class="fa-solid fa-eye mr-2"></i>Copy</a></li>
                                         <li><a onclick="addLeadToList({{ lead.id }})" class="text-green-600"><i class="fa-solid fa-plus mr-2"></i>Add to list</a></li>
                                         <li><a onclick="deleteLead({{ lead.id }})" class="text-red-600"><i class="fa-solid fa-trash mr-2"></i>Delete</a></li>
                                     </ul>
@@ -539,7 +544,7 @@ function deleteLead(leadId) {
 function addLeadToList(leadId) {
     // Build the select options dynamically from the available lists
     let selectOptions = '<option value="">Select a list</option>';
-    {% for list in lead_lists %}
+    {% for list in lead_lists_assign %}
         selectOptions += '<option value="{{ list.id }}">{{ list.title|escapejs }}</option>';
     {% endfor %}
 
@@ -722,6 +727,160 @@ function filterLeads() {
         }
     }
 }
+
+
+
+function copyLeadDetails(leadId) {
+    // Find the lead row
+    const row = document.querySelector(`input[value="${leadId}"]`).closest('tr');
+    
+    if (!row) {
+        ModalSystem.toast('Lead not found', 'error');
+        return;
+    }
+    
+    // Extract lead information from the row
+    const nameElement = row.querySelector('td:nth-child(3) span');
+    const emailElement = row.querySelector('td:nth-child(3) span.text-sm');
+    const linkedinElement = row.querySelector('td:nth-child(3) a[href*="linkedin"]');
+    const phoneElement = Array.from(row.querySelectorAll('td:nth-child(3) span')).find(el => el.textContent.includes('📞'));
+    
+    const companyElement = row.querySelector('td:nth-child(4) span');
+    const websiteElement = row.querySelector('td:nth-child(4) a[href]');
+    const industryElement = row.querySelector('td:nth-child(4) span.text-xs');
+    
+    const positionElement = row.querySelector('td:nth-child(5)');
+    const locationElement = row.querySelector('td:nth-child(6)');
+    const typeElement = row.querySelector('td:nth-child(7) .badge');
+    const sourceElement = row.querySelector('td:nth-child(8) .badge');
+    const createdElement = row.querySelector('td:nth-child(9)');
+    
+    // Format the lead details
+    const leadDetails = `
+        Name: ${nameElement ? nameElement.textContent.trim() : 'N/A'}
+        Email: ${emailElement ? emailElement.textContent.trim() : 'N/A'}
+        ${linkedinElement ? `LinkedIn: ${linkedinElement.href}` : ''}
+        ${phoneElement ? `Phone: ${phoneElement.textContent.replace('📞 ', '').trim()}` : ''}
+
+        Company: ${companyElement ? companyElement.textContent.trim() : 'N/A'}
+        ${websiteElement ? `Website: ${websiteElement.href}` : ''}
+        ${industryElement ? `Industry & Size: ${industryElement.textContent.trim()}` : ''}
+
+        Position: ${positionElement ? positionElement.textContent.trim() : 'N/A'}
+        Location: ${locationElement ? locationElement.textContent.trim() : 'N/A'}
+        Lead Type: ${typeElement ? typeElement.textContent.trim() : 'N/A'}
+        Source: ${sourceElement ? sourceElement.textContent.trim() : 'N/A'}
+        Created: ${createdElement ? createdElement.textContent.trim() : 'N/A'}
+    `.trim();
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(leadDetails)
+        .then(() => {
+            ModalSystem.toast('Lead details copied to clipboard!', 'success');
+        })
+        .catch(err => {
+            console.error('Failed to copy lead details: ', err);
+            ModalSystem.toast('Failed to copy lead details', 'error');
+        });
+}
+
+
+function exportLeadsToCSV() {
+    // Get all visible leads (after filtering)
+    const visibleRows = Array.from(document.querySelectorAll('.lead-row')).filter(row => {
+        return window.getComputedStyle(row).display !== 'none';
+    });
+    
+    if (visibleRows.length === 0) {
+        ModalSystem.toast('No leads to export', 'warning');
+        return;
+    }
+    
+    // Create CSV header
+    let csvContent = "Name,Email,LinkedIn,Phone,Company,Website,Industry,Employee Count,Position,Location,Lead Type,Source,Created At\n";
+    
+    // Add data for each visible lead
+    visibleRows.forEach(row => {
+        // Extract data from each cell
+        const nameElement = row.querySelector('td:nth-child(3) span');
+        const emailElement = row.querySelector('td:nth-child(3) span.text-sm');
+        const linkedinElement = row.querySelector('td:nth-child(3) a[href*="linkedin"]');
+        const phoneElement = Array.from(row.querySelectorAll('td:nth-child(3) span')).find(el => el.textContent.includes('📞'));
+        
+        const companyElement = row.querySelector('td:nth-child(4) span');
+        const websiteElement = row.querySelector('td:nth-child(4) a[href]');
+        const industryElement = row.querySelector('td:nth-child(4) span.text-xs');
+        
+        const positionElement = row.querySelector('td:nth-child(5)');
+        const locationElement = row.querySelector('td:nth-child(6)');
+        const typeElement = row.querySelector('td:nth-child(7) .badge');
+        const sourceElement = row.querySelector('td:nth-child(8) .badge');
+        const createdElement = row.querySelector('td:nth-child(9)');
+        
+        // Parse industry and employee count
+        let industry = '';
+        let employeeCount = '';
+        if (industryElement) {
+            const industryText = industryElement.textContent.trim();
+            const parts = industryText.split(' • ');
+            industry = parts[0] || '';
+            employeeCount = parts.length > 1 ? parts[1].replace(' employees', '').trim() : '';
+        }
+        
+        // Parse phone number
+        let phone = '';
+        if (phoneElement) {
+            phone = phoneElement.textContent.replace('📞 ', '').trim();
+        }
+        
+        // Parse lead type (remove icon)
+        let leadType = '';
+        if (typeElement) {
+            leadType = typeElement.textContent.trim();
+        }
+        
+        // Parse source (remove icon)
+        let source = '';
+        if (sourceElement) {
+            source = sourceElement.textContent.trim();
+        }
+        
+        // Add row to CSV (escape commas and quotes)
+        const name = nameElement ? `"${nameElement.textContent.trim().replace(/"/g, '""')}"` : 'N/A';
+        const email = emailElement ? `"${emailElement.textContent.trim().replace(/"/g, '""')}"` : 'N/A';
+        const linkedin = linkedinElement ? `"${linkedinElement.href.replace(/"/g, '""')}"` : 'N/A';
+        const company = companyElement ? `"${companyElement.textContent.trim().replace(/"/g, '""')}"` : 'N/A';
+        const website = websiteElement ? `"${websiteElement.href.replace(/"/g, '""')}"` : 'N/A';
+        const position = positionElement ? `"${positionElement.textContent.trim().replace(/"/g, '""')}"` : 'N/A';
+        const location = locationElement ? `"${locationElement.textContent.trim().replace(/"/g, '""')}"` : 'N/A';
+        const created = createdElement ? `"${createdElement.textContent.trim().replace(/"/g, '""')}"` : 'N/A';
+        
+        csvContent += `${name},${email},${linkedin},"${phone}",${company},${website},"${industry}","${employeeCount}",${position},${location},"${leadType}","${source}",${created}\n`;
+    });
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    
+    // Get list name for filename
+    let listName = "leads";
+    const listTitleElement = document.querySelector('h1');
+    if (listTitleElement) {
+        listName = listTitleElement.textContent.replace(' List', '').trim().toLowerCase().replace(/\s+/g, '_');
+    }
+    
+    link.setAttribute('download', `${listName}_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    ModalSystem.toast(`Exported ${visibleRows.length} leads to CSV`, 'success');
+}
+
+
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {

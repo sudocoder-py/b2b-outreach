@@ -36,7 +36,9 @@ def get_campaigns_and_products(request):
     return campaigns, products
 
 
-
+def get_campaign_status(request, campaign_id):
+    campaign_status= Campaign.objects.get(id=campaign_id, subscribed_company=get_subscribed_company(request)).status
+    return campaign_status
 
 
 def get_lead_lists_or_both(request, *, lead_lists_only=False, list_id=None):

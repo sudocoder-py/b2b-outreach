@@ -35,7 +35,7 @@
             </div>
             <div class="flex items-center gap-3">
                 <div class="dropdown dropdown-end">
-                    <div tabindex="0" role="button" class="btn bg-white border border-base-300 h-10 min-h-10 rounded-lg px-4 text-sm">
+                    <div tabindex="0" role="button" class="btn bg-white border border-base-300 h-10 min-h-10 rounded-lg px-4 text-sm text-gray-900">
                         <i class="fa-solid fa-filter mr-2 text-gray-500"></i>Filters
                     </div>
                     <div tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-52 border border-gray-200">
@@ -66,6 +66,10 @@
                     </div>
                 </div>
                 <a href="{% url 'leads_lists' %}" class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm">View all lists</a>
+                <button onclick="exportLeadsToCSV()" class="btn btn-outline text-gray-900 h-10 min-h-10 rounded-lg px-4 text-sm">
+                    <i class="fa-solid fa-download mr-2"></i>
+                    Export CSV
+                </button>
             </div>
         </div>
 
@@ -131,25 +135,27 @@
                             <td class="text-gray-500 text-center">{{ forloop.counter }}</td>
                             <td class="font-medium text-gray-700">
                                 <div class="flex flex-col">
-                                    <span>{{ lead.full_name }}</span>
+                                    <span style="font-size:16px;">{{ lead.full_name }}</span>
                                     <span class="text-sm text-gray-500">{{ lead.email }}</span>
                                     {% if lead.linkedin_profile %}
                                     <span class="text-xs text-blue-500">
-                                        <a href="{{ lead.linkedin_profile }}" target="_blank" class="hover:underline">
+                                        <a href="{{ lead.linkedin_profile }}" target="_blank" class="hover:underline" style="font-size:14px;">
                                             <i class="fa-brands fa-linkedin mr-1"></i>LinkedIn
                                         </a>
                                     </span>
-                                    {% else %}
+                                    {% elif lead.phone_number %}
                                     <span class="text-xs text-gray-400">📞 {{ lead.phone_number|default:"N/A" }}</span>
+                                    {% else %}
+                                    <span class="text-xs text-gray-400">N/A: No contact info</span>
                                     {% endif %}
                                 </div>
                             </td>
                             <td class="text-gray-600">
                                 <div class="flex flex-col">
-                                    <span>{{ lead.company_name }}</span>
+                                    <span style="font-size:16px;">{{ lead.company_name }}</span>
                                     {% if lead.company_website %}
                                     <span class="text-sm text-blue-500">
-                                        <a href="{{ lead.company_website }}" target="_blank" class="hover:underline">
+                                        <a href="{{ lead.company_website }}" target="_blank" class="hover:underline" style="font-size:14px;">
                                             <i class="fa-solid fa-link mr-1"></i>Website
                                         </a>
                                     </span>
@@ -196,9 +202,9 @@
                                         <i class="fa-solid fa-ellipsis-vertical"></i>
                                     </div>
                                     <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-40 border border-gray-200">
-                                        <li><a href="#" class="text-blue-600"><i class="fa-solid fa-eye mr-2"></i>View Details</a></li>
-                                        <li><a href="#" class="text-green-600"><i class="fa-solid fa-plus mr-2"></i>Add to list</a></li>
-                                        <li><a href="#" onclick="deleteLead({{ lead.id }})" class="text-red-600"><i class="fa-solid fa-trash mr-2"></i>Delete</a></li>
+                                        <li><a onclick="copyLeadDetails({{ lead.id }})" class="text-blue-600"><i class="fa-solid fa-eye mr-2"></i>Copy</a></li>
+                                        <li><a onclick="addLeadToList({{ lead.id }}, {{ lead.lead_list.id }})" class="text-green-600"><i class="fa-solid fa-plus mr-2"></i>Add to list</a></li>
+                                        <li><a onclick="deleteLead({{ lead.id }})" class="text-red-600"><i class="fa-solid fa-trash mr-2"></i>Delete</a></li>
                                     </ul>
                                 </div>
                             </td>
@@ -357,7 +363,6 @@
 
 
 
-
 <script>
     // right side bar
 function openSidebar(email) {
@@ -434,76 +439,179 @@ function deleteSelected() {
 
     if (leadIds.length === 0) return;
 
-    // Use the modal system
     ModalSystem.confirm({
         title: 'Delete Selected Leads',
         message: `Are you sure you want to delete ${leadIds.length} selected lead(s)? This action cannot be undone.`,
         confirmText: 'Delete',
         confirmClass: 'btn-error',
         action: function() {
-            // Simulate deletion by removing rows
-            checkedBoxes.forEach(checkbox => {
-                const row = checkbox.closest('tr');
-                row.remove();
+            ModalSystem.toast('Deleting leads...', 'info');
+
+            fetch('/api/leads/bulk-delete/', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ ids: leadIds })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Remove rows from UI
+                checkedBoxes.forEach(checkbox => {
+                    const row = checkbox.closest('tr');
+                    row.remove();
+                });
+
+                clearSelection();
+
+                ModalSystem.toast(data.message || `${leadIds.length} lead(s) deleted successfully!`, 'success');
+
+                // Refresh UI/stats
+                htmx.trigger('#search-input', 'keyup');
+            })
+            .catch(error => {
+                ModalSystem.toast('Failed to delete lead(s). Try again.', 'error');
+                console.error('Delete error:', error);
             });
-
-            // Clear selection
-            clearSelection();
-
-            // Show success toast
-            ModalSystem.toast(`${leadIds.length} lead(s) deleted successfully!`);
-
-            // Trigger HTMX refresh to update stats
-            htmx.trigger('#search-input', 'keyup');
         }
     });
 }
 
+
 function deleteLead(leadId) {
-    // Use the modal system
     ModalSystem.confirm({
         title: 'Delete Lead',
         message: 'Are you sure you want to delete this lead? This action cannot be undone.',
         confirmText: 'Delete',
         confirmClass: 'btn-error',
         action: function() {
-            // Find and remove the row
-            const checkbox = document.querySelector(`input[value="${leadId}"]`);
-            if (checkbox) {
-                const row = checkbox.closest('tr');
-                row.remove();
-            }
+            ModalSystem.toast('Deleting lead...', 'info');
 
-            // Update bulk actions
-            updateBulkActions();
+            fetch(`/api/leads/${leadId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; });
+                }
+                // No content expected on successful DELETE
+                return null;
+            })
+            .then(() => {
+                // Remove the row from the DOM
+                const checkbox = document.querySelector(`input[value="${leadId}"]`);
+                if (checkbox) {
+                    const row = checkbox.closest('tr');
+                    row.remove();
+                }
 
-            // Show success toast
-            ModalSystem.toast('Lead deleted successfully!');
+                updateBulkActions();
 
-            // Trigger HTMX refresh to update stats
-            htmx.trigger('#search-input', 'keyup');
+                ModalSystem.toast('Lead deleted successfully!', 'success');
+
+                htmx.trigger('#search-input', 'keyup');
+            })
+            .catch(error => {
+                ModalSystem.toast('Failed to delete lead. Please try again.', 'error');
+                console.error('Delete error:', error);
+            });
         }
     });
 }
 
+function addLeadToList(leadId, lead_list_id) {
+    // Build the select options dynamically from the available lists
+    let selectOptions = '<option value="">Select a list</option>';
+    {% for list in lead_lists %}
+        {% if not list.id == lead_list_id %}
+            selectOptions += '<option value="{{ list.id }}">{{ list.title|escapejs }}</option>';
+        {% endif %}
+    {% endfor %}
+
+    ModalSystem.confirm({
+        title: 'Add to List',
+        message: `Select a list to add this lead to:`,
+        confirmText: 'Add',
+        confirmClass: 'btn-primary',
+        html: true,  // Enable HTML rendering
+        customContent: `
+            <select id="list-select" class="select select-bordered w-full mt-2">
+                ${selectOptions}
+            </select>
+        `,
+        action: function() {
+            const listId = document.getElementById('list-select').value;
+
+            if (!listId) {
+                ModalSystem.toast('Please select a list', 'error');
+                return;
+            }
+
+            fetch('/api/leads/move-to-list/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    lead_ids: [leadId],
+                    target_list_id: listId
+                })
+            })
+            .then(response => {
+                if (!response.ok) return response.json().then(err => { throw err; });
+                return response.json();
+            })
+            .then(data => {
+                ModalSystem.toast(`${data.moved_count} lead(s) moved successfully!`, 'success');
+                // Remove the row from the DOM
+                const checkbox = document.querySelector(`input[value="${leadId}"]`);
+                if (checkbox) {
+                    const row = checkbox.closest('tr');
+                    row.remove();
+                };
+                htmx.trigger('#search-input', 'keyup'); // Refresh table/stats
+            })
+            .catch(error => {
+                ModalSystem.toast('Failed to move lead. Please try again.', 'error');
+                console.error('Move error:', error);
+            });
+        }
+    });
+}
+
+
+
 function addToList() {
     const checkedBoxes = document.querySelectorAll('.lead-checkbox:checked');
     const leadIds = Array.from(checkedBoxes).map(cb => cb.value);
-    
+
     if (leadIds.length === 0) return;
-    
-    // Show modal to select list
+
+    // Build the select options dynamically from the available lists
+    let selectOptions = '<option value="">Select a list</option>';
+    {% for list in lead_lists_assign %}
+        selectOptions += '<option value="{{ list.id }}">{{ list.title|escapejs }}</option>';
+    {% endfor %}
+
     ModalSystem.confirm({
         title: 'Add to List',
         message: `Select a list to add ${leadIds.length} lead(s) to:`,
         confirmText: 'Add',
         confirmClass: 'btn-primary',
+        html: true,  // Enable HTML rendering
         customContent: `
             <select id="list-select" class="select select-bordered w-full mt-2">
-                <option value="">Select a list</option>
-                <option value="1">Summer Outreach 2025</option>
-                <option value="2">Tech Startups Q3</option>
-                <option value="3">MENA Region Prospects</option>
+                ${selectOptions}
             </select>
         `,
         action: function() {
@@ -512,15 +620,44 @@ function addToList() {
                 ModalSystem.toast('Please select a list', 'error');
                 return;
             }
-            
-            // Show success toast
-            ModalSystem.toast(`${leadIds.length} lead(s) added to list successfully!`);
-            
-            // Clear selection
-            clearSelection();
+
+            fetch('/api/leads/move-to-list/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    lead_ids: leadIds,
+                    target_list_id: listId
+                })
+            })
+            .then(response => {
+                if (!response.ok) return response.json().then(err => { throw err; });
+                return response.json();
+            })
+            .then(data => {
+                ModalSystem.toast(`${data.moved_count} lead(s) moved successfully! ${data.skipped_count} lead(s) already in the target list.`, 'success');
+                clearSelection();
+                // Remove the row from the DOM
+                leadIds.forEach(leadId => {
+                const checkbox = document.querySelector(`input[value="${leadId}"]`);
+                if (checkbox) {
+                    const row = checkbox.closest('tr');
+                    if (row) row.remove();
+                    }
+                });
+
+                htmx.trigger('#search-input', 'keyup'); // Refresh table/stats
+            })
+            .catch(error => {
+                ModalSystem.toast('Failed to move leads. Please try again.', 'error');
+                console.error('Move error:', error);
+            });
         }
     });
 }
+
 
 function clearFilters() {
     document.getElementById('search-input').value = '';
@@ -579,6 +716,160 @@ function filterLeads() {
         }
     }
 }
+
+
+
+function copyLeadDetails(leadId) {
+    // Find the lead row
+    const row = document.querySelector(`input[value="${leadId}"]`).closest('tr');
+    
+    if (!row) {
+        ModalSystem.toast('Lead not found', 'error');
+        return;
+    }
+    
+    // Extract lead information from the row
+    const nameElement = row.querySelector('td:nth-child(3) span');
+    const emailElement = row.querySelector('td:nth-child(3) span.text-sm');
+    const linkedinElement = row.querySelector('td:nth-child(3) a[href*="linkedin"]');
+    const phoneElement = Array.from(row.querySelectorAll('td:nth-child(3) span')).find(el => el.textContent.includes('📞'));
+    
+    const companyElement = row.querySelector('td:nth-child(4) span');
+    const websiteElement = row.querySelector('td:nth-child(4) a[href]');
+    const industryElement = row.querySelector('td:nth-child(4) span.text-xs');
+    
+    const positionElement = row.querySelector('td:nth-child(5)');
+    const locationElement = row.querySelector('td:nth-child(6)');
+    const typeElement = row.querySelector('td:nth-child(7) .badge');
+    const sourceElement = row.querySelector('td:nth-child(8) .badge');
+    const createdElement = row.querySelector('td:nth-child(9)');
+    
+    // Format the lead details
+    const leadDetails = `
+        Name: ${nameElement ? nameElement.textContent.trim() : 'N/A'}
+        Email: ${emailElement ? emailElement.textContent.trim() : 'N/A'}
+        ${linkedinElement ? `LinkedIn: ${linkedinElement.href}` : ''}
+        ${phoneElement ? `Phone: ${phoneElement.textContent.replace('📞 ', '').trim()}` : ''}
+
+        Company: ${companyElement ? companyElement.textContent.trim() : 'N/A'}
+        ${websiteElement ? `Website: ${websiteElement.href}` : ''}
+        ${industryElement ? `Industry & Size: ${industryElement.textContent.trim()}` : ''}
+
+        Position: ${positionElement ? positionElement.textContent.trim() : 'N/A'}
+        Location: ${locationElement ? locationElement.textContent.trim() : 'N/A'}
+        Lead Type: ${typeElement ? typeElement.textContent.trim() : 'N/A'}
+        Source: ${sourceElement ? sourceElement.textContent.trim() : 'N/A'}
+        Created: ${createdElement ? createdElement.textContent.trim() : 'N/A'}
+    `.trim();
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(leadDetails)
+        .then(() => {
+            ModalSystem.toast('Lead details copied to clipboard!', 'success');
+        })
+        .catch(err => {
+            console.error('Failed to copy lead details: ', err);
+            ModalSystem.toast('Failed to copy lead details', 'error');
+        });
+}
+
+
+
+function exportLeadsToCSV() {
+    // Get all visible leads (after filtering)
+    const visibleRows = Array.from(document.querySelectorAll('.lead-row')).filter(row => {
+        return window.getComputedStyle(row).display !== 'none';
+    });
+    
+    if (visibleRows.length === 0) {
+        ModalSystem.toast('No leads to export', 'warning');
+        return;
+    }
+    
+    // Create CSV header
+    let csvContent = "Name,Email,LinkedIn,Phone,Company,Website,Industry,Employee Count,Position,Location,Lead Type,Source,Created At\n";
+    
+    // Add data for each visible lead
+    visibleRows.forEach(row => {
+        // Extract data from each cell
+        const nameElement = row.querySelector('td:nth-child(3) span');
+        const emailElement = row.querySelector('td:nth-child(3) span.text-sm');
+        const linkedinElement = row.querySelector('td:nth-child(3) a[href*="linkedin"]');
+        const phoneElement = Array.from(row.querySelectorAll('td:nth-child(3) span')).find(el => el.textContent.includes('📞'));
+        
+        const companyElement = row.querySelector('td:nth-child(4) span');
+        const websiteElement = row.querySelector('td:nth-child(4) a[href]');
+        const industryElement = row.querySelector('td:nth-child(4) span.text-xs');
+        
+        const positionElement = row.querySelector('td:nth-child(5)');
+        const locationElement = row.querySelector('td:nth-child(6)');
+        const typeElement = row.querySelector('td:nth-child(7) .badge');
+        const sourceElement = row.querySelector('td:nth-child(8) .badge');
+        const createdElement = row.querySelector('td:nth-child(9)');
+        
+        // Parse industry and employee count
+        let industry = '';
+        let employeeCount = '';
+        if (industryElement) {
+            const industryText = industryElement.textContent.trim();
+            const parts = industryText.split(' • ');
+            industry = parts[0] || '';
+            employeeCount = parts.length > 1 ? parts[1].replace(' employees', '').trim() : '';
+        }
+        
+        // Parse phone number
+        let phone = '';
+        if (phoneElement) {
+            phone = phoneElement.textContent.replace('📞 ', '').trim();
+        }
+        
+        // Parse lead type (remove icon)
+        let leadType = '';
+        if (typeElement) {
+            leadType = typeElement.textContent.trim();
+        }
+        
+        // Parse source (remove icon)
+        let source = '';
+        if (sourceElement) {
+            source = sourceElement.textContent.trim();
+        }
+        
+        // Add row to CSV (escape commas and quotes)
+        const name = nameElement ? `"${nameElement.textContent.trim().replace(/"/g, '""')}"` : 'N/A';
+        const email = emailElement ? `"${emailElement.textContent.trim().replace(/"/g, '""')}"` : 'N/A';
+        const linkedin = linkedinElement ? `"${linkedinElement.href.replace(/"/g, '""')}"` : 'N/A';
+        const company = companyElement ? `"${companyElement.textContent.trim().replace(/"/g, '""')}"` : 'N/A';
+        const website = websiteElement ? `"${websiteElement.href.replace(/"/g, '""')}"` : 'N/A';
+        const position = positionElement ? `"${positionElement.textContent.trim().replace(/"/g, '""')}"` : 'N/A';
+        const location = locationElement ? `"${locationElement.textContent.trim().replace(/"/g, '""')}"` : 'N/A';
+        const created = createdElement ? `"${createdElement.textContent.trim().replace(/"/g, '""')}"` : 'N/A';
+        
+        csvContent += `${name},${email},${linkedin},"${phone}",${company},${website},"${industry}","${employeeCount}",${position},${location},"${leadType}","${source}",${created}\n`;
+    });
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    
+    // Get list name for filename
+    let listName = "leads";
+    const listTitleElement = document.querySelector('h1');
+    if (listTitleElement) {
+        listName = listTitleElement.textContent.replace(' List', '').trim().toLowerCase().replace(/\s+/g, '_');
+    }
+    
+    link.setAttribute('download', `${listName}_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    ModalSystem.toast(`Exported ${visibleRows.length} leads to CSV`, 'success');
+}
+
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {

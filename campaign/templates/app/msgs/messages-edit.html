@@ -199,18 +199,18 @@
                     <!-- Header -->
                     <div class="flex justify-between items-center pb-4 border-b border-base-200">
                         <div class="text-sm">
-                            <span class="font-bold text-gray-800">Subject</span>
-                            <span class="text-gray-500 ml-2" id="subject-display">
+                            <span class="font-bold text-gray-800 text-base">Subject</span>
+                            <span class="text-gray-500 ml-2 text-base" id="subject-display">
                                 {% if messages %}{{ messages.0.subject }}{% else %}New Message{% endif %}
                             </span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button type="button" class="btn btn-sm bg-white border border-base-300" onclick="previewMessage()">
+                            <button type="button" class="btn btn-sm bg-white border border-base-300 text-gray-900" onclick="previewMessage()">
                                 <i class="fa-regular fa-eye mr-2"></i>Preview
                             </button>
-                            <button class="btn btn-sm btn-square bg-white border border-base-300" title="Variables">
+                            <!-- <button class="btn btn-sm btn-square bg-white border border-base-300" title="Variables">
                                 <i class="fa-solid fa-bolt text-blue-500"></i>
-                            </button>
+                            </button> -->
                         </div>
                     </div>
 
@@ -219,7 +219,7 @@
                         <label class="label">
                             <span class="label-text font-medium">Product</span>
                         </label>
-                        <select class="select select-bordered w-full bg-white" id="message-product" name="product">
+                        <select class="select select-bordered w-full bg-white text-base" id="message-product" name="product">
                             {% for product in products %}
                             <option value="{{ product.id }}" {% if messages and messages.0.product.id == product.id %}selected{% endif %}>
                                 {{ product.name }}
@@ -235,7 +235,7 @@
                         </label>
                         <input type="text"
                                placeholder="Your subject"
-                               class="input input-bordered w-full bg-white"
+                               class="input input-bordered w-full bg-white text-base"
                                id="message-subject"
                                name="subject"
                                value="{% if messages %}{{ messages.0.subject }}{% endif %}">
@@ -244,9 +244,9 @@
                     <!-- Intro -->
                     <div>
                         <label class="label">
-                            <span class="label-text font-medium">Intro</span>
+                            <span class="label-text font-medium ">Intro</span>
                         </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white"
+                        <textarea class="textarea textarea-bordered w-full bg-white text-base"
                                   rows="3"
                                   placeholder="Start typing here..."
                                   id="message-intro"
@@ -258,7 +258,7 @@
                         <label class="label">
                             <span class="label-text font-medium">Content</span>
                         </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white"
+                        <textarea class="textarea textarea-bordered w-full bg-white text-base"
                                   rows="6"
                                   placeholder="Start typing here..."
                                   id="message-content"
@@ -272,7 +272,7 @@
                         </label>
                         <input type="text"
                                placeholder="Your call to action"
-                               class="input input-bordered w-full bg-white"
+                               class="input input-bordered w-full bg-white text-base"
                                id="message-cta"
                                name="cta"
                                value="{% if messages %}{{ messages.0.cta }}{% endif %}">
@@ -283,7 +283,7 @@
                         <label class="label">
                             <span class="label-text font-medium">P.S</span>
                         </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white"
+                        <textarea class="textarea textarea-bordered w-full bg-white text-base"
                                   rows="2"
                                   placeholder="P.S. message..."
                                   id="message-ps"
@@ -295,7 +295,7 @@
                         <label class="label">
                             <span class="label-text font-medium">P.P.S</span>
                         </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white"
+                        <textarea class="textarea textarea-bordered w-full bg-white text-base"
                                   rows="2"
                                   placeholder="P.P.S. message..."
                                   id="message-pps"
@@ -307,7 +307,7 @@
                         <label class="label">
                             <span class="label-text font-medium">Signature</span>
                         </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white"
+                        <textarea class="textarea textarea-bordered w-full bg-white text-base"
                                   rows="3"
                                   placeholder="Best regards,&#10;Your name"
                                   id="message-end"
@@ -337,9 +337,9 @@
                         <button class="btn btn-sm btn-ghost" onclick="copyMessage()">
                             <i class="fa-solid fa-copy mr-2"></i>Copy
                         </button>
-                        <button class="btn btn-sm btn-ghost" onclick="exportMessage()">
+                        <!-- <button class="btn btn-sm btn-ghost" onclick="exportMessage()">
                             <i class="fa-solid fa-download mr-2"></i>Export
-                        </button>
+                        </button> -->
                     </div>
                 </div>
             </div>
@@ -378,7 +378,7 @@ function selectMessage(messageId, scrollIntoView = false) {
     document.querySelectorAll('.message-row').forEach(row => {
         row.classList.remove('active-message');
     });
-
+    
     // Add active class to selected message
     const selectedRow = document.querySelector(`[data-message="${messageId}"]`);
     if (selectedRow) {
@@ -387,7 +387,7 @@ function selectMessage(messageId, scrollIntoView = false) {
             selectedRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
         activeMessage = messageId;
-
+        
         // Load message content
         loadMessageContent(messageId);
         
@@ -395,9 +395,30 @@ function selectMessage(messageId, scrollIntoView = false) {
         document.querySelectorAll('.message-preview-content').forEach(preview => {
             preview.style.display = 'none';
         });
+        
         const previewContent = document.getElementById(`preview-content-${messageId}`);
         if (previewContent) {
             previewContent.style.display = 'block';
+        }
+        
+        // Check if this is an unsaved message
+        const message = messages[messageId];
+        if (message && message.isUnsaved) {
+            // Show editor for unsaved messages
+            showEditor();
+            showSaveIndicator();
+            
+            // Hide action buttons for unsaved messages
+            const actionButtons = document.getElementById(`action-buttons-${messageId}`);
+            if (actionButtons) {
+                actionButtons.innerHTML = '';
+            }
+        } else {
+            // Remove save indicator if it exists
+            const saveIndicator = document.getElementById('save-indicator');
+            if (saveIndicator) {
+                saveIndicator.remove();
+            }
         }
     }
 }
@@ -461,7 +482,7 @@ function saveCurrentMessage(messageId) {
         method: method,
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken'),
+            'X-CSRFToken': '{{ csrf_token }}',
         },
         body: JSON.stringify(dataToSend),
     })
@@ -488,7 +509,6 @@ function saveCurrentMessage(messageId) {
     });
 }
 
-
 function saveNewMessage() {
     // Get values from the form
     const newMessage = {
@@ -501,13 +521,13 @@ function saveNewMessage() {
         pps: document.getElementById('message-pps').value,
         end: document.getElementById('message-end').value,
     };
-
+    
     // Make the API request to create new message
     fetch('/api/messages/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken'),
+            'X-CSRFToken': '{{ csrf_token }}',
         },
         body: JSON.stringify(newMessage),
     })
@@ -516,6 +536,16 @@ function saveNewMessage() {
         return response.json();
     })
     .then(data => {
+        // Check if we're replacing a temporary message
+        let tempMessageId = null;
+        if (activeMessage && messages[activeMessage] && messages[activeMessage].isUnsaved) {
+            tempMessageId = activeMessage;
+            
+            // Remove the temporary message from the UI
+            const tempRow = document.querySelector(`[data-message="${tempMessageId}"]`);
+            if (tempRow) tempRow.remove();
+        }
+        
         // Add the new message to local storage
         messages[data.id] = {
             id: data.id,
@@ -529,9 +559,10 @@ function saveNewMessage() {
             pps: data.pps,
             end: data.end,
             full_content: data.full_content,
-            updated_at: data.updated_at
+            updated_at: data.updated_at,
+            isUnsaved: false // Make sure this is set to false
         };
-
+        
         // Create the new message row in the UI
         const newMessageHTML = `
             <div class="message-row p-4 border-b border-base-200 active-message" 
@@ -558,7 +589,7 @@ function saveNewMessage() {
                 </div>
             </div>
         `;
-
+        
         // Add to the UI and select it
         const messagesContainer = document.getElementById('messages-container');
         messagesContainer.insertAdjacentHTML('afterbegin', newMessageHTML);
@@ -566,6 +597,12 @@ function saveNewMessage() {
         // Update message count
         const messageCount = Object.keys(messages).length;
         document.getElementById('message-count').textContent = `${messageCount} message${messageCount !== 1 ? 's' : ''}`;
+        
+        // Remove the save indicator
+        const saveIndicator = document.getElementById('save-indicator');
+        if (saveIndicator) {
+            saveIndicator.remove();
+        }
         
         // Select the new message
         selectMessage(data.id);
@@ -635,12 +672,12 @@ function previewMessage() {
     };
     
     const previewContent = `
-        <h1>${message.subject || 'No subject'}</h1>
+        <h3>${message.subject || 'No subject'}</h3>
         ${message.intro ? `<p>${message.intro.replace(/\n/g, '<br>')}</p>` : ''}
-        ${message.content ? `<div>${message.content.replace(/\n/g, '<br>')}</div>` : ''}
-        ${message.cta ? `<a href="#" class="btn">${message.cta}</a>` : ''}
-        ${message.ps ? `<p><strong>P.S.</strong> ${message.ps.replace(/\n/g, '<br>')}</p>` : ''}
-        ${message.pps ? `<p><strong>P.P.S.</strong> ${message.pps.replace(/\n/g, '<br>')}</p>` : ''}
+        ${message.content ? `<p>${message.content.replace(/\n/g, '<br>')}</p>` : ''}
+        ${message.cta ? `<p>${message.cta}</p>` : ''}
+        ${message.ps ? `<p>P.S. ${message.ps.replace(/\n/g, '<br>')}</p>` : ''}
+        ${message.pps ? `<p>P.P.S. ${message.pps.replace(/\n/g, '<br>')}</p>` : ''}
         ${message.end ? `<div class="signature">${message.end.replace(/\n/g, '<br>')}</div>` : ''}
     `;
     
@@ -694,7 +731,63 @@ function addNewMessage() {
     const productSelect = document.getElementById('filter-product');
     const productId = productSelect?.value || '';
     const productName = productSelect?.options[productSelect.selectedIndex]?.text || 'Unknown Product';
-
+    
+    // Generate a temporary ID for the new message
+    const tempId = 'temp_new_' + Date.now();
+    
+    // Add a temporary message to the messages object
+    messages[tempId] = {
+        id: tempId,
+        product_id: productId,
+        product_name: productName,
+        subject: 'New Message Template',
+        intro: '',
+        content: '',
+        cta: '',
+        ps: '',
+        pps: '',
+        end: '',
+        isUnsaved: true // Flag to indicate this is an unsaved new message
+    };
+    
+    // Create a new message row in the UI
+    const newMessageHTML = `
+        <div class="message-row p-4 border-b border-base-200 active-message" 
+             data-message="${tempId}" 
+             data-product="${productId}"
+             onclick="selectMessage(${tempId}, true)">
+            <div class="flex justify-between items-start">
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-medium text-gray-900 truncate">New Message Template</h4>
+                    <p class="text-sm text-gray-500 mt-1 line-clamp-2">Start typing your message content here...</p>
+                    <div class="flex items-center gap-4 mt-2">
+                        <span class="text-xs text-gray-400">${productName}</span>
+                        <span class="text-xs text-gray-400">Updated: Just now</span>
+                        <span class="badge badge-warning badge-xs">Unsaved</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 ml-2" id="action-buttons-${tempId}">
+                    <!-- Action buttons will be hidden for unsaved messages -->
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add the new message to the top of the list
+    const messagesContainer = document.getElementById('messages-container');
+    
+    // Remove the "no messages" placeholder if it exists
+    const noMessagesPlaceholder = messagesContainer.querySelector('.text-center');
+    if (noMessagesPlaceholder) {
+        noMessagesPlaceholder.remove();
+    }
+    
+    messagesContainer.insertAdjacentHTML('afterbegin', newMessageHTML);
+    
+    // Update message count
+    const messageCount = document.querySelectorAll('.message-row').length;
+    document.getElementById('message-count').textContent = `${messageCount} message${messageCount !== 1 ? 's' : ''}`;
+    
     // Clear the form
     document.getElementById('message-subject').value = 'New Message Template';
     document.getElementById('message-intro').value = '';
@@ -704,18 +797,35 @@ function addNewMessage() {
     document.getElementById('message-pps').value = '';
     document.getElementById('message-end').value = '';
     document.getElementById('subject-display').textContent = 'New Message Template';
-
+    
+    // Set the product dropdown to match the filter
+    if (productId) {
+        document.getElementById('message-product').value = productId;
+    }
+    
     // Show the editor
     showEditor();
-
-    // Set activeMessage to null for new message
-    activeMessage = null;
-
+    
+    // Set activeMessage to the new temp ID
+    activeMessage = tempId;
+    
     // Remove active class from all messages
     document.querySelectorAll('.message-row').forEach(row => {
         row.classList.remove('active-message');
     });
-
+    
+    // Add active class to the new message
+    const newRow = document.querySelector(`[data-message="${tempId}"]`);
+    if (newRow) {
+        newRow.classList.add('active-message');
+    }
+    
+    // Show save indicator
+    showSaveIndicator();
+    
+    // Scroll to the top of the messages list to show the new message
+    messagesContainer.scrollTop = 0;
+    
     window.ModalSystem?.toast?.('New message template created! Fill in the details and click Save.');
 }
 
@@ -723,13 +833,15 @@ function duplicateMessage(messageId) {
     const message = messages[messageId];
     if (!message) return;
     
-    // In a real app, you would make an AJAX call to duplicate the message
-    const newMessageId = Date.now(); // Temporary ID
+    // Generate a temporary ID with a prefix to make it recognizable
+    const newMessageId = 'temp_' + Date.now(); // Temporary ID with prefix
+    
     messages[newMessageId] = {
         ...message,
         id: newMessageId,
         subject: `Copy of ${message.subject}`,
-        updated_at: new Date().toISOString().split('T')[0]
+        updated_at: new Date().toISOString().split('T')[0],
+        isUnsaved: true // Flag to indicate this is an unsaved duplicate
     };
     
     // Add to the UI
@@ -745,15 +857,11 @@ function duplicateMessage(messageId) {
                     <div class="flex items-center gap-4 mt-2">
                         <span class="text-xs text-gray-400">${message.product_name}</span>
                         <span class="text-xs text-gray-400">Updated: Just now</span>
+                        <span class="badge badge-warning badge-xs">Unsaved</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 ml-2">
-                    <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); duplicateMessage(${newMessageId})" title="Duplicate">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
-                    <button class="btn btn-ghost btn-xs text-red-500" onclick="event.stopPropagation(); confirmDeleteMessage(${newMessageId})" title="Delete">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
+                <div class="flex items-center gap-2 ml-2" id="action-buttons-${newMessageId}">
+                    <!-- Action buttons will be hidden for unsaved duplicates -->
                 </div>
             </div>
         </div>
@@ -762,10 +870,35 @@ function duplicateMessage(messageId) {
     const messagesContainer = document.getElementById('messages-container');
     messagesContainer.insertAdjacentHTML('afterbegin', newMessageHTML);
     
-    // Select the new message
+    // Select the new message and show editor
     selectMessage(newMessageId);
+    showEditor(); // Show the editor view directly
     
-    window.ModalSystem.toast('Message duplicated successfully!');
+    // Show save indicator
+    showSaveIndicator();
+    
+    window.ModalSystem.toast('Message duplicated! Please save to make permanent.');
+}
+
+// Add this function to show the save indicator
+function showSaveIndicator() {
+    // Check if indicator already exists
+    if (document.getElementById('save-indicator')) return;
+    
+    // Create save indicator
+    const indicator = document.createElement('div');
+    indicator.id = 'save-indicator';
+    indicator.className = 'alert alert-warning mb-4';
+    indicator.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span>This is an unsaved message. Click "Save" to make it permanent.</span>
+    `;
+    
+    // Insert at the top of the form container
+    const formContainer = document.getElementById('message-form-container');
+    formContainer.insertBefore(indicator, formContainer.firstChild);
 }
 
 function confirmDeleteMessage(messageId) {
@@ -778,7 +911,7 @@ function confirmDeleteMessage(messageId) {
             fetch(`/api/messages/${messageId}/`, {
                 method: 'DELETE',
                 headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-CSRFToken': '{{ csrf_token }}',
                     'Content-Type': 'application/json',
                 }
             })
@@ -818,6 +951,13 @@ function confirmDeleteMessage(messageId) {
 }
 
 function saveMessage(messageId) {
+    // Check if this is an unsaved message (has the isUnsaved flag)
+    if (messageId && messages[messageId] && messages[messageId].isUnsaved) {
+        // This is an unsaved duplicate, use saveNewMessage instead
+        saveNewMessage();
+        return;
+    }
+    
     if (messageId) {
         saveCurrentMessage(messageId);
     } else {
@@ -862,7 +1002,90 @@ function showAI() {
 }
 
 function copyMessage() {
-    ModalSystem.toast('Copy feature coming soon!', 'info');
+    // Get the current message content
+    let messageContent = '';
+    
+    // If we have an active message, use its data
+    if (activeMessage && messages[activeMessage]) {
+        const message = messages[activeMessage];
+        
+        // Build the message content with proper formatting
+        if (message.subject) {
+            messageContent += `Subject: ${message.subject}\n\n`;
+        }
+        
+        if (message.intro) {
+            messageContent += `${message.intro}\n\n`;
+        }
+        
+        if (message.content) {
+            messageContent += `${message.content}\n\n`;
+        }
+        
+        if (message.cta) {
+            messageContent += `${message.cta}\n\n`;
+        }
+        
+        if (message.ps) {
+            messageContent += `P.S. ${message.ps}\n\n`;
+        }
+        
+        if (message.pps) {
+            messageContent += `P.P.S. ${message.pps}\n\n`;
+        }
+        
+        if (message.end) {
+            messageContent += `${message.end}`;
+        }
+    } else {
+        // If no active message, get content from form fields
+        const subject = document.getElementById('message-subject').value;
+        const intro = document.getElementById('message-intro').value;
+        const content = document.getElementById('message-content').value;
+        const cta = document.getElementById('message-cta').value;
+        const ps = document.getElementById('message-ps').value;
+        const pps = document.getElementById('message-pps').value;
+        const end = document.getElementById('message-end').value;
+        
+        // Build the message content with proper formatting
+        if (subject) {
+            messageContent += `Subject: ${subject}\n\n`;
+        }
+        
+        if (intro) {
+            messageContent += `${intro}\n\n`;
+        }
+        
+        if (content) {
+            messageContent += `${content}\n\n`;
+        }
+        
+        if (cta) {
+            messageContent += `${cta}\n\n`;
+        }
+        
+        if (ps) {
+            messageContent += `P.S. ${ps}\n\n`;
+        }
+        
+        if (pps) {
+            messageContent += `P.P.S. ${pps}\n\n`;
+        }
+        
+        if (end) {
+            messageContent += `${end}`;
+        }
+    }
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(messageContent)
+        .then(() => {
+            ModalSystem.toast('Message copied to clipboard!', 'success');
+        })
+        .catch(err => {
+            console.error('Failed to copy message: ', err);
+            ModalSystem.toast('Failed to copy message', 'error');
+        });
 }
 
 function exportMessage() {

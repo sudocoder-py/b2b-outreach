@@ -1,0 +1,949 @@
+<style>
+    /* Form step styling */
+    .form-step {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    }
+    .form-step.active {
+    opacity: 1;
+    }
+    /* Make sure the first step is visible */
+    .form-step[data-step="1"] {
+    display: block;
+    opacity: 1;
+    }
+    
+    /* Custom styling for rating scales */
+    .rating-scale {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    gap: 5px;
+    }
+    .rating-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    }
+    .rating-option:hover {
+    transform: scale(1.1);
+    }
+    .rating-option input[type="radio"] {
+    display: none;
+    }
+    .rating-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    border: 2px solid #dbd6d1;
+    background-color: white;
+    transition: all 0.2s;
+    }
+    .rating-option input[type="radio"]:checked + .rating-circle {
+    background-color: #d97757;
+    color: white;
+    border-color: #d97757;
+    }
+    .rating-label {
+    font-size: 12px;
+    text-align: center;
+    }
+    
+    /* Dependent question styling */
+    .dependent-question {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    margin-top: 20px;
+    }
+    .dependent-question.visible {
+    display: block;
+    opacity: 1;
+    }
+    
+    /* Question styling */
+    .main-question {
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    }
+    .sub-question {
+    font-size: 1.25rem;
+    font-weight: 400;
+    text-align: center;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+    color: #1f2937;
+    }
+    .question-header {
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-align: center;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+    }
+</style>
+
+<div>
+    <div class="container mx-auto px-1 sm:px-6 py-8">
+    <div class="mb-2">
+        <button class="btn btn-ghost gap-2" onclick="hideFeedbackForm();">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+        </button>
+    </div>
+    
+    <div class="w-full max-w-4xl mx-auto flex flex-col justify-center">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="bg-base-100 rounded-xl shadow-lg p-6 md:p-10 flex flex-col items-center justify-center text-center">
+            <div class="mb-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold text-base-content mb-4">Share Your Feedback</h1>
+            <p class="text-lg md:text-xl text-base-content/80 leading-relaxed mb-8 max-w-2xl mx-auto" style="font-family: 'Product Sans', sans-serif;">
+                Help us improve VibeReach by sharing your experience. Your feedback is valuable and will help shape the future of our product.
+            </p>
+            <div class="space-y-4 w-full max-w-xs">
+                <button id="start-form" class="btn btn-primary btn-lg w-full text-lg transform transition-transform hover:scale-[1.02] active:scale-95">
+                Start Feedback
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+                </button>
+                <p class="text-sm text-base-content/60">Takes just 3-5 minutes</p>
+            </div>
+        </div>
+        <!-- Multi-step Form -->
+        <div id="form-container" class="bg-base-100 rounded-xl shadow-lg hidden">
+        <!-- Progress Bar -->
+        <div class="px-6 pt-6 sticky top-0 bg-base-100 z-10 border-b border-base-200">
+            <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-medium text-base-content/70">Step  <span id="progress-text">1</span> of 9</span>
+            <span id="progress-percent" class="text-sm font-medium text-primary">11%</span>
+            </div>
+            <div class="w-full bg-base-200 rounded-full h-2.5 mb-4">
+            <div id="progress-bar" class="bg-primary h-2.5 rounded-full transition-all duration-300" style="width: 11%"></div>
+            </div>
+        </div>
+        <div class="px-6 pb-8">
+            <form id="feedback-form" class="flex flex-col">
+            <!-- Step 1: Overall Satisfaction -->
+            <div class="form-step active" data-step="1">
+                <div class="py-8 md:py-12 md:pb-8 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">Overall, how satisfied are you with VibeReach so far?</h2>
+                <p class="question-header">Overall Satisfaction</p>
+                </div>
+                <div class="max-w-md mx-auto">
+                <div class="rating-scale">
+                    <div class="rating-option">
+                    <input type="radio" name="satisfaction" id="sat-1" value="1" required>
+                    <label for="sat-1" class="rating-circle">1</label>
+                    <span class="rating-label">Very Dissatisfied</span>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="satisfaction" id="sat-2" value="2" required>
+                    <label for="sat-2" class="rating-circle">2</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="satisfaction" id="sat-3" value="3" required>
+                    <label for="sat-3" class="rating-circle">3</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="satisfaction" id="sat-4" value="4" required>
+                    <label for="sat-4" class="rating-circle">4</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="satisfaction" id="sat-5" value="5" required>
+                    <label for="sat-5" class="rating-circle">5</label>
+                    <span class="rating-label">Neutral</span>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="satisfaction" id="sat-6" value="6" required>
+                    <label for="sat-6" class="rating-circle">6</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="satisfaction" id="sat-7" value="7" required>
+                    <label for="sat-7" class="rating-circle">7</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="satisfaction" id="sat-8" value="8" required>
+                    <label for="sat-8" class="rating-circle">8</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="satisfaction" id="sat-9" value="9" required>
+                    <label for="sat-9" class="rating-circle">9</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="satisfaction" id="sat-10" value="10" required>
+                    <label for="sat-10" class="rating-circle">10</label>
+                    <span class="rating-label">Very Satisfied</span>
+                    </div>
+                </div>
+                
+                <div id="satisfaction-comment-container" class="dependent-question">
+                    <div class="sub-question">What's been the best or worst part of your experience so far?</div>
+                    <div class="form-control">
+                    <textarea 
+                        name="satisfaction_comment" 
+                        class="textarea textarea-bordered w-full text-lg" 
+                        placeholder="Share your thoughts..."
+                    ></textarea>
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Step 2: Ease of Onboarding -->
+            <div class="form-step" data-step="2">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">How easy was it to get started with VibeReach?</h2>
+                <p class="question-header">Ease of Onboarding</p>
+                </div>
+                <div class="max-w-md mx-auto">
+                <div class="rating-scale">
+                    <div class="rating-option">
+                    <input type="radio" name="ease_of_onboarding" id="ease-1" value="1" required>
+                    <label for="ease-1" class="rating-circle">1</label>
+                    <span class="rating-label">Very Difficult</span>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="ease_of_onboarding" id="ease-2" value="2" required>
+                    <label for="ease-2" class="rating-circle">2</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="ease_of_onboarding" id="ease-3" value="3" required>
+                    <label for="ease-3" class="rating-circle">3</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="ease_of_onboarding" id="ease-4" value="4" required>
+                    <label for="ease-4" class="rating-circle">4</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="ease_of_onboarding" id="ease-5" value="5" required>
+                    <label for="ease-5" class="rating-circle">5</label>
+                    <span class="rating-label">Neutral</span>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="ease_of_onboarding" id="ease-6" value="6" required>
+                    <label for="ease-6" class="rating-circle">6</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="ease_of_onboarding" id="ease-7" value="7" required>
+                    <label for="ease-7" class="rating-circle">7</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="ease_of_onboarding" id="ease-8" value="8" required>
+                    <label for="ease-8" class="rating-circle">8</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="ease_of_onboarding" id="ease-9" value="9" required>
+                    <label for="ease-9" class="rating-circle">9</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="ease_of_onboarding" id="ease-10" value="10" required>
+                    <label for="ease-10" class="rating-circle">10</label>
+                    <span class="rating-label">Very Easy</span>
+                    </div>
+                </div>
+                
+                <div id="onboarding-comment-container" class="dependent-question">
+                    <div class="sub-question">What made it easy or hard?</div>
+                    <div class="form-control">
+                    <textarea 
+                        name="onboarding_comment" 
+                        class="textarea textarea-bordered w-full text-lg" 
+                        placeholder="Share your thoughts..."
+                    ></textarea>
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Step 3: Clarity & Setup Issues -->
+            <div class="form-step" data-step="3">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">Did anything confuse you during setup or first use?</h2>
+                <p class="question-header">Clarity & Setup Issues</p>
+                </div>
+                <div class="max-w-md mx-auto">
+                <div class="form-control">
+                    <textarea 
+                    name="setup_confusion" 
+                    class="textarea textarea-bordered w-full text-lg min-h-[150px]" 
+                    placeholder="If nothing confused you, you can leave this blank or type 'None'"
+                    ></textarea>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Step 4: Value (Usefulness) -->
+            <div class="form-step" data-step="4">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">How useful has VibeReach been for you so far?</h2>
+                <p class="question-header">Value</p>
+                </div>
+                <div class="max-w-md mx-auto">
+                <div class="rating-scale">
+                    <div class="rating-option">
+                    <input type="radio" name="usefulness" id="useful-1" value="1" required>
+                    <label for="useful-1" class="rating-circle">1</label>
+                    <span class="rating-label">Not Useful</span>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="usefulness" id="useful-2" value="2" required>
+                    <label for="useful-2" class="rating-circle">2</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="usefulness" id="useful-3" value="3" required>
+                    <label for="useful-3" class="rating-circle">3</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="usefulness" id="useful-4" value="4" required>
+                    <label for="useful-4" class="rating-circle">4</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="usefulness" id="useful-5" value="5" required>
+                    <label for="useful-5" class="rating-circle">5</label>
+                    <span class="rating-label">Neutral</span>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="usefulness" id="useful-6" value="6" required>
+                    <label for="useful-6" class="rating-circle">6</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="usefulness" id="useful-7" value="7" required>
+                    <label for="useful-7" class="rating-circle">7</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="usefulness" id="useful-8" value="8" required>
+                    <label for="useful-8" class="rating-circle">8</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="usefulness" id="useful-9" value="9" required>
+                    <label for="useful-9" class="rating-circle">9</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="usefulness" id="useful-10" value="10" required>
+                    <label for="useful-10" class="rating-circle">10</label>
+                    <span class="rating-label">Very Useful</span>
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Step 5: Value (Expectations) -->
+            <div class="form-step" data-step="5">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">Did VibeReach meet the expectations you signed up for?</h2>
+                <p class="question-header">Value</p>
+                </div>
+                <div class="max-w-md mx-auto">
+                <div class="form-control mb-6">
+                    <div class="flex justify-center space-x-8">
+                    <label class="label cursor-pointer justify-start gap-4 p-4 hover:bg-base-200 rounded-lg transition-colors">
+                        <input type="radio" name="met_expectations" value="true" class="radio radio-primary" required>
+                        <span class="label-text text-lg text-base-content">Yes</span>
+                    </label>
+                    <label class="label cursor-pointer justify-start gap-4 p-4 hover:bg-base-200 rounded-lg transition-colors">
+                        <input type="radio" name="met_expectations" value="false" class="radio radio-primary" required>
+                        <span class="label-text text-lg text-base-content">No</span>
+                    </label>
+                    </div>
+                </div>
+                
+                <div id="expectations-yes-container" class="dependent-question">
+                    <div class="sub-question">What did you like about VibeReach?</div>
+                    <div class="form-control">
+                    <textarea 
+                        name="expectations_comment" 
+                        class="textarea textarea-bordered w-full text-lg" 
+                        placeholder="Tell us what you enjoyed most..."
+                    ></textarea>
+                    </div>
+                </div>
+                
+                <div id="expectations-no-container" class="dependent-question">
+                    <div class="sub-question">Sorry to hear that. Can you tell us a bit more about why we didn't meet your expectations?</div>
+                    <div class="form-control">
+                    <textarea 
+                        name="expectations_comment" 
+                        class="textarea textarea-bordered w-full text-lg" 
+                        placeholder="Help us understand what we could improve..."
+                    ></textarea>
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Step 6: Improvement -->
+            <div class="form-step" data-step="6">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">If you could change one thing right now, what would it be?</h2>
+                <p class="question-header">Improvement</p>
+                </div>
+                <div class="max-w-md mx-auto">
+                <div class="form-control">
+                    <textarea 
+                    name="change_one_thing" 
+                    class="textarea textarea-bordered w-full text-lg min-h-[150px]" 
+                    placeholder="What's the one thing you'd change about VibeReach?"
+                    required
+                    ></textarea>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Step 7: Future Fit -->
+            <div class="form-step" data-step="7">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">What feature would make this tool a no-brainer for you?</h2>
+                <p class="question-header">Help us build the product you need</p>
+                </div>
+                <div class="max-w-md mx-auto">
+                <div class="form-control">
+                    <textarea 
+                    name="no_brainer_feature" 
+                    class="textarea textarea-bordered w-full text-lg min-h-[150px]" 
+                    placeholder="What feature would make VibeReach indispensable for you?"
+                    required
+                    ></textarea>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Step 8: Recommendation (NPS) -->
+            <div class="form-step" data-step="8">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">How likely are you to recommend VibeReach to people you know?</h2>
+                <p class="question-header">Recommendation</p>
+                </div>
+                <div class="max-w-md mx-auto">
+                <div class="rating-scale">
+                    <div class="rating-option">
+                    <input type="radio" name="recommendation" id="rec-0" value="0" required>
+                    <label for="rec-0" class="rating-circle">0</label>
+                    <span class="rating-label">Not Likely</span>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="recommendation" id="rec-1" value="1" required>
+                    <label for="rec-1" class="rating-circle">1</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="recommendation" id="rec-2" value="2" required>
+                    <label for="rec-2" class="rating-circle">2</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="recommendation" id="rec-3" value="3" required>
+                    <label for="rec-3" class="rating-circle">3</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="recommendation" id="rec-4" value="4" required>
+                    <label for="rec-4" class="rating-circle">4</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="recommendation" id="rec-5" value="5" required>
+                    <label for="rec-5" class="rating-circle">5</label>
+                    <span class="rating-label">Neutral</span>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="recommendation" id="rec-6" value="6" required>
+                    <label for="rec-6" class="rating-circle">6</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="recommendation" id="rec-7" value="7" required>
+                    <label for="rec-7" class="rating-circle">7</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="recommendation" id="rec-8" value="8" required>
+                    <label for="rec-8" class="rating-circle">8</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="recommendation" id="rec-9" value="9" required>
+                    <label for="rec-9" class="rating-circle">9</label>
+                    </div>
+                    <div class="rating-option">
+                    <input type="radio" name="recommendation" id="rec-10" value="10" required>
+                    <label for="rec-10" class="rating-circle">10</label>
+                    <span class="rating-label">Very Likely</span>
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Step 9: Sharing Permission -->
+            <div class="form-step" data-step="9">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">Would you allow us to share your feedback anonymously on our website or marketing materials?</h2>
+                <p class="question-header">Sharing Permission</p>
+                </div>
+                <div class="max-w-md mx-auto">
+                <div class="form-control">
+                    <div class="flex justify-center space-x-8">
+                    <label class="label cursor-pointer justify-start gap-4 p-4 hover:bg-base-200 rounded-lg transition-colors">
+                        <input type="radio" name="is_approved_to_share" value="true" class="radio radio-primary" required>
+                        <span class="label-text text-lg text-base-content">Yes, I consent</span>
+                    </label>
+                    <label class="label cursor-pointer justify-start gap-4 p-4 hover:bg-base-200 rounded-lg transition-colors">
+                        <input type="radio" name="is_approved_to_share" value="false" class="radio radio-primary" required>
+                        <span class="label-text text-lg text-base-content">No, keep it private</span>
+                    </label>
+                    </div>
+                    <label class="label">
+                    <span class="label-text-alt text-base-content/50">Your feedback will remain confidential regardless of your choice</span>
+                    </label>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between items-center mt-12 max-w-md mx-auto w-full">
+                <button type="button" id="prev-btn" class="btn btn-ghost text-primary hover:bg-primary/10 gap-2" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Previous
+                </button>
+                <div class="flex items-center gap-2 text-sm text-base-content/50">
+                <span id="current-step">1</span>
+                <span>/</span>
+                <span>9</span>
+                </div>
+                <button type="button" id="next-btn" class="btn btn-primary gap-2">
+                Next
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+                </button>
+                <button type="submit" id="submit-btn" class="btn btn-primary gap-2 hidden">
+                Submit Feedback
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                </button>
+            </div>
+            </form>
+        </div>
+        </div>
+        <!-- Thank You Screen -->
+        <div id="thank-you-screen" class="bg-base-100 rounded-xl shadow-lg p-8 md:p-12 hidden">
+        <div class="text-center max-w-2xl mx-auto">
+            <div class="mb-8">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-base-content mb-4">Thank You for Your Feedback!</h1>
+            <p class="text-lg text-base-content/80 leading-relaxed mb-8">
+            We appreciate you taking the time to share your thoughts about VibeReach. Your feedback is invaluable in helping us improve our product and create a better experience for all our users.
+            </p>
+            <div class="space-y-4">
+            <div class="pt-8">
+                <p class="text-sm text-base-content/60">We'll review your feedback and reach out if we have any follow-up questions.</p>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+  // Initialize the form controller
+  const formController = {
+    currentStep: 1,
+    totalSteps: 9,
+    
+    init() {
+      this.setupEventListeners();
+      this.initializeFormSteps();
+      this.updateProgress();
+      this.updateButtons();
+    },
+    
+    initializeFormSteps() {
+      // Hide all steps except the first one
+      const allSteps = document.querySelectorAll('.form-step');
+      allSteps.forEach((step, index) => {
+        if (index === 0) {
+          step.style.display = 'block';
+          step.style.opacity = '1';
+          step.classList.add('active');
+        } else {
+          step.style.display = 'none';
+          step.style.opacity = '0';
+          step.classList.remove('active');
+        }
+      });
+    },
+    
+    setupEventListeners() {
+      // Start form button
+      const startFormBtn = document.getElementById('start-form');
+      if (startFormBtn) {
+        startFormBtn.addEventListener('click', () => this.showForm());
+      }
+      
+      // Navigation buttons
+      const nextBtn = document.getElementById('next-btn');
+      const prevBtn = document.getElementById('prev-btn');
+      const submitBtn = document.getElementById('submit-btn');
+      const form = document.getElementById('feedback-form');
+      
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => this.nextStep());
+      }
+      
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => this.prevStep());
+      }
+      
+      if (form) {
+        form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+      }
+      
+      // Handle rating scale interactions
+      const ratingOptions = document.querySelectorAll('.rating-option');
+      ratingOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          const radio = option.querySelector('input[type="radio"]');
+          if (radio) {
+            radio.checked = true;
+            
+            // Show dependent question if it exists
+            if (radio.name === 'satisfaction') {
+              this.showDependentQuestion('satisfaction-comment-container');
+              this.disableRatingScale('satisfaction-rating');
+            } else if (radio.name === 'ease_of_onboarding') {
+              this.showDependentQuestion('onboarding-comment-container');
+              this.disableRatingScale('onboarding-rating');
+            } else if (radio.name === 'usefulness') {
+              this.disableRatingScale('usefulness-rating');
+            } else if (radio.name === 'recommendation') {
+              this.disableRatingScale('recommendation-rating');
+            }
+          }
+        });
+      });
+      
+      // Handle expectations radio buttons
+      const expectationsRadios = document.querySelectorAll('input[name="met_expectations"]');
+      expectationsRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          if (radio.value === 'true') {
+            this.showDependentQuestion('expectations-yes-container');
+            this.hideDependentQuestion('expectations-no-container');
+            this.disableExpectationsOptions();
+          } else {
+            this.showDependentQuestion('expectations-no-container');
+            this.hideDependentQuestion('expectations-yes-container');
+            this.disableExpectationsOptions();
+          }
+        });
+      });
+    },
+    
+    showForm() {
+      const welcomeScreen = document.getElementById('welcome-screen');
+      const formContainer = document.getElementById('form-container');
+      
+      if (welcomeScreen) welcomeScreen.classList.add('hidden');
+      if (formContainer) {
+        formContainer.classList.remove('hidden');
+        formContainer.classList.add('fade-in');
+      }
+    },
+    
+    nextStep() {
+      if (!this.validateCurrentStep()) {
+        return;
+      }
+      
+      if (this.currentStep < this.totalSteps) {
+        this.hideCurrentStep();
+        this.currentStep++;
+        this.showCurrentStep();
+        this.updateProgress();
+        this.updateButtons();
+      }
+    },
+    
+    prevStep() {
+      if (this.currentStep > 1) {
+        this.hideCurrentStep();
+        this.currentStep--;
+        this.showCurrentStep();
+        this.updateProgress();
+        this.updateButtons();
+      }
+    },
+    
+    validateCurrentStep() {
+      const currentStepElement = document.querySelector(`.form-step[data-step="${this.currentStep}"]`);
+      if (!currentStepElement) return true;
+      
+      const inputs = currentStepElement.querySelectorAll('input[required], textarea[required]');
+      
+      // Validate text inputs and textareas
+      for (let input of inputs) {
+        if (input.type === 'radio') continue; // Skip radio buttons, handled separately
+        
+        if (!input.value.trim()) {
+          input.focus();
+          this.showError('Please fill in all required fields');
+          return false;
+        }
+      }
+      
+      // Validate required radio groups
+      const radioGroups = currentStepElement.querySelectorAll('input[type="radio"][required]');
+      const radioNames = [...new Set([...radioGroups].map(radio => radio.name))];
+      
+      for (let name of radioNames) {
+        const checked = currentStepElement.querySelector(`input[name="${name}"]:checked`);
+        if (!checked) {
+          this.showError('Please select an option');
+          return false;
+        }
+      }
+      
+      return true;
+    },
+    
+    hideCurrentStep() {
+      const currentStepElement = document.querySelector(`.form-step[data-step="${this.currentStep}"]`);
+      if (currentStepElement) {
+        currentStepElement.classList.remove('active');
+        currentStepElement.style.opacity = '0';
+        setTimeout(() => {
+          currentStepElement.style.display = 'none';
+        }, 300);
+      }
+    },
+    
+    showCurrentStep() {
+      const currentStepElement = document.querySelector(`.form-step[data-step="${this.currentStep}"]`);
+      if (currentStepElement) {
+        currentStepElement.style.display = 'block';
+        setTimeout(() => {
+          currentStepElement.style.opacity = '1';
+          currentStepElement.classList.add('active');
+        }, 50);
+      }
+    },
+    
+    showDependentQuestion(containerId) {
+      const container = document.getElementById(containerId);
+      if (container) {
+        container.classList.add('visible');
+      }
+    },
+    
+    hideDependentQuestion(containerId) {
+      const container = document.getElementById(containerId);
+      if (container) {
+        container.classList.remove('visible');
+      }
+    },
+    
+    disableRatingScale(scaleId) {
+      const scale = document.getElementById(scaleId);
+      if (scale) {
+        scale.classList.add('disabled');
+      }
+    },
+    
+    enableRatingScale(scaleId) {
+      const scale = document.getElementById(scaleId);
+      if (scale) {
+        scale.classList.remove('disabled');
+      }
+    },
+    
+    disableExpectationsOptions() {
+      const options = document.getElementById('expectations-options');
+      if (options) {
+        options.classList.add('disabled');
+      }
+    },
+    
+    enableExpectationsOptions() {
+      const options = document.getElementById('expectations-options');
+      if (options) {
+        options.classList.remove('disabled');
+      }
+    },
+    
+    updateProgress() {
+      const progressBar = document.getElementById('progress-bar');
+      const progressPercent = (this.currentStep / this.totalSteps) * 100;
+      const progressPercentDisplay = document.getElementById('progress-percent');
+      const progressText = document.getElementById('progress-text');
+      const currentStepDisplay = document.getElementById('current-step');
+      
+      if (progressText && currentStepDisplay) {
+        currentStepDisplay.textContent = this.currentStep;
+        progressText.textContent = `${this.currentStep}`;
+      }
+      
+      if (progressPercentDisplay) {
+        progressPercentDisplay.textContent = `${Math.round(progressPercent)}%`;
+      }
+      
+      if (progressBar) {
+        progressBar.style.width = `${progressPercent}%`;
+      }
+    },
+    
+    updateButtons() {
+      const nextBtn = document.getElementById('next-btn');
+      const prevBtn = document.getElementById('prev-btn');
+      const submitBtn = document.getElementById('submit-btn');
+      
+      if (prevBtn) {
+        prevBtn.disabled = this.currentStep === 1;
+      }
+      
+      if (this.currentStep === this.totalSteps) {
+        if (nextBtn) nextBtn.classList.add('hidden');
+        if (submitBtn) submitBtn.classList.remove('hidden');
+      } else {
+        if (nextBtn) nextBtn.classList.remove('hidden');
+        if (submitBtn) submitBtn.classList.add('hidden');
+      }
+    },
+    
+    async handleFormSubmit(e) {
+      e.preventDefault();
+      
+      // Validate current step
+      if (!this.validateCurrentStep()) return;
+      
+      // Get form data
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+      
+      // Convert string values to appropriate types
+      data.satisfaction = parseInt(data.satisfaction);
+      data.ease_of_onboarding = parseInt(data.ease_of_onboarding);
+      data.usefulness = parseInt(data.usefulness);
+      data.recommendation = parseInt(data.recommendation);
+      
+      // Convert boolean strings to actual booleans
+      if (data.met_expectations) {
+        data.met_expectations = data.met_expectations === 'true';
+      }
+      if (data.is_approved_to_share) {
+        data.is_approved_to_share = data.is_approved_to_share === 'true';
+      }
+      
+      // Set empty text fields to null
+      if (data.satisfaction_comment === '') data.satisfaction_comment = null;
+      if (data.onboarding_comment === '') data.onboarding_comment = null;
+      if (data.setup_confusion === '') data.setup_confusion = null;
+      if (data.expectations_comment === '') data.expectations_comment = null;
+      if (data.change_one_thing === '') data.change_one_thing = null;
+      if (data.no_brainer_feature === '') data.no_brainer_feature = null;
+      
+      data.user = {{ request.user.id }};
+      // Show loading state
+      const submitBtn = document.getElementById('submit-btn');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = `
+        <span class="loading loading-spinner loading-sm"></span>
+        Submitting...
+      `;
+      submitBtn.disabled = true;
+      
+      try {
+        // Submit to Django API
+        const response = await fetch('/feedback/api/main-feedback/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': "{{ csrf_token }}",
+          },
+          body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Submission failed');
+        }
+        
+        const result = await response.json();
+        console.log('Feedback submitted successfully:', result);
+        
+        this.showThankYou();
+        
+      } catch (error) {
+        console.error('Submission error:', error);
+        this.showError(`Submission failed: ${error.message}`);
+        
+      } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+      }
+    },
+    
+    showThankYou() {
+      const formContainer = document.getElementById('form-container');
+      const thankYouScreen = document.getElementById('thank-you-screen');
+      
+      if (formContainer) formContainer.classList.add('hidden');
+      if (thankYouScreen) {
+        thankYouScreen.classList.remove('hidden');
+        thankYouScreen.classList.add('fade-in');
+      }
+    },
+    
+    showError(message) {
+      // Create a toast notification if it doesn't exist
+      let toast = document.getElementById('error-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'error-toast';
+        toast.className = 'toast toast-top toast-center';
+        document.body.appendChild(toast);
+        
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-error';
+        alert.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>${message}</span>
+        `;
+        toast.appendChild(alert);
+      } else {
+        // Update existing toast message
+        const alert = toast.querySelector('.alert span');
+        if (alert) alert.textContent = message;
+      }
+      
+      // Show the toast
+      toast.classList.remove('hidden');
+      
+      // Hide after 3 seconds
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3000);
+    }
+  };
+  
+  // Initialize the form controller
+  formController.init();
+});
+</script>

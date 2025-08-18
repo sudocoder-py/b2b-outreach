@@ -1,8 +1,8 @@
 from django.shortcuts import redirect, get_object_or_404, render
 
 from rest_framework import generics
-from .models import Feedback, FeatureRequest
-from .serializers import FeedbackAnalyticsSerializer, FeatureRequestAnalyticsSerializer
+from .models import Feedback, QuickFeedback, FeatureRequest
+from .serializers import FeedbackAnalyticsSerializer, FeatureRequestAnalyticsSerializer, QuickFeedbackSerializer,  FeatureRequestSerializer, FeedbackSerializer
 
 
 
@@ -78,7 +78,28 @@ class FeatureRequestAnalyticsAPIView(generics.ListAPIView):
 
 
 
+class QuickFeedbackAPIView(generics.CreateAPIView):
+    """
+    API for quick feedback
+    """
+    queryset = QuickFeedback.objects.all()
+    serializer_class = QuickFeedbackSerializer
 
+
+class FeatureRequestAPIView(generics.CreateAPIView):
+    """
+    API for feature requests
+    """
+    queryset = FeatureRequest.objects.all()
+    serializer_class = FeatureRequestSerializer
+
+
+class FeedbackAPIView(generics.CreateAPIView):
+    """
+    API for feedback
+    """
+    queryset = Feedback.objects.all()
+    serializer_class = FeedbackSerializer
 
 
 

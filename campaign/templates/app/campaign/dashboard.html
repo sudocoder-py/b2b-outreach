@@ -56,16 +56,16 @@
         <div class="flex items-center justify-between mt-8">
             <div class="flex items-center gap-3">
                 <span class="text-sm font-medium text-gray-500">Status:</span>
-                    {% if status == "active" %}
+                    {% if campaign_status == "active" %}
                         <span class="badge badge-success text-white font-medium py-2">Active</span>
-                    {% elif status == "paused" %}
+                    {% elif campaign_status == "paused" %}
                         <span class="badge badge-warning text-white font-medium py-2">Paused</span>
-                    {% elif status == "draft" %}
+                    {% elif campaign_status == "draft" %}
                         <span class="badge badge-neutral text-white font-medium py-2">Draft</span>
-                    {% elif status == "completed" %}
+                    {% elif campaign_status == "completed" %}
                         <span class="badge badge-info text-white font-medium py-2">Completed</span>
                     {% else %}
-                        {{ status }}
+                        {{ campaign_status }}
                     {% endif %}
                 <span class="mr-2 ml-2">|</span>    
                 <span class="text-sm font-bold text-gray-800" id="campaign-progress-text">{{stats.sequence_started_rate}}%</span>
@@ -90,9 +90,9 @@
                         <li><a onclick="changeTimeFilter('all', 'All time')">All time</a></li>
                     </ul>
                 </div>
-                <button class="btn bg-white border border-base-300 btn-square h-10 min-h-10 w-10 hover:bg-gray-50" onclick="openSettings()">
+                <!-- <button class="btn bg-white border border-base-300 btn-square h-10 min-h-10 w-10 hover:bg-gray-50" onclick="openSettings()">
                     <i class="fa-solid fa-gear text-gray-500"></i>
-                </button>
+                </button> -->
             </div>
         </div>
 
