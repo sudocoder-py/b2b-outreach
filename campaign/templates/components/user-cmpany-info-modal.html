@@ -1,0 +1,668 @@
+<style>
+    /* Form step styling */
+    .profile-form-step {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    }
+    .profile-form-step.active {
+    opacity: 1;
+    }
+    .profile-form-step[data-step="1"] {
+    display: block;
+    opacity: 1;
+    }
+    
+    /* Question styling */
+    .profile-main-question {
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    }
+    .profile-sub-question {
+    font-size: 1.25rem;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    }
+    .profile-question-header {
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-align: center;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+    }
+    
+    /* Section styling */
+    .profile-section {
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e5e7eb;
+    }
+    
+    .profile-section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    }
+    
+    .profile-section-icon {
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.75rem;
+    background-color: #d97757;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    }
+    
+    /* Form input styling */
+    .profile-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    background-color: white;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    .profile-input:focus {
+    outline: none;
+    border-color: #d97757;
+    box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.1);
+    }
+    
+    .profile-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    background-color: white;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    min-height: 100px;
+    }
+    
+    .profile-textarea:focus {
+    outline: none;
+    border-color: #d97757;
+    box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.1);
+    }
+    
+    .profile-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 0.5rem;
+    }
+    
+    .profile-hint {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+    }
+</style>
+
+<div>
+    <div class="container mx-auto px-1 sm:px-6 py-8">
+    
+    <div class="w-full max-w-4xl mx-auto flex flex-col justify-center">
+        <!-- Welcome Screen -->
+        <div id="profile-welcome-screen" class="bg-base-100 rounded-xl shadow-lg p-6 md:p-10 flex flex-col items-center justify-center text-center">
+            <div class="mb-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold text-base-content mb-4">Complete Your Profile</h1>
+            <p class="text-lg md:text-xl text-base-content/80 leading-relaxed mb-8 max-w-2xl mx-auto" style="font-family: 'Product Sans', sans-serif;">
+                Welcome! Fill in the details to unlock all features of VibeReach.
+            </p>
+            <div class="space-y-4 w-full max-w-xs">
+                <button id="start-profile-form" class="btn btn-primary btn-lg w-full text-lg transform transition-transform hover:scale-[1.02] active:scale-95">
+                Complete Profile
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+                </button>
+                <p class="text-sm text-base-content/60">Takes just 3-5 minutes</p>
+            </div>
+        </div>
+        
+        <!-- Multi-step Form -->
+        <div id="profile-form-container" class="bg-base-100 rounded-xl shadow-lg hidden">
+        <!-- Progress Bar -->
+        <div class="px-6 pt-6 sticky top-0 bg-base-100 z-10 border-b border-base-200">
+            <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-medium text-base-content/70">Section  <span id="profile-progress-text">1</span> of 2</span>
+            <!-- <span id="profile-progress-percent" class="text-sm font-medium text-primary">50%</span> -->
+            </div>
+            <div class="w-full bg-base-200 rounded-full h-2.5 mb-4">
+            <div id="profile-progress-bar" class="bg-primary h-2.5 rounded-full transition-all duration-300" style="width: 50%"></div>
+            </div>
+        </div>
+        <div class="px-6 pb-8">
+            <form id="profile-form" class="flex flex-col">
+            <!-- Step 1: User Information -->
+            <div class="profile-form-step active" data-step="1">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">Personal Information</h2>
+                <p class="profile-question-header">Let's update your personal details</p>
+                </div>
+                <div class="max-w-2xl mx-auto">
+                <div class="profile-section">
+                    <div class="profile-section-title">
+                    <div class="profile-section-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    Personal Details
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-control">
+                        <label class="profile-label" for="first_name">First Name</label>
+                        <input type="text" id="first_name" name="first_name" class="profile-input" placeholder="John" required>
+                    </div>
+                    <div class="form-control">
+                        <label class="profile-label" for="last_name">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" class="profile-input" placeholder="Doe" required>
+                    </div>
+                    </div>
+                    
+                    <div class="form-control mt-4">
+                    <label class="profile-label" for="email">Email Address</label>
+                    <input type="email" id="email" name="email" class="profile-input" placeholder="john@example.com" required>
+                    <p class="profile-hint">We'll use this for account notifications</p>
+                    </div>
+                    
+                    <div class="form-control mt-4">
+                    <label class="profile-label" for="position">Position</label>
+                    <input type="text" id="position" name="position" class="profile-input" placeholder="e.g., Sales Director, Marketing Manager" required>
+                    </div>
+                    
+                    <div class="form-control mt-4">
+                    <label class="profile-label" for="phone_number">Whatsapp Phone Number</label>
+                    <input type="tel" id="phone_number" name="phone_number" class="profile-input" placeholder="+1 (555) 123-4567" required>
+                    </div>
+                    
+                    <div class="form-control mt-4">
+                    <label class="profile-label" for="linkedin_profile">LinkedIn Profile</label>
+                    <input type="url" id="linkedin_profile" name="linkedin_profile" class="profile-input" placeholder="https://linkedin.com/in/yourprofile">
+                    <!-- <p class="profile-hint">Help us verify your professional identity</p> -->
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Step 2: Company Information -->
+            <div class="profile-form-step" data-step="2">
+                <div class="py-8 md:py-12 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-base-content mb-2">Company Information</h2>
+                <p class="profile-question-header">Let's update your company details</p>
+                </div>
+                <div class="max-w-2xl mx-auto">
+                <div class="profile-section">
+                    <div class="profile-section-title">
+                    <div class="profile-section-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                    </div>
+                    Company Details
+                    </div>
+                    
+                    <div class="form-control">
+                    <label class="profile-label" for="company_name">Company Name</label>
+                    <input type="text" id="company_name" name="name" class="profile-input" placeholder="Acme Inc." required>
+                    </div>
+                    
+                    <div class="form-control mt-4">
+                    <label class="profile-label" for="company_website">Website</label>
+                    <input type="url" id="company_website" name="website" class="profile-input" placeholder="https://yourcompany.com" required>
+                    <p class="profile-hint">Ensure it's a valid URL; starts with https://</p>
+                    </div>
+                    
+                    <div class="form-control mt-4">
+                        <label class="profile-label" for="company_email">Company Email</label>
+                        <input type="email" id="company_email" name="company_email" class="profile-input" placeholder="contact@yourcompany.com" required>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div class="form-control">
+                        <label class="profile-label" for="company_industry">Industry</label>
+                        <input type="text" id="company_industry" name="industry" class="profile-input" placeholder="e.g., Technology, Healthcare, Finance" required>
+                    </div>
+                    <div class="form-control">
+                        <label class="profile-label" for="company_location">Location</label>
+                        <input type="text" id="company_location" name="location" class="profile-input" placeholder="e.g., New York, NY" required>
+                    </div>
+                    </div>
+                    
+                    <div class="form-control mt-4">
+                    <label class="profile-label" for="employee_count">Employee Count</label>
+                    <select id="employee_count" name="employee_count" class="profile-input" required>
+                        <option value="">Select employee count</option>
+                        <option value="1-10">1-10 employees</option>
+                        <option value="11-50">11-50 employees</option>
+                        <option value="51-200">51-200 employees</option>
+                        <option value="201-500">201-500 employees</option>
+                        <option value="501-1000">501-1000 employees</option>
+                        <option value="1001+">1001+ employees</option>
+                    </select>
+                    </div>
+                    
+                    <div class="form-control mt-4">
+                    <label class="profile-label" for="linkedin_page">LinkedIn Page</label>
+                    <input type="url" id="linkedin_page" name="linkedin_page" class="profile-input" placeholder="https://linkedin.com/company/yourcompany">
+                    <p class="profile-hint">Your company's LinkedIn page</p>
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between items-center mt-12 max-w-md mx-auto w-full">
+                <button type="button" id="profile-prev-btn" class="btn btn-ghost text-primary hover:bg-primary/10 gap-2" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Previous
+                </button>
+                <div class="flex items-center gap-2 text-sm text-base-content/50">
+                <span id="profile-current-step">1</span>
+                <span>/</span>
+                <span>2</span>
+                </div>
+                <button type="button" id="profile-next-btn" class="btn btn-primary gap-2">
+                Next
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+                </button>
+                <button type="submit" id="profile-submit-btn" class="btn btn-primary gap-2 hidden">
+                Update Profile
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                </button>
+            </div>
+            </form>
+        </div>
+        </div>
+        
+        <!-- Thank You Screen -->
+        <div id="profile-thank-you-screen" class="bg-base-100 rounded-xl shadow-lg p-8 md:p-12 hidden">
+        <div class="text-center max-w-2xl mx-auto">
+            <div class="mb-8">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-base-content mb-4">Profile Completed Successfully!</h1>
+            <p class="text-lg text-base-content/80 leading-relaxed mb-8" style="font-family: 'Product Sans', sans-serif;">
+                Thank you! Your profile is all set. You’re now ready to make the most of VibeReach.
+            </p>
+            <div class="space-y-4">
+            <!-- <div class="pt-8">
+                <p class="text-sm text-base-content/60">You can always update your profile again from your account settings.</p>
+            </div> -->
+            </div>
+        </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+  // Initialize the profile form controller
+  const profileFormController = {
+    currentStep: 1,
+    totalSteps: 2,
+    
+    init() {
+      this.setupEventListeners();
+      this.initializeFormSteps();
+      this.updateProgress();
+      this.updateButtons();
+    },
+    
+    initializeFormSteps() {
+      // Hide all steps except the first one
+      const allSteps = document.querySelectorAll('.profile-form-step');
+      allSteps.forEach((step, index) => {
+        if (index === 0) {
+          step.style.display = 'block';
+          step.style.opacity = '1';
+          step.classList.add('active');
+        } else {
+          step.style.display = 'none';
+          step.style.opacity = '0';
+          step.classList.remove('active');
+        }
+      });
+    },
+    
+    setupEventListeners() {
+      // Start form button
+      const startFormBtn = document.getElementById('start-profile-form');
+      if (startFormBtn) {
+        startFormBtn.addEventListener('click', () => this.showForm());
+      }
+      
+      // Navigation buttons
+      const nextBtn = document.getElementById('profile-next-btn');
+      const prevBtn = document.getElementById('profile-prev-btn');
+      const submitBtn = document.getElementById('profile-submit-btn');
+      const form = document.getElementById('profile-form');
+      
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => this.nextStep());
+      }
+      
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => this.prevStep());
+      }
+      
+      if (form) {
+        form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+      }
+    },
+    
+    showForm() {
+      const welcomeScreen = document.getElementById('profile-welcome-screen');
+      const formContainer = document.getElementById('profile-form-container');
+      
+      if (welcomeScreen) welcomeScreen.classList.add('hidden');
+      if (formContainer) {
+        formContainer.classList.remove('hidden');
+        formContainer.classList.add('fade-in');
+      }
+    },
+    
+    nextStep() {
+      if (!this.validateCurrentStep()) {
+        return;
+      }
+      
+      if (this.currentStep < this.totalSteps) {
+        this.hideCurrentStep();
+        this.currentStep++;
+        this.showCurrentStep();
+        this.updateProgress();
+        this.updateButtons();
+      }
+    },
+    
+    prevStep() {
+      if (this.currentStep > 1) {
+        this.hideCurrentStep();
+        this.currentStep--;
+        this.showCurrentStep();
+        this.updateProgress();
+        this.updateButtons();
+      }
+    },
+    
+    validateCurrentStep() {
+      const currentStepElement = document.querySelector(`.profile-form-step[data-step="${this.currentStep}"]`);
+      if (!currentStepElement) return true;
+      
+      const inputs = currentStepElement.querySelectorAll('input[required], select[required]');
+      
+      // Validate text inputs and selects
+      for (let input of inputs) {
+        if (!input.value.trim()) {
+          input.focus();
+          this.showError('Please fill in all required fields');
+          return false;
+        }
+        
+        // Email validation
+        if (input.type === 'email' && !this.validateEmail(input.value)) {
+          input.focus();
+          this.showError('Please enter a valid email address');
+          return false;
+        }
+        
+        // URL validation
+        if (input.type === 'url' && input.value.trim() && !this.validateUrl(input.value)) {
+          input.focus();
+          this.showError('Please enter a valid URL');
+          return false;
+        }
+      }
+      
+      return true;
+    },
+    
+    validateEmail(email) {
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailPattern.test(email);
+    },
+    
+    validateUrl(url) {
+      try {
+        new URL(url);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    
+    hideCurrentStep() {
+      const currentStepElement = document.querySelector(`.profile-form-step[data-step="${this.currentStep}"]`);
+      if (currentStepElement) {
+        currentStepElement.classList.remove('active');
+        currentStepElement.style.opacity = '0';
+        setTimeout(() => {
+          currentStepElement.style.display = 'none';
+        }, 300);
+      }
+    },
+    
+    showCurrentStep() {
+      const currentStepElement = document.querySelector(`.profile-form-step[data-step="${this.currentStep}"]`);
+      if (currentStepElement) {
+        currentStepElement.style.display = 'block';
+        setTimeout(() => {
+          currentStepElement.style.opacity = '1';
+          currentStepElement.classList.add('active');
+        }, 50);
+      }
+    },
+    
+    updateProgress() {
+      const progressBar = document.getElementById('profile-progress-bar');
+      const progressPercent = (this.currentStep / this.totalSteps) * 100;
+      // const progressPercentDisplay = document.getElementById('profile-progress-percent');
+      const progressText = document.getElementById('profile-progress-text');
+      const currentStepDisplay = document.getElementById('profile-current-step');
+      
+      if (progressText && currentStepDisplay) {
+        currentStepDisplay.textContent = this.currentStep;
+        progressText.textContent = `${this.currentStep}`;
+      }
+      
+      // if (progressPercentDisplay) {
+      //   progressPercentDisplay.textContent = `${Math.round(progressPercent)}%`;
+      // }
+      
+      if (progressBar) {
+        progressBar.style.width = `${progressPercent}%`;
+      }
+    },
+    
+    updateButtons() {
+      const nextBtn = document.getElementById('profile-next-btn');
+      const prevBtn = document.getElementById('profile-prev-btn');
+      const submitBtn = document.getElementById('profile-submit-btn');
+      
+      if (prevBtn) {
+        prevBtn.disabled = this.currentStep === 1;
+      }
+      
+      if (this.currentStep === this.totalSteps) {
+        if (nextBtn) nextBtn.classList.add('hidden');
+        if (submitBtn) submitBtn.classList.remove('hidden');
+      } else {
+        if (nextBtn) nextBtn.classList.remove('hidden');
+        if (submitBtn) submitBtn.classList.add('hidden');
+      }
+    },
+    
+    async handleFormSubmit(e) {
+      e.preventDefault();
+      
+      // Validate current step
+      if (!this.validateCurrentStep()) return;
+      
+      // Get form data
+      const formData = new FormData(e.target);
+      const formDataObj = Object.fromEntries(formData.entries());
+      
+      // Split data into user and company sections
+      const userData = {
+        first_name: formDataObj.first_name,
+        last_name: formDataObj.last_name,
+        email: formDataObj.email,  // This will now correctly get the user email
+        position: formDataObj.position,
+        phone_number: formDataObj.phone_number,
+        linkedin_profile: formDataObj.linkedin_profile || null
+      };
+      
+      const companyData = {
+        name: formDataObj.name,
+        website: formDataObj.website,
+        email: formDataObj.company_email,  // This will now correctly get the company email
+        industry: formDataObj.industry,
+        location: formDataObj.location,
+        employee_count: formDataObj.employee_count,
+        linkedin_page: formDataObj.linkedin_page || null
+      };
+      
+      // Show loading state
+      const submitBtn = document.getElementById('profile-submit-btn');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = `
+        <span class="loading loading-spinner loading-sm"></span>
+        Updating...
+      `;
+      submitBtn.disabled = true;
+      
+      try {
+        // Update user info
+        const userResponse = await fetch('/auth/api/user/update-info/', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': "{{ csrf_token }}",
+          },
+          body: JSON.stringify(userData)
+        });
+        
+        if (!userResponse.ok) {
+          const errorData = await userResponse.json();
+          throw new Error(errorData.detail || 'Failed to update user information');
+        }
+        
+        // Update company info
+        const companyResponse = await fetch('/auth/api/company/update-info/', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': "{{ csrf_token }}",
+          },
+          body: JSON.stringify(companyData)
+        });
+        
+        if (!companyResponse.ok) {
+          const errorData = await companyResponse.json();
+          throw new Error(errorData.detail || 'Failed to update company information');
+        }
+        
+        const userResult = await userResponse.json();
+        const companyResult = await companyResponse.json();
+        
+        // console.log('User info updated successfully:', userResult);
+        // console.log('Company info updated successfully:', companyResult);
+        
+        this.showThankYou();
+        setTimeout(() => {
+            ModalSystem.toast('let\'s get you started with VibeReach.', 'success');
+            window.location.href = '{% url 'campaign_view_list' %}'
+        }, 1500);
+        
+      } catch (error) {
+        console.error('Submission error:', error);
+        this.showError(`Update failed: ${error.message}`);
+        
+      } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+      }
+    },
+    
+    showThankYou() {
+      const formContainer = document.getElementById('profile-form-container');
+      const thankYouScreen = document.getElementById('profile-thank-you-screen');
+      
+      if (formContainer) formContainer.classList.add('hidden');
+      if (thankYouScreen) {
+        thankYouScreen.classList.remove('hidden');
+        thankYouScreen.classList.add('fade-in');
+      }
+    },
+    
+    showError(message) {
+      // Create a toast notification if it doesn't exist
+      let toast = document.getElementById('profile-error-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'profile-error-toast';
+        toast.className = 'toast toast-top toast-center';
+        document.body.appendChild(toast);
+        
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-error';
+        alert.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>${message}</span>
+        `;
+        toast.appendChild(alert);
+      } else {
+        // Update existing toast message
+        const alert = toast.querySelector('.alert span');
+        if (alert) alert.textContent = message;
+      }
+      
+      // Show the toast
+      toast.classList.remove('hidden');
+      
+      // Hide after 3 seconds
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3000);
+    }
+  };
+  
+  // Initialize the profile form controller
+  profileFormController.init();
+});
+</script>

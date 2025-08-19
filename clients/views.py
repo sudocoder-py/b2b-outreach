@@ -2,12 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.urls import reverse
-from rest_framework import status
+from rest_framework import status, generics, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from api.serializers import (
-    LoginSerializer, CompanyRegistrationSerializer, UserRegistrationSerializer
+    LoginSerializer, CompanyRegistrationSerializer, UserRegistrationSerializer, UserUpdateSerializer
 )
 from .models import SubscribedCompany
 
@@ -29,7 +29,12 @@ def login_submit(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return redirect('overall_dashboard')
+                    if user.first_name:
+                        messages.success(request, f'Welcome back, {user.first_name}!')
+                        return redirect('overall_dashboard')
+                    else:
+                        messages.success(request, 'Welcome back!')
+                        return redirect('account_settings')
                 else:
                     messages.error(request, 'Your account is disabled.')
             else:
@@ -161,3 +166,35 @@ def api_user_registration(request):
         'errors': serializer.errors
     }, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+
+
+
+
+
+
+
+
+
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class UserUpdateView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        # only allow updating the logged-in user
+        return self.request.user
+    
+
+class UpdateCompanyInfoView(generics.UpdateAPIView):
+    queryset = SubscribedCompany.objects.all()
+    serializer_class = CompanyRegistrationSerializer
+
+    def get_object(self):
+        # only allow updating the logged-in user
+        return self.request.user.subscribed_company

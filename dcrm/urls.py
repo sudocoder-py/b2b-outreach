@@ -3,7 +3,7 @@ from django.urls import path, include
 from django.shortcuts import redirect, render
 
 from scheduler.views import scheduler_inngest_view_path
-
+from campaign.views import account_settings_view
 
 def redirect_to_login(request):
     return redirect('login')
@@ -21,6 +21,8 @@ urlpatterns = [
     path('support/', include('support.urls')),
     path('feedback/', include('feedback.urls')),
     # path('posts/', include('posts.urls')),
+
+    path('account-settings/', account_settings_view, name='account_settings'),
 ]
 
 

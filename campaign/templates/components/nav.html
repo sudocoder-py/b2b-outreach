@@ -89,9 +89,9 @@
 
     <!-- User Account -->
     <div class="tooltip tooltip-right" data-tip="Account Settings">
-      <a href="{% url 'account_settings' %}" class="sidebar-link avatar placeholder">
+      <a id="account-settings-link" href="{% url 'account_settings' %}" class="sidebar-link avatar placeholder active">
         <div class="w-8 rounded-full bg-neutral text-neutral-content hover:bg-primary transition-all duration-200 cursor-pointer">
-          <span class="text-sm">F</span>
+          <span class="text-sm">{% if not request.user.first_name %}U{% else %}{{ request.user.first_name|slice:":1" }}{% endif %}</span>
         </div>
       </a>
     </div>
@@ -140,11 +140,26 @@
 }
 </style>
 
-
 <script>
+  {% if not request.user.first_name %}
+  const currentPath = window.location.pathname;
+  if (currentPath !== "{% url 'account_settings' %}") {
+    window.location.href = "{% url 'account_settings' %}";
+  }
+  // Redirect all sidebar links to /account-settings/ if user hasn't completed profile
+  document.addEventListener("DOMContentLoaded", function () {
+    // Change all sidebar links to point to account settings
+    document.querySelectorAll(".sidebar-link").forEach(link => {
+      // Skip the account settings link itself
+      if (link.id !== "account-settings-link") {
+        link.setAttribute("href", "{% url 'account_settings' %}");
+      }
+    });   
+  });
+
+  {% else %}
   document.addEventListener("DOMContentLoaded", function () {
     const currentPath = window.location.pathname;
-
     document.querySelectorAll(".sidebar-link").forEach(link => {
       // Check if the link's href is part of the current URL
       if (link.getAttribute("href") === currentPath) {
@@ -155,5 +170,5 @@
       }
     });
   });
+  {% endif %}
 </script>
-

@@ -3,6 +3,11 @@
 {% block title %}Account Settings{% endblock %}
 
 {% block content %}
+
+{% if not request.user.first_name %}
+    {% include "components/user-cmpany-info-modal.html" %}
+{% else %}
+
 <div class="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-8">
     <!-- Header -->
     <div class="mb-8">
@@ -80,4 +85,7 @@ function showComingSoon() {
     }
 }
 </script>
+
+{% endif %}
+
 {% endblock %}

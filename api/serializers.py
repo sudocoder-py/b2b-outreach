@@ -97,13 +97,7 @@ class LoginSerializer(serializers.Serializer):
 class CompanyRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubscribedCompany
-        fields = ['name', 'website', 'email', 'industry', 'location', 'employee_count']
-
-    def validate_website(self):
-        website = self.validated_data.get('website')
-        if website and not website.startswith(('http://', 'https://')):
-            website = 'https://' + website
-        return website
+        fields = ['name', 'website', 'email', 'industry', 'location', 'employee_count', 'linkedin_page']
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -170,9 +164,10 @@ class BillingHistorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CustomUserSerializer(serializers.ModelSerializer):
-    subscribed_company = SubscribedCompanySerializer(read_only=True)
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
+class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
-        fields = '__all__'
+        model = User
+        fields = ["first_name", "last_name", "email", "position", "phone_number", "linkedin_profile"]

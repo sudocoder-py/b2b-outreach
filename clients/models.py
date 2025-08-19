@@ -6,24 +6,12 @@ from django.core import validators
 
 class SubscribedCompany(models.Model):
     name = models.CharField(max_length=255)
-    website = models.URLField(unique=True)
-    email= models.EmailField(unique=True)
-    industry = models.CharField(max_length=100)
-    employee_count = models.CharField(max_length=50)
-    linkedin_page= models.URLField(blank=True)
-    location= models.CharField(max_length=255)
-
-    manager_full_name = models.CharField(max_length=255, blank=True)
-    manager_position = models.CharField(max_length=100, blank=True, help_text="ex: founder, cofounder...")
-    manager_email = models.EmailField(unique=True, blank=True, null=True)
-    manager_phone_number = models.CharField(max_length=20, blank=True)
-    manager_linkedin_profile = models.URLField(unique=True, blank=True, null=True)
-    
-    newsletter_link = models.URLField(
-        blank=True,
-        help_text="newsletter link"
-    )
-
+    website = models.URLField(unique=True, blank=True)
+    email= models.EmailField(unique=True, blank=True)
+    industry = models.CharField(max_length=100, blank=True)
+    employee_count = models.CharField(max_length=50, blank=True)
+    linkedin_page= models.URLField(blank=True, null=True)
+    location= models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -102,6 +90,11 @@ class BillingHistory(models.Model):
 
 class CustomUser(AbstractUser):
     subscribed_company = models.ForeignKey(SubscribedCompany, on_delete=models.CASCADE, related_name='users')
+
+    # New fields
+    position = models.CharField(max_length=100, blank=True, null=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    linkedin_profile = models.URLField(blank=True, null=True)
     
     # Fix group conflicts
     groups = models.ManyToManyField(

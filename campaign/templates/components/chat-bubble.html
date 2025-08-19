@@ -34,8 +34,8 @@
                     <div class="pt-6 pb-8 px-4 text-primary-content bg-primary">
                         <div class="flex justify-end items-center mb-4">
                             <div class="flex -space-x-3">
-                                <img class="inline-block h-9 w-9 rounded-full ring-2 ring-base-100" src="https://media.licdn.com/dms/image/v2/D4D03AQGgLuzhjK4pXw/profile-displayphoto-crop_800_800/B4DZgIX2vTH0AQ-/0/1752487129014?e=1758153600&v=beta&t=MHfmKE8MVRNG7AA6-CURxOLC42OFi-xaN5-pQn4q-TE" alt="User avatar"/>
-                                <img class="inline-block h-9 w-9 rounded-full ring-2 ring-base-100" src="https://media.licdn.com/dms/image/v2/D4E03AQHLO9jW6VWLhw/profile-displayphoto-shrink_800_800/B4EZd5QPWbGcAg-/0/1750085990798?e=1758153600&v=beta&t=VqW1z6nJOt3Q-dLFjLg3k5htAwG5q9rV3IxiBdDsVlc" alt="User avatar"/>
+                                <img class="inline-block h-9 w-9 rounded-full ring-2 ring-base-100" src="{% static 'imgs/ahmad-avatar-linkedin.jpeg' %}"/>
+                                <img class="inline-block h-9 w-9 rounded-full ring-2 ring-base-100" src="{% static 'imgs/my-avatar-linkedin.jpeg' %}"/>
                             </div>
                         </div> 
                         <h1 class="text-3xl font-bold">Hi {{ user.first_name }} 👋</h1>
@@ -191,403 +191,548 @@
         </button>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // DOM Elements
-            const toggleButton = document.getElementById('chat-toggle-button');
-            const openIcon = document.getElementById('open-icon');
-            const closeIcon = document.getElementById('close-icon');
-            const chatWidget = document.getElementById('chat-widget');
-            const navTabs = document.querySelectorAll('.nav-tab');
-            const pages = document.querySelectorAll('.page-content');
-            const chatHeader = document.getElementById('chat-header');
-            const bottomNav = document.getElementById('bottom-nav');
-            const sendMessageHomeBtn = document.getElementById('action-send-message-home');
-            const sendMessageMessagesBtn = document.getElementById('action-send-message-messages');
-            const chatLog = document.getElementById('chat-log');
-            const chatInput = document.getElementById('chat-input');
-            const sendBtn = document.getElementById('send-btn');
-
-            // Support Chat State
-            let currentSessionId = null;
-            let isLoading = false;
-            let messagePollingInterval = null;
-
-            // API Configuration
-            const API_BASE = '/support/api';
-
-            // CSRF Token Helper
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-
-            // API Helper Functions
-            async function apiRequest(url, options = {}) {
-                const defaultOptions = {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken'),
-                    },
-                    credentials: 'same-origin'
-                };
-
-                const response = await fetch(url, { ...defaultOptions, ...options });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                return response.json();
-            }
-
-            // Support API Functions
-            async function sendSupportMessage(content, sessionId = null) {
-                const data = {
-                    content: content,
-                    message_type: 'text',
-                    page_url: window.location.href,
-                    subject: 'Support Request'
-                };
-
-                if (sessionId) {
-                    data.session_id = sessionId;
-                }
-
-                return await apiRequest(`${API_BASE}/messages/`, {
-                    method: 'POST',
-                    body: JSON.stringify(data)
-                });
-            }
-
-            async function getSessionMessages(sessionId) {
-                return await apiRequest(`${API_BASE}/sessions/${sessionId}/messages/`);
-            }
-
-            async function getUserSessions() {
-                return await apiRequest(`${API_BASE}/sessions/`);
-            }
-
-            // UI Helper Functions
-            function showLoading() {
-                isLoading = true;
-                sendBtn.disabled = true;
-                sendBtn.innerHTML = '<div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>';
-            }
-
-            function hideLoading() {
-                isLoading = false;
-                sendBtn.disabled = false;
-                sendBtn.innerHTML = '<svg class="h-5 w-5 text-white transform -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>';
-            }
-
-            function addMessageToChat(message, isUser = true) {
-                const messageElement = document.createElement('div');
-                const timestamp = new Date(message.created_at || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-                if (isUser) {
-                    messageElement.className = 'flex justify-end';
-                    messageElement.innerHTML = `
-                        <div class="bg-primary text-primary-content p-3 rounded-2xl rounded-br-none max-w-[80%]">
-                            ${message.content.replace(/\n/g, "<br>")}
-                            <p class="text-xs text-primary-200 mt-1">${timestamp}</p>
-                        </div>
-                    `;
-                } else {
-                    messageElement.className = 'flex justify-start';
-                    const agentName = message.support_agent_name || 'Support Team';
-                    messageElement.innerHTML = `
-                        <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl rounded-bl-none max-w-[80%]">
-                            ${message.content.replace(/\n/g, "<br>")}
-                            <p class="text-xs text-gray-500 mt-1">${agentName} • ${timestamp}</p>
-                        </div>
-                    `;
-                }
-
-                chatLog.appendChild(messageElement);
-                chatLog.scrollTop = chatLog.scrollHeight;
-            }
-
-            function clearChatLog() {
-                chatLog.innerHTML = '<div class="text-center text-xs text-gray-500 my-2">Thanks for reaching out to us!</div>';
-            }
-
-            // Message Polling
-            function startMessagePolling() {
-                if (messagePollingInterval || !currentSessionId) return;
-
-                messagePollingInterval = setInterval(async () => {
-                    try {
-                        const messages = await getSessionMessages(currentSessionId);
-                        const supportMessages = messages.filter(msg => msg.sender === 'support');
-
-                        // Check if there are new support messages
-                        const existingMessages = chatLog.querySelectorAll('.flex.justify-start').length;
-                        if (supportMessages.length > existingMessages) {
-                            // Reload all messages to maintain order
-                            await loadChatMessages(currentSessionId);
-                        }
-                    } catch (error) {
-                        console.error('Error polling messages:', error);
-                    }
-                }, 5000); // Poll every 5 seconds
-            }
-
-            function stopMessagePolling() {
-                if (messagePollingInterval) {
-                    clearInterval(messagePollingInterval);
-                    messagePollingInterval = null;
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
+    const toggleButton = document.getElementById('chat-toggle-button');
+    const openIcon = document.getElementById('open-icon');
+    const closeIcon = document.getElementById('close-icon');
+    const chatWidget = document.getElementById('chat-widget');
+    const navTabs = document.querySelectorAll('.nav-tab');
+    const pages = document.querySelectorAll('.page-content');
+    const chatHeader = document.getElementById('chat-header');
+    const bottomNav = document.getElementById('bottom-nav');
+    const sendMessageHomeBtn = document.getElementById('action-send-message-home');
+    const sendMessageMessagesBtn = document.getElementById('action-send-message-messages');
+    const chatLog = document.getElementById('chat-log');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    
+    // Support Chat State
+    let currentSessionId = null;
+    let isLoading = false;
+    let lastMessageCount = 0;
+    let lastMessageTimestamp = null;
+    let isChatFocused = false;
+    let focusPollingInterval = null;
+    let processedMessageIds = new Set(); // Track processed messages to avoid duplicates
+    
+    // API Configuration
+    const API_BASE = '/support/api';
+    
+    // CSRF Token Helper
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
                 }
             }
-
-            // Load chat messages for a session
-            async function loadChatMessages(sessionId) {
-                try {
-                    const messages = await getSessionMessages(sessionId);
-                    clearChatLog();
-
-                    messages.forEach(message => {
-                        addMessageToChat(message, message.sender === 'user');
-                    });
-                } catch (error) {
-                    console.error('Error loading messages:', error);
-                    showErrorMessage('Failed to load messages. Please try again.');
-                }
-            }
-
-            // Load user sessions for messages page
-            async function loadUserSessions() {
-                try {
-                    const sessions = await getUserSessions();
-                    const messagesContainer = document.querySelector('#page-messages .px-4');
-
-                    if (sessions.length === 0) {
-                        messagesContainer.innerHTML = `
-                            <div class="text-center py-8">
-                                <p class="text-gray-500">No conversations yet</p>
-                                <p class="text-sm text-gray-400 mt-2">Start a conversation to see it here</p>
-                            </div>
-                        `;
-                        return;
-                    }
-
-                    messagesContainer.innerHTML = sessions.map(session => {
-                        const lastMessage = session.messages && session.messages.length > 0
-                            ? session.messages[session.messages.length - 1]
-                            : null;
-                        const timeAgo = new Date(session.updated_at).toLocaleDateString();
-
-                        return `
-                            <div class="flex items-start py-4 cursor-pointer border-t border-gray-200 hover:bg-gray-50"
-                                 onclick="openChatSession('${session.id}')">
-                                <img class="w-10 h-10 rounded-full mr-4 mt-1"
-                                     src="{% static 'vibereach-logo.png' %}" alt="Session avatar">
-                                <div class="flex-grow">
-                                    <div class="flex justify-between items-center mb-1">
-                                        <p class="font-semibold text-gray-900">${session.subject || 'Support Chat'}</p>
-                                        <p class="text-sm text-gray-500">${timeAgo}</p>
-                                    </div>
-                                    <p class="text-gray-600 truncate">
-                                        ${lastMessage ? lastMessage.content.substring(0, 50) + '...' : 'No messages yet'}
-                                    </p>
-                                    <div class="flex items-center mt-1">
-                                        <span class="text-xs px-2 py-1 rounded-full ${session.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}">
-                                            ${session.is_active ? 'Active' : 'Closed'}
-                                        </span>
-                                        <span class="text-xs text-gray-500 ml-2">${session.message_count} messages</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                } catch (error) {
-                    console.error('Error loading sessions:', error);
-                }
-            }
-
-            // Open existing chat session
-            window.openChatSession = async function(sessionId) {
-                currentSessionId = sessionId;
-                showPage('chat');
-                await loadChatMessages(sessionId);
-                startMessagePolling();
-            };
-
-            function showErrorMessage(message) {
-                const errorElement = document.createElement('div');
-                errorElement.className = 'flex justify-center my-2';
-                errorElement.innerHTML = `
-                    <div class="bg-red-100 text-red-800 px-3 py-2 rounded-lg text-sm">
-                        ${message}
-                    </div>
-                `;
-                chatLog.appendChild(errorElement);
-                chatLog.scrollTop = chatLog.scrollHeight;
-            }
-
-            // Page Headers
-            const headers = {
-                home: '',
-                messages: `<div class="flex items-center justify-center p-4 border-b bg-white"><h2 class="text-xl font-bold text-gray-800">Messages</h2></div>`,
-                help: `<div class="flex items-center justify-center p-4 border-b bg-white"><h2 class="text-xl font-bold text-gray-800">Help</h2></div>`,
-                chat: `<div class="flex items-center justify-between p-3 border-b bg-white shadow-sm"><button id="back-to-home-btn" class="text-gray-600 p-1 rounded-full hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button><div class="flex items-center space-x-2"><img class="w-8 h-8 rounded-full" src="{% static 'vibereach-logo.png' %}" alt="Support Avatar"><p class="font-bold text-gray-800">Support Team</p></div><button class="text-gray-600 p-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" /></svg></button></div>`
-            };
-
-            // Widget Toggle
-            const toggleWidget = () => {
-                const isHidden = chatWidget.classList.contains('hidden');
-                if (isHidden) {
-                    chatWidget.classList.remove('hidden');
-                    setTimeout(() => chatWidget.classList.remove('opacity-0', 'translate-y-4', 'scale-95'), 10);
-                    openIcon.classList.add('hidden');
-                    closeIcon.classList.remove('hidden');
-                } else {
-                    chatWidget.classList.add('opacity-0', 'translate-y-4', 'scale-95');
-                    setTimeout(() => chatWidget.classList.add('hidden'), 300);
-                    openIcon.classList.remove('hidden');
-                    closeIcon.classList.add('hidden');
-                    stopMessagePolling(); // Stop polling when widget is closed
-                }
-            };
-
-            // Page Navigation
-            const showPage = (pageId) => {
-                pages.forEach(page => page.classList.add('hidden'));
-                document.getElementById(`page-${pageId}`).classList.remove('hidden');
-                navTabs.forEach(tab => {
-                    const isActive = tab.dataset.page === pageId;
-                    tab.classList.toggle('text-primary-600', isActive);
-                    tab.classList.toggle('text-gray-500', !isActive);
-                    tab.querySelector('span').classList.toggle('font-semibold', isActive);
-                });
-                chatHeader.innerHTML = headers[pageId] || '';
-                bottomNav.classList.toggle('hidden', pageId === 'chat');
-
-                // Page-specific actions
-                if (pageId === 'chat') {
-                    // Add back button listener
-                    setTimeout(() => {
-                        const backBtn = document.getElementById('back-to-home-btn');
-                        if (backBtn) {
-                            backBtn.addEventListener('click', () => {
-                                showPage('home');
-                                stopMessagePolling();
-                                currentSessionId = null;
-                            });
-                        }
-                    }, 100);
-
-                    // Start new chat if no session
-                    if (!currentSessionId) {
-                        clearChatLog();
-                        addWelcomeMessage();
-                    }
-                } else if (pageId === 'messages') {
-                    loadUserSessions();
-                    stopMessagePolling();
-                }
-            };
-
-            function addWelcomeMessage() {
-                const welcomeElement = document.createElement('div');
-                welcomeElement.className = 'flex justify-start';
-                welcomeElement.innerHTML = `
-                    <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl rounded-bl-none max-w-[80%]">
-                        <p>Hi! 👋 Welcome to our support chat.</p>
-                        <p class="mt-2">How can we help you today? Please describe your issue in detail so we can assist you better.</p>
-                        <p class="text-xs text-gray-500 mt-1">Support Team • Just now</p>
-                    </div>
-                `;
-                chatLog.appendChild(welcomeElement);
-                chatLog.scrollTop = chatLog.scrollHeight;
-            }
-
-            // Message Handling
-            const handleSendMessage = async () => {
-                const messageText = chatInput.value.trim();
-                if (messageText === '' || isLoading) return;
-
-                // Add user message to UI immediately
-                const userMessage = {
-                    content: messageText,
-                    created_at: new Date().toISOString()
-                };
-                addMessageToChat(userMessage, true);
-
-                // Clear input and show loading
-                chatInput.value = '';
-                chatInput.dispatchEvent(new Event('input'));
-                showLoading();
-
-                try {
-                    // Send message to backend
-                    const response = await sendSupportMessage(messageText, currentSessionId);
-
-                    // Set session ID if this is a new chat
-                    if (!currentSessionId) {
-                        currentSessionId = response.session_id;
-                        startMessagePolling(); // Start polling for replies
-                    }
-
-                    console.log('Message sent successfully:', response);
-
-                } catch (error) {
-                    console.error('Error sending message:', error);
-                    showErrorMessage('Failed to send message. Please try again.');
-                } finally {
-                    hideLoading();
-                }
-            };
-
-            // Input Handling
-            chatInput.addEventListener('input', () => {
-                chatInput.style.height = 'auto';
-                chatInput.style.height = `${chatInput.scrollHeight}px`;
-
-                if (chatInput.value.trim() !== '' && !isLoading) {
-                    sendBtn.classList.remove('bg-gray-200', 'cursor-not-allowed');
-                    sendBtn.classList.add('bg-primary', 'cursor-pointer');
-                } else {
-                    sendBtn.classList.add('bg-gray-200', 'cursor-not-allowed');
-                    sendBtn.classList.remove('bg-primary', 'cursor-pointer');
-                }
-            });
-
-            chatInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage();
-                }
-            });
-
-            // Event Listeners
-            sendBtn.addEventListener('click', handleSendMessage);
-            toggleButton.addEventListener('click', toggleWidget);
-            navTabs.forEach(tab => tab.addEventListener('click', () => showPage(tab.dataset.page)));
-            sendMessageHomeBtn.addEventListener('click', () => showPage('chat'));
-            sendMessageMessagesBtn.addEventListener('click', () => {
-                // Start new conversation
-                currentSessionId = null;
-                stopMessagePolling();
-                showPage('chat');
-            });
-
-            // Initialize
-            showPage('home');
-
-            // Cleanup on page unload
-            window.addEventListener('beforeunload', () => {
-                stopMessagePolling();
-            });
+        }
+        return cookieValue;
+    }
+    
+    // API Helper Functions
+    async function apiRequest(url, options = {}) {
+        const defaultOptions = {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            credentials: 'same-origin'
+        };
+        const response = await fetch(url, { ...defaultOptions, ...options });
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    }
+    
+    // Support API Functions
+    async function sendSupportMessage(content, sessionId = null) {
+        const data = {
+            content: content,
+            message_type: 'text',
+            page_url: window.location.href,
+            subject: 'Support Request'
+        };
+        if (sessionId) {
+            data.session_id = sessionId;
+        }
+        return await apiRequest(`${API_BASE}/messages/`, {
+            method: 'POST',
+            body: JSON.stringify(data)
         });
-    </script>
+    }
+    
+    async function getSessionMessages(sessionId) {
+        return await apiRequest(`${API_BASE}/sessions/${sessionId}/messages/`);
+    }
+    
+    async function getUserSessions() {
+        return await apiRequest(`${API_BASE}/sessions/`);
+    }
+    
+    // UI Helper Functions
+    function showLoading() {
+        isLoading = true;
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>';
+    }
+    
+    function hideLoading() {
+        isLoading = false;
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<svg class="h-5 w-5 text-white transform -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>';
+    }
+    
+    function addMessageToChat(message, isUser = false) {
+        // Check if we've already processed this message to avoid duplicates
+        const messageId = message.id || `${message.content}-${message.created_at}-${isUser}`;
+        if (processedMessageIds.has(messageId)) {
+            return;
+        }
+        
+        // Mark this message as processed
+        processedMessageIds.add(messageId);
+        
+        const messageElement = document.createElement('div');
+        const timestamp = new Date(message.created_at || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        if (isUser) {
+            messageElement.className = 'flex justify-end opacity-0 transition-opacity duration-300';
+            messageElement.innerHTML = `
+                <div class="bg-primary text-primary-content p-3 rounded-2xl rounded-br-none max-w-[80%]">
+                    ${message.content.replace(/\n/g, "<br>")}
+                    <p class="text-xs text-primary-200 mt-1">${timestamp}</p>
+                </div>
+            `;
+        } else {
+            messageElement.className = 'flex justify-start opacity-0 transition-opacity duration-300';
+            const agentName = message.support_agent_name || 'Support Team';
+            messageElement.innerHTML = `
+                <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl rounded-bl-none max-w-[80%]">
+                    ${message.content.replace(/\n/g, "<br>")}
+                    <p class="text-xs text-gray-500 mt-1">${agentName} • ${timestamp}</p>
+                </div>
+            `;
+        }
+        
+        chatLog.appendChild(messageElement);
+        
+        // Trigger fade-in animation
+        setTimeout(() => {
+            messageElement.classList.remove('opacity-0');
+            messageElement.classList.add('opacity-100');
+        }, 10);
+        
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+    
+    function clearChatLog() {
+        chatLog.innerHTML = '<div class="text-center text-xs text-gray-500 my-2">Thanks for reaching out to us!</div>';
+        processedMessageIds.clear(); // Clear processed messages when starting a new chat
+    }
+    
+    // Focus-based polling functions
+    function startFocusPolling() {
+        if (focusPollingInterval || !currentSessionId) return;
+        
+        focusPollingInterval = setInterval(async () => {
+            if (!isChatFocused || !currentSessionId) return;
+            
+            try {
+                const messages = await getSessionMessages(currentSessionId);
+                
+                // Check if there are new messages
+                if (messages.length > lastMessageCount) {
+                    // Only load new messages to avoid UI flicker
+                    const newMessages = messages.slice(lastMessageCount);
+                    newMessages.forEach(message => {
+                        // Only add messages that aren't from the current user
+                        // This prevents duplicating user messages
+                        if (message.sender !== 'user') {
+                            addMessageToChat(message, false);
+                        }
+                    });
+                    
+                    lastMessageCount = messages.length;
+                    
+                    // Update the timestamp of the last message
+                    if (messages.length > 0) {
+                        const lastMessage = messages[messages.length - 1];
+                        lastMessageTimestamp = new Date(lastMessage.created_at);
+                    }
+                    
+                    // Show a notification for new messages if tab is not visible
+                    if (document.hidden) {
+                        showNewMessageNotification();
+                    }
+                }
+            } catch (error) {
+                console.error('Error polling messages:', error);
+            }
+        }, 10000); // Poll every 10 seconds (10,000ms)
+    }
+    
+    function stopFocusPolling() {
+        if (focusPollingInterval) {
+            clearInterval(focusPollingInterval);
+            focusPollingInterval = null;
+        }
+        isChatFocused = false;
+    }
+    
+    // Setup chat focus detection
+    function setupChatFocusDetection() {
+        const chatWidget = document.getElementById('chat-widget');
+        const chatInput = document.getElementById('chat-input');
+        
+        // Focus detection for the entire chat widget
+        chatWidget.addEventListener('mouseenter', () => {
+            if (!isChatFocused && currentSessionId) {
+                isChatFocused = true;
+                startFocusPolling();
+            }
+        });
+        
+        chatWidget.addEventListener('mouseleave', () => {
+            // Add a small delay before stopping polling to avoid rapid toggling
+            setTimeout(() => {
+                if (!chatWidget.matches(':hover') && !chatInput.matches(':focus')) {
+                    isChatFocused = false;
+                }
+            }, 1000);
+        });
+        
+        // Focus detection for the chat input
+        chatInput.addEventListener('focus', () => {
+            if (!isChatFocused && currentSessionId) {
+                isChatFocused = true;
+                startFocusPolling();
+            }
+        });
+        
+        chatInput.addEventListener('blur', () => {
+            // Add a small delay before stopping polling
+            setTimeout(() => {
+                if (!chatWidget.matches(':hover') && !chatInput.matches(':focus')) {
+                    isChatFocused = false;
+                }
+            }, 1000);
+        });
+        
+        // Also check when the window gains focus
+        window.addEventListener('focus', () => {
+            if (currentSessionId && chatWidget.classList.contains('hidden') === false) {
+                isChatFocused = true;
+                startFocusPolling();
+            }
+        });
+        
+        window.addEventListener('blur', () => {
+            isChatFocused = false;
+        });
+    }
+    
+    // Show notification for new messages
+    function showNewMessageNotification() {
+        // Only show if the browser supports notifications and permission is granted
+        if ("Notification" in window && Notification.permission === "granted") {
+            new Notification("New Support Message", {
+                body: "You have a new message from the support team",
+                icon: "{% static 'vibereach-logo.png' %}"
+            });
+        }
+    }
+    
+    // Request notification permission
+    function requestNotificationPermission() {
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission();
+        }
+    }
+    
+    function showErrorMessage(message) {
+        const errorElement = document.createElement('div');
+        errorElement.className = 'flex justify-center my-2 opacity-0 transition-opacity duration-300';
+        errorElement.innerHTML = `
+            <div class="bg-red-100 text-red-800 px-3 py-2 rounded-lg text-sm">
+                ${message}
+            </div>
+        `;
+        chatLog.appendChild(errorElement);
+        
+        // Trigger fade-in animation
+        setTimeout(() => {
+            errorElement.classList.remove('opacity-0');
+            errorElement.classList.add('opacity-100');
+        }, 10);
+        
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+    
+    // Load chat messages for a session
+    async function loadChatMessages(sessionId) {
+        try {
+            const messages = await getSessionMessages(sessionId);
+            clearChatLog();
+            lastMessageCount = messages.length;
+            
+            // Store the timestamp of the last message
+            if (messages.length > 0) {
+                const lastMessage = messages[messages.length - 1];
+                lastMessageTimestamp = new Date(lastMessage.created_at);
+            }
+            
+            messages.forEach(message => {
+                addMessageToChat(message, message.sender === 'user');
+            });
+        } catch (error) {
+            console.error('Error loading messages:', error);
+            showErrorMessage('Failed to load messages. Please try again.');
+        }
+    }
+    
+    // Load user sessions for messages page
+    async function loadUserSessions() {
+        try {
+            const sessions = await getUserSessions();
+            const messagesContainer = document.querySelector('#page-messages .px-4');
+            if (sessions.length === 0) {
+                messagesContainer.innerHTML = `
+                    <div class="text-center py-8">
+                        <p class="text-gray-500">No conversations yet</p>
+                        <p class="text-sm text-gray-400 mt-2">Start a conversation to see it here</p>
+                    </div>
+                `;
+                return;
+            }
+            messagesContainer.innerHTML = sessions.map(session => {
+                const lastMessage = session.messages && session.messages.length > 0
+                    ? session.messages[session.messages.length - 1]
+                    : null;
+                const timeAgo = new Date(session.updated_at).toLocaleDateString();
+                return `
+                    <div class="flex items-start py-4 cursor-pointer border-t border-gray-200 hover:bg-gray-50"
+                         onclick="openChatSession('${session.id}')">
+                        <img class="w-10 h-10 rounded-full mr-4 mt-1"
+                             src="{% static 'vibereach-logo.png' %}" alt="Session avatar">
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-center mb-1">
+                                <p class="font-semibold text-gray-900">${session.subject || 'Support Chat'}</p>
+                                <p class="text-sm text-gray-500">${timeAgo}</p>
+                            </div>
+                            <p class="text-gray-600 truncate">
+                                ${lastMessage ? lastMessage.content.substring(0, 50) + '...' : 'No messages yet'}
+                            </p>
+                            <div class="flex items-center mt-1">
+                                <span class="text-xs px-2 py-1 rounded-full ${session.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}">
+                                    ${session.is_active ? 'Active' : 'Closed'}
+                                </span>
+                                <span class="text-xs text-gray-500 ml-2">${session.message_count} messages</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } catch (error) {
+            console.error('Error loading sessions:', error);
+        }
+    }
+    
+    // Open existing chat session
+    window.openChatSession = async function(sessionId) {
+        currentSessionId = sessionId;
+        showPage('chat');
+        await loadChatMessages(sessionId);
+        // Don't start polling here, wait for focus
+    };
+    
+    function addWelcomeMessage() {
+        const welcomeElement = document.createElement('div');
+        welcomeElement.className = 'flex justify-start opacity-0 transition-opacity duration-300';
+        welcomeElement.innerHTML = `
+            <div class="bg-gray-100 text-gray-800 p-3 rounded-2xl rounded-bl-none max-w-[80%]">
+                <p>Hi! 👋 Welcome to our support chat.</p>
+                <p class="mt-2">How can we help you today? Please describe your issue in detail so we can assist you better.</p>
+                <p class="text-xs text-gray-500 mt-1">Support Team • Just now</p>
+            </div>
+        `;
+        chatLog.appendChild(welcomeElement);
+        
+        // Trigger fade-in animation
+        setTimeout(() => {
+            welcomeElement.classList.remove('opacity-0');
+            welcomeElement.classList.add('opacity-100');
+        }, 10);
+        
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+    
+    // Page Headers
+    const headers = {
+        home: '',
+        messages: `<div class="flex items-center justify-center p-4 border-b bg-white"><h2 class="text-xl font-bold text-gray-800">Messages</h2></div>`,
+        help: `<div class="flex items-center justify-center p-4 border-b bg-white"><h2 class="text-xl font-bold text-gray-800">Help</h2></div>`,
+        chat: `<div class="flex items-center justify-between p-3 border-b bg-white shadow-sm"><button id="back-to-home-btn" class="text-gray-600 p-1 rounded-full hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button><div class="flex items-center space-x-2"><img class="w-8 h-8 rounded-full" src="{% static 'vibereach-logo.png' %}" alt="Support Avatar"><p class="font-bold text-gray-800">Support Team</p></div><button class="text-gray-600 p-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" /></svg></button></div>`
+    };
+    
+    // Widget Toggle
+    const toggleWidget = () => {
+        const isHidden = chatWidget.classList.contains('hidden');
+        if (isHidden) {
+            chatWidget.classList.remove('hidden');
+            setTimeout(() => chatWidget.classList.remove('opacity-0', 'translate-y-4', 'scale-95'), 10);
+            openIcon.classList.add('hidden');
+            closeIcon.classList.remove('hidden');
+            
+            // Check if we should start polling when opening the widget
+            if (currentSessionId) {
+                isChatFocused = true;
+                startFocusPolling();
+            }
+        } else {
+            chatWidget.classList.add('opacity-0', 'translate-y-4', 'scale-95');
+            setTimeout(() => {
+                chatWidget.classList.add('hidden');
+                stopFocusPolling(); // Stop polling when widget is closed
+            }, 300);
+            openIcon.classList.remove('hidden');
+            closeIcon.classList.add('hidden');
+        }
+    };
+    
+    // Page Navigation
+    const showPage = (pageId) => {
+        pages.forEach(page => page.classList.add('hidden'));
+        document.getElementById(`page-${pageId}`).classList.remove('hidden');
+        navTabs.forEach(tab => {
+            const isActive = tab.dataset.page === pageId;
+            tab.classList.toggle('text-primary-600', isActive);
+            tab.classList.toggle('text-gray-500', !isActive);
+            tab.querySelector('span').classList.toggle('font-semibold', isActive);
+        });
+        chatHeader.innerHTML = headers[pageId] || '';
+        bottomNav.classList.toggle('hidden', pageId === 'chat');
+        
+        // Page-specific actions
+        if (pageId === 'chat') {
+            // Add back button listener
+            setTimeout(() => {
+                const backBtn = document.getElementById('back-to-home-btn');
+                if (backBtn) {
+                    backBtn.addEventListener('click', () => {
+                        showPage('home');
+                        stopFocusPolling();
+                        currentSessionId = null;
+                    });
+                }
+            }, 100);
+            
+            // Set up focus detection for chat
+            setupChatFocusDetection();
+            
+            // Request notification permission
+            requestNotificationPermission();
+            
+            // Start new chat if no session
+            if (!currentSessionId) {
+                clearChatLog();
+                addWelcomeMessage();
+            }
+            
+            // Check if widget is already focused
+            const chatWidget = document.getElementById('chat-widget');
+            if (chatWidget.matches(':hover') || document.getElementById('chat-input').matches(':focus')) {
+                isChatFocused = true;
+                startFocusPolling();
+            }
+        } else if (pageId === 'messages') {
+            loadUserSessions();
+            stopFocusPolling();
+        }
+    };
+    
+    // Message Handling
+    const handleSendMessage = async () => {
+        const messageText = chatInput.value.trim();
+        if (messageText === '' || isLoading) return;
+        
+        // Add user message to UI immediately
+        const userMessage = {
+            content: messageText,
+            created_at: new Date().toISOString(),
+            id: `user-${Date.now()}` // Temporary ID for user messages
+        };
+        addMessageToChat(userMessage, true);
+        
+        // Clear input and show loading
+        chatInput.value = '';
+        chatInput.dispatchEvent(new Event('input'));
+        showLoading();
+        
+        try {
+            // Send message to backend
+            const response = await sendSupportMessage(messageText, currentSessionId);
+            
+            // Set session ID if this is a new chat
+            if (!currentSessionId) {
+                currentSessionId = response.session_id;
+                startFocusPolling(); // Start polling for replies
+            }
+            
+            console.log('Message sent successfully:', response);
+        } catch (error) {
+            console.error('Error sending message:', error);
+            showErrorMessage('Failed to send message. Please try again.');
+        } finally {
+            hideLoading();
+        }
+    };
+    
+    // Input Handling
+    chatInput.addEventListener('input', () => {
+        chatInput.style.height = 'auto';
+        chatInput.style.height = `${chatInput.scrollHeight}px`;
+        if (chatInput.value.trim() !== '' && !isLoading) {
+            sendBtn.classList.remove('bg-gray-200', 'cursor-not-allowed');
+            sendBtn.classList.add('bg-primary', 'cursor-pointer');
+        } else {
+            sendBtn.classList.add('bg-gray-200', 'cursor-not-allowed');
+            sendBtn.classList.remove('bg-primary', 'cursor-pointer');
+        }
+    });
+    
+    chatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSendMessage();
+        }
+    });
+    
+    // Event Listeners
+    sendBtn.addEventListener('click', handleSendMessage);
+    toggleButton.addEventListener('click', toggleWidget);
+    navTabs.forEach(tab => tab.addEventListener('click', () => showPage(tab.dataset.page)));
+    sendMessageHomeBtn.addEventListener('click', () => showPage('chat'));
+    sendMessageMessagesBtn.addEventListener('click', () => {
+        // Start new conversation
+        currentSessionId = null;
+        stopFocusPolling();
+        showPage('chat');
+    });
+    
+    // Initialize
+    showPage('home');
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        stopFocusPolling();
+    });
+});
+</script>
