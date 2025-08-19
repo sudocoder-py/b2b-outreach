@@ -1,4 +1,5 @@
 from django.db.models import Count
+from django.shortcuts import get_object_or_404
 from clients.models import Product
 from campaign.models import Lead, LeadList, Message, Campaign
 from django.core.exceptions import ImproperlyConfigured
@@ -52,7 +53,8 @@ def get_lead_lists_or_both(request, *, lead_lists_only=False, list_id=None):
         return lead_lists
     
     if list_id:
-        leads = Lead.objects.filter(lead_list=list_id)
+        lead_list= get_object_or_404(LeadList, id=list_id)
+        leads = Lead.objects.filter(lead_list=lead_list)
         return lead_lists, leads
     
     else:

@@ -4,12 +4,13 @@
         <span class="badge badge-primary badge-outline font-semibold text-xs">Beta</span>
     </div>
 
+    {% if request.user.first_name %}
     <!-- This is the new, updated navbar-end section -->
     <div class="navbar-end flex items-center gap-2">
 
         <!-- 1. The "Provide Feedback" Button -->
         <button class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm font-semibold" onclick="document.getElementById('quick-feedback-modal').showModal();">Provide Feedback</button>
-            
+          
         <!-- 2. The Enhanced User & Organization Dropdown -->
         <div class="dropdown dropdown-end">
             <button tabindex="0" role="button" class="btn bg-white hover:bg-base-200 border border-base-300 h-10 min-h-10 px-3 flex items-center gap-2 rounded-lg">
@@ -54,6 +55,8 @@
             </ul>
         </div>
     </div>
+    {% endif %}  
+    
 </header>
 
 <style>

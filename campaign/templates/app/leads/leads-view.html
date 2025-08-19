@@ -7,9 +7,9 @@
     <h1 class="text-3xl text-gray-900 mb-2">{% for list in lead_lists %}{% if list.id == lead_list_id %}{{ list.title }}{% endif %}{% endfor %}
  List</h1>
     <div class="flex items-center gap-4">
-        <a href="/campaign/leads/lists/" tabindex="0" role="button" class="btn text-gray-900">
+        <a href="{% url 'show_all_leads' %}" tabindex="0" role="button" class="btn text-gray-900">
             <i class="fa-regular fa-eye"></i>
-            View all lists
+            View all leads
         </a>
         <button onclick="exportLeadsToCSV()" class="btn btn-outline text-gray-900 h-10 min-h-10 rounded-lg px-4 text-sm">
             <i class="fa-solid fa-download mr-2"></i>
@@ -80,7 +80,7 @@
                     </div>
                 </div>
                 <a href="{% url 'add_leads' lead_list_id %}" class="btn btn-outline btn-square h-10 w-10 min-h-10" title="Import Leads"><i class="fa-solid fa-file-import"></i></a>
-                <a href="{% url 'add_leads' lead_list_id %}" class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm">Add Lead</a>
+                <a href="{% url 'add_leads' lead_list_id %}" class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm">Add Leads</a>
             </div>
         </div>
 
@@ -139,9 +139,9 @@
                         <tr class="hover:bg-gray-50 lead-row">
                             <td class="text-center">
                                 <input type="checkbox"
-                                       class="checkbox checkbox-sm rounded lead-checkbox"
-                                       value="{{ lead.id }}"
-                                       onchange="updateBulkActions()" />
+                                    class="checkbox checkbox-sm rounded lead-checkbox"
+                                    value="{{ lead.id }}"
+                                    onchange="updateBulkActions()" />
                             </td>
                             <td class="text-gray-500 text-center">{{ forloop.counter }}</td>
                             <td class="font-medium text-gray-700">
@@ -208,7 +208,7 @@
                             </td>
                             <td class="text-gray-600">{{ lead.created_at }}</td>
                             <td class="text-center">
-                                <div class="dropdown dropdown-end">
+                                <div class="dropdown dropdown-end dropdown-top">
                                     <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
                                         <i class="fa-solid fa-ellipsis-vertical"></i>
                                     </div>
@@ -220,20 +220,18 @@
                                 </div>
                             </td>
                         </tr>
-                        {% empty %}
+                        {% endfor %}
                         
-
-                        <!-- Empty state (hidden by default, shown when no leads match filters) -->
-                        <tr id="no-leads-row" class="hidden">
+                        <!-- Empty state (always present but conditionally shown) -->
+                        <tr id="no-leads-row" {% if leads %}class="hidden"{% endif %}>
                             <td colspan="10" class="text-center py-16">
                                 <div class="flex flex-col items-center justify-center">
                                     <!-- SVG Illustration -->
                                     <div class="mb-6 opacity-90">
                                         <img src="https://raw.githubusercontent.com/Othunderlight/static/refs/heads/main/no-campaign-lead.svg"
-                                             alt="No leads illustration"
-                                             class="w-64 h-auto mx-auto">
+                                            alt="No leads illustration"
+                                            class="w-64 h-auto mx-auto">
                                     </div>
-
                                     <!-- Message -->
                                     <div class="text-center">
                                         <h3 class="text-lg font-semibold text-gray-800 mb-2">
@@ -242,16 +240,14 @@
                                         <p class="text-gray-500 mb-6">
                                             Upload your leads or add them manually to start your outreach
                                         </p>
-
                                         <!-- Add Leads Button -->
-                                        <button class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm">
-                                            Add Lead
-                                        </button>
+                                        <a href="{% url 'add_leads' lead_list_id %}" class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm">
+                                            Add Leads
+                                        </a>
                                     </div>
                                 </div>
                             </td>
                         </tr>
-                        {% endfor %}
                     </tbody>
                 </table>
             </div>
