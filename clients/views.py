@@ -10,14 +10,22 @@ from api.serializers import (
     LoginSerializer, CompanyRegistrationSerializer, UserRegistrationSerializer, UserUpdateSerializer
 )
 from .models import SubscribedCompany
+from django.contrib.auth.decorators import login_not_required
+
+
+@login_not_required
+def home_view(request):
+    """Feedback and feature requests page"""
+    return render(request, "home/landing.html")
 
 
 # Template Views
+@login_not_required
 def login_view(request):
     """Login page template"""
     return render(request, 'auth/login.html')
 
-
+@login_not_required
 def login_submit(request):
     """Handle login form submission"""
     if request.method == 'POST':
