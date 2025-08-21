@@ -4,13 +4,11 @@ from django.shortcuts import redirect, render
 
 from scheduler.views import scheduler_inngest_view_path
 from campaign.views import account_settings_view
+from clients.views import home_view
 
 def redirect_to_login(request):
     return redirect('login')
 
-def home_view(request):
-    """Feedback and feature requests page"""
-    return render(request, "home/landing.html")
 
 urlpatterns = [
     path('', home_view, name='home'),
