@@ -134,7 +134,7 @@
                                     <p class="text-gray-500 mb-6">
                                         Get started by creating a new outreach campaign
                                     </p>
-                                    <button class="btn btn-primary" onclick="addNewCampaign()">
+                                    <button id="new-campaign-btn-driver" class="btn btn-primary" onclick="addNewCampaign()">
                                         <i class="fa-solid fa-plus mr-2"></i>
                                         New Campaign
                                     </button>
@@ -257,5 +257,47 @@ document.addEventListener('DOMContentLoaded', function() {
         noCampaignsRow.style.display = 'none';
     }
 });
+
+
+
+
+
+
+
+{% if not request.user.onboarding_completed %}
+// onboarding
+document.addEventListener("DOMContentLoaded", () => {
+  const step = localStorage.getItem("onboardingStep");
+
+  // Only start this step if profile is completed but new campaign not clicked
+  if (step === "created_first_msg") {
+    const driver = window.driver.js.driver;
+    const driverObj = driver({
+      animate: true,
+      overlayOpacity: 0.5,
+      stagePadding: 10,
+      allowClose: false,
+      allowKeyboardControl: false,
+      steps: [
+        {
+          element: "#new-campaign-btn-driver",
+          popover: {
+            title: "Let's Create a Campaign!",
+            description: "Click here to start your first campaign.",
+            position: "bottom"
+          }
+        }
+      ]
+    });
+
+    driverObj.drive();
+
+    document.querySelector("#new-campaign-btn-driver").addEventListener("click", () => {
+      driverObj.destroy();  // hides the overlay
+      // Now redirect to campaigns
+    });
+  }
+});
+{% endif %}
 </script>
 {% endblock %}

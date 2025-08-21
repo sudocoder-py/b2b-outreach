@@ -41,7 +41,8 @@ class LeadListSerializer(serializers.ModelSerializer):
 class LeadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lead
-        fields = '__all__'   
+        fields = '__all__' 
+        validators = []
 
 
 class ScheduleSerializer(serializers.ModelSerializer):

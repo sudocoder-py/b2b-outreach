@@ -123,6 +123,7 @@ def show_all_leads_view(request):
     return render(request, "app/leads/all-leads-view.html", context)
 
 
+#@login_required
 def add_leads(request, pk):
     return render(request, "app/leads/add-leads.html", context={'lead_list_id': pk})
 
@@ -429,12 +430,12 @@ def links_view(request):
 
     return render(request, "app/links.html", context)
 
-
+#@login_required
 def overall_dashboard_view(request):
     """Overall dashboard page"""
     return render(request, "app/overall-dashboard.html")
 
-
+#@login_required
 def account_settings_view(request):
     """Account settings page"""
     return render(request, "app/account/account-settings.html")

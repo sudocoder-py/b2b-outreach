@@ -165,16 +165,16 @@
                     <tr id="no-messages-row">
                         <td colspan="6" class="text-center py-16">
                             <div class="flex flex-col items-center justify-center">
-                                <img src="https://raw.githubusercontent.com/Othunderlight/static/refs/heads/main/no-messages.svg"
-                                     alt="No messages illustration"
-                                     class="w-64 h-auto mx-auto">
+                                <img src="https://raw.githubusercontent.com/Othunderlight/static/refs/heads/main/no-campaign-lead.svg"
+                                            alt="No leads illustration"
+                                            class="w-64 h-auto mx-auto">
                                 <h3 class="text-lg font-semibold text-gray-800 mb-2 mt-4">
                                     👋 Create your first message
                                 </h3>
                                 <p class="text-gray-500 mb-6">
                                     Get started by creating a new email message template
                                 </p>
-                                <button class="btn btn-primary" onclick="addNewMessage()">
+                                <button id="add-new-message-btn-driver" class="btn btn-primary" onclick="addNewMessage()">
                                     <i class="fa-solid fa-plus mr-2"></i>
                                     New Message
                                 </button>
@@ -349,5 +349,45 @@ document.addEventListener('DOMContentLoaded', function() {
         noMessagesRow.style.display = 'none';
     }
 });
+
+
+
+
+
+
+{% if not request.user.onboarding_completed %}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const step = localStorage.getItem("onboardingStep");
+    if (step === "imported_first_leads") {
+        const driver = window.driver.js.driver;
+        const driverObj = driver({
+            animate: true,
+            overlayOpacity: 0.5,
+            stagePadding: 10,
+            allowClose: false,
+            allowKeyboardControl: false,
+            steps: [
+                {
+                    element: "#add-new-message-btn-driver",
+                    popover: {
+                        title: "your first lead is ready!",
+                        description: "Let's add a new message template now!",
+                        position: "right"
+                    }
+                },
+            ]
+        });
+        driverObj.drive();
+        // Trigger advance when the button inside the modal is clicked
+        document.querySelector("#add-new-message-btn-driver").addEventListener("click", () => {
+            //localStorage.setItem("onboardingStep", "clicked_add_leads_btn");
+            driverObj.destroy();
+        });
+    }
+});
+
+{% endif %}
+
 </script>
 {% endblock %}

@@ -92,6 +92,8 @@ class CustomUser(AbstractUser):
     subscribed_company = models.ForeignKey(SubscribedCompany, on_delete=models.CASCADE, related_name='users')
 
     # New fields
+    onboarding_completed = models.BooleanField(default=False)
+
     position = models.CharField(max_length=100, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     linkedin_profile = models.URLField(blank=True, null=True)

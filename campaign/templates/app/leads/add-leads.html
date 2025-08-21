@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block title %}Add Leads{% endblock %}
-
 {% block base-content %}
 <div class="flex h-full font-sans">
   <div class="flex w-full flex-col">
@@ -15,7 +14,6 @@
                     Back
                 </a>
             </div>
-
             <!-- Centered Content -->
             <div class="flex flex-col items-center justify-center min-h-[60vh]" id="mainContent">
             <div class="w-full max-w-xl">
@@ -26,10 +24,9 @@
                     <h1 class="text-4xl font-bold text-base-content">Let's add new leads</h1>
                     <p id="descText" class="text-base-content/60 text-lg">Wanna add leads individually or in bulk?</p>
                 </div>
-
                 <!-- Options -->
-                <div class="space-y-3">
-                    <button class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
+                <div id="add-leads-options-driver" class="space-y-3">
+                    <button id="individual-add-lead-btn" class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3" 
                             onclick="showIndividualForm()">
                     <div class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
                         <i class="fa-solid fa-user-plus text-red-600 text-lg"></i>
@@ -39,7 +36,7 @@
                         <div class="text-sm text-gray-500">using a form</div>
                     </div>
                     </button>
-                    <button class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
+                    <button id="bulk-add-leads-btn" class="w-full p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 flex items-center gap-3"
                             onclick="showBulkForm()">
                     <div class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
                         <i class="fa-solid fa-file-csv text-success text-lg"></i>
@@ -51,7 +48,6 @@
                     </button>
                 </div>
                 </div>
-
                 <!-- Individual Form View (hidden initially) -->
                 <div id="individualFormView" class="hidden">
                 <div class="text-center space-y-3 mb-6">
@@ -65,7 +61,6 @@
                     <div id="step3" class="step">Source</div>
                     </div>
                 </div>
-
                 <div class="max-h-[60vh] overflow-y-auto pr-4">
                     <div id="AddLeadsForm" class="space-y-6 pb-4" action="event.preventDefault();" onsubmit="event.preventDefault();">
                     <!-- Section 1: Personal Information -->
@@ -176,21 +171,18 @@
                               <option value="1000+">1000+</option>
                               </select>
                           </div>
-
                           <div class="form-control">
                             <label class="label" for="campany_linkedin_page">
                             <span class="label-text">campany linkedin page</span>
                             </label>
                             <input type="url" id="campany_linkedin_page" name="campany_linkedin_page" class="input input-bordered w-full" />
                           </div>
-
                           <div class="form-control">
                             <label class="label" for="location">
                             <span class="label-text">Location</span>
                             </label>
                             <input type="text" id="location" name="location" class="input input-bordered w-full" />
                           </div>
-
                         </div>
                     </div>
                     
@@ -234,7 +226,6 @@
                         </div>
                         </div>
                     </div>
-
                     <!-- Navigation Buttons -->
                     <div id="actionButtons" class="flex gap-4 justify-between pt-4 sticky bottom-0 bg-base-100 pb-4">
                         <button type="button" class="btn btn-ghost btn-md hidden" id="backBtn">
@@ -259,17 +250,12 @@
                   </div>
                 </div>
                 </div>
-
             </div>
-
             </div>
-
             <div id="bulkFormView" class="hidden">   
-
                       <div class="flex-1 flex flex-col bg-gray-50 p-8">
-
                         <div class="flex justify-between items-center">
-                          <div class="mb-8">
+                          <div id="bulk-form-title-driver" class="mb-8">
                             <h1 class="text-3xl font-bold text-gray-900 mb-2">Upload Leads CSV</h1>
                             <p class="text-gray-600">Upload your leads in bulk using a CSV file</p>
                           </div>
@@ -282,11 +268,10 @@
                             </div>
                           </div>
                       </div>
-
                         <!-- Main Content -->
                         <div class="flex flex-col gap-8">
                             <!-- Instructions Section -->
-                            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div id="bulk-form-instructions-driver" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                                 <h2 class="text-xl font-semibold mb-4">Instructions</h2>
                                 <div class="space-y-4">
                                     <div>
@@ -294,7 +279,7 @@
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                                             <div class="flex items-start gap-2">
                                                 <span class="text-success">•</span>
-                                                <div>
+                                                <div id="full-name-required-driver">
                                                     <strong>Full name:</strong> <span class="text-gray-500">(Required)</span>
                                                 </div>
                                             </div>
@@ -312,7 +297,7 @@
                                             </div>
                                             <div class="flex items-start gap-2">
                                                 <span class="text-success">•</span>
-                                                <div>
+                                                <div id="email-required-driver">
                                                     <strong>Email:</strong> <span class="text-gray-500">(Required)</span>
                                                 </div>
                                             </div>
@@ -326,7 +311,7 @@
                                             </div>
                                             <div class="flex items-start gap-2">
                                                 <span class="text-success">•</span>
-                                                <div>
+                                                <div id="company-name-required-driver">
                                                     <strong>Company name:</strong> <span class="text-gray-500">(Required)</span>
                                                 </div>
                                             </div>
@@ -352,22 +337,20 @@
                                             </div>
                                             <div class="flex items-start gap-2">
                                                 <span class="text-warning">•</span>
-                                                <div>
-                                                    <strong>source:</strong> <span class="text-gray-500">(Choices: linkedin_scrape, social, newsletter, form, other)</span>
+                                                <div id="lead-source-required-driver">
+                                                    <strong>source: (Required)</strong> <span class="text-gray-500">(Choices: linkedin_scrape, social, newsletter, form, other)</span>
                                                 </div>
                                             </div>
                                             <div class="flex items-start gap-2">
                                                 <span class="text-warning">•</span>
-                                                <div>
-                                                    <strong>lead_type:</strong> <span class="text-gray-500">(Choices: cold, warm, hot, customer, other)</span>
+                                                <div id="lead-type-required-driver">
+                                                    <strong>lead_type: (Required)</strong> <span class="text-gray-500">(Choices: cold, warm, hot, customer, other)</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
                                     <div class="divider"></div>
-
-                                    <div>
+                                    <div id="important-notes-driver">
                                         <h3 class="font-bold text-gray-800 mb-2">Important Notes:</h3>
                                         <div class="space-y-3">
                                             <div class="flex items-start gap-2">
@@ -382,11 +365,14 @@
                                                 <span class="font-bold text-gray-700">3.</span>
                                                 <div>Don't change the order of the columns in the file</div>
                                             </div>
+                                            <div class="flex items-start gap-2">
+                                                <span class="font-bold text-gray-700">4.</span>
+                                                <div class="text-error">Dublication leads will be ignored (dublication metric is email)</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Upload Section -->
                             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                                 <h2 class="text-xl font-semibold mb-6">Upload CSV File</h2>
@@ -400,7 +386,6 @@
                                     File processed and ready for upload
                                 </div>
                             </div>
-
                             <!-- Validation Results -->
                             <div id="validationResults" class="hidden">
                                 <div class="alert hidden" id="validationAlert">
@@ -409,7 +394,6 @@
                                     </svg>
                                     <span id="validationMessage"></span>
                                 </div>
-
                                 <div class="overflow-x-auto mt-4 hidden" id="previewTableContainer">
                                     <table class="table">
                                     <thead id="previewTableHead"></thead>
@@ -417,10 +401,9 @@
                                     </table>
                                 </div>
                             </div>
-
                             <!-- Upload Button -->
                             <div class="text-center hidden" id="bulkActionsContainer">
-                                <div class="mb-4">
+                                <div id="detected-leads-count-driver" class="mb-4">
                                     <span class="text-gray-600">Detected </span>
                                     <span id="rowCount" class="font-bold text-primary">0</span>
                                     <span class="text-gray-600"> leads</span>
@@ -434,16 +417,19 @@
                             </div>
                         </div>
                     </div>
-
             </div>
         </div>  
     </main>
   </div>
 </div>
-
 {% include 'components/modals.html' %}
-
 <script>
+  {% if not request.user.onboarding_completed %}
+  let driverObj;
+  function hasOnboardingStep(stepName) {
+    return localStorage.getItem("onboardingStep") === stepName;
+  }
+  {% endif %}
   window.CompanyID = {{ request.user.subscribed_company.id }};
   window.ListID = {{ lead_list_id }};
   let currentSection = 1;
@@ -571,8 +557,6 @@
   // Form submission handler
   function submitIndividualForm(CompanyID, ListID) {
       if (validateSection(currentSection)) {
-          // Show loading state (using toast instead of modal)
-          
           // Collect form data
           const leadData = {
               full_name: document.getElementById('full_name').value,
@@ -594,13 +578,13 @@
               lead_list: ListID,
               subscribed_company: CompanyID
           };
-
+          
           // Make API call
           fetch('/api/leads/', {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',
-                  'X-CSRFToken': getCookie('csrftoken')
+                  'X-CSRFToken': '{{ csrf_token }}',
               },
               body: JSON.stringify(leadData)
           })
@@ -611,15 +595,34 @@
               return response.json();
           })
           .then(data => {
-              // Hide loading state
-              ModalSystem.toast('Lead submitted successfully!', 'success'); 
-               // Wait 3 seconds before redirecting
+              // Handle successful lead creation or duplicate detection
+              if (data.duplicate_count > 0) {
+                  ModalSystem.toast(`This lead already exists in your system.`, 'warning');
+                  // Show duplicate details in a modal
+                  setTimeout(() => {
+                      ModalSystem.show({
+                          title: 'Duplicate Lead Detected',
+                          content: `
+                              <p>A lead with this email already exists:</p>
+                              <div class="bg-gray-100 p-3 rounded-lg mt-2">
+                                  <p><strong>Name:</strong> ${data.duplicates[0].full_name}</p>
+                                  <p><strong>Email:</strong> ${data.duplicates[0].email}</p>
+                              </div>
+                          `,
+                          confirmText: 'OK',
+                          confirmClass: 'btn-primary'
+                      });
+                  }, 1000);
+              } else {
+                  ModalSystem.toast('Lead submitted successfully!', 'success');
+              }
+              
+              // Wait 1.5 seconds before redirecting
               setTimeout(() => {
                   window.location.href = `/campaign/leads/${ListID}/`;
-              }, 500);
+              }, 1500);
           })
           .catch(error => {
-              // ModalSystem.hideLoading();
               let errorMessage = 'Failed to submit lead';
               
               if (error.detail) {
@@ -631,12 +634,11 @@
               ModalSystem.toast(errorMessage, 'error');
               console.error('Error:', error);
           });
-
+          
           return true;
       }
       return false;
   }
-
 
 document.addEventListener('DOMContentLoaded', function() {
   const requiredFields = ['full_name', 'email', 'company_name', 'source', 'lead_type'];
@@ -648,7 +650,7 @@ document.addEventListener('DOMContentLoaded', function() {
     'industry', 'employee_count', 'campany_linkedin_page', 'location', 
     'source', 'lead_type', 'tags'
   ];
-
+  
   // Download template button
   document.getElementById('downloadTemplate').addEventListener('click', function() {
     const csvHeader = expectedColumns.join(',');
@@ -662,12 +664,11 @@ document.addEventListener('DOMContentLoaded', function() {
     link.click();
     document.body.removeChild(link);
   });
-
+  
   // File upload handler
   document.getElementById('csvFile').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = function(e) {
       const contents = e.target.result;
@@ -675,14 +676,14 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     reader.readAsText(file);
   });
-
+  
   function parseCSV(csvText) {
     const lines = csvText.split('\n').filter(line => line.trim() !== '');
     if (lines.length < 1) {
       showValidationError("The CSV file is empty.");
       return;
     }
-
+    
     const headers = lines[0].split(',').map(h => h.trim());
     
     // Validate headers
@@ -690,14 +691,14 @@ document.addEventListener('DOMContentLoaded', function() {
       showValidationError(`The CSV file has ${headers.length} columns but expected ${expectedColumns.length}.`);
       return;
     }
-
+    
     for (let i = 0; i < expectedColumns.length; i++) {
       if (headers[i] !== expectedColumns[i]) {
         showValidationError(`Column ${i+1} should be "${expectedColumns[i]}" but found "${headers[i]}". Please don't change the column order or names.`);
         return;
       }
     }
-
+    
     // Parse data rows
     const data = [];
     let errors = [];
@@ -706,52 +707,54 @@ document.addEventListener('DOMContentLoaded', function() {
       const values = parseCSVLine(lines[i]);
       const row = {};
       let rowErrors = [];
-
+      
       // Map values to headers
       for (let j = 0; j < headers.length; j++) {
         row[headers[j]] = values[j] ? values[j].trim() : '';
       }
-
+      
       // Validate required fields
       for (const field of requiredFields) {
         if (!row[field]) {
           rowErrors.push(`Row ${i}: "${field}" is required.`);
         }
       }
-
+      
       // Validate email format if present
       if (row.email && !isValidEmail(row.email)) {
         rowErrors.push(`Row ${i}: "email" is not valid.`);
       }
-
+      
       // Validate source choices
       if (row.source && !sourceChoices.includes(row.source)) {
         rowErrors.push(`Row ${i}: "source" must be one of: ${sourceChoices.join(', ')}`);
       }
-
+      
       // Validate lead_type choices
       if (row.lead_type && !leadTypeChoices.includes(row.lead_type)) {
         rowErrors.push(`Row ${i}: "lead_type" must be one of: ${leadTypeChoices.join(', ')}`);
       }
-
+      
       // Validate URLs if present
       if (row.linkedin_profile && !isValidURL(row.linkedin_profile)) {
         rowErrors.push(`Row ${i}: "linkedin_profile" is not a valid URL.`);
       }
+      
       if (row.company_website && !isValidURL(row.company_website)) {
         rowErrors.push(`Row ${i}: "company_website" is not a valid URL.`);
       }
+      
       if (row.campany_linkedin_page && !isValidURL(row.campany_linkedin_page)) {
         rowErrors.push(`Row ${i}: "campany_linkedin_page" is not a valid URL.`);
       }
-
+      
       if (rowErrors.length === 0) {
         data.push(row);
       } else {
         errors = errors.concat(rowErrors);
       }
     }
-
+    
     if (errors.length > 0) {
       showValidationError(errors.join('<br>'));
     } else {
@@ -761,15 +764,14 @@ document.addEventListener('DOMContentLoaded', function() {
       showValidationSuccess(data);
     }
   }
-
+  
   function parseCSVLine(line) {
     const values = [];
     let current = '';
     let inQuotes = false;
-
+    
     for (let i = 0; i < line.length; i++) {
       const char = line[i];
-
       if (char === '"') {
         inQuotes = !inQuotes;
       } else if (char === ',' && !inQuotes) {
@@ -779,16 +781,16 @@ document.addEventListener('DOMContentLoaded', function() {
         current += char;
       }
     }
-
+    
     values.push(current);
     return values;
   }
-
+  
   function isValidEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
   }
-
+  
   function isValidURL(url) {
     try {
       // Add https:// in front of www
@@ -801,7 +803,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return false;
     }
   }
-
+  
   function showValidationError(message) {
     const validationResults = document.getElementById('validationResults');
     const validationAlert = document.getElementById('validationAlert');
@@ -809,7 +811,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const successAlert = document.getElementById('successAlert');
     const previewTableContainer = document.getElementById('previewTableContainer');
     const submitBulkBtn = document.getElementById('submitBulkBtn');
-
+    
     validationResults.classList.remove('hidden');
     validationAlert.classList.remove('hidden');
     validationAlert.classList.add('alert-error');
@@ -828,7 +830,6 @@ document.addEventListener('DOMContentLoaded', function() {
     return url;
   }
 
-
   function showValidationSuccess(data) {
     const validationResults = document.getElementById('validationResults');
     const validationAlert = document.getElementById('validationAlert');
@@ -837,18 +838,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const previewTableHead = document.getElementById('previewTableHead');
     const previewTableBody = document.getElementById('previewTableBody');
     const submitBulkBtn = document.getElementById('submitBulkBtn');
-
+    
     validationResults.classList.remove('hidden');
     validationAlert.classList.add('hidden');
     ModalSystem.toast(`CSV file is valid! You can now submit the form.`);
     previewTableContainer.classList.remove('hidden');
     submitBulkBtn.classList.remove('hidden');
     submitBulkBtn.disabled = false;
-
+    
     // Clear previous table content
     previewTableHead.innerHTML = '';
     previewTableBody.innerHTML = '';
-
+    
     // Create table header
     const headRow = document.createElement('tr');
     for (const key in data[0]) {
@@ -857,7 +858,7 @@ document.addEventListener('DOMContentLoaded', function() {
       headRow.appendChild(th);
     }
     previewTableHead.appendChild(headRow);
-
+    
     // Create table body (show first 5 rows)
     const displayRows = data.slice(0, 5);
     displayRows.forEach(row => {
@@ -869,7 +870,13 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       previewTableBody.appendChild(bodyRow);
     });
-
+    
+    {% if not request.user.onboarding_completed %}
+    if (hasOnboardingStep("created_a_lead_list")) {
+      driverObj.moveNext();
+    }
+    {% endif %}
+    
     if (data.length > 5) {
       const moreRow = document.createElement('tr');
       const moreCell = document.createElement('td');
@@ -879,11 +886,12 @@ document.addEventListener('DOMContentLoaded', function() {
       moreRow.appendChild(moreCell);
       previewTableBody.appendChild(moreRow);
     }
-
+    
     // Set up submit button
     submitBulkBtn.onclick = function() {
       const CompanyID = window.CompanyID;
       const ListID = window.ListID;
+      
       // Append these fields to each row
       const enrichedData = data.map(row => ({
         ...row,
@@ -892,16 +900,15 @@ document.addEventListener('DOMContentLoaded', function() {
         linkedin_profile: normalizeURL(row.linkedin_profile),
         company_website: normalizeURL(row.company_website),
         campany_linkedin_page: normalizeURL(row.campany_linkedin_page)
-
       }));
-
+      
       ModalSystem.toast('Submitting leads...', 'info');
-
+      
       fetch('/api/leads/bulk-create/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
+          'X-CSRFToken': '{{ csrf_token }}',
         },
         body: JSON.stringify(enrichedData)
       })
@@ -912,10 +919,40 @@ document.addEventListener('DOMContentLoaded', function() {
         return response.json();
       })
       .then(result => {
-        ModalSystem.toast(`✅ ${data.length} leads uploaded successfully!`, 'success');
+        let message = `✅ ${result.created_count} leads uploaded successfully!`;
+        
+        if (result.duplicate_count > 0) {
+          message += `<br>⚠️ ${result.duplicate_count} duplicates were skipped.`;
+          
+          // Show a modal with duplicate emails
+          setTimeout(() => {
+            const duplicatesList = result.duplicates.map(dup => 
+              `<li><strong>${dup.full_name}</strong> - ${dup.email}</li>`
+            ).join('');
+            
+            ModalSystem.show({
+              title: 'Duplicate Leads Detected',
+              content: `
+                <p>The following leads already exist in your system and were skipped:</p>
+                <ul class="list-disc pl-5 mt-2">${duplicatesList}</ul>
+              `,
+              confirmText: 'OK',
+              confirmClass: 'btn-primary'
+            });
+          }, 1000);
+        }
+        
+        ModalSystem.toast(message, 'success');
+        
         setTimeout(() => {
+          {% if not request.user.onboarding_completed %}
+          if (hasOnboardingStep("created_a_lead_list")) {
+            localStorage.setItem("onboardingStep", "imported_first_leads");
+            driverObj.destroy();
+          }
+          {% endif %}
           window.location.href = `/campaign/leads/${ListID}/`;
-        }, 500);
+        }, 1500);
       })
       .catch(error => {
         console.error('Upload failed:', error);
@@ -926,58 +963,185 @@ document.addEventListener('DOMContentLoaded', function() {
         ModalSystem.toast(message, 'error');
       });
     };
-
   }
 });
 
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
+// onboarding
+{% if not request.user.onboarding_completed %}
+document.addEventListener("DOMContentLoaded", () => {
+    if (hasOnboardingStep("created_a_lead_list")) {
+        const driver = window.driver.js.driver;
+        driverObj = driver({
+            animate: true,
+            overlayOpacity: 0.5,
+            stagePadding: 10,
+            allowClose: false,
+            allowKeyboardControl: false,
+            steps: [
+                {
+                    element: "#individual-add-lead-btn",
+                    disableActiveInteraction: true,
+                    popover: {
+                        title: "Add a Single Lead", 
+                        description: "You can use this option to add leads one by one by filling out a simple form.",
+                        position: "right"
+                    },
+                },
+                {
+                    element: "#bulk-add-leads-btn",
+                    popover: {
+                        title: "Import Leads in Bulk",
+                        description: "Or, if you have a list, you can upload them all at once. click this btn to see how it works!",
+                        position: "right"
+                    },
+                },
+                {
+                    element: "#bulk-form-title-driver",
+                    popover: {
+                        title: "Uploading a CSV File",
+                        description: "Great! This page is where you'll upload your leads file. Let's walk through the requirements.",
+                        position: "bottom"
+                    }
+                },
+                {
+                    element: "#bulk-form-instructions-driver",
+                    popover: {
+                        title: "Accepted Data Fields",
+                        description: "This section lists all the columns your CSV file should have. Pay close attention to the ones marked as (Required).",
+                        position: "bottom"
+                    }
+                },
+                {
+                    element: "#full-name-required-driver",
+                    popover: {
+                        title: "Required: Full Name",
+                        description: "The full name of your lead is the first required field for a successful import.",
+                        position: "right"
+                    }
+                },
+                {
+                    element: "#email-required-driver",
+                    popover: {
+                        title: "Required: Email",
+                        description: "An email address is essential for contacting your leads. This field is also mandatory.",
+                        position: "right"
+                    }
+                },
+                {
+                    element: "#company-name-required-driver",
+                    popover: {
+                        title: "Required: Company Name",
+                        description: "The lead's company name is the last required field. Make sure this column is filled in.",
+                        position: "right"
+                    }
+                },
+                {
+                    element: "#lead-type-required-driver",
+                    popover: {
+                        title: "Field with Choices: Lead Type (Required)",
+                        description: "For some fields like 'lead_type', you must use one of the exact choices listed here.",
+                        position: "right"
+                    }
+                },
+                {
+                    element: "#lead-source-required-driver",
+                    popover: {
+                        title: "Field with Choices: Source (Required)",
+                        description: "Similarly, the 'source' must match one of these options to categorize your leads correctly.",
+                        position: "right"
+                    }
+                },
+                {
+                    element: "#important-notes-driver",
+                    popover: {
+                        title: "Important Notes",
+                        description: "Please read these rules carefully! Following them will prevent errors during the upload.",
+                        position: "right"
+                    }
+                },
+                {
+                    element: "#downloadTemplate",
+                    popover: {
+                        title: "Download the Template File",
+                        description: "Click here to download our sample CSV. It has all the correct headers and a sample lead to get you started.",
+                        position: "left"
+                    }
+                },
+                {
+                    element: "#csvFile",
+                    popover: {
+                        title: "Upload Your Completed File",
+                        description: "After you've filled the template with your leads, upload the finished file right here to complete the process.",
+                        position: "top"
+                    }
+                },
+                {
+                    element: "#validationResults",
+                    popover: {
+                        title: "Success!",
+                        description: "those are your leads!",
+                        position: "top"
+                    }
+                },
+                {
+                    element: "#detected-leads-count-driver",
+                    popover: {
+                        title: "number of the detected leads",
+                        description: "those are your leads!",
+                        position: "top"
+                    }
+                },
+                {
+                    element: "#submitBulkBtn",
+                    popover: {
+                        title: "click upload leads",
+                        description: "You can now submit them to your list.",
+                        position: "bottom"
+                    }
+                },
+            ]
+        });
+        driverObj.drive();
+        // Trigger advance when the button inside the modal is clicked
+        document.querySelector("#bulk-add-leads-btn").addEventListener("click", () => {
+            driverObj.moveNext();
+        });
+        document.querySelector("#downloadTemplate").addEventListener("click", () => {
+          setTimeout(() => {
+            driverObj.moveNext();
+          }, 1000);
+        });
     }
-    return cookieValue;
-}
-</script>
+});
 
+
+{% endif %}
+</script>
 <style>
 /* Custom scrollbar for the card if needed */
 .card {
   scrollbar-width: thin;
   scrollbar-color: #c1c1c1 #f1f1f1;
 }
-
 .card::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-
 .card::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 10px;
 }
-
 .card::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 10px;
 }
-
 .card::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
-
 /* Table styling */
 .table-zebra tbody tr:nth-child(odd) {
   background-color: #f5f5f5;
 }
-
 .table th {
   background-color: #f8f9fa;
   font-weight: 600;

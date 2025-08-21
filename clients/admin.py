@@ -41,13 +41,14 @@ class CustomUserAdmin(UserAdmin):
     model = CustomUser
 
     # Display fields in the list view
-    list_display = ('username', 'email', 'first_name', 'last_name', 'subscribed_company', 'is_staff', 'is_active')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'subscribed_company', 'is_staff', 'is_active', 'onboarding_completed')
     search_fields = ('email', 'username', 'first_name', 'last_name')
-    list_filter = ('subscribed_company', 'is_staff', 'is_active', 'is_superuser')
+    list_filter = ('subscribed_company', 'is_staff', 'is_active', 'is_superuser', 'onboarding_completed')
 
     # Fields to display when editing an existing user
     fieldsets = UserAdmin.fieldsets + (
-        ('Company Information', {'fields': ('subscribed_company',)}),
+        ('Company Information', {'fields': ('subscribed_company', 'onboarding_completed')}),
+        ('Personal Information 2', {'fields': ('phone_number', 'linkedin_profile')}),
     )
 
     # Fields to display when adding a new user
@@ -59,8 +60,11 @@ class CustomUserAdmin(UserAdmin):
         ('Personal Information', {
             'fields': ('email', 'first_name', 'last_name'),
         }),
+        ('Personal Information 2', {
+            'fields': ('phone_number', 'linkedin_profile'),
+        }),
         ('Company Information', {
-            'fields': ('subscribed_company',),
+            'fields': ('subscribed_company', 'position', 'onboarding_completed'),
         }),
     )
     

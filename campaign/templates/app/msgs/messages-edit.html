@@ -1,7 +1,5 @@
 {% extends "base-app.html" %}
-
 {% block title %}Edit Messages{% endblock %}
-
 {% block content %}
 <style>
 /* Custom styles for messages */
@@ -9,16 +7,13 @@
     cursor: pointer;
     transition: all 0.2s ease;
 }
-
 .message-row:hover {
     background-color: #f8fafc;
 }
-
 .message-row.active-message {
     background-color: #faf9f5;
     border-left: 4px solid #3d3d3a;
 }
-
 #message-preview {
     display: none;
     padding: 2rem;
@@ -26,7 +21,6 @@
     line-height: 1.6;
     color: #333;
 }
-
 #message-preview h1,
 #message-preview h2,
 #message-preview h3 {
@@ -34,15 +28,12 @@
     margin-bottom: 1rem;
     font-weight: 600;
 }
-
 #message-preview p {
     margin-bottom: 1rem;
 }
-
 #message-preview a {
     text-decoration: underline;
 }
-
 #message-preview .btn {
     display: inline-block;
     padding: 0.5rem 1rem;
@@ -50,34 +41,38 @@
     text-decoration: none;
     margin: 1rem 0;
 }
-
 #message-preview .signature {
     margin-top: 2rem;
     padding-top: 1rem;
     border-top: 1px solid #e5e7eb;
 }
-
 #edit-preview-btn {
     position: absolute;
     top: 1rem;
     right: 1rem;
 }
-
 /* Search and filter styles */
 #search-messages {
     transition: all 0.3s ease;
 }
-
 #search-messages:focus {
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
-
 #filter-type {
     min-width: 120px;
 }
-</style>
 
+/* ADD THIS NEW CSS CLASS TO YOUR <style> TAG */
+.text-editor-style {
+    font-family: 'Product Sans' !important;
+    font-size: 1rem; /* 16px */
+    line-height: 1.6;
+    padding: 0.5rem 0.75rem;
+    border-width: 1px;
+    box-sizing: border-box;
+}
+</style>
 <div class="flex-1 flex flex-col overflow-hidden bg-gray-50 p-6">
     <!-- Header -->
     <div class="mb-6">
@@ -94,7 +89,6 @@
             </button>
         </div>
     </div>
-
     <!-- Two-column layout -->
     <div class="flex-1 flex gap-6 overflow-hidden">
         <!-- Left Column: Messages Table -->
@@ -112,7 +106,6 @@
                     </span>
                 </div>
             </div>
-
             <!-- Search and Filter -->
             <div class="p-4 border-b border-base-200">
                 <div class="flex gap-2">
@@ -129,7 +122,6 @@
                     </select>
                 </div>
             </div>
-
             <!-- Messages Table -->
             <div class="flex-1 overflow-y-auto" id="messages-container">
                 {% if messages %}
@@ -168,7 +160,7 @@
                             <i class="fas fa-envelope-open-text fa-3x"></i>
                         </div>
                         <h3 class="text-lg font-medium mb-2">No messages found</h3>
-                        <p class="text-gray-500 mb-4">Create your first message template to get started</p>
+                        <p class="text-gray-500 mb-4" style="font-family: 'Product Sans' !important;">Create your first message template to get started</p>
                         <button class="btn btn-primary" onclick="addNewMessage()">
                             <i class="fa-solid fa-plus mr-2"></i> Create Message
                         </button>
@@ -176,7 +168,6 @@
                 {% endif %}
             </div>
         </div>
-
         <!-- Right Column: Message Editor/Preview -->
         <div class="flex-1 flex flex-col bg-white border border-base-200 rounded-lg h-[calc(100vh-180px)] relative">
             {% if messages %}
@@ -192,7 +183,6 @@
                     {% endfor %}
                 </div>
             {% endif %}
-
             <!-- Message Form -->
             <div id="message-form-container" class="flex-grow overflow-y-auto" style="display: {% if messages %}none{% else %}block{% endif %}">
                 <form id="message-form" class="p-4 space-y-4">
@@ -205,19 +195,15 @@
                             </span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button type="button" class="btn btn-sm bg-white border border-base-300 text-gray-900" onclick="previewMessage()">
+                            <button id="preview-msg-btn-driver" type="button" class="btn btn-sm bg-white border border-base-300 text-gray-900" onclick="previewMessage()">
                                 <i class="fa-regular fa-eye mr-2"></i>Preview
                             </button>
-                            <!-- <button class="btn btn-sm btn-square bg-white border border-base-300" title="Variables">
-                                <i class="fa-solid fa-bolt text-blue-500"></i>
-                            </button> -->
                         </div>
                     </div>
-
                     <!-- Product -->
-                    <div>
+                    <div id="product-selection-form-driver">
                         <label class="label">
-                            <span class="label-text font-medium">Product</span>
+                            <span class="label-text font-medium">Product <span class="text-gray-400">*(Required)</span></span>
                         </label>
                         <select class="select select-bordered w-full bg-white text-base" id="message-product" name="product">
                             {% for product in products %}
@@ -227,87 +213,80 @@
                             {% endfor %}
                         </select>
                     </div>
-
                     <!-- Subject -->
-                    <div>
+                    <div id="subject-form-driver">
                         <label class="label">
-                            <span class="label-text font-medium">Subject</span>
+                            <span class="label-text font-medium">Subject <span class="text-gray-500">*(Required)</span></span>
                         </label>
                         <input type="text"
                                placeholder="Your subject"
-                               class="input input-bordered w-full bg-white text-base"
+                               class="input input-bordered w-full bg-white text-base text-editor-style"
                                id="message-subject"
                                name="subject"
                                value="{% if messages %}{{ messages.0.subject }}{% endif %}">
                     </div>
-
                     <!-- Intro -->
-                    <div>
+                    <div id="msg-intro-form-driver">
                         <label class="label">
                             <span class="label-text font-medium ">Intro</span>
                         </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white text-base"
+                        <textarea class="textarea textarea-bordered w-full bg-white text-base text-editor-style"
                                   rows="3"
                                   placeholder="Start typing here..."
                                   id="message-intro"
                                   name="intro">{% if messages %}{{ messages.0.intro }}{% endif %}</textarea>
                     </div>
-
                     <!-- Content -->
-                    <div>
+                    <div id="msg-content-form-driver">
                         <label class="label">
-                            <span class="label-text font-medium">Content</span>
+                            <span class="label-text font-medium">Content <span class="text-gray-500">*(Required)</span></span>
                         </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white text-base"
+                        <textarea class="textarea textarea-bordered w-full bg-white text-base text-editor-style"
                                   rows="6"
                                   placeholder="Start typing here..."
                                   id="message-content"
                                   name="content">{% if messages %}{{ messages.0.content }}{% endif %}</textarea>
                     </div>
-
                     <!-- CTA -->
-                    <div>
+                    <div id="msg-cta-form-driver">
                         <label class="label">
                             <span class="label-text font-medium">Call to Action</span>
                         </label>
                         <input type="text"
                                placeholder="Your call to action"
-                               class="input input-bordered w-full bg-white text-base"
+                               class="input input-bordered w-full bg-white text-base text-editor-style"
                                id="message-cta"
                                name="cta"
                                value="{% if messages %}{{ messages.0.cta }}{% endif %}">
                     </div>
-
                     <!-- P.S -->
-                    <div>
+                    <div id="msg-ps-form-driver">
                         <label class="label">
                             <span class="label-text font-medium">P.S</span>
                         </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white text-base"
+                        <textarea class="textarea textarea-bordered w-full bg-white text-base text-editor-style"
                                   rows="2"
                                   placeholder="P.S. message..."
                                   id="message-ps"
                                   name="ps">{% if messages %}{{ messages.0.ps }}{% endif %}</textarea>
                     </div>
-
                     <!-- P.P.S -->
-                    <div>
+                    <div id="msg-pps-form-driver">
                         <label class="label">
                             <span class="label-text font-medium">P.P.S</span>
                         </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white text-base"
+                        <textarea class="textarea textarea-bordered w-full bg-white text-base text-editor-style"
                                   rows="2"
                                   placeholder="P.P.S. message..."
                                   id="message-pps"
                                   name="pps">{% if messages %}{{ messages.0.pps }}{% endif %}</textarea>
                     </div>
-
                     <!-- End/Signature -->
-                    <div>
+                    <div id="email-signature-form-driver">
                         <label class="label">
                             <span class="label-text font-medium">Signature</span>
                         </label>
-                        <textarea class="textarea textarea-bordered w-full bg-white text-base"
+                        <textarea class="textarea textarea-bordered w-full bg-white text-base text-editor-style"
                                   rows="3"
                                   placeholder="Best regards,&#10;Your name"
                                   id="message-end"
@@ -315,20 +294,27 @@
                     </div>
                 </form>
             </div>
-
             <!-- Bottom Toolbar -->
             <div class="p-4 border-t border-base-200">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                        <button class="btn btn-sm btn-primary" onclick="saveMessage(activeMessage)">
+                        <button id="save-btn-driver" class="btn btn-sm btn-primary" onclick="saveMessage(activeMessage)">
                             Save
                         </button>
                         <button class="btn btn-sm btn-ghost" onclick="showTemplates()">
                             <i class="fa-solid fa-file-text mr-2"></i>Templates
                         </button>
-                        <button class="btn btn-sm btn-ghost" onclick="showVariables()">
-                            <i class="fa-solid fa-code mr-2"></i>Variables
-                        </button>
+                        <!-- UPDATED: Variables button is now a dropdown -->
+                        <div class="dropdown dropdown-top">
+                            <label id="var-dropdown-btn-driver" tabindex="0" class="btn btn-sm btn-ghost">
+                                <i class="fa-solid fa-code mr-2"></i>Variables
+                            </label>
+                            <!-- This is the updated line -->
+                            <ul id="variables-dropdown" tabindex="0" id="variables-dropdown" class="dropdown-content z-[1] flex flex-col gap-2 p-2 shadow bg-base-100 rounded-boxmax-h-60  max-h-60 overflow-y-auto">
+                                <!-- JS will populate this -->
+                                <li><a>Loading...</a></li>
+                            </ul>
+                        </div>
                         <button class="btn btn-sm btn-ghost" onclick="showAI()">
                             <i class="fa-solid fa-magic mr-2"></i>AI
                         </button>
@@ -337,9 +323,6 @@
                         <button class="btn btn-sm btn-ghost" onclick="copyMessage()">
                             <i class="fa-solid fa-copy mr-2"></i>Copy
                         </button>
-                        <!-- <button class="btn btn-sm btn-ghost" onclick="exportMessage()">
-                            <i class="fa-solid fa-download mr-2"></i>Export
-                        </button> -->
                     </div>
                 </div>
             </div>
@@ -347,12 +330,33 @@
     </div>
 </div>
 
+
+<div id="inline-variables-popup" 
+     class="hidden absolute z-50 w-64 bg-base-100 border border-gray-200 rounded-lg shadow-xl"
+>
+    <ul id="inline-variables-list" class="p-2 max-h-60 overflow-y-auto">
+        <!-- JS will populate this list -->
+    </ul>
+</div>
+
+
+<!-- ADD THIS DIV AT THE END OF YOUR FILE -->
+<div id="cursor-mirror" 
+     style="position: absolute; top: -9999px; left: -9999px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; visibility: hidden;">
+</div>
+
 <script>  
 // Message Management System
 let activeMessage = {% if message_id %}{{ message_id }}{% elif messages %}{{ messages.0.id }}{% else %}null{% endif %};
-
 let messages = {};
+let lastFocusedInput = null;
+let leadFields = [];
 
+let inlinePopup = null;
+let inlinePopupList = null;
+let activeInlineInput = null;
+let triggerStartPosition = -1;
+let highlightedIndex = -1;
 // Initialize messages from Django template if they exist
 {% if messages %}
     {% for message in messages %}
@@ -372,7 +376,6 @@ let messages = {};
     };
     {% endfor %}
 {% endif %}
-
 function selectMessage(messageId, scrollIntoView = false) {
     // Remove active class from all messages
     document.querySelectorAll('.message-row').forEach(row => {
@@ -400,6 +403,7 @@ function selectMessage(messageId, scrollIntoView = false) {
         if (previewContent) {
             previewContent.style.display = 'block';
         }
+        previewMessage();
         
         // Check if this is an unsaved message
         const message = messages[messageId];
@@ -422,10 +426,8 @@ function selectMessage(messageId, scrollIntoView = false) {
         }
     }
 }
-
 function loadMessageContent(messageId) {
     const message = messages[messageId] || {};
-
     // Load message data into form
     document.getElementById('message-product').value = message.product_id || '';
     document.getElementById('message-subject').value = message.subject || '';
@@ -435,14 +437,11 @@ function loadMessageContent(messageId) {
     document.getElementById('message-ps').value = message.ps || '';
     document.getElementById('message-pps').value = message.pps || '';
     document.getElementById('message-end').value = message.end || '';
-
     // Update subject display
     document.getElementById('subject-display').textContent = message.subject || 'New Message';
 }
-
 function saveCurrentMessage(messageId) {
     if (!messageId) return saveNewMessage();
-
     // Get current values from the form
     const currentValues = {
         product: document.getElementById('message-product').value,
@@ -454,30 +453,24 @@ function saveCurrentMessage(messageId) {
         pps: document.getElementById('message-pps').value,
         end: document.getElementById('message-end').value,
     };
-
     // Get original values
     const originalValues = messages[activeMessage] || {};
-
     // Determine changed fields
     const changedFields = {};
     let changedCount = 0;
-
     for (const key in currentValues) {
         if (currentValues[key] !== originalValues[key]) {
             changedFields[key] = currentValues[key];
             changedCount++;
         }
     }
-
     if (changedCount === 0) {
         return ModalSystem.toast("No changes detected", "warning");
     }
-
     // BEST PRACTICE IMPLEMENTATION:
     const isCompleteUpdate = changedCount === Object.keys(currentValues).length;
     const method = isCompleteUpdate ? 'PUT' : 'PATCH';
     const dataToSend = isCompleteUpdate ? currentValues : changedFields;
-
     fetch(`/api/messages/${messageId}/`, {
         method: method,
         headers: {
@@ -508,7 +501,6 @@ function saveCurrentMessage(messageId) {
         ModalSystem.toast('Error saving message', 'error');
     });
 }
-
 function saveNewMessage() {
     // Get values from the form
     const newMessage = {
@@ -565,7 +557,7 @@ function saveNewMessage() {
         
         // Create the new message row in the UI
         const newMessageHTML = `
-            <div class="message-row p-4 border-b border-base-200 active-message" 
+            <div id="new-msg-saved-driver" class="message-row p-4 border-b border-base-200 active-message" 
                  data-message="${data.id}" 
                  data-product="${data.product.id}"
                  onclick="selectMessage(${data.id}, true)">
@@ -613,7 +605,6 @@ function saveNewMessage() {
         ModalSystem.toast('Error creating message', 'error');
     });
 }
-
 function updateMessageRow(messageId, messageData) {
     const messageRow = document.querySelector(`[data-message="${messageId}"]`);
     if (messageRow) {
@@ -632,7 +623,6 @@ function updateMessageRow(messageId, messageData) {
         if (dateElement) dateElement.textContent = `Updated: ${timeSince(new Date(messageData.updated_at))} ago`;
     }
 }
-
 function timeSince(date) {
     const seconds = Math.floor((new Date() - date) / 1000);
     let interval = Math.floor(seconds / 31536000);
@@ -648,20 +638,31 @@ function timeSince(date) {
     if (interval >= 1) return interval + " minute" + (interval === 1 ? "" : "s");
     return Math.floor(seconds) + " second" + (seconds === 1 ? "" : "s");
 }
-
 function showPreview() {
-    document.getElementById('message-form-container').style.display = 'none';
-    document.getElementById('message-preview').style.display = 'block';
+    const formEl = document.getElementById('message-form-container');
+    if (formEl) {
+        formEl.style.display = 'none';
+    }
+    
+    const previewEl = document.getElementById('message-preview');
+    if (previewEl) {
+        previewEl.style.display = 'block';
+    }
 }
-
 function showEditor() {
-    document.getElementById('message-preview').style.display = 'none';
-    document.getElementById('message-form-container').style.display = 'block';
-}
+    const previewEl = document.getElementById('message-preview');
+    if (previewEl) {
+        previewEl.style.display = 'none';
+    }
 
+    const formEl = document.getElementById('message-form-container');
+    if (formEl) {
+        formEl.style.display = 'block';
+    }
+}
 function previewMessage() {
-    // Generate HTML preview (simplified version)
-    const message = messages[activeMessage] || {
+    // Generate HTML preview content from the form
+    const message = {
         subject: document.getElementById('message-subject').value,
         intro: document.getElementById('message-intro').value,
         content: document.getElementById('message-content').value,
@@ -671,7 +672,7 @@ function previewMessage() {
         end: document.getElementById('message-end').value
     };
     
-    const previewContent = `
+    const previewContentHTML = `
         <h3>${message.subject || 'No subject'}</h3>
         ${message.intro ? `<p>${message.intro.replace(/\n/g, '<br>')}</p>` : ''}
         ${message.content ? `<p>${message.content.replace(/\n/g, '<br>')}</p>` : ''}
@@ -680,26 +681,43 @@ function previewMessage() {
         ${message.pps ? `<p>P.P.S. ${message.pps.replace(/\n/g, '<br>')}</p>` : ''}
         ${message.end ? `<div class="signature">${message.end.replace(/\n/g, '<br>')}</div>` : ''}
     `;
-    
-    // Update the preview content
-    if (activeMessage) {
-        messages[activeMessage].full_content = previewContent;
+
+    // --- START OF FIX ---
+
+    // Find the main preview container
+    let previewContainer = document.getElementById('message-preview');
+
+    // If the main container doesn't exist (because there were no messages initially), create it.
+    if (!previewContainer) {
+        const editorContainer = document.querySelector('.flex-1.flex.flex-col.bg-white'); // Find the parent card
+        if (!editorContainer) return; // Failsafe
+
+        previewContainer = document.createElement('div');
+        previewContainer.id = 'message-preview';
+        previewContainer.className = 'flex-1 overflow-y-auto';
+        previewContainer.innerHTML = `
+            <button id="edit-preview-btn" class="btn btn-outline" onclick="showEditor()">
+                <i class="fa-solid fa-edit mr-2"></i>Edit
+            </button>
+        `;
+        // Insert it before the form container
+        editorContainer.insertBefore(previewContainer, document.getElementById('message-form-container'));
     }
     
-    // Show the preview
-    showPreview();
-    
-    // Create or update the preview content div
+    // Find or create the specific div for this message's preview content
     let previewDiv = document.getElementById(`preview-content-${activeMessage || 'new'}`);
     if (!previewDiv) {
         previewDiv = document.createElement('div');
         previewDiv.id = `preview-content-${activeMessage || 'new'}`;
         previewDiv.className = 'message-preview-content';
-        document.getElementById('message-preview').appendChild(previewDiv);
+        previewContainer.appendChild(previewDiv); // Append to the (now guaranteed to exist) container
     }
-    previewDiv.innerHTML = previewContent;
+    
+    // Update the content and show the preview
+    previewDiv.innerHTML = previewContentHTML;
+    showPreview();
+    // --- END OF FIX ---
 }
-
 function filterMessages() {
     const searchTerm = document.getElementById('search-messages').value.toLowerCase();
     const productFilter = document.getElementById('filter-product').value;
@@ -726,11 +744,25 @@ function filterMessages() {
     const visibleCount = document.querySelectorAll('.message-row:not([style*="display: none"])').length;
     document.getElementById('message-count').textContent = `${visibleCount} message${visibleCount !== 1 ? 's' : ''}`;
 }
-
 function addNewMessage() {
-    const productSelect = document.getElementById('filter-product');
-    const productId = productSelect?.value || '';
-    const productName = productSelect?.options[productSelect.selectedIndex]?.text || 'Unknown Product';
+    const productFilterSelect = document.getElementById('filter-product');
+    let productId = productFilterSelect?.value || '';
+    let productName = productFilterSelect?.options[productFilterSelect.selectedIndex]?.text || 'Unknown Product';
+
+    // --- START OF FIX ---
+    // If the filter is on "All Products", grab the first available product 
+    // from the form's dropdown as a default.
+    if (!productId) {
+        const productFormSelect = document.getElementById('message-product');
+        if (productFormSelect && productFormSelect.options.length > 0) {
+            const firstOption = productFormSelect.options[0];
+            if (firstOption.value) { // Make sure the first option isn't a blank placeholder
+                productId = firstOption.value;
+                productName = firstOption.text;
+            }
+        }
+    }
+    // --- END OF FIX ---
     
     // Generate a temporary ID for the new message
     const tempId = 'temp_new_' + Date.now();
@@ -738,8 +770,8 @@ function addNewMessage() {
     // Add a temporary message to the messages object
     messages[tempId] = {
         id: tempId,
-        product_id: productId,
-        product_name: productName,
+        product_id: productId, // Now uses the corrected productId
+        product_name: productName, // And the corrected productName
         subject: 'New Message Template',
         intro: '',
         content: '',
@@ -747,15 +779,15 @@ function addNewMessage() {
         ps: '',
         pps: '',
         end: '',
-        isUnsaved: true // Flag to indicate this is an unsaved new message
+        isUnsaved: true
     };
     
     // Create a new message row in the UI
     const newMessageHTML = `
-        <div class="message-row p-4 border-b border-base-200 active-message" 
+        <div id="unsaved-message-on-add-new-driver" class="message-row p-4 border-b border-base-200 active-message" 
              data-message="${tempId}" 
              data-product="${productId}"
-             onclick="selectMessage(${tempId}, true)">
+             onclick="selectMessage('${tempId}', true)">
             <div class="flex justify-between items-start">
                 <div class="flex-1 min-w-0">
                     <h4 class="font-medium text-gray-900 truncate">New Message Template</h4>
@@ -766,29 +798,22 @@ function addNewMessage() {
                         <span class="badge badge-warning badge-xs">Unsaved</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 ml-2" id="action-buttons-${tempId}">
-                    <!-- Action buttons will be hidden for unsaved messages -->
-                </div>
+                <div class="flex items-center gap-2 ml-2" id="action-buttons-${tempId}"></div>
             </div>
         </div>
     `;
     
-    // Add the new message to the top of the list
     const messagesContainer = document.getElementById('messages-container');
-    
-    // Remove the "no messages" placeholder if it exists
     const noMessagesPlaceholder = messagesContainer.querySelector('.text-center');
     if (noMessagesPlaceholder) {
         noMessagesPlaceholder.remove();
     }
-    
     messagesContainer.insertAdjacentHTML('afterbegin', newMessageHTML);
     
-    // Update message count
     const messageCount = document.querySelectorAll('.message-row').length;
     document.getElementById('message-count').textContent = `${messageCount} message${messageCount !== 1 ? 's' : ''}`;
     
-    // Clear the form
+    // Clear the form and reset it for the new message
     document.getElementById('message-subject').value = 'New Message Template';
     document.getElementById('message-intro').value = '';
     document.getElementById('message-content').value = '';
@@ -798,37 +823,27 @@ function addNewMessage() {
     document.getElementById('message-end').value = '';
     document.getElementById('subject-display').textContent = 'New Message Template';
     
-    // Set the product dropdown to match the filter
+    // Now, set the product dropdown with our guaranteed productId
     if (productId) {
         document.getElementById('message-product').value = productId;
     }
     
-    // Show the editor
     showEditor();
     
-    // Set activeMessage to the new temp ID
     activeMessage = tempId;
     
-    // Remove active class from all messages
     document.querySelectorAll('.message-row').forEach(row => {
         row.classList.remove('active-message');
     });
     
-    // Add active class to the new message
     const newRow = document.querySelector(`[data-message="${tempId}"]`);
     if (newRow) {
         newRow.classList.add('active-message');
     }
     
-    // Show save indicator
     showSaveIndicator();
-    
-    // Scroll to the top of the messages list to show the new message
     messagesContainer.scrollTop = 0;
-    
-    window.ModalSystem?.toast?.('New message template created! Fill in the details and click Save.');
 }
-
 function duplicateMessage(messageId) {
     const message = messages[messageId];
     if (!message) return;
@@ -879,7 +894,6 @@ function duplicateMessage(messageId) {
     
     window.ModalSystem.toast('Message duplicated! Please save to make permanent.');
 }
-
 // Add this function to show the save indicator
 function showSaveIndicator() {
     // Check if indicator already exists
@@ -900,7 +914,6 @@ function showSaveIndicator() {
     const formContainer = document.getElementById('message-form-container');
     formContainer.insertBefore(indicator, formContainer.firstChild);
 }
-
 function confirmDeleteMessage(messageId) {
     window.ModalSystem.confirm({
         title: 'Delete Message',
@@ -949,7 +962,6 @@ function confirmDeleteMessage(messageId) {
         }
     });
 }
-
 function saveMessage(messageId) {
     // Check if this is an unsaved message (has the isUnsaved flag)
     if (messageId && messages[messageId] && messages[messageId].isUnsaved) {
@@ -964,7 +976,290 @@ function saveMessage(messageId) {
         saveNewMessage();
     }
 }
+// NEW: Helper function to insert text at the cursor position
+function insertTextAtCursor(element, text) {
+    if (!element) return;
+    const start = element.selectionStart;
+    const end = element.selectionEnd;
+    const value = element.value;
+    element.value = value.substring(0, start) + text + value.substring(end);
+    element.selectionStart = element.selectionEnd = start + text.length;
+    // Trigger an input event so any frameworks/listeners react
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+}
+// NEW: Populates the variables dropdown with clickable items
+/**
+ * Populates the main variables dropdown button with clickable items.
+ * Reuses the createVariableListItem helper for consistency.
+ */
+function populateVariablesDropdown() {
+    const dropdown = document.getElementById('variables-dropdown');
+    if (!dropdown) return;
+    
+    dropdown.innerHTML = ''; // Clear loading/error message
+    
+    if (leadFields.length === 0) {
+        dropdown.innerHTML = '<li><a>No variables found.</a></li>';
+        return;
+    }
 
+    leadFields.forEach(field => {
+        // Define the onClick behavior for the button's dropdown
+        const clickHandler = (variableText) => {
+            if (lastFocusedInput) {
+                insertTextAtCursor(lastFocusedInput, variableText);
+                lastFocusedInput.focus();
+            } else {
+                ModalSystem.toast('Please click on a text field first.', 'info');
+            }
+            // Close the dropdown
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
+        };
+
+        // Reuse our existing styled list item creator
+        const listItem = createVariableListItem(field, clickHandler);
+        dropdown.appendChild(listItem);
+    });
+}
+// NEW: Fetches the variable fields from the API and populates the dropdown
+async function fetchAndPopulateVariables() {
+    try {
+        const response = await fetch('/api/lead/fields/');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        leadFields = data; // Cache the fields
+        populateVariablesDropdown();
+    } catch (error) {
+        console.error('Failed to fetch lead fields:', error);
+        const dropdown = document.getElementById('variables-dropdown');
+        if(dropdown) {
+            dropdown.innerHTML = '<li><a>Error loading variables.</a></li>';
+        }
+    }
+}
+
+// NEW: Helper function to insert text at the cursor position in the input
+/**
+ * Creates a styled list item for the variables popup.
+ * Matches the style from the screenshot.
+ */
+function createVariableListItem(field, onClickHandler) {
+    const variableText = `{${field}}`;
+    
+    // Create the main list item
+    const listItem = document.createElement('li');
+    
+    // Create the clickable link/div inside
+    const link = document.createElement('a');
+    link.className = 'block w-full px-0 py-2 text-left rounded-md hover:bg-base-200 cursor-pointer';
+    link.href = '#';
+
+    // Create the human-readable name part (e.g., "Company Name")
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'font-semibold text-gray-800';
+    // Simple conversion from snake_case to Title Case
+    nameSpan.textContent = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+    // Create the variable part (e.g., "{{company_name}}")
+    const variableSpan = document.createElement('span');
+    variableSpan.className = 'text-gray-400 text-sm';
+    variableSpan.textContent = variableText;
+    
+    link.appendChild(nameSpan);
+    link.appendChild(variableSpan);
+    link.onclick = (e) => {
+        e.preventDefault();
+        onClickHandler(variableText);
+    };
+
+    listItem.appendChild(link);
+    return listItem;
+}
+
+
+/**
+ * Filters and updates the inline variables popup based on user input.
+ */
+function updateInlinePopup(searchTerm) {
+    inlinePopupList.innerHTML = ''; // Clear previous results
+
+    const filteredFields = leadFields.filter(field =>
+        field.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    if (filteredFields.length === 0) {
+        hideInlinePopup();
+        return;
+    }
+
+    // --- START OF CHANGES ---
+    highlightedIndex = 0; // Reset and highlight the first item
+    // --- END OF CHANGES ---
+
+    filteredFields.forEach(field => {
+        const listItem = createVariableListItem(field, (variableText) => {
+            insertInlineVariable(variableText);
+        });
+        inlinePopupList.appendChild(listItem);
+    });
+
+    positionAndShowInlinePopup();
+    
+    // --- ADD THIS LINE ---
+    updateHighlight(); // Apply the initial highlight
+}
+
+
+
+/**
+ * Inserts the selected variable into the text, replacing the trigger text.
+ */
+function insertInlineVariable(variableText) {
+    if (!activeInlineInput) return;
+
+    const currentValue = activeInlineInput.value;
+    const cursorPosition = activeInlineInput.selectionStart;
+    
+    const textBefore = currentValue.substring(0, triggerStartPosition);
+    const textAfter = currentValue.substring(cursorPosition);
+
+    activeInlineInput.value = textBefore + variableText + textAfter;
+    
+    // Move cursor to the end of the inserted variable
+    const newCursorPosition = (textBefore + variableText).length;
+    activeInlineInput.focus();
+    activeInlineInput.setSelectionRange(newCursorPosition, newCursorPosition);
+
+    // --- START OF FIX ---
+    // Dispatch the event BEFORE we hide the popup (which nullifies activeInlineInput)
+    activeInlineInput.dispatchEvent(new Event('input', { bubbles: true }));
+    hideInlinePopup();
+    // --- END OF FIX ---
+}
+
+
+/**
+ * Calculates the (x, y) coordinates of the cursor inside an input/textarea.
+ * Uses the "mirror div" technique.
+ */
+function getCursorCoordinates(inputElement, cursorPosition) {
+    const mirror = document.getElementById('cursor-mirror');
+    if (!mirror) return { top: 0, left: 0 };
+
+    // Get the computed styles from the actual input element
+    const computedStyle = window.getComputedStyle(inputElement);
+
+    // Apply ALL critical styles from the input to the mirror
+    [
+        'width', 'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 
+        'lineHeight', 'letterSpacing', 'textTransform', 'wordSpacing',
+        'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
+        'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth',
+        'boxSizing'
+    ].forEach(prop => {
+        mirror.style[prop] = computedStyle[prop];
+    });
+
+    // Get text up to the cursor, replacing spaces and newlines for accurate measurement
+    const textUpToCursor = inputElement.value.substring(0, cursorPosition)
+        .replace(/\n/g, '<br/>')
+        .replace(/ /g, '&nbsp;');
+
+    // Add a span at the end to measure its position
+    mirror.innerHTML = textUpToCursor + '<span id="cursor-span"></span>';
+    
+    const span = document.getElementById('cursor-span');
+    const inputRect = inputElement.getBoundingClientRect();
+    
+    // Calculate final coordinates
+    // Position of input + position of span inside mirror - scroll position of input
+    const top = inputRect.top + span.offsetTop - inputElement.scrollTop;
+    const left = inputRect.left + span.offsetLeft - inputElement.scrollLeft;
+
+    // We also need the line height to position the popup below the current line
+    const lineHeight = parseFloat(computedStyle.lineHeight);
+
+    return { top, left, lineHeight };
+}
+
+
+/**
+ * Calculates the position using the helper and shows the inline popup.
+ */
+function positionAndShowInlinePopup() {
+    if (!activeInlineInput) return;
+
+    // Use our new helper to get the precise cursor coordinates
+    const coords = getCursorCoordinates(activeInlineInput, triggerStartPosition);
+    
+    // Position the popup below the line of text where the cursor is
+    inlinePopup.style.left = `${coords.left}px`;
+    inlinePopup.style.top = `${coords.top + coords.lineHeight}px`;
+    
+    inlinePopup.classList.remove('hidden');
+}
+
+/**
+ * Hides the inline popup and resets its state.
+ */
+function hideInlinePopup() {
+    if (inlinePopup) {
+        inlinePopup.classList.add('hidden');
+    }
+    activeInlineInput = null;
+    triggerStartPosition = -1;
+    // --- ADD THIS LINE ---
+    highlightedIndex = -1; // Reset the highlight index
+}
+
+
+/**
+ * Main handler for the input event to check for the '{' trigger.
+ */
+function handleInputForVariables(event) {
+    const input = event.target;
+    const value = input.value;
+    const cursorPosition = input.selectionStart;
+
+    const lastBraceIndex = value.lastIndexOf('{', cursorPosition - 1);
+
+    // Check if we are in a valid trigger state
+    if (lastBraceIndex !== -1) {
+        const textSinceBrace = value.substring(lastBraceIndex + 1, cursorPosition);
+        // Avoid triggering if there's a space or another brace
+        if (!textSinceBrace.includes(' ') && !textSinceBrace.includes('{')) {
+            activeInlineInput = input;
+            triggerStartPosition = lastBraceIndex;
+            updateInlinePopup(textSinceBrace);
+            return;
+        }
+    }
+    
+    // If not in a trigger state, hide the popup
+    hideInlinePopup();
+}
+
+/**
+ * Updates the visual highlight in the inline popup list.
+ */
+function updateHighlight() {
+    const items = inlinePopupList.querySelectorAll('li > a');
+    if (items.length === 0) return;
+
+    items.forEach((item, index) => {
+        if (index === highlightedIndex) {
+            item.classList.add('bg-base-200'); // This is our highlight class
+            // Ensure the highlighted item is visible if the list is scrollable
+            item.scrollIntoView({ block: 'nearest' });
+        } else {
+            item.classList.remove('bg-base-200');
+        }
+    });
+}
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
@@ -972,35 +1267,102 @@ document.addEventListener('DOMContentLoaded', function() {
         selectMessage({{ message_id|default:messages.0.id }});
         showPreview();
     {% endif %}
-
+    
     // Check URL param to auto-add new message
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('add_new') === 'true') {
         addNewMessage();
-        // Remove 'run' from URL so it doesn't keep triggering
-        urlParams.delete('run');
-        window.history.replaceState({}, document.title, window.location.pathname);
+        urlParams.delete('add_new'); // Clean up the URL
+        window.history.replaceState({}, document.title, `${window.location.pathname}?${urlParams.toString()}`);
     }
-
+    
     // Update subject display when typing in subject field
     document.getElementById('message-subject').addEventListener('input', function() {
         document.getElementById('subject-display').textContent = this.value || 'New Message';
     });
+    
+    // Standard Variables button functionality
+    fetchAndPopulateVariables();
+    
+    // Track last focused input for the button-based variable insertion
+    const formInputs = document.querySelectorAll('#message-form input[type="text"], #message-form textarea');
+    formInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            lastFocusedInput = this;
+        });
+    });
+
+    // --- START OF NEW INLINE VARIABLES LOGIC ---
+
+    // Get references to the popup elements
+    inlinePopup = document.getElementById('inline-variables-popup');
+    inlinePopupList = document.getElementById('inline-variables-list');
+
+    // Add input listeners to all form fields for the '{' trigger
+    formInputs.forEach(input => {
+        input.addEventListener('input', handleInputForVariables);
+        input.addEventListener('blur', () => {
+             // Use a small timeout to allow click events on the popup to register first
+            setTimeout(hideInlinePopup, 150);
+        });
+    });
+    
+    // Add keydown listener to handle Escape key and navigation
+    // In your `DOMContentLoaded` function at the end of the script...
+
+    // ... (previous code inside the function)
+
+    // --- FIND AND REPLACE THE ENTIRE KEYDOWN LISTENER ---
+    // Add keydown listener to handle Escape, Arrows, and Enter
+    document.addEventListener('keydown', (e) => {
+        // Only act if the inline popup is active
+        if (!activeInlineInput || inlinePopup.classList.contains('hidden')) {
+            return;
+        }
+
+        const items = inlinePopupList.querySelectorAll('li');
+        if (items.length === 0) return;
+
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault(); // Prevent cursor from moving in the input
+                highlightedIndex = (highlightedIndex + 1) % items.length;
+                updateHighlight();
+                break;
+
+            case 'ArrowUp':
+                e.preventDefault(); // Prevent cursor from moving in the input
+                highlightedIndex = (highlightedIndex - 1 + items.length) % items.length;
+                updateHighlight();
+                break;
+
+            case 'Enter':
+                e.preventDefault(); // Prevent form submission
+                if (highlightedIndex > -1) {
+                    // Find the clickable 'a' tag inside the highlighted list item and click it
+                    const selectedLink = items[highlightedIndex].querySelector('a');
+                    if (selectedLink) {
+                        selectedLink.click();
+                    }
+                }
+                break;
+
+            case 'Escape':
+                hideInlinePopup();
+                break;
+        }
+    });
+// --- END OF REPLACEMENT ---
+    // --- END OF NEW INLINE VARIABLES LOGIC ---
 });
 
 // Placeholder functions for unimplemented features
 function showTemplates() {
     ModalSystem.toast('Templates feature coming soon!', 'info');
 }
-
-function showVariables() {
-    ModalSystem.toast('Variables feature coming soon!', 'info');
-}
-
 function showAI() {
     ModalSystem.toast('AI feature coming soon!', 'info');
 }
-
 function copyMessage() {
     // Get the current message content
     let messageContent = '';
@@ -1087,9 +1449,155 @@ function copyMessage() {
             ModalSystem.toast('Failed to copy message', 'error');
         });
 }
-
 function exportMessage() {
     ModalSystem.toast('Export feature coming soon!', 'info');
 }
+{% if not request.user.onboarding_completed %}
+document.addEventListener("DOMContentLoaded", () => {
+    const step = localStorage.getItem("onboardingStep");
+    if (step === "imported_first_leads") {
+        const driver = window.driver.js.driver;
+        const driverObj = driver({
+            animate: true,
+            overlayOpacity: 0.5,
+            stagePadding: 10,
+            allowClose: false,
+            allowKeyboardControl: false,
+            steps: [
+                {
+                    element: "#unsaved-message-on-add-new-driver",
+                    popover: {
+                        title: "Create Your First Message!",
+                        description: "Great! Now that you have leads, let's create a reusable message template. We've started one for you here.",
+                        position: "right"
+                    }
+                },
+                {
+                    element: "#product-selection-form-driver",
+                    popover: {
+                        title: "Assign a Product",
+                        description: "First, link this message to a product to stay organized. This field is required.",
+                        position: "left"
+                    }
+                },
+                {
+                    element: "#subject-form-driver",
+                    popover: {
+                        title: "Craft a Great Subject",
+                        description: "Next, write a compelling subject line to grab your prospect's attention. This is also required.",
+                        position: "left"
+                    }
+                },
+                {
+                    element: "#msg-intro-form-driver",
+                    popover: {
+                        title: "Write Your Intro",
+                        description: "Now for the opening line. Let's do something cool here to make it personal Just type a left brace `{` to bring up the variables list directly inside the editor!...",
+                        position: "left"
+                    }
+                },
+                {
+                    element: "#msg-content-form-driver",
+                    popover: {
+                        title: "The Main Content",
+                        description: "Now for the body of your message. similary use `{` to bring up the variables list directly inside the editor!...",
+                        position: "left"
+                    }
+                },
+                {
+                    element: "#msg-cta-form-driver",
+                    popover: {
+                        title: "Add a Call to Action",
+                        description: "What do you want the prospect to do next? Ask a question or suggest a meeting.",
+                        position: "left"
+                    }
+                },
+                {
+                    element: "#msg-ps-form-driver",
+                    popover: {
+                        title: "Add a P.S. (Optional)",
+                        description: "A P.S. is a great way to add a final, high-impact point.",
+                        position: "left"
+                    }
+                },
+                {
+                    element: "#msg-pps-form-driver",
+                    popover: {
+                        title: "Add a P.P.S. (Optional)",
+                        description: "Use this for an extra call to action or a final piece of value.",
+                        position: "left"
+                    }
+                },
+                {
+                    element: "#email-signature-form-driver",
+                    popover: {
+                        title: "Your Signature",
+                        description: "Finally, add your signature. This will be automatically appended to your messages.",
+                        position: "left"
+                    },
+                    onHighlightStarted: (element) => {
+                        // Find the scrollable parent container
+                        const formContainer = document.getElementById('message-form-container');
+                        if (formContainer) {
+                            // Get the position of the signature element relative to the container
+                            const elementTop = element.offsetTop;
+                            // Scroll the container so the element is positioned 100px from the top
+                            // This provides enough space to clear the bottom toolbar.
+                            formContainer.scrollTo({ top: elementTop - 100, behavior: 'smooth' });
+                        }
+                    }
+                },
+                {
+                    element: "#save-btn-driver",
+                    popover: {
+                        title: "Save Your Template",
+                        description: "Looking good! Click 'Save' to store this message template for future use.",
+                        position: "left"
+                    }
+                },
+                {
+                    element: "#new-msg-saved-driver",
+                    popover: {
+                        title: "Your Message is now saved!",
+                        description: "",
+                        position: "top"
+                    }
+                },
+                {
+                    element: "#preview-msg-btn-driver",
+                    popover: {
+                        title: "Preview Your Message",
+                        description: "You can always click 'Preview' to see how your message will look. When you're done, you're ready for your first campaign!",
+                        position: "left"
+                    }
+                },
+                {
+                    element: "#message-preview",
+                    popover: {
+                        title: "Here is your Preview",
+                        description: "You can always edit it later.",
+                        position: "right"
+                    }
+                },
+                {
+                    element: "#campaigns-tab",
+                    popover: {
+                        title: "Well Done!",
+                        description: "you're ready for your first campaign!",
+                        position: "right"
+                    }
+                },
+                
+            ]
+        });
+        driverObj.drive();
+        // This part seems to target a button that doesn't exist.
+        document.querySelector("#campaigns-tab").addEventListener("click", () => {
+            localStorage.setItem("onboardingStep", "created_first_msg");
+            driverObj.destroy();
+        });
+    }
+});
+{% endif %}
 </script>
 {% endblock %}

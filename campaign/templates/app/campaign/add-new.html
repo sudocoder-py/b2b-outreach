@@ -98,6 +98,10 @@
 </style>
 
 <script>
+  {% if not request.user.onboarding_completed %}
+  let driverObj;
+  {% endif %}
+
   document.addEventListener('DOMContentLoaded', function () {
     const campaignName = document.getElementById('campaignName');
     const productSelection = document.getElementById('productSelection');
@@ -193,7 +197,16 @@
         
         // Show success toast
         showToast('success', 'Campaign created successfully!');
-        
+
+        {% if not request.user.onboarding_completed %}
+        const step = localStorage.getItem("onboardingStep");
+        if (step === "created_first_msg") {
+          localStorage.setItem("onboardingStep", "created_a_campaign");
+          driverObj.destroy();
+        }
+          
+        {% endif %}
+
         // Redirect to campaign details page
         window.location.href = `{% url 'campaign_leads' 0 %}`.replace('0', data.id);
         
@@ -236,5 +249,79 @@
     }
     
   });
+
+
+
+
+
+{% if not request.user.onboarding_completed %}
+// onboarding
+document.addEventListener("DOMContentLoaded", () => {
+  const step = localStorage.getItem("onboardingStep");
+
+  // Only start this step if profile is completed but new campaign not clicked
+  if (step === "created_first_msg") {
+    const driver = window.driver.js.driver;
+    driverObj = driver({
+      animate: true,
+      overlayOpacity: 0.5,
+      stagePadding: 10,
+      allowClose: false,
+      allowKeyboardControl: false,
+      steps: [
+        {
+          element: "#campaignName",
+          popover: {
+            title: "Give your Campaign a name", 
+            description: "then click continue",
+            position: "left"
+          }
+        },
+        {
+          element: "#continueBtn",
+          popover: {
+            title: "click continue", 
+            description: "",
+            position: "left"
+          }
+        },
+        {
+          element: "#productSelect",
+          popover: {
+            title: "select a product", 
+            description: "then click submit...",
+            position: "left"
+          }
+        },
+        {
+          element: "#continueBtn",
+          popover: {
+            title: "click submit", 
+            description: "",
+            position: "left"
+          }
+        },
+      ]
+    });
+
+    driverObj.drive();
+
+    const continueBtnDriver = document.querySelector("#continueBtn");
+
+    continueBtnDriver.addEventListener("click", () => {
+        if (continueBtnDriver.innerHTML === 'Create Campaign >') { 
+            driverObj.moveNext();// hides the overlay
+        } else {
+          driverObj.moveNext(); 
+        }
+      });
+
+    document.getElementById("productSelect").addEventListener("change", (event) => {
+        driverObj.moveNext();
+    });
+  }
+});
+{% endif %}
+
 </script>
 {% endblock %}

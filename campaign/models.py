@@ -165,7 +165,7 @@ class Lead(models.Model):
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
     position = models.CharField(max_length=100, blank=True)
-    email = models.EmailField(unique=True)
+    email = models.EmailField()
     phone_number = models.CharField(max_length=20, blank=True)
     linkedin_profile = models.URLField(blank=True)
     
@@ -196,6 +196,14 @@ class Lead(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     tags = models.CharField(max_length=255, blank=True, null=True)
+
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["subscribed_company", "email"], name="unique_email_per_company"
+            )
+        ]
 
     def save(self, *args, **kwargs):
         # Auto-populate first_name and last_name from full_name if not set
@@ -228,6 +236,20 @@ class Lead(models.Model):
             'lead_type': self.get_lead_type_display(),
             'created_at': self.created_at.isoformat()
         }
+    
+    @classmethod
+    def get_field_names(cls, exclude=None):
+        """
+        Return model field names, excluding relations and system fields.
+        Optionally pass a list of fields to exclude.
+        """
+        exclude = exclude or []
+
+        return [
+            field.name
+            for field in cls._meta.get_fields()
+            if field.concrete and not field.is_relation and field.name not in exclude
+        ]
 
 
 

@@ -1,9 +1,6 @@
 {% extends "base-app.html" %}
-
 {% block title %}Products{% endblock %}
-
 {% block content %}
-
 <div class="flex-1 flex flex-col overflow-hidden bg-gray-50 p-6">
     <!-- Header -->
     <div class="mb-6">
@@ -20,7 +17,6 @@
             </div>
         </div>
     </div>
-
     <!-- Search and Filters -->
     <div class="mb-6">
         <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -39,7 +35,6 @@
             </div>
         </div>
     </div>
-
     <!-- Products Table -->
     <div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">
@@ -55,7 +50,7 @@
                 </thead>
                 <tbody id="products-table-body">
                     {% for product in products %}
-                    <tr id= "{{ product.id }}" class="hover:bg-gray-100 cursor-pointer"
+                    <tr id= "{{ product.id }}" class="hover:bg-gray-100 cursor-pointer product-row"
                         onclick="openSidebar('{{ product.id }}')"
                         data-name="{{ product.name|lower }}"
                         data-tagline="{{ product.tagline|lower }}"
@@ -116,7 +111,7 @@
                                 <p class="text-gray-500 mb-6">
                                     Get started by adding a product for your campaigns
                                 </p>
-                                <button class="btn btn-primary" onclick="addNewProduct()">
+                                <button id="new-product-btn-driver" class="btn btn-primary" onclick="addNewProduct()">
                                     <i class="fa-solid fa-plus mr-2"></i>
                                     New Product
                                 </button>
@@ -129,12 +124,6 @@
         </div>
     </div>
 </div>
-
-
-
-
-
-
 <!-- Right Sidebar (Drawer) -->
 <div id="sidebar" class="fixed top-0 right-0 h-full w-full sm:w-3/4 md:w-2/3 lg:w-[30%] xl:max-w-4xl bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col">
     
@@ -150,7 +139,6 @@
             </button>
         </div>
     </div>
-
     <!-- Drawer Content -->
     <div class="flex-grow overflow-y-auto">
         <div class="p-6">
@@ -161,14 +149,12 @@
                     <input type="text" id="product-name" class="input input-bordered w-full bg-white hidden">
                     <p id="product-name-view" class="text-gray-800"></p>
                 </div>
-
                 <!-- Description -->
                 <div>
                     <label class="label"><span class="label-text font-medium">Description</span></label>
                     <textarea id="Description" class="textarea textarea-bordered w-full bg-white h-24 hidden"></textarea>
                     <p id="Description-view" class="text-gray-800 whitespace-pre-line"></p>
                 </div>
-
                 <!-- Product URL -->
                 <div>
                     <label class="label"><span class="label-text font-medium">Product URL</span></label>
@@ -182,28 +168,14 @@
                     </button>
                     </div>
                 </div>
-
                 <!-- Save -->
                 <button id="save-settings-btn" class="btn btn-primary w-full hidden" onclick="saveSettings()">Save Settings</button>
                 </div>
-
         </div>
     </div>
 </div>
-
 <!-- Overlay (hidden by default) -->
 <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
-
-
-
-
-
-
-
-
-
-
-
 
 <!-- Add Product Modal -->
 <dialog id="add-product-modal" class="modal">
@@ -214,7 +186,6 @@
                 Cancel
             </button>
         </div>
-
         <div class="text-center mb-6">
             <div class="w-12 h-12 bg-base-200 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <i class="fa-solid fa-box-open bg-base-200 text-lg"></i>
@@ -222,7 +193,6 @@
             <h3 class="font-bold text-lg">Add New Product</h3>
             <p class="text-sm text-gray-500">Create a new product for your campaigns</p>
         </div>
-
         <form id="product-form" class="space-y-4">
             <div>
                 <label class="label">
@@ -234,7 +204,6 @@
                        id="product-name-add" 
                        required>
             </div>
-
             <div>
                 <label class="label">
                     <span class="label-text">Description *</span>
@@ -244,7 +213,6 @@
                           placeholder="Detailed description of the product..." 
                           required></textarea>
             </div>
-
             <div>
                 <label class="label">
                     <span class="label-text">Landing Page URL *</span>
@@ -255,9 +223,7 @@
                        id="product-url-add" 
                        required>
             </div>
-
         </form>
-
         <div class="modal-action">
             <button class="btn btn-primary w-full text-gray-100" onclick="submitProductForm({{request.user.subscribed_company.id}})">
                 <i class="fa-solid fa-save mr-2"></i>
@@ -269,7 +235,6 @@
         <button>close</button>
     </form>
 </dialog>
-
 <!-- Loading Modal -->
 <dialog id="product-loading-modal" class="modal">
     <div class="modal-box max-w-sm text-center">
@@ -280,7 +245,6 @@
         <p class="text-gray-600">Please wait while we save your product...</p>
     </div>
 </dialog>
-
 <!-- Success Modal -->
 <dialog id="product-success-modal" class="modal">
     <div class="modal-box max-w-sm text-center">
@@ -291,7 +255,6 @@
         </div>
         <h3 class="font-bold text-lg mb-2">Product Saved!</h3>
         <p class="text-gray-600 mb-6">Your product has been created successfully.</p>
-
         <div class="modal-action">
             <button class="btn btn-primary w-full" onclick="closeProductSuccessModal()">
                 Done
@@ -302,8 +265,6 @@
         <button>close</button>
     </form>
 </dialog>
-
-
 <script>
 // side bar logic    
 let isEditMode = false;
@@ -317,28 +278,20 @@ function openSidebar(productId) {
             document.getElementById('sidebar').classList.remove('translate-x-full');
             document.getElementById('overlay').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-
             // Fill both view and input fields
             document.getElementById('sidebar-product').textContent = data.name;
-
             document.getElementById('product-name').value = data.name;
             document.getElementById('product-name-view').textContent = data.name;
-
             document.getElementById('Description').value = data.description;
             document.getElementById('Description-view').textContent = data.description;
-
             document.getElementById('product-url').value = data.landing_page_url;
             document.getElementById('product-url-link').textContent = data.landing_page_url;
             document.getElementById('product-url-link').href = data.landing_page_url;
-
             originalProductData = data;
             currentProductId = productId;
             setEditMode(false);
         });
 }
-
-
-
 
 function closeSidebar() {
     document.getElementById('sidebar').classList.add('translate-x-full');
@@ -357,16 +310,12 @@ function setEditMode(enable) {
     const toggle = (id, show) => {
         document.getElementById(id).classList.toggle('hidden', !show);
     };
-
     toggle('product-name', enable);
     toggle('product-name-view', !enable);
-
     toggle('Description', enable);
     toggle('Description-view', !enable);
-
     toggle('product-url', enable);
     toggle('product-url-view', !enable);
-
     document.getElementById('toggle-edit-btn').textContent = enable ? 'Cancel' : 'Edit';
     document.getElementById('save-settings-btn').classList.toggle('hidden', !enable);
 }
@@ -375,12 +324,10 @@ function saveSettings() {
     const name = document.getElementById('product-name').value;
     const description = document.getElementById('Description').value;
     const url = document.getElementById('product-url').value;
-
     const payload = {};
     if (name !== originalProductData.name) payload.name = name;
     if (description !== originalProductData.description) payload.description = description;
     if (url !== originalProductData.landing_page_url) payload.landing_page_url = url;
-
     const method = Object.keys(payload).length > 1 ? 'PUT' : 'PATCH';
     const fullPayload = method === 'PUT' ? {
         subscribed_company: originalProductData.subscribed_company,
@@ -388,7 +335,6 @@ function saveSettings() {
         description: description,
         landing_page_url: url
     } : payload;
-
     fetch(`/api/products/${currentProductId}/`, {
         method: method,
         headers: {
@@ -411,10 +357,6 @@ function saveSettings() {
     });
 }
 
-
-
-
-
 // Product Modal Functions
 function addNewProduct() {
     // Reset form if needed
@@ -428,11 +370,9 @@ function submitProductForm(CompanyID) {
         form.reportValidity();
         return;
     }
-
     // Show loading modal
     ModalSystem.close('add-product-modal');
     ModalSystem.open('product-loading-modal');
-
     // Collect form data
     const productData = {
         name: document.getElementById('product-name-add').value,
@@ -440,22 +380,31 @@ function submitProductForm(CompanyID) {
         landing_page_url: document.getElementById('product-url-add').value,
         subscribed_company: CompanyID,
     };
-
     fetch(`/api/products/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': '{{ csrf_token }}',
         },
         body: JSON.stringify(productData)
     })
     .then(res => {
-        if (!res.ok) throw new Error("Failed to save");
+        if (!res.ok) throw new Error(`Failed to save ${res.statusText}`);
         return res.json();
     })
     .then(data => {
         ModalSystem.close('product-loading-modal');
-        ModalSystem.open('product-success-modal');
+        //ModalSystem.open('product-success-modal');
+        ModalSystem.toast('Product saved successfully!', 'success');
+
+        {% if not request.user.onboarding_completed %}
+        localStorage.setItem("onboardingStep", "created_a_product");
+        // Call the globally defined function
+        if (typeof showProductCreationSuccessDriver === 'function') {
+            showProductCreationSuccessDriver();
+        }
+        {% endif %}
+        
     })
     .catch(err => {
         alert("Save failed");
@@ -475,16 +424,12 @@ function addNewProduct() {
     document.getElementById('add-product-modal').showModal();
 }
 
-
-
 // Product filtering functionality
 function filterProducts() {
     const searchTerm = document.getElementById('search-products').value.toLowerCase();
-    const statusFilter = document.getElementById('filter-status').value.toLowerCase();
     
     const rows = document.querySelectorAll('.product-row');
     let visibleCount = 0;
-
     rows.forEach(row => {
         const productText = row.textContent.toLowerCase();
         const name = row.getAttribute('data-name').toLowerCase();
@@ -497,16 +442,13 @@ function filterProducts() {
                             name.includes(searchTerm) ||
                             tagline.includes(searchTerm) ||
                             description.includes(searchTerm);
-        const matchesStatus = statusFilter === '' || status === statusFilter;
-
-        if (matchesSearch && matchesStatus) {
+        if (matchesSearch) {
             row.style.display = '';
             visibleCount++;
         } else {
             row.style.display = 'none';
         }
     });
-
     // Update empty state
     const noProductsRow = document.getElementById('no-products-row');
     if (visibleCount === 0 && rows.length > 0) {
@@ -514,14 +456,12 @@ function filterProducts() {
     } else {
         if (noProductsRow) noProductsRow.style.display = 'none';
     }
-
     // Update counter
     document.getElementById('product-count').textContent = `${visibleCount} product${visibleCount !== 1 ? 's' : ''}`;
 }
 
 function clearProductFilters() {
     document.getElementById('search-products').value = '';
-    document.getElementById('filter-status').value = '';
     filterProducts();
 }
 
@@ -529,8 +469,6 @@ function clearProductFilters() {
 function editProduct(productId) {
     window.location.href = `/products/${productId}/edit/`;
 }
-
-
 
 function duplicateProduct(productId) {
     ModalSystem.toast('Product duplicated successfully!', 'success');
@@ -571,7 +509,6 @@ function confirmDeleteProduct(productId) {
                 }
                 const row = document.querySelector(`tr[id="${productId}"]`);
                 if (row) row.remove();
-
                 counter= document.getElementById("product-count")
                 counter.innerHTML= counter.innerHTML - 1;
                 
@@ -587,12 +524,10 @@ function confirmDeleteProduct(productId) {
     });
 }
 
-
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     // Add event listeners for filters
     document.getElementById('search-products').addEventListener('input', filterProducts);
-    document.getElementById('filter-status').addEventListener('change', filterProducts);
     
     // Hide empty state if we have products
     const noProductsRow = document.getElementById('no-products-row');
@@ -600,5 +535,73 @@ document.addEventListener('DOMContentLoaded', function() {
         noProductsRow.style.display = 'none';
     }
 });
+
+
+
+
+
+
+
+
+
+// onboarding
+{% if not request.user.onboarding_completed %}
+// Move the showProductCreationSuccessDriver function outside the conditional block
+// so it's always available in the global scope
+function showProductCreationSuccessDriver() {
+    const driver = window.driver.js.driver;
+    const driverObj2 = driver({
+        animate: true,
+        overlayOpacity: 0.5,
+        stagePadding: 10,
+        allowClose: false,
+        allowKeyboardControl: false,
+        steps: [
+            {
+                element: "#leads-tab",
+                popover: {
+                    title: "well done!",
+                    description: "Let's add a lead list!",
+                    position: "right"
+                }
+            },
+        ]
+    });
+    driverObj2.drive();
+    document.querySelector("#leads-tab").addEventListener("click", () => {
+            driverObj2.destroy();
+        });
+};
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const step = localStorage.getItem("onboardingStep");
+    if (step === "profile_completed") {
+        const driver = window.driver.js.driver;
+        const driverObj = driver({
+            animate: true,
+            overlayOpacity: 0.5,
+            stagePadding: 10,
+            allowClose: false,
+            allowKeyboardControl: false,
+            steps: [
+                {
+                    element: "#new-product-btn-driver",
+                    popover: {
+                        title: "Let's Create a Product!",
+                        description: "Click here to start your first product.",
+                        position: "bottom"
+                    }
+                },
+            ]
+        });
+        driverObj.drive();
+        // Trigger advance when the button inside the modal is clicked
+        document.querySelector("#new-product-btn-driver").addEventListener("click", () => {
+            driverObj.destroy();
+        });
+    }
+});
+{% endif %}
 </script>
 {% endblock %}
