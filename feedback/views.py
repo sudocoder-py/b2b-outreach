@@ -9,7 +9,7 @@ from .serializers import FeedbackAnalyticsSerializer, FeatureRequestAnalyticsSer
 
 
 
-
+#@login_required
 def feedback_view(request):
     """Feedback and feature requests page"""
     return render(request, "app/feedback/feedback.html")

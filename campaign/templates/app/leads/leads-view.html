@@ -241,7 +241,7 @@
                                             Upload your leads or add them manually to start your outreach
                                         </p>
                                         <!-- Add Leads Button -->
-                                        <a href="{% url 'add_leads' lead_list_id %}" class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm">
+                                        <a id="add-leads-btn-driver" href="{% url 'add_leads' lead_list_id %}" class="btn btn-primary h-10 min-h-10 rounded-lg px-4 text-sm">
                                             Add Leads
                                         </a>
                                     </div>
@@ -887,5 +887,88 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('lead-type-filter').addEventListener('change', filterLeads);
     document.getElementById('source-filter').addEventListener('change', filterLeads);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// onboarding
+{% if not request.user.onboarding_completed %}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const step = localStorage.getItem("onboardingStep");
+    if (step === "created_a_lead_list") {
+        const driver = window.driver.js.driver;
+        const driverObj = driver({
+            animate: true,
+            overlayOpacity: 0.5,
+            stagePadding: 10,
+            allowClose: false,
+            allowKeyboardControl: false,
+            steps: [
+                {
+                    element: "#add-leads-btn-driver",
+                    popover: {
+                        title: "Let's add your Lead!", 
+                        description: "Click here to add your first lead.",
+                        position: "bottom"
+                    }
+                },
+            ]
+        });
+        driverObj.drive();
+        // Trigger advance when the button inside the modal is clicked
+        document.querySelector("#add-leads-btn-driver").addEventListener("click", () => {
+            //localStorage.setItem("onboardingStep", "clicked_add_leads_btn");
+            driverObj.destroy();
+        });
+    }
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const step = localStorage.getItem("onboardingStep");
+    if (step === "imported_first_leads") {
+        const driver = window.driver.js.driver;
+        const driverObj = driver({
+            animate: true,
+            overlayOpacity: 0.5,
+            stagePadding: 10,
+            allowClose: false,
+            allowKeyboardControl: false,
+            steps: [
+                {
+                    element: "#msgs-tab",
+                    popover: {
+                        title: "your first lead is ready!",
+                        description: "Let's add a new message template now!",
+                        position: "right"
+                    }
+                },
+            ]
+        });
+        driverObj.drive();
+        // Trigger advance when the button inside the modal is clicked
+        document.querySelector("#msgs-tab").addEventListener("click", () => {
+            //localStorage.setItem("onboardingStep", "clicked_add_leads_btn");
+            driverObj.destroy();
+        });
+    }
+});
+{% endif %}
+
+
+
+
 </script>
 {% endblock %}

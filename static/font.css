@@ -138,3 +138,6 @@ body div.card-body {
     font-family: 'Product Sans', sans-serif;
 }
 
+.apply-font {
+    font-family: 'Product Sans' !important;
+}

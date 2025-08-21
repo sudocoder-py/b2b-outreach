@@ -15,6 +15,8 @@ from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from django.db import transaction
 import uuid
+from django.db.models import Q
+
 
 # testing inggest
 import inngest
@@ -335,9 +337,52 @@ class LeadListViewSet(viewsets.ModelViewSet):
             return Response({"error": "Campaign not found"}, status=400)
 
 
+
+
+class LeadFieldsView(APIView):
+    def get(self, request):
+        fields = Lead.get_field_names(exclude=["id", "created_at", "tags"])
+        return Response(fields)
+
+
+
 class LeadCreateView(generics.ListCreateAPIView):
     queryset = Lead.objects.all()
     serializer_class = LeadSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        data = serializer.validated_data
+        email = data.get("email")
+        subscribed_company = data.get("subscribed_company")
+
+        # Check for duplicates
+        exists = Lead.objects.filter(email=email, subscribed_company=subscribed_company).exists()
+
+        if exists:
+            response_data = {
+                "message": "Duplicate lead found, not created",
+                "created_count": 0,
+                "duplicate_count": 1,
+                "duplicates": [
+                    {"full_name": data.get("full_name"), "email": email}
+                ],
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        # Create new lead
+        self.perform_create(serializer)
+
+        response_data = {
+            "message": "1 lead created successfully",
+            "created_count": 1,
+            "duplicate_count": 0,
+            "duplicates": [],
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
 
 class LeadRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Lead.objects.all()
@@ -357,14 +402,51 @@ class BulkLeadCreateView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # Build Lead instances manually
         validated_data = serializer.validated_data
-        leads = [Lead(**item) for item in validated_data]
 
-        # Bulk create leads
-        Lead.objects.bulk_create(leads)
+        # Extract all (email, company_id) pairs from payload
+        email_company_pairs = [
+            (item["email"], item["subscribed_company"].id if item.get("subscribed_company") else None)
+            for item in validated_data
+        ]
 
-        return Response({'message': f'{len(leads)} leads created successfully'}, status=status.HTTP_201_CREATED)
+        # Get existing leads in one query
+        existing = Lead.objects.filter(
+            Q(
+                **{
+                    "subscribed_company__in": [c for _, c in email_company_pairs if c is not None],
+                    "email__in": [e for e, _ in email_company_pairs],
+                }
+            )
+        ).values_list("email", "subscribed_company_id")
+
+        existing_set = set(existing)
+
+        new_leads = []
+        duplicates = []
+
+        for item in validated_data:
+            company_id = item["subscribed_company"].id if item.get("subscribed_company") else None
+            pair = (item["email"], company_id)
+
+            if pair in existing_set:
+                duplicates.append({"full_name": item.get("full_name"), "email": item.get("email")})
+            else:
+                new_leads.append(Lead(**item))
+
+        # Bulk create new leads
+        if new_leads:
+            Lead.objects.bulk_create(new_leads)
+
+        response_data = {
+            "message": f"{len(new_leads)} leads created successfully",
+            "created_count": len(new_leads),
+            "duplicate_count": len(duplicates),
+            "duplicates": duplicates,
+        }
+
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
 
 
 class BulkLeadDeleteView(APIView):

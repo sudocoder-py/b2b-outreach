@@ -604,8 +604,11 @@
         this.showThankYou();
         setTimeout(() => {
             ModalSystem.toast('let\'s get you started with VibeReach.', 'success');
-            window.location.href = '{% url 'campaign_view_list' %}'
-        }, 1500);
+            {% if not request.user.onboarding_completed %}
+            localStorage.setItem("onboardingStep", "profile_completed");
+            document.dispatchEvent(new Event("profileThankYouShown"));
+            {% endif %}
+        }, 500);
         
       } catch (error) {
         console.error('Submission error:', error);
@@ -665,4 +668,78 @@
   // Initialize the profile form controller
   profileFormController.init();
 });
+
+
+
+
+{% if not request.user.onboarding_completed %}
+// onboarding
+document.addEventListener("DOMContentLoaded", () => {
+  const storedStep = localStorage.getItem("onboardingStep");
+  const driver = window.driver.js.driver;
+
+  // First step: profile completion
+  function startProfileStep() {
+    const driverObj = driver({
+      animate: true,
+      overlayOpacity: 0.5,
+      stagePadding: 10,
+      allowClose: false,
+      allowKeyboardControl: false,
+      steps: [
+        {
+          element: "#start-profile-form",
+          popover: {
+            title: "Complete Your Profile",
+            description: "Click this button to start completing your profile.",
+            position: "bottom"
+          }
+        }
+      ]
+    });
+    driverObj.drive();
+
+    document.querySelector("#start-profile-form").addEventListener("click", () => {
+      driverObj.destroy();
+      localStorage.setItem("onboardingStep", "profile_clicked");
+      // Now wait for the thank-you screen to trigger the next step
+    });
+  }
+
+  // Launch first step if profile not completed
+  if (!storedStep || storedStep !== "profile_completed") {
+    startProfileStep();
+  }
+
+  // Event-based highlight for the thank-you popup
+  document.addEventListener("profileThankYouShown", () => {
+    if (localStorage.getItem("onboardingStep") === "profile_completed") {
+      const driverObj2 = driver({
+        animate: true,
+        overlayOpacity: 0.5,
+        stagePadding: 10,
+        allowClose: false,
+        allowKeyboardControl: false
+      });
+
+      driverObj2.highlight({
+        element: "#profile-thank-you-screen",
+        popover: {
+          title: "Well done!",
+          description: "You're all set — click Done to continue.",
+          position: "top"
+        }
+      });
+
+      setTimeout(() => {
+            driverObj2.destroy();
+            window.location.href = '{% url 'products' %}'
+            
+        }, 1500);
+    }
+  });
+});
+{% endif %}
+
+
 </script>
