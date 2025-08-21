@@ -10,7 +10,7 @@
 
 
 {% block content %}
-<div class="p-6 md:p-8">
+<div id="over-all-dashboard-block-driver" class="p-6 md:p-8">
     <!-- Header Section -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between mb-6 gap-4">
         <div>
@@ -406,6 +406,69 @@
         });
         observer.observe(document.documentElement, { attributes: true });
     });
+
+
+
+
+
+
+
+
+
+
+{% if not request.user.onboarding_completed %}
+document.addEventListener("DOMContentLoaded", () => {
+  const step = localStorage.getItem("onboardingStep");
+
+  // *** FIX 1: The key now matches what the previous step set.
+  if (step === "campaign_dashboard_shown") {
+    const driver = window.driver.js.driver;
+    const driverObj = driver({
+      animate: true,
+      overlayOpacity: 0.7,
+      stagePadding: 10,
+      allowClose: false,
+      allowKeyboardControl: false,
+      steps: [
+        {
+          element: "#over-all-dashboard-block-driver",
+          popover: {
+            title: "🎉 Over all dashboard here!",
+            description: "Great work! To see an overview of ALL your campaigns, just click here. You can return to this specific dashboard anytime.",
+            position: "right"
+          }
+        },
+        {
+          element: "#chat-toggle-button",
+          disableActiveInteraction: true,
+          popover: {
+            title: "Chat support on any page",
+            description: "if you noticed there is this chat bubble on each page, you can rechout to us on the spot for any help you need, lets move next...",
+            position: "left" 
+          }
+        },
+        {
+          element: "#feedback-tab",
+          popover: {
+            title: "lets show you your feedback hub!",
+            description: "",
+            position: "right" 
+          }
+        },
+      ]
+    });
+
+    driverObj.drive();
+
+    document.querySelector("#feedback-tab").addEventListener("click", () => {
+        driverObj.destroy();  // hides the overlay
+        localStorage.setItem("onboardingStep", "overall_dashboard_shown");
+    });
+  }
+});
+{% endif %}
+
+
 
 </script>
 {% endblock %}

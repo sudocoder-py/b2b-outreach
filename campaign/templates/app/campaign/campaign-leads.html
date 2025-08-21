@@ -66,7 +66,7 @@
     <!-- lead-lists Grid -->
     <div class="lead-lists-grid">
         {% for list in lead_lists %}
-        <a  href="{% url 'leads_view' list.id  %}" class="lead-lists-card" style="padding-bottom: 10px; padding-right: 15px; min-width: 330px;"> 
+        <a id="assigned-list-driver" href="{% url 'leads_view' list.id  %}" class="lead-lists-card" style="padding-bottom: 10px; padding-right: 15px; min-width: 330px;"> 
             <h3 class="font-medium text-gray-900">{{list.title}}</h3>
             
             <div class="stats-bar mb-4">
@@ -159,6 +159,14 @@ function assignList2Campaign() {
         if (response.ok) {
             ModalSystem.toast('Lead List assigned successfully to this Campaign.', 'success');
             ModalSystem.close('add-modal')
+
+            {% if not request.user.onboarding_completed %}
+            const step = localStorage.getItem("onboardingStep");
+            if (step === "created_a_campaign") {
+                localStorage.setItem("onboardingStep", "assigned_leads_to_first_campaign");
+            }
+            {% endif %}
+
             window.location.reload()
         } else {
             ModalSystem.toast('Failed to assign Lead List to this Campaign.', 'error');
@@ -230,8 +238,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
     driverObj.drive();
 
-    document.querySelector("#new-campaign-btn-driver").addEventListener("click", () => {
+    document.querySelector("#assign-leads-btn-driver").addEventListener("click", () => {
       driverObj.destroy();  // hides the overlay
+      // Now redirect to campaigns
+    });
+  }
+});
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const step = localStorage.getItem("onboardingStep");
+
+  // Only start this step if profile is completed but new campaign not clicked
+  if (step === "assigned_leads_to_first_campaign") {
+    const driver = window.driver.js.driver;
+    const driverObj2 = driver({
+      animate: true,
+      overlayOpacity: 0.5,
+      stagePadding: 10,
+      allowClose: false,
+      allowKeyboardControl: false,
+      steps: [
+        {
+          element: "#assigned-list-driver",
+          disableActiveInteraction: true,
+          popover: {
+            title: "here is the leads assigned to your campaign",
+            description: "this is basically a copy of your leads in that list so dont worry about moving leads between lists, just make sure you dont delete the original lead",  
+            position: "left"
+          }
+        },
+        {
+          element: "#campaign-sequence-tab",
+          popover: {
+            title: "lets setup the msg sequence for your campaign",
+            description: "lets assign the message templates you made earlier to this campaign",  
+            position: "bottom"
+          }
+        },
+      ]
+    });
+
+    driverObj2.drive();
+
+    document.querySelector("#campaign-sequence-tab").addEventListener("click", () => {
+      driverObj2.destroy();  // hides the overlay
       // Now redirect to campaigns
     });
   }

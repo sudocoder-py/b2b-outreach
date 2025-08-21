@@ -90,7 +90,7 @@
           </div>
 
           <!-- Right Column: Schedule Editor -->
-          <div class="flex-1 flex flex-col gap-6 overflow-y-auto">
+          <div id="right-side-schedule-form-driver" class="flex-1 flex flex-col gap-6 overflow-y-auto">
             <form class="space-y-6" onsubmit="event.preventDefault()">
                 <!-- Schedule Name Card -->
                 <div class="card bg-white p-6 rounded-lg shadow-sm">
@@ -132,7 +132,7 @@
 
                 <!-- Action Buttons -->
                 <div class="flex gap-3">
-                    <button type="submit" class="btn btn-primary" onclick="editDeafaultForm()">
+                    <button id="edit-defualt-schedule-btn" type="submit" class="btn btn-primary" onclick="editDeafaultForm()">
                         <i class="fa-solid fa-edit mr-2"></i>Edit Default Schedule
                     </button>
                 </div>
@@ -216,7 +216,7 @@
           <div class="flex-1 flex flex-col gap-6 overflow-y-auto">
             <form id="schedule-form" class="space-y-6" onsubmit="event.preventDefault()">
                 <!-- Schedule Name Card -->
-                <div class="card bg-white p-6 rounded-lg shadow-sm">
+                <div id="schedule-name-block" class="card bg-white p-6 rounded-lg shadow-sm">
                     <h3 class="font-bold text-gray-800 text-lg mb-4">Schedule Name</h3>
                     <input type="text"
                            id="schedule-name"
@@ -232,33 +232,34 @@
                 <div class="card bg-white p-6 rounded-lg shadow-sm">
                     <h3 class="font-bold text-gray-800 text-lg mb-4">Timing</h3>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                        <div class="form-control">
+                        <div id="schedule-timimig-from-block" class="form-control">
                             <label class="label"><span class="label-text">From</span></label>
                             <select id="time-from" name="timeFrom" class="select select-bordered bg-white time-select" required onchange="updateToTimes()">
                                 {% for time in times %}
-                                    <option value="{{time.0}}" {% if schedule.0.timing_from == time.0 %}selected{% endif %}>{{time.1}}</option>
+                                    <option value="{{time.0}}" {% if schedule and schedule.0 and schedule.0.timing_from == time.0 %}selected{% endif %}>{{time.1}}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="form-control">
+                        <div id="schedule-timimig-to-block" class="form-control">
                             <label class="label"><span class="label-text">To</span></label>
                             <select id="time-to" name="timeTo" class="select select-bordered bg-white time-select" required>
-                                {% if not schedule.0.timing_from %}
-                                    <option value="10:00" selected>10:00 AM</option>
-                                 {% endif %}    
-                                {% for time in times %}
-                                    {% if schedule.0.timing_from and time.0 > schedule.0.timing_from %}
-                                        <option value="{{time.0}}" {% if schedule.0.timing_to == time.0 %}selected{% endif %}>{{time.1}}</option>
-                                    {% endif %}
-                                {% endfor %}
+                                {# Options will be dynamically populated by JavaScript on page load #}
+                                {# You can optionally add a placeholder here if desired: #}
+                                {# <option value="" disabled selected>Select an end time</option> #}
                             </select>
                         </div>
                     </div>
-                    <div class="form-control">
+                    <div id="schedule-timzone-block" class="form-control">
                         <label class="label"><span class="label-text">Timezone</span></label>
                         <select id="timezone" name="timezone" class="select select-bordered bg-white timezone-select" required>
                             {% for tz in timezones %}
-                                <option value="{{ tz.0 }}" {% if tz.0 == schedule.0.time_zone %}selected{% endif %}>{{ tz.1 }}</option>
+                                <option value="{{ tz.0 }}"
+                                    {% if schedule and schedule.0.time_zone == tz.0 %}
+                                        selected
+                                    {% elif not schedule and tz.0 == "Asia/Amman" %}
+                                        selected
+                                    {% endif %}
+                                >{{ tz.1 }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -267,7 +268,7 @@
 
 
                 <!-- Days Card -->
-                <div class="card bg-white p-6 rounded-lg shadow-sm">
+                <div id="schedule-days-block" class="card bg-white p-6 rounded-lg shadow-sm">
                     <h3 class="font-bold text-gray-800 text-lg mb-4">Days</h3>
                     <div class="flex flex-wrap gap-x-6 gap-y-3">
                         {% for day in days %}
@@ -281,7 +282,7 @@
 
                 <!-- Action Buttons -->
                 <div class="flex gap-3">
-                    <button type="submit" class="btn btn-primary" onclick="saveSchedule()">
+                    <button id="schedule-save-btn-driver" type="submit" class="btn btn-primary" onclick="saveSchedule()">
                         <i class="fa-solid fa-save mr-2"></i>Save Schedule
                     </button>
                     <button type="button" class="btn btn-ghost" onclick="resetForm()">
@@ -317,35 +318,76 @@ function editDeafaultForm() {
 function updateToTimes() {
     const fromSelect = document.getElementById('time-from');
     const toSelect = document.getElementById('time-to');
-    const selectedFromTime = fromSelect.value;
-    
-    // Enable To select
-    toSelect.disabled = false;
-    
-    // Clear existing options
-    toSelect.innerHTML = '';
-    
-    // Add only times after the selected From time
+    const selectedFromTime = fromSelect.value; // Get the currently selected 'From' time
+
+    toSelect.innerHTML = ''; // Clear existing options
+
     const times = [
         {% for time in times %}
             {value: "{{ time.0 }}", label: "{{ time.1 }}"},
         {% endfor %}
     ];
-    
+
+    let potentialSelectedToTime = null;
+
+    // First, try to use a saved 'To' time from the schedule object if it exists
+    {% if schedule and schedule.0 %}
+        potentialSelectedToTime = "{{ schedule.0.timing_to }}";
+    {% endif %}
+
+    // If no saved 'To' time, calculate a default: one hour after 'From' time
+    if (potentialSelectedToTime === null) {
+        const fromTimeIndex = times.findIndex(t => t.value === selectedFromTime);
+        if (fromTimeIndex !== -1 && fromTimeIndex + 1 < times.length) {
+            // Set default 'To' time to one entry after the 'From' time
+            potentialSelectedToTime = times[fromTimeIndex + 1].value;
+        }
+        // If fromTimeIndex is the last entry (e.g., '23:00'), then potentialSelectedToTime remains null,
+        // and no 'To' option will be explicitly selected, correctly making the select show "No valid 'To' times".
+    }
+
+    let actualSelectedTime = null; // What will actually be selected after filtering
+
+    // Populate options and try to find the potentialSelectedToTime among them
     times.forEach(time => {
+        // Add only times that are strictly greater than the selectedFromTime
         if (time.value > selectedFromTime) {
             const option = document.createElement('option');
             option.value = time.value;
             option.textContent = time.label;
+
+            if (time.value === potentialSelectedToTime) {
+                option.selected = true;
+                actualSelectedTime = time.value; // Mark that we found and selected it
+            }
             toSelect.appendChild(option);
         }
     });
-    
-    // If no valid options, disable the select
+
+    // If no option was explicitly selected (e.g., potentialSelectedToTime was outside the valid range
+    // or not found among the newly filtered options), select the first available option.
+    if (actualSelectedTime === null && toSelect.options.length > 0) {
+        toSelect.options[0].selected = true;
+    }
+
+    // Handle case where no valid 'To' options exist (e.g., 'From' is 23:00)
     if (toSelect.options.length === 0) {
         toSelect.disabled = true;
+        const option = document.createElement('option');
+        option.value = "";
+        option.textContent = "No valid 'To' times";
+        option.disabled = true; // Make it unselectable by user
+        option.selected = true; // Make it the default display
+        toSelect.appendChild(option);
+    } else {
+        toSelect.disabled = false;
     }
 }
+
+// Initialize on page load unconditionally
+document.addEventListener('DOMContentLoaded', function() {
+    updateToTimes();
+});
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -527,6 +569,132 @@ function confirmResetSchedule2Default() {
         }
     });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% if not request.user.onboarding_completed %}
+// onboarding
+document.addEventListener("DOMContentLoaded", () => {
+  const step = localStorage.getItem("onboardingStep");
+
+  // Only start this step if profile is completed but new campaign not clicked
+  if (step === "assigned_msgs_to_first_campaign") {
+    const driver = window.driver.js.driver;
+    const driverObj = driver({
+      animate: true,
+      overlayOpacity: 0.5,
+      stagePadding: 10,
+      allowClose: false,
+      allowKeyboardControl: false,
+      steps: [
+        {
+          element: "#right-side-schedule-form-driver",
+          popover: {
+            title: "here is your campaign schedule",
+            description: "if you didnt edited, here is the defualt values",
+            position: "left"
+          }
+        },
+        {
+          element: "#edit-defualt-schedule-btn",
+          popover: {
+            title: "lets edit the scheduele",
+            description: "if you didnt edited, here is the defualt values",
+            position: "left"
+          }
+        },
+        {
+          element: "#schedule-name-block",
+          popover: {
+            title: "Name Your Schedule",
+            description: "Give your schedule a recognizable name. This is helpful if you plan to reuse it for other campaigns.",
+            position: "bottom"
+          }
+        },
+        {
+          element: "#schedule-timimig-from-block",
+          popover: {
+            title: "Set Start Time",
+            description: "Choose the earliest time of day your messages should be sent.",
+            position: "bottom"
+          }
+        },
+        {
+          element: "#schedule-timimig-to-block",
+          popover: {
+            title: "Set End Time",
+            description: "Specify the latest time messages will be sent. No messages will go out after this time.",
+            position: "bottom"
+          }
+        },
+        {
+          element: "#schedule-timzone-block",
+          popover: {
+            title: "Select Timezone",
+            description: "Choose the timezone for this schedule. All sending times will be based on this setting.",
+            position: "top"
+          }
+        },
+        {
+          element: "#schedule-days-block",
+          popover: {
+            title: "Choose Sending Days",
+            description: "Select the specific days of the week you want your campaign messages to be sent.",
+            position: "top"
+          }
+        },
+        {
+          element: "#schedule-save-btn-driver",
+          popover: {
+            title: "Save Your Schedule",
+            description: "Once you're happy with the settings, click here to save your changes.",
+            position: "top"
+          }
+        },
+        {
+          element: "#campaign-start",
+          disableActiveInteraction: true,
+          popover: {
+            title: "Campaign Start Date",
+            description: "You can set a specific start date for your campaign here. We'll leave it as is for now.",
+            position: "right"
+          }
+        },
+        {
+          element: "#campaign-options-tab",
+          popover: {
+            title: "Almost Done! Let's Set Options",
+            description: "Great! The schedule is set. Now click on 'Options' for the final step before launching your campaign.",
+            position: "bottom"
+          }
+        },
+      ]
+    });
+
+    driverObj.drive();
+
+    document.querySelector("#campaign-options-tab").addEventListener("click", () => {
+      localStorage.setItem("onboardingStep", "created_campaign_schedule");  
+      driverObj.destroy();  // hides the overlay
+      // Now redirect to campaigns
+    });
+  }
+});
+
+
+{% endif %}
+
 </script>
 
 {% endblock %}
