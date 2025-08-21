@@ -130,7 +130,7 @@
     <!-- Message Grid -->
     <div class="message-grid">
         {% for message in messages %}
-        <div class="message-card always-interaction-allowed" style="padding-bottom: 10px;  padding-right: 15px; min-width: 350px;" onclick="openMessageModal({{ message.id }})">
+        <div id="assigned-msg-driver" class="message-card always-interaction-allowed" style="padding-bottom: 10px;  padding-right: 15px; min-width: 350px;" onclick="openMessageModal({{ message.id }})">
             <div class="flex justify-between items-start">
                 <h3 class="font-medium text-gray-900">{{ message.subject }}</h3>
                 <div class="text-right">
@@ -172,7 +172,7 @@
                 <i class="fas fa-envelope-open-text fa-3x"></i>
             </div>
             <h3 class="text-lg font-medium">No messages assigned yet</h3>
-            <button class="btn btn-primary mt-4" onclick="document.getElementById('add-modal').showModal()">
+            <button id="assign-msgs-to-campaign-btn-driver" class="btn btn-primary mt-4" onclick="document.getElementById('add-modal').showModal()">
                 Assign Message
             </button>
         </div>
@@ -211,6 +211,7 @@
             
             <div class="divider my-0"></div>
             
+            {% if messages.count > 0 %}
             <!-- Delay Input -->
             <div class="form-control w-full">
                 <label class="label">
@@ -229,6 +230,7 @@
                     <span class="label-text-alt text-gray-500">Number of days after the previous message in sequence</span>
                 </label>
             </div>
+            {% endif %}
             
             <!-- Actions -->
             <div class="modal-action mt-2">
@@ -640,7 +642,11 @@
 
     function AssignMessage2Sequence(campaignId) {
         const messageId = document.getElementById('message-select').value;
+        {% if messages.count > 0 %}
         const DelayedFromLastMsg= document.getElementById('delayed-from-last-message').value;
+        {% else %}
+        const DelayedFromLastMsg=0;
+        {% endif %}
 
         if (!messageId) {
             ModalSystem.toast('Please select a message first.', 'info');
@@ -664,6 +670,14 @@
             if (data.created !== undefined) {
                 ModalSystem.toast(`✅ Assigned to ${data.created} leads.`, 'success');
                 document.getElementById('add-modal').close(); // Close modal
+
+                {% if not request.user.onboarding_completed %}
+                const step = localStorage.getItem("onboardingStep");
+                if (step === "assigned_leads_to_first_campaign") {
+                    localStorage.setItem("onboardingStep", "assigned_msgs_to_first_campaign");
+                };
+                {% endif %}
+
                 location.reload(); // Or update the DOM dynamically
             } else {
                 ModalSystem.toast("❌ Failed to assign message.", 'error');
@@ -712,5 +726,88 @@
             window.ModalSystem.success('Export completed successfully!');
         }, 1500);
     }
+
+
+
+
+{% if not request.user.onboarding_completed %}
+// onboarding
+document.addEventListener("DOMContentLoaded", () => {
+  const step = localStorage.getItem("onboardingStep");
+
+  // Only start this step if profile is completed but new campaign not clicked
+  if (step === "assigned_leads_to_first_campaign") {
+    const driver = window.driver.js.driver;
+    const driverObj = driver({
+      animate: true,
+      overlayOpacity: 0.5,
+      stagePadding: 10,
+      allowClose: false,
+      allowKeyboardControl: false,
+      steps: [
+        {
+          element: "#assign-msgs-to-campaign-btn-driver",
+          popover: {
+            title: "Let's Assign Msgs!",
+            description: "Click here to assign Msgs to your campaign. press escape to exit",
+            position: "bottom"
+          }
+        }
+      ]
+    });
+
+    driverObj.drive();
+
+    document.querySelector("#assign-msgs-to-campaign-btn-driver").addEventListener("click", () => {
+      driverObj.destroy();  // hides the overlay
+      // Now redirect to campaigns
+    });
+  }
+});
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const step = localStorage.getItem("onboardingStep");
+
+  // Only start this step if profile is completed but new campaign not clicked
+  if (step === "assigned_msgs_to_first_campaign") {
+    const driver = window.driver.js.driver;
+    const driverObj2 = driver({
+      animate: true,
+      overlayOpacity: 0.5,
+      stagePadding: 10,
+      allowClose: false,
+      allowKeyboardControl: false,
+      steps: [
+        {
+          element: "#assigned-msg-driver",
+          popover: {
+            title: "here is the msg assigned to your campaign",
+            description: "click it to see it is sending details",  
+            position: "left"
+          }
+        },
+        {
+          element: "#campaign-schedule-tab",
+          popover: {
+            title: "lets setup campaign scheduele now",
+            description: "",  
+            position: "bottom"
+          }
+        },
+      ]
+    });
+
+    driverObj2.drive();
+
+    document.querySelector("#campaign-schedule-tab").addEventListener("click", () => {
+      driverObj2.destroy();  // hides the overlay
+      // Now redirect to campaigns
+    });
+  }
+});
+{% endif %}
+
 </script>
 {% endblock %}

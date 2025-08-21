@@ -20,7 +20,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="flex-1 flex items-center justify-center">
+    <div id="main-content-block-driver" class="flex-1 flex items-center justify-center">
         <div class="text-center max-w-md">
             <!-- Icon -->
             <div class="mb-6">
@@ -33,23 +33,23 @@
             <h2 class="text-2xl font-semibold text-gray-900 mb-4">Submit Feedback</h2>
             
             <!-- Description -->
-            <p class="text-gray-600 mb-8 leading-relaxed">
-                We value your input! Share your thoughts, report bugs, request new features, 
+            <p id="we-value-you-input" class="text-gray-600 mb-8 leading-relaxed">
+                We value your input! Share your thoughts, request new features, 
                 or suggest improvements to help us make the platform better for everyone.
             </p>
             
             <!-- Features List -->
-            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 mb-8">
+            <div id="what-you-can-submit" class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 mb-8">
                 <h3 class="font-semibold text-gray-900 mb-4">What you can submit:</h3>
                 <ul class="text-left space-y-2 text-gray-600">
                     <li class="flex items-center gap-2">
                         <i class="fa-solid fa-lightbulb text-yellow-500 text-sm"></i>
                         Feature requests & ideas
                     </li>
-                    <li class="flex items-center gap-2">
+                    <!-- <li class="flex items-center gap-2">
                         <i class="fa-solid fa-bug text-red-500 text-sm"></i>
                         Bug reports & issues
-                    </li>
+                    </li> -->
                     <li class="flex items-center gap-2">
                         <i class="fa-solid fa-heart text-pink-500 text-sm"></i>
                         General feedback & suggestions
@@ -67,11 +67,11 @@
             
             <!-- Action Buttons -->
             <div class="space-y-3">
-                <button class="btn btn-primary w-full" onclick="showFeedbackForm();">
+                <button id="submit-feedback-btn" class="btn btn-primary w-full" onclick="showFeedbackForm();">
                     <i class="fa-solid fa-paper-plane mr-2"></i>
                     Submit Feedback
                 </button>
-                <button class="btn btn-outline w-full" onclick="showRequestFeature();">
+                <button id="request-feature-btn" class="btn btn-outline w-full" onclick="showRequestFeature();">
                     <i class="fa-solid fa-lightbulb mr-2"></i>
                     Request Feature
                 </button>
@@ -111,5 +111,110 @@ function hideRequestFeature() {
     document.getElementById('request-feature').classList.add('hidden');
     document.getElementById('main-content').classList.remove('hidden');
 }
+
+
+
+
+
+
+{% if not request.user.onboarding_completed %}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const step = localStorage.getItem("onboardingStep");
+
+  // This tour starts after the user has seen the main dashboard.
+  if (step === "overall_dashboard_shown") {
+    const driver = window.driver.js.driver;
+    
+    // This function will be called when the tour is finished.
+    const completeOnboarding = () => {
+      console.log("Completing onboarding...");
+      
+      // 1. Update localStorage to prevent the tour from showing again.
+      localStorage.setItem("onboardingStep", "onboarding_complete");
+      
+      // 2. Send the update to your backend API.
+      fetch('/auth/api/user/update-info/', {
+        method: 'PATCH', // PATCH is ideal for updating a single field.
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: JSON.stringify({
+          "onboarding_completed": true
+        })
+      })
+      .then(response => {
+        if (!response.ok) {
+          console.error('API Error: Failed to update user onboarding status.');
+        } else {
+          console.log('User onboarding status successfully updated in the database.');
+          window.location.href = '{% url 'overall_dashboard' %}';
+        }
+      })
+      .catch(error => {
+        console.error('Fetch Error: Could not update user onboarding status.', error);
+      });
+    };
+
+    const driverObj = driver({
+      animate: true,
+      overlayOpacity: 0.7,
+      stagePadding: 10,
+      allowClose: false,
+      steps: [
+        {
+          element: "#main-content-block-driver",
+          popover: {
+            title: "Welcome to the Feedback Hub!",
+            description: "Your input is incredibly valuable. Sharing your thoughts here helps us improve VibeReach for everyone.",
+            position: "bottom"
+          }
+        },
+        {
+          element: "#what-you-can-submit",
+          popover: {
+            title: "What to Submit Here",
+            description: "This is the perfect place for feature ideas and general feedback. For urgent issues or bug reports, the quickest way to get help is via the chat bubble in the bottom right.",  
+            position: "top" 
+          }
+        },
+        {
+          element: "#submit-feedback-btn",
+          popover: {
+            title: "Submit General Feedback",
+            description: "Have a suggestion for improving an existing feature or a general thought about your experience? Use this button.",
+            position: "bottom" 
+          }
+        },
+        {
+          element: "#request-feature-btn",
+          popover: {
+            title: "Request a New Feature",
+            description: "Got a brilliant idea for something new? We'd love to hear it! Use this to submit detailed feature requests.",
+            position: "top" 
+          }
+        },
+        {
+          // This is the final, non-element step.
+          popover: {
+            title: "🚀 You're All Set!",
+            description: "Thank you for completing the tour. We're excited to have you on board. Now, let's start growing your business!",
+            // No position is needed, it will be centered by default.
+          },
+          onDeselected: () => {
+            // This hook triggers when the user clicks "Done" on this final step.
+            completeOnboarding();
+            driverObj.destroy(); // Clean up the driver instance.
+          }
+        },
+      ]
+    });
+
+    driverObj.drive();
+  }
+});
+{% endif %}
+
 </script>
 {% endblock %}

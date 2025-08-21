@@ -1,12 +1,13 @@
-<!-- Shared Modal Components for the entire app -->
+<!-- ======================================================================= -->
+<!-- START: Updated Shared Modal Components Block                         -->
+<!-- ======================================================================= -->
 
 <!-- Generic Confirmation Modal -->
-<!-- Update the confirmation modal section -->
 <dialog id="confirm-modal" class="modal">
     <div class="modal-box">
         <h3 class="font-bold text-lg" id="confirm-modal-title">Confirm Action</h3>
         <div class="py-4">
-            <p id="confirm-modal-message"></p> <!-- Changed to empty element -->
+            <p id="confirm-modal-message"></p>
             <div id="confirm-modal-custom-content" class="mt-3"></div>
         </div>
         <div class="modal-action">
@@ -27,7 +28,7 @@
 <dialog id="success-modal" class="modal">
     <div class="modal-box">
         <h3 class="font-bold text-lg text-success">
-            <i class="fa-solid fa-check-circle mr-2"></i>Success
+            <i class="fa-solid fa-check-circle mr-2"></i><span id="success-modal-title-text">Success</span>
         </h3>
         <p class="py-4" id="success-modal-message">Operation completed successfully!</p>
         <div class="modal-action">
@@ -45,7 +46,7 @@
 <dialog id="error-modal" class="modal">
     <div class="modal-box">
         <h3 class="font-bold text-lg text-error">
-            <i class="fa-solid fa-exclamation-triangle mr-2"></i>Error
+            <i class="fa-solid fa-exclamation-triangle mr-2"></i><span id="error-modal-title-text">Error</span>
         </h3>
         <p class="py-4" id="error-modal-message">An error occurred. Please try again.</p>
         <div class="modal-action">
@@ -69,7 +70,6 @@
 </dialog>
 
 <script>
-    
 // Global Modal System for the entire app
 window.ModalSystem = {
     // Current action to execute on confirmation
@@ -100,13 +100,11 @@ window.ModalSystem = {
             confirmText = 'Confirm',
             confirmClass = 'btn-primary',
             action = null,
-            html = false // Add html flag option
+            html = false
         } = options;
         
-        // Set modal title
         document.getElementById('confirm-modal-title').textContent = title;
         
-        // Handle message (text or HTML)
         const messageEl = document.getElementById('confirm-modal-message');
         if (html) {
             messageEl.innerHTML = message;
@@ -114,7 +112,6 @@ window.ModalSystem = {
             messageEl.textContent = message;
         }
         
-        // Handle custom content
         const customContentEl = document.getElementById('confirm-modal-custom-content');
         if (customContent) {
             if (html) {
@@ -128,26 +125,44 @@ window.ModalSystem = {
             customContentEl.classList.add('hidden');
         }
         
-        // Update confirm button
         const confirmBtn = document.getElementById('confirm-modal-btn');
         confirmBtn.textContent = confirmText;
         confirmBtn.className = `btn ${confirmClass}`;
         
-        // Store action
         this.currentAction = action;
-        
-        // Show modal
         this.open('confirm-modal');
     },
     
-    // Show success modal
-    success: function(message = 'Operation completed successfully!') {
+    // Show success modal (NEW - handles objects and strings)
+    success: function(options = {}) {
+        let title = 'Success';
+        let message = 'Operation completed successfully!';
+
+        if (typeof options === 'string') {
+            message = options;
+        } else if (typeof options === 'object' && options !== null) {
+            title = options.title || title;
+            message = options.message || message;
+        }
+        
+        document.getElementById('success-modal-title-text').textContent = title;
         document.getElementById('success-modal-message').textContent = message;
         this.open('success-modal');
     },
     
-    // Show error modal
-    error: function(message = 'An error occurred. Please try again.') {
+    // Show error modal (NEW - handles objects and strings)
+    error: function(options = {}) {
+        let title = 'Error';
+        let message = 'An error occurred. Please try again.';
+
+        if (typeof options === 'string') {
+            message = options;
+        } else if (typeof options === 'object' && options !== null) {
+            title = options.title || title;
+            message = options.message || message;
+        }
+
+        document.getElementById('error-modal-title-text').textContent = title;
         document.getElementById('error-modal-message').textContent = message;
         this.open('error-modal');
     },
@@ -179,13 +194,12 @@ window.ModalSystem = {
         toast.innerHTML = `
             <div class="alert ${alertClass}">
                 <i class="fa-solid ${icon}"></i>
-                <span">${message}</span>
+                <span>${message}</span>
             </div>
         `;
         
         document.body.appendChild(toast);
         
-        // Auto remove after 3 seconds
         setTimeout(() => {
             toast.remove();
         }, 3000);
@@ -201,7 +215,7 @@ function executeConfirmAction() {
     window.ModalSystem.close('confirm-modal');
 }
 
-// Legacy function for backward compatibility
+// Legacy functions for backward compatibility
 function openModal(modalId) {
     window.ModalSystem.open(modalId);
 }
@@ -218,3 +232,7 @@ function showErrorToast(message) {
     window.ModalSystem.toast(message, 'error');
 }
 </script>
+
+<!-- ======================================================================= -->
+<!-- END: Updated Shared Modal Components Block                           -->
+<!-- ======================================================================= -->

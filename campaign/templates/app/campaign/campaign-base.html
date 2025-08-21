@@ -16,20 +16,20 @@
                    href="{% url 'campaign_leads' campaign_id %}"
                    class="tab h-auto pb-2 px-1 text-base mx-4 {% if current_tab == 'leads' %}text-primary tab-active-underline border-primary{% else %}text-gray-500{% endif %}">
                         Leads</a>
-                <a role="tab"
+                <a role="tab" id="campaign-sequence-tab" 
                    href="{% url 'campaign_sequence' campaign_id %}"
                    class="tab h-auto pb-2 px-1 text-base mx-4 {% if current_tab == 'sequences' %}text-primary tab-active-underline border-primary{% else %}text-gray-500{% endif %}">
                         Sequences</a>
-                <a role="tab"
+                <a role="tab" id="campaign-schedule-tab" 
                    href="{% url 'campaign_scheduele' campaign_id %}"
                    class="tab h-auto pb-2 px-1 text-base mx-4 {% if current_tab == 'schedule' %}text-primary tab-active-underline border-primary{% else %}text-gray-500{% endif %}">
                         Schedule</a>
-                <a role="tab"
+                <a role="tab" id="campaign-options-tab" 
                    href="{% url 'campaign_options' campaign_id %}"
                    class="tab h-auto pb-2 px-1 text-base mx-4 {% if current_tab == 'options' %}text-primary tab-active-underline border-primary{% else %}text-gray-500{% endif %}">
                         Options</a>
             </div>
-            <div class="flex items-center gap-3">
+            <div id="campaign-actions-bar-driver" class="flex items-center gap-3">
                 {% if campaign_status == 'active' %}
                     <button class="btn bg-amber-100 text-amber-700 hover:bg-amber-200 border-none h-10 min-h-10 rounded-lg px-4 text-sm font-semibold">
                         <i class="fa-solid fa-pause mr-2"></i>Pause campaign

@@ -54,7 +54,7 @@
 
         <!-- Status & Filters -->
         <div class="flex items-center justify-between mt-8">
-            <div class="flex items-center gap-3">
+            <div id="campaign-status-header-driver" class="flex items-center gap-3">
                 <span class="text-sm font-medium text-gray-500">Status:</span>
                     {% if campaign_status == "active" %}
                         <span class="badge badge-success text-white font-medium py-2">Active</span>
@@ -97,7 +97,7 @@
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6" id="stats-container">
+        <div id="kpi-cards-container-driver" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6" id="stats-container">
 
             <!-- Card 1: sent -->
             <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer">
@@ -160,7 +160,7 @@
             </div>
 
             <!-- Card 4: Opportunities -->
-            <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer" onclick="updateOpportunityValue()">
+            <div id="opportunities-card-driver" class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm stat-card cursor-pointer" onclick="updateOpportunityValue()">
                 <div class="flex justify-between items-center text-gray-400 text-sm font-medium">
                     <span>Opportunities</span>
                     <div class="tooltip tooltip-left" data-tip="Number of leads that you have marked as positive. Per positive lead value is set to ${{stats.opportunity_value|default:'0'}} Click to update">
@@ -210,7 +210,7 @@
             </div>
             
             <!-- Main Analytics Chart -->
-            <div class="card bg-base-100 shadow-lg mb-8">
+            <div id="performance-overview-chart-driver" class="card bg-base-100 shadow-lg mb-8">
                 <div class="card-body">
                     <!-- Custom Legend - Updated to match new order -->
                     <div class="flex flex-wrap gap-x-4 gap-y-2 mb-4">
@@ -635,6 +635,89 @@
         });
         observer.observe(document.documentElement, { attributes: true });
     });
+
+
+
+
+
+
+
+{% if not request.user.onboarding_completed %}
+document.addEventListener("DOMContentLoaded", () => {
+  const step = localStorage.getItem("onboardingStep");
+
+  // *** FIX 1: The key now matches what the previous step set.
+  if (step === "campaign_launched_successfully") {
+    const driver = window.driver.js.driver;
+    const driverObj = driver({
+      animate: true,
+      overlayOpacity: 0.7,
+      stagePadding: 10,
+      allowClose: false,
+      allowKeyboardControl: false,
+      steps: [
+        {
+          element: "#campaign-status-header-driver",
+          popover: {
+            title: "🎉 Your Campaign is Live!",
+            description: "Welcome to your campaign dashboard. This area shows the real-time status and overall progress of your campaign.",
+            position: "bottom"
+          }
+        },
+        {
+          element: "#kpi-cards-container-driver",
+          popover: {
+            title: "At-a-Glance Performance",
+            description: "These cards provide a quick summary of your most important metrics like emails sent, open rates, and replies.",
+            position: "bottom"
+          }
+        },
+        {
+          element: "#opportunities-card-driver",
+          popover: {
+            title: "Tracking Success",
+            description: "The 'Opportunities' card tracks positive outcomes from your campaign. You can even assign a monetary value to each lead.",
+            position: "left"
+          }
+        },
+        {
+          element: "#performance-overview-chart-driver",
+          popover: {
+            title: "Performance Over Time",
+            description: "This chart visualizes your campaign's performance day-by-day. Hover over any point on the graph to see detailed stats for that day.",
+            position: "top"
+          }
+        },
+        {
+          element: "#campaign-actions-bar-driver",
+          popover: {
+            title: "Manage Your Campaign",
+            description: "From here, you can pause, resume, or access other advanced settings for your active campaign.",
+            position: "bottom"
+          }
+        },
+        {
+          element: "#overall-dashboard-tab",
+          popover: {
+            title: "Onboarding Complete!",
+            description: "Great work! To see an overview of ALL your campaigns, just click here. You can return to this specific dashboard anytime.",
+            position: "right" 
+          }
+        }
+      ]
+    });
+
+    driverObj.drive();
+
+    document.querySelector("#overall-dashboard-tab").addEventListener("click", () => {
+        driverObj.destroy();  // hides the overlay
+        localStorage.setItem("onboardingStep", "campaign_dashboard_shown");
+    });
+  }
+});
+{% endif %}
+
+
 </script>
 
 {% endblock %}
