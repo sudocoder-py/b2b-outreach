@@ -1,6 +1,6 @@
-version: '3.8'
+
 services:
-  web:
+  web_blue:
     build: .
     ports:
       - "8010:8000"
@@ -27,6 +27,37 @@ services:
         condition: service_healthy
     networks:
       - app-network
+
+
+  web_green:
+    build: .
+    ports:
+      - "8011:8000"
+    env_file:
+      - .env
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+            python manage.py makemigrations &&
+            python manage.py makemigrations clients campaign api support feedback &&
+            python manage.py migrate clients &&
+            python manage.py migrate campaign &&
+            python manage.py migrate support &&
+            python manage.py migrate feedback &&
+            python manage.py migrate &&
+            gunicorn dcrm.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+
 
   db:
     image: postgres:15
