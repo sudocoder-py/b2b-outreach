@@ -25,8 +25,124 @@
 
 
     {% if not request.user.onboarding_completed %}
-        <script src="https://cdn.jsdelivr.net/npm/driver.js@latest/dist/driver.js.iife.js"></script>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@latest/dist/driver.css"/>
+        <script src="{% static 'cdn/driver.js.iife.js' %}"></script>
+        <link rel="stylesheet" href="{% static 'cdn/driver.css' %}"/>
+        <style>
+            /* =============================================== */
+            /* START: Custom VibeReach Driver.js Theme         */
+            /* =============================================== */
+
+            /* Main Popover Container */
+            .driver-popover {
+                font-family: 'Product Sans', sans-serif;
+                background-color: oklch(var(--b1)); /* base-100 for the main background */
+                color: oklch(var(--bc)); /* base-content for text */
+                border-radius: var(--rounded-box, 0.5rem);
+                border: 1px solid oklch(var(--b3)); /* subtle border using base-300 */
+                box-shadow: 0 10px 25px -5px rgba(20, 20, 19, 0.1), 0 8px 10px -6px rgba(20, 20, 19, 0.1);
+                padding: 1.25rem;
+            }
+
+            /* Popover Arrow */
+            .driver-popover-arrow-side-top {
+                border-bottom-color: oklch(var(--b1));
+            }
+            .driver-popover-arrow-side-bottom {
+                border-top-color: oklch(var(--b1));
+            }
+            .driver-popover-arrow-side-left {
+                border-right-color: oklch(var(--b1));
+            }
+            .driver-popover-arrow-side-right {
+                border-left-color: oklch(var(--b1));
+            }
+            .driver-popover-arrow-corner {
+                background-color: oklch(var(--b1));
+            }
+
+            /* Title */
+            .driver-popover-title {
+                font-family: 'Product Sans', sans-serif;
+                font-size: 1.25rem;
+                font-weight: 600; /* Bolder for the title */
+                color: oklch(var(--bc));
+                margin-bottom: 0.5rem;
+            }
+
+            /* Description */
+            .driver-popover-description {
+                font-family: 'Product Sans', sans-serif;
+                font-size: 0.95rem;
+                color: oklch(var(--bc) / 0.8); /* Slightly muted text */
+                line-height: 1.6;
+            }
+
+            /* Footer Section */
+            .driver-popover-footer {
+                margin-top: 1.5rem;
+                padding-top: 1rem;
+                border-top: 1px solid oklch(var(--b2)); /* Separator line using base-200 */
+                gap: 0.5rem; /* Add space between buttons */
+            }
+
+            /* Generic Button Styles (mimicking your .btn) */
+            .driver-popover-footer button {
+                font-family: 'Product Sans', sans-serif;
+                font-weight: 600;
+                text-transform: none;
+                border-radius: var(--rounded-btn, 0.25rem);
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+                border: 1px solid transparent;
+                transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+                cursor: pointer;
+            }
+
+            /* Next Button (Primary Action) */
+            .driver-popover-next-btn {
+                background-color: oklch(var(--p)); /* primary color */
+                color: oklch(var(--pc)); /* primary-content color */
+                border-color: oklch(var(--p));
+            }
+            .driver-popover-next-btn:hover {
+                background-color: color-mix(in oklab, oklch(var(--p)) 90%, black); /* Your hover effect */
+                border-color: color-mix(in oklab, oklch(var(--p)) 90%, black);
+            }
+
+            /* Previous Button (Ghost/Secondary Action) */
+            .driver-popover-prev-btn {
+                background-color: transparent;
+                color: oklch(var(--bc) / 0.8);
+            }
+            .driver-popover-prev-btn:hover {
+                background-color: oklch(var(--b2)); /* Use base-200 for hover */
+                color: oklch(var(--bc));
+            }
+
+            /* Close Button */
+            .driver-popover-close-btn {
+                color: oklch(var(--bc) / 0.4); /* Muted icon color */
+            }
+            .driver-popover-close-btn:hover {
+                color: oklch(var(--er)); /* Use error color on hover for clarity */
+                background-color: oklch(var(--er) / 0.1); /* Subtle red background */
+            }
+
+            /* Progress Text (e.g., "1 of 3") */
+            .driver-popover-progress-text {
+                font-size: 0.8rem;
+                color: oklch(var(--bc) / 0.5); /* Very muted */
+            }
+
+            /* Stage Overlay - making it a bit less dark */
+            .driver-stage {
+                background: #141413 !important; /* using --bc color for consistency */
+            }
+
+            /* =============================================== */
+            /* END: Custom VibeReach Driver.js Theme           */
+            /* =============================================== */
+        </style>
     {% endif %}
     
   </head>
