@@ -59,6 +59,9 @@ deploy_test() {
     git fetch --depth=1 origin production
     git reset --hard origin/production
 
+    # Ensure deploy script is executable after git operations
+    chmod +x deploy.sh
+
     update_env "$NEW_SLOT" "https://preview.vibereach.gatara.org"
 
     docker compose up -d --build web_$NEW_SLOT
