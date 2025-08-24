@@ -164,7 +164,7 @@
                     <div class="p-3 bg-base-100 border-t border-base-200"><div class="p-2"><textarea id="chat-input" placeholder="Message..." class="w-full border-base-300 rounded-lg focus:ring-0 focus:border-primary p-2 resize-none placeholder-base-content/50" rows="1"></textarea>
                         <div class="flex justify-between items-center mt-2">
                             <div class="flex items-center space-x-3 text-base-content/50">
-                                <svg id="file-btn" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer hover:text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                                <!-- <svg id="file-btn" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer hover:text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg> -->
                             </div>
                             <!-- CORRECTED SEND BUTTON: Uses btn-primary when active -->
                            
@@ -180,7 +180,7 @@
             <nav id="bottom-nav" class="border-t border-base-200 bg-base-100 flex justify-around">
                 <!-- CORRECTED ACTIVE TAB COLOR -->
                 <button data-page="home" class="nav-tab flex-1 flex flex-col items-center py-2.5 text-primary"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg><span class="text-xs font-semibold">Home</span></button>
-                <button data-page="messages" class="nav-tab flex-1 flex flex-col items-center py-2.5 text-base-content/60 hover:text-primary"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg><span class="text-xs">Messages</span></button>
+                <button id="chat-msg-tab" data-page="messages" class="nav-tab flex-1 flex flex-col items-center py-2.5 text-base-content/60 hover:text-primary"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg><span class="text-xs">Messages</span></button>
             </nav>
         </div>
 

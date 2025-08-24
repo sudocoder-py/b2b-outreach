@@ -12,7 +12,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 import json
 
 
-from campaign.helpers import get_campaign_status, get_campaigns_and_products, get_company_email_accounts, get_company_products, get_lead_lists_or_both, get_messages_and_products, get_subscribed_company
+from campaign.helpers import get_campaign_status, get_campaigns_and_products, get_company_email_accounts, get_company_products, get_lead_lists_or_both, get_messages_and_products, get_subscribed_company, is_allowed_to_be_launched
 from .models import Campaign, CampaignLead, CampaignOptions, CampaignStats, LeadList, Link, Message, MessageAssignment, Schedule
 import logging
 
@@ -250,6 +250,7 @@ def campaign_scheduele(request, pk):
 def campaign_options(request, pk):
     campaign_status= get_campaign_status(request, pk)
     is_view_only = is_campaign_view_only(pk)
+    allowed_to_launch = is_allowed_to_be_launched(request, pk)
 
 
     # Get all email accounts for the company
@@ -288,7 +289,8 @@ def campaign_options(request, pk):
         'emails': formatted_emails,
         'campaign_options': current_campaign_options,
         'view_only': is_view_only,
-        'campaign_status': campaign_status
+        'campaign_status': campaign_status,
+        'allowed_to_launch': allowed_to_launch
     }
     return render(request, "app/campaign/options.html", context)
 
