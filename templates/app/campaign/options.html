@@ -243,9 +243,31 @@
                         <i class="fas fa-save mr-2"></i> Save Options
                     </button>
                     <!-- Find and update this button -->
-                    <button id="launch-campaign-btn-driver" class="btn btn-primary btn-lg btn-disabled" onclick="launchCampaign()" disabled>
+                    {% if allowed_to_launch.allowed == False %}
+
+                    <div class="group/btn relative">
+                    <a href="#"
+                        class="absolute hidden group-hover/btn:flex bottom-full left-1/2 -translate-x-1/2 mb-4">
+                        <div class="tooltip-container">
+                        <div class="bg-error/90 text-base-100 p-2 rounded-[10px] shadow-md shadow-gray-200 hover:bg-error w-max">
+                            <span class="sr-only">error</span>
+                            {{allowed_to_launch.message}}
+                        </div>
+                        </div>
+                        <div class="absolute w-full bg-transparent z-50 h-6 -bottom-4"></div>
+                    </a>
+
+                    <div class=" group-hover/btn:scale-110 group-hover/btn:-translate-y-1">
+                        <button class="btn btn-primary btn-lg" onclick="fixLaucnhError()">
+                        Please fix the error
+                        </button>
+                    </div>
+                    </div>
+                    {% else %} 
+                    <button id="launch-campaign-btn-driver" class="btn btn-primary btn-lg" onclick="launchCampaign()">
                         <i class="fas fa-rocket mr-2"></i> Launch Campaign
                     </button>
+                    {% endif %} 
                 {% endif %}
             </div>
 
@@ -471,9 +493,12 @@
         .then(data => {
             ModalSystem.toast('Campaign options saved!', 'success');
             // Enable the launch button on successful save
-            const launchBtn = document.getElementById('launch-campaign-btn-driver');
-            launchBtn.disabled = false;
-            launchBtn.classList.remove('btn-disabled');
+            // const launchBtn = document.getElementById('launch-campaign-btn-driver');
+            // launchBtn.disabled = false;
+            // launchBtn.classList.remove('btn-disabled');
+            {% if allowed_to_launch.error == "campaign_options_error" %}
+            window.location.reload();
+            {% endif %}
         })
         .catch(error => {
             ModalSystem.toast('Failed to save options', 'error');
@@ -482,11 +507,11 @@
 
     // *** MODIFICATION 3: New function to manage button state
     function setFormDirtyState() {
-        const launchBtn = document.getElementById('launch-campaign-btn-driver');
-        if (launchBtn) {
-            launchBtn.disabled = true;
-            launchBtn.classList.add('btn-disabled');
-        }
+        // const launchBtn = document.getElementById('launch-campaign-btn-driver');
+        // if (launchBtn) {
+        //     launchBtn.disabled = true;
+        //     launchBtn.classList.add('btn-disabled');
+        // }
     }
     
     // --- (UNCHANGED CODE from original script, functions below this point are fine) ---
@@ -608,6 +633,42 @@
         return 'An unknown error occurred. Please check the browser console for details.';
     }
     
+
+    function fixLaucnhError() {
+        {% if allowed_to_launch.error == "campaign_leads_error" %}
+        window.location.href = '{% url 'campaign_leads' campaign_id %}';
+        {% elif allowed_to_launch.error == "email_accounts_error" %}
+        supportChatBtn= document.getElementById("chat-toggle-button");
+        chatMessageBtn= document.getElementById("chat-msg-tab");
+        startNewChatBtn= document.getElementById("action-send-message-messages");
+        
+        supportChatBtn.click();
+        chatMessageBtn.click();
+        startNewChatBtn.click();
+        let newChatInput= document.getElementById("chat-input");
+        let message = "my email account is not active, please help me out";
+        let i = 0;
+
+        newChatInput.focus();
+
+        function typeChar() {
+        if (i < message.length) {
+            newChatInput.value += message.charAt(i);
+            newChatInput.dispatchEvent(new Event("input", { bubbles: true }));
+            i++;
+            setTimeout(typeChar, 50); // 50ms per character
+        }
+        }
+        if (newChatInput.value.trim() === "") {
+            typeChar();
+        };    
+
+        {% elif allowed_to_launch.error == "message_assignments_error" %}
+        window.location.href = '{% url 'campaign_sequence' campaign_id %}';
+        {% endif %}
+    }
+
+    // onboarding
     {% if not request.user.onboarding_completed %}
     function higightEmailAccountSelection() {
         const inputEmailAccount = document.getElementById("searchInput");
