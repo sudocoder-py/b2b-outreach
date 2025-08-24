@@ -46,7 +46,7 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
-.env.*.local
+.env.*
 .env.production
 
 # Coverage
@@ -63,5 +63,6 @@ migrations/
 
 # pushing script
 pushingscript.txt
+nginx.txt
 
 img-instructions/
