@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
     'django_celery_results',
     'rest_framework',
     'import_export',
@@ -207,16 +206,7 @@ LOGGING = {
     },
 }
 
-# Site URL for generating absolute URLs
-from django.contrib.sites.models import Site
-
-# Get the current site from the Sites framework
-try:
-    SITE_URL = f"https://{Site.objects.get_current().domain}"
-except Exception:
-    # Fallback (e.g. during initial migrations)
-    SITE_URL = "http://localhost:8000"
-
+SITE_URL = env('SITE_URL', default='http://localhost:8000')
 
 
 # PyTracking configuration
