@@ -43,8 +43,6 @@ deploy_test() {
     
     # Start new slot
     docker compose up -d --build web_$NEW_SLOT
-    echo "Setting site URL on $NEW_SLOT to preview.vibereach.gatara.org"
-    docker compose exec web_$NEW_SLOT python manage.py set_site_url preview.vibereach.gatara.org
     
     # Health check
     until curl -s http://127.0.0.1:$NEW_PORT/ > /dev/null; do
@@ -72,8 +70,6 @@ promote() {
     
     echo "Setting telegram webhook on $NEW_SLOT ..."
     docker compose exec web_$NEW_SLOT python manage.py set_telegram_webhook
-    echo "Setting site URL on $NEW_SLOT to vibereach.gatara.org"
-    docker compose exec web_$NEW_SLOT python manage.py set_site_url vibereach.gatara.org
     
     # Point production domain
     sed -i "s/server 127.0.0.1:[0-9]*/server 127.0.0.1:$NEW_PORT/" \
