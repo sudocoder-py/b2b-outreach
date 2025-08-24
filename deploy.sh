@@ -45,7 +45,7 @@ deploy_test() {
     docker compose up -d --build web_$NEW_SLOT
     
     # Health check
-    until curl -s http://127.0.0.1:$NEW_PORT/ > /dev/null; do
+    until curl -s http://127.0.0.1:$NEW_PORT/health/ > /dev/null; do
         echo "Waiting for $NEW_SLOT to be healthy..."
         sleep 2
     done
@@ -63,7 +63,7 @@ promote() {
     update_env "$NEW_SLOT" "https://vibereach.gatara.org"
     
     # Health check before switch
-    until curl -s http://127.0.0.1:$NEW_PORT/ > /dev/null; do
+    until curl -s http://127.0.0.1:$NEW_PORT/health/ > /dev/null; do
         echo "Waiting for $NEW_SLOT to be healthy..."
         sleep 2
     done
