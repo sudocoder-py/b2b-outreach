@@ -25,7 +25,7 @@ print_status() {
 
     case "$status" in
         info)
-            color="\033[34m" ;;   # Blue
+            color="\033[38;2;97;170;242m" ;;   # Blue
         success)
             color="\033[32m" ;;   # Green
         error)
@@ -63,9 +63,9 @@ deploy_test() {
 
     docker compose up -d --build web_$NEW_SLOT
 
-    until curl -s http://127.0.0.1:$NEW_PORT/health/ > /dev/null; do
+    until curl -s http://127.0.0.1:$NEW_PORT/healthy/ > /dev/null; do
         print_status info "Waiting for $NEW_SLOT to be healthy..."
-        sleep 2
+        sleep 5
     done
 
     sed -i "s/server 127.0.0.1:[0-9]*/server 127.0.0.1:$NEW_PORT/" \
@@ -80,7 +80,7 @@ promote() {
 
     update_env "$NEW_SLOT" "https://vibereach.gatara.org"
 
-    until curl -s http://127.0.0.1:$NEW_PORT/health/ > /dev/null; do
+    until curl -s http://127.0.0.1:$NEW_PORT/healthy/ > /dev/null; do
         print_status info "Waiting for $NEW_SLOT to be healthy..."
         sleep 2
     done
