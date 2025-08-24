@@ -1,8 +1,0 @@
-
-
-services:
-  web:
-    ports:
-      - "8000:8000"  # Expose Django for local dev
-    environment:
-      - DJANGO_DEBUG=True
