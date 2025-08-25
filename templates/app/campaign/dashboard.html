@@ -256,6 +256,74 @@
 <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
 
 <script>
+    function pollCampaignStats() {
+        const POLL_INTERVAL = 30000; // 30 seconds
+        const TIMEOUT = 10 * 60 * 1000; // 10 minutes
+        const startTime = Date.now();
+
+        // Show loading modal initially
+        ModalSystem.loading('Completing Campaign launching...'); 
+
+        const poll = async () => {
+            try {
+                const response = await fetch(`/api/campaigns/{{ campaign_id }}/status/`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+
+                if (response.status === 200) {
+                    // Success: stop polling and show success modal
+                    ModalSystem.success({
+                        title: 'Campaign Launched Successfully!',
+                        message: `Your campaign "${data.campaign_name}" has been launched! ${data.pending_emails} emails are being processed.`,
+                    });
+                    // Reload page after short delay to allow user to see modal
+                    setTimeout(() => window.location.reload(), 1500);
+                } else if (response.status === 400) {
+                    // Keep polling (still loading)
+                    if (Date.now() - startTime < TIMEOUT) {
+                        setTimeout(poll, POLL_INTERVAL);
+                    } else {
+                        // Timeout reached
+                        ModalSystem.error({
+                            title: 'Launch Failed',
+                            message: getErrorMessage(data)
+                        });
+                    }
+                } else {
+                    // Other errors, stop polling
+                    ModalSystem.error({
+                        title: 'Launch Failed',
+                        message: getErrorMessage(data)
+                    });
+                }
+            } catch (error) {
+                // Network or unexpected errors
+                if (Date.now() - startTime < TIMEOUT) {
+                    setTimeout(poll, POLL_INTERVAL);
+                } else {
+                    ModalSystem.error({
+                        title: 'Launch Failed',
+                        message: error.message
+                    });
+                }
+            }
+        };
+
+        poll();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+    {% if campaign_status == 'active' and not stats %}
+        console.log('polling');
+        pollCampaignStats();
+        {% endif %}
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
         let mainAnalyticsChart;
         let currentTimeFilter = '4w';
@@ -635,7 +703,6 @@
         });
         observer.observe(document.documentElement, { attributes: true });
     });
-
 
 
 

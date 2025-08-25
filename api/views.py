@@ -678,6 +678,14 @@ def campaign_launch_status(request, pk):
     try:
         campaign = get_object_or_404(Campaign, pk=pk)
 
+        try:
+            campaign.campaign_stats  # This may raise RelatedObjectDoesNotExist
+        except:
+            return Response({
+                'success': False,
+                'message': f'Campaign {campaign.name} has no created stats yet'
+            }, status=status.HTTP_404_NOT_FOUND)
+
         # Get message assignment statistics
         total_assignments = MessageAssignment.objects.filter(campaign=campaign).count()
         sent_assignments = MessageAssignment.objects.filter(campaign=campaign, sent=True).count()
