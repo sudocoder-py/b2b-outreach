@@ -617,7 +617,7 @@ class MessageAssignment(models.Model):
     message = models.ForeignKey(Message, on_delete=models.CASCADE)
     url = models.ForeignKey(Link, null=True, blank=True, on_delete=models.SET_NULL, related_name='url_message_assignments')
     
-    newsletter_link = models.ForeignKey(Link, null=True, blank=True, on_delete=models.SET_NULL, related_name='newsletter_message_assignments', help_text="Link for newsletter signup")
+    #newsletter_link = models.ForeignKey(Link, null=True, blank=True, on_delete=models.SET_NULL, related_name='newsletter_message_assignments', help_text="Link for newsletter signup")
 
     personlized_msg_tmp = models.TextField(blank=True)
     personlized_msg_to_send = models.TextField(blank=True)
@@ -635,15 +635,15 @@ class MessageAssignment(models.Model):
     responded_content = models.TextField(blank=True)
 
     def get_tracking_url(self, url_type="product_url"):
-        if url_type == "product_url" and self.url:
-            redirect_url = self.url.get_redirect_url()
-            full_url = f"{settings.SITE_URL}{redirect_url}" if hasattr(settings, 'SITE_URL') else redirect_url
-            return full_url
+        # if url_type == "product_url" and self.url:
+        #     redirect_url = self.url.get_redirect_url()
+        #     full_url = f"{settings.SITE_URL}{redirect_url}" if hasattr(settings, 'SITE_URL') else redirect_url
+        #     return full_url
 
-        if url_type == "newsletter" and self.newsletter_link:
-            redirect_url = self.newsletter_link.get_redirect_url()
-            full_url = f"{settings.SITE_URL}{redirect_url}" if hasattr(settings, 'SITE_URL') else redirect_url
-            return full_url
+        # if url_type == "newsletter" and self.newsletter_link:
+        #     redirect_url = self.newsletter_link.get_redirect_url()
+        #     full_url = f"{settings.SITE_URL}{redirect_url}" if hasattr(settings, 'SITE_URL') else redirect_url
+        #     return full_url
 
         return ""
     
@@ -660,13 +660,13 @@ class MessageAssignment(models.Model):
                 return f'<a href="{url}">{text}</a>'
             return re.sub(pattern, repl, content)
         
-        if self.url:
-            product_tracking_url = self.get_tracking_url(url_type="product_url")
-            content = _replace("ps_url", product_tracking_url)
+        # if self.url:
+        #     product_tracking_url = self.get_tracking_url(url_type="product_url")
+        #     content = _replace("ps_url", product_tracking_url)
 
-        if self.newsletter_link and self.message.pps:
-                newsletter_tracking_url = self.get_tracking_url(url_type="newsletter")
-                content = _replace("pps_url", newsletter_tracking_url)
+        # if self.newsletter_link and self.message.pps:
+        #         newsletter_tracking_url = self.get_tracking_url(url_type="newsletter")
+        #         content = _replace("pps_url", newsletter_tracking_url)
 
         return content
 
@@ -724,38 +724,20 @@ class MessageAssignment(models.Model):
             super().save(*args, **kwargs)
             
         # Auto-create a link if one doesn't exist
-        if not self.url and self.campaign_lead:
-            # Create a new Link object with proper utm_content using the now-available ID
-            link = Link(
-                campaign=self.campaign_lead.campaign,
-                campaign_lead=self.campaign_lead,
-                url=self.campaign_lead.campaign.product.landing_page_url,
-                utm_content=f"email_{self.id}"
-            )
-            # Save it to generate unique ref and apply other logic
-            link.save()
-            self.url = link
-            # Save again with the link
-            kwargs['force_insert'] = False
-            super().save(*args, **kwargs)
-            
-        
-        # Auto-create a link if one doesn't exist
-        if not self.newsletter_link and self.campaign_lead:
-            if self.campaign.subscribed_company.newsletter_link: 
-                # Create a new Link object with proper utm_content using the now-available ID
-                link = Link(
-                    campaign=self.campaign_lead.campaign,
-                    campaign_lead=self.campaign_lead,
-                    url=self.campaign.subscribed_company.newsletter_link,
-                    utm_content=f"email_{self.id}"
-                )
-                # Save it to generate unique ref and apply other logic
-                link.save()
-                self.newsletter_link = link
-                # Save again with the link
-                kwargs['force_insert'] = False
-                super().save(*args, **kwargs)
+        # if not self.url and self.campaign_lead:
+        #     # Create a new Link object with proper utm_content using the now-available ID
+        #     link = Link(
+        #         campaign=self.campaign_lead.campaign,
+        #         campaign_lead=self.campaign_lead,
+        #         url=self.campaign_lead.campaign.product.landing_page_url,
+        #         utm_content=f"email_{self.id}"
+        #     )
+        #     # Save it to generate unique ref and apply other logic
+        #     link.save()
+        #     self.url = link
+        #     # Save again with the link
+        #     kwargs['force_insert'] = False
+        #     super().save(*args, **kwargs)
             
         
         if not self.personlized_msg_tmp:
@@ -998,8 +980,7 @@ class CampaignStats(models.Model):
 
         # 3. Click Rate: leads that clicked at least one link
         leads_with_clicks = campaign_leads.filter(
-            Q(messageassignment__url__visit_count__gt=0) |
-            Q(messageassignment__newsletter_link__visit_count__gt=0)
+            Q(messageassignment__url__visit_count__gt=0)
         ).distinct()
         self.clicked_count = leads_with_clicks.count()
 
