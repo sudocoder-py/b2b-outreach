@@ -66,3 +66,6 @@ pushingscript.txt
 nginx.txt
 
 img-instructions/
+
+# sensitive data
+clients/management/commands/initialize_data.py
