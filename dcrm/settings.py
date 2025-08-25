@@ -62,13 +62,17 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.LoginRequiredMiddleware',
+    'dcrm.middleware.CustomLoginRequiredMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
 ]
 
 ROOT_URLCONF = 'dcrm.urls'
+
+OPEN_URLS = [
+    r"^/api/inngest",
+]
 
 TEMPLATES = [
     {
