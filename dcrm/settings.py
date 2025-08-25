@@ -50,6 +50,11 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'clients.CustomUser'
 
+# Authentication settings
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/campaign/overall-dashboard/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -67,6 +72,7 @@ ROOT_URLCONF = 'dcrm.urls'
 
 OPEN_URLS = [
     r"^/api/inngest",
+    r"^/campaign/tracking/.*$",
 ]
 
 TEMPLATES = [
